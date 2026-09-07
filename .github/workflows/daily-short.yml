@@ -99,9 +99,11 @@ jobs:
           echo "Public video URL: $URL"
 
       # ---- posting: append one row to the shared Google Sheet; Zapier does the rest ----
-      # One Zap per platform (Instagram / Facebook / YouTube) watches this sheet with a
-      # free "New Spreadsheet Row" trigger and posts via Zapier's own connections. No
-      # platform tokens are stored in this repo.
+      # One Zap per platform (Instagram / Facebook) watches this sheet with a free "New
+      # Spreadsheet Row" trigger and posts via Zapier's own connections. No platform
+      # tokens are stored in this repo. YouTube and TikTok go through direct API
+      # integrations below instead — don't also point a Zapier YouTube Zap at this
+      # sheet, or the video will be uploaded to YouTube twice.
       - name: Post via Google Sheet (Zapier)
         id: post_sheet
         continue-on-error: true
@@ -132,6 +134,24 @@ jobs:
             --video-url "${{ steps.publish_asset.outputs.video_url }}" \
             --script build/script.json \
             --caption-file build/caption_tiktok.txt
+
+      # ---- posting: YouTube Shorts via the YouTube Data API v3 directly ----
+      # Uploads the local build/final.mp4 file (resumable upload) rather than going
+      # through Zapier/Sheet — no dependency on the video being publicly reachable
+      # first. Silently skipped if the YouTube OAuth secrets aren't set.
+      - name: Post to YouTube (Direct API)
+        id: post_youtube
+        continue-on-error: true
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: |
+          python scripts/post_youtube.py \
+            --video build/final.mp4 \
+            --title-file build/yt_title.txt \
+            --desc-file build/caption_youtube.txt \
+            --config config/countries.json
 
       # ---- log results back to the repo ----
       - name: Append run to history log

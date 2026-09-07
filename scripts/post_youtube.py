@@ -39,9 +39,9 @@ from googleapiclient.http import MediaFileUpload
 TOKEN_URI = "https://oauth2.googleapis.com/token"
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
 
-# 22 = "People & Blogs". Category ids are region-specific; 22 is a safe general default.
-# VERIFY: pick the category that fits; 22 (People & Blogs) or 24 (Entertainment) are common.
-DEFAULT_CATEGORY_ID = "22"
+# 19 = "Travel & Events" — fits a country-a-day channel. 22 (People & Blogs) is the
+# safe general fallback if a region doesn't map category 19.
+DEFAULT_CATEGORY_ID = "19"
 
 
 def build_service():
@@ -93,8 +93,14 @@ def main():
     ap.add_argument("--title", default=None)
     ap.add_argument("--title-file", default="build/yt_title.txt")
     ap.add_argument("--desc-file", default="build/caption_youtube.txt")
-    ap.add_argument("--config", default="config/sources.json")
+    ap.add_argument("--config", default="config/countries.json")
     args = ap.parse_args()
+
+    required = ["YOUTUBE_CLIENT_ID", "YOUTUBE_CLIENT_SECRET", "YOUTUBE_REFRESH_TOKEN"]
+    missing = [k for k in required if not os.environ.get(k, "").strip()]
+    if missing:
+        print(f"[post_youtube] {', '.join(missing)} not set — skipping YouTube upload.")
+        return  # optional platform: don't fail the whole run over it
 
     if args.title is not None:
         title = args.title
@@ -102,7 +108,7 @@ def main():
         with open(args.title_file, encoding="utf-8") as f:
             title = f.read().strip()
     else:
-        title = "Daily Motivation #Shorts"
+        title = "A new country every day #Shorts"
 
     if os.path.exists(args.desc_file):
         with open(args.desc_file, encoding="utf-8") as f:
@@ -110,11 +116,15 @@ def main():
     else:
         description = "#Shorts"
 
-    # simple tags from config hashtags (strip the # for tag form)
-    tags = ["motivation", "stoicism", "shorts", "discipline", "mindset"]
+    # tags from config hashtags.youtube (strip '#' for YouTube's plain-tag form)
+    tags = ["shorts", "travel", "countries", "geography", "culture", "history"]
     if os.path.exists(args.config):
         with open(args.config, encoding="utf-8") as f:
-            _ = json.load(f)  # reserved for future per-run tag customization
+            cfg = json.load(f)
+        yt_hashtags = cfg.get("hashtags", {}).get("youtube", "")
+        parsed = [h.lstrip("#") for h in yt_hashtags.split() if h.startswith("#")]
+        if parsed:
+            tags = parsed
 
     upload(args.video, title, description, tags)
 
