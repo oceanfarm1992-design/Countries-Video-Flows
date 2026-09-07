@@ -114,11 +114,25 @@ def _fallback_script(country: dict):
         segments.append({"text": fact + ".", "visual": base_visual})
     segments.append({
         "text": f"There is no place on Earth quite like {name}. "
-                "Follow for a new country every day.",
+                "Follow for more stories from around the world.",
         "visual": base_visual,
     })
     narration = " ".join(s["text"] for s in segments)
     return narration, segments
+
+
+# Spoken intro line over the globe zoom (so the opening isn't silent). Rotated for variety.
+INTRO_TEMPLATES = [
+    "Today, we travel to {name}.",
+    "Let's journey to {name}.",
+    "Welcome to {name}.",
+    "Our next stop: {name}.",
+    "Let's discover {name}.",
+]
+
+
+def intro_line_for(country, seed):
+    return INTRO_TEMPLATES[seed % len(INTRO_TEMPLATES)].format(name=country["name"])
 
 
 # ---------------------------------------------------------------------------
@@ -158,23 +172,22 @@ def _gpt_script(country: dict, openai_cfg: dict, angle: str, subfocus: str, cycl
     # Layer the segmentation contract on top of the existing narration prompt.
     system_prompt = base_prompt + " " + textwrap.dedent(f"""
         Return your answer as a JSON object with one key, "segments", whose value is an
-        array of 7 to 10 objects. Each object has:
-          - "text": one or two spoken sentences of the narration (this is what the
-            voiceover reads for this beat).
-          - "visual": a short English stock-footage search query (3-6 words) describing
-            concrete, filmable imagery that MATCHES what "text" is about, so a video clip
-            of exactly that can play while these words are spoken. Name the specific
-            subject — if the text mentions islands, say "{country['name']} tropical island
-            aerial"; if it mentions a mountain, name the mountain; a city, name the city;
-            food, name the dish. Avoid abstract queries; always give something a camera
-            could actually film. Every visual query should be about {country['name']}
-            unless the subject is inherently generic.
-        Concatenating every "text" in order must read as one smooth narration that
-        starts with a strong hook and ends with the call-to-action 'Follow for a new
-        country every day.' IMPORTANT: the combined narration must total between 160 and
-        180 spoken words — count them and do not go under 160; if you are short, enrich
-        the segments with more specific, accurate detail rather than padding. Output ONLY
-        the JSON object.
+        array of 12 to 16 SHORT objects (short beats — one sentence, or even half a
+        sentence, each — so the video can cut to fresh imagery often and stay punchy).
+        Each object has:
+          - "text": a short beat of the narration (this is what the voiceover reads here).
+          - "visual": a short English stock-media search query (2-5 words) describing ONE
+            concrete, filmable subject that MATCHES this beat, so a clip or photo of
+            exactly that can be shown while these words are spoken. Name the specific
+            subject — a named mountain, city, dish, animal, landmark, or activity — not an
+            abstract idea. Every visual should be about {country['name']} unless the
+            subject is inherently generic.
+        Concatenating every "text" in order must read as one smooth narration that starts
+        with a strong hook and ends with the call-to-action 'Follow for more stories from
+        around the world.' IMPORTANT: the combined narration must total between 160 and
+        185 spoken words — count them and do not go under 160; if you are short, add more
+        short beats with specific, accurate detail rather than padding. Output ONLY the
+        JSON object.
     """).strip()
 
     user_message = textwrap.dedent(f"""
@@ -317,6 +330,8 @@ def main():
         "specialty": country["specialty"],
         "hook": country["hook_text"],
         "footage_query": country["footage_query"],
+        # spoken over the globe intro so the opening isn't silent
+        "intro_line": intro_line_for(country, cycle + idx),
         # geo fields drive the globe-zoom intro (scripts/generate_intro.py)
         "iso2": country.get("iso2", ""),
         "lat": country.get("lat"),

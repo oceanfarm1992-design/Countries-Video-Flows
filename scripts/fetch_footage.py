@@ -40,6 +40,8 @@ HEADERS = {"User-Agent": "yt-shorts-generator/1.0 (personal pipeline)"}
 
 PEXELS_SEARCH = "https://api.pexels.com/videos/search"
 PIXABAY_SEARCH = "https://pixabay.com/api/videos/"
+PEXELS_PHOTO_SEARCH = "https://api.pexels.com/v1/search"
+PIXABAY_PHOTO_SEARCH = "https://pixabay.com/api/"
 ARCHIVE_SEARCH = "https://archive.org/advancedsearch.php"
 ARCHIVE_METADATA = "https://archive.org/metadata/{identifier}"
 ARCHIVE_DOWNLOAD = "https://archive.org/download/{identifier}/{filename}"
@@ -139,6 +141,58 @@ def fetch_pixabay(query, dest, min_height):
         "attribution": f"Pixabay — {hit.get('user', 'unknown')} "
                        f"(https://pixabay.com/videos/id-{hit.get('id')}/)",
         "resolution": f"{chosen.get('width')}x{chosen.get('height')}",
+        "license": "Pixabay Content License (free use)",
+    }
+
+
+# --------------------------------------------------------------------- Pexels photos
+def fetch_pexels_photo(query, dest, want_portrait, min_height):
+    key = os.environ.get("PEXELS_API_KEY")
+    if not key:
+        return None
+    params = {"query": query, "orientation": "portrait" if want_portrait else "landscape",
+              "per_page": 40}
+    r = requests.get(PEXELS_PHOTO_SEARCH, params=params,
+                     headers={"Authorization": key, **HEADERS}, timeout=60)
+    r.raise_for_status()
+    photos = r.json().get("photos", [])
+    if not photos:
+        return None
+    photo = random.choice(photos)
+    src = photo.get("src", {})
+    url = src.get("portrait") or src.get("large2x") or src.get("original")
+    if not url:
+        return None
+    _download(url, dest)
+    return {
+        "source": "pexels_photo", "type": "photo", "query": query, "source_url": url,
+        "attribution": f"Pexels — {photo.get('photographer', 'unknown')}",
+        "resolution": f"{photo.get('width')}x{photo.get('height')}",
+        "license": "Pexels License (free commercial use, no attribution required)",
+    }
+
+
+# -------------------------------------------------------------------- Pixabay photos
+def fetch_pixabay_photo(query, dest, min_height):
+    key = os.environ.get("PIXABAY_API_KEY")
+    if not key:
+        return None
+    params = {"key": key, "q": query, "image_type": "photo", "orientation": "vertical",
+              "per_page": 40, "safesearch": "true"}
+    r = requests.get(PIXABAY_PHOTO_SEARCH, params=params, headers=HEADERS, timeout=60)
+    r.raise_for_status()
+    hits = r.json().get("hits", [])
+    if not hits:
+        return None
+    hit = random.choice(hits)
+    url = hit.get("largeImageURL") or hit.get("webformatURL")
+    if not url:
+        return None
+    _download(url, dest)
+    return {
+        "source": "pixabay_photo", "type": "photo", "query": query, "source_url": url,
+        "attribution": f"Pixabay — {hit.get('user', 'unknown')}",
+        "resolution": f"{hit.get('imageWidth')}x{hit.get('imageHeight')}",
         "license": "Pixabay Content License (free use)",
     }
 
@@ -270,10 +324,22 @@ def choose_query(args, cfg, script):
     return random.choice(fq) if fq else "calm nature cinematic"
 
 
-def fetch_one_clip(query, dest, cfg, order, want_portrait, min_height, seed_str):
-    """Run the per-source cascade (pexels -> pixabay -> archive -> animate) for a
-    single clip. Returns the source info dict, or None if every source failed."""
-    for source in order:
+def fetch_one_piece(query, out_dir, idx, cfg, order, want_portrait, min_height, seed_str):
+    """Fetch one media piece (video OR photo) for a narration beat. Tries video and photo
+    sources so the montage mixes both; the preference alternates by index so photos and
+    videos interleave for a livelier, piece-by-piece feel. Returns (info, path) or
+    (None, None). info carries a 'type' of 'video' or 'photo'."""
+    video_sources = [s for s in order if s in ("pexels", "pixabay", "archive")]
+    photo_sources = ["pexels_photo", "pixabay_photo"]
+    # alternate which medium we try first, so the final montage interleaves video + photo
+    if idx % 2 == 1:
+        cascade = photo_sources + video_sources + ["animate"]
+    else:
+        cascade = video_sources + photo_sources + ["animate"]
+
+    for source in cascade:
+        is_photo = source.endswith("_photo")
+        dest = os.path.join(out_dir, f"footage_clip{idx}." + ("jpg" if is_photo else "mp4"))
         try:
             if source == "pexels":
                 info = fetch_pexels(query, dest, want_portrait, min_height)
@@ -281,6 +347,10 @@ def fetch_one_clip(query, dest, cfg, order, want_portrait, min_height, seed_str)
                 info = fetch_pixabay(query, dest, min_height)
             elif source == "archive":
                 info = fetch_archive(query, dest, cfg)
+            elif source == "pexels_photo":
+                info = fetch_pexels_photo(query, dest, want_portrait, min_height)
+            elif source == "pixabay_photo":
+                info = fetch_pixabay_photo(query, dest, min_height)
             elif source == "animate":
                 info = fetch_animate(query, dest, cfg, seed_str)
             else:
@@ -290,9 +360,9 @@ def fetch_one_clip(query, dest, cfg, order, want_portrait, min_height, seed_str)
                   file=sys.stderr)
             info = None
         if info and os.path.exists(dest) and os.path.getsize(dest) > 0:
-            return info
-        print(f"[fetch_footage] {source}: no usable clip (or no API key), trying next")
-    return None
+            info.setdefault("type", "photo" if is_photo else "video")
+            return info, dest
+    return None, None
 
 
 def segment_queries(script, cfg):
@@ -339,40 +409,44 @@ def main():
         queries = segment_queries(script, cfg)
 
     os.makedirs(args.out, exist_ok=True)
-    print(f"[fetch_footage] {len(queries)} segment clip(s), sources={order}")
+    print(f"[fetch_footage] {len(queries)} pieces (video+photo mix), sources={order}")
 
-    # Clean any stale clips from a previous run so the assemble stage never picks them up.
-    for old in glob.glob(os.path.join(args.out, "footage_clip*.mp4")):
-        os.remove(old)
+    # Clean any stale pieces from a previous run so the assemble stage never picks them up.
+    for pat in ("footage_clip*.mp4", "footage_clip*.jpg"):
+        for old in glob.glob(os.path.join(args.out, pat)):
+            os.remove(old)
 
     clip_infos = []
-    last_good_clip = None
+    last_good = None  # (path, type) to reuse if a segment finds nothing at all
     for i, query in enumerate(queries):
-        clip_dest = os.path.join(args.out, f"footage_clip{i}.mp4")
         seed_str = f"{country_name or query}-{i}"
-        # Per-segment cascade: the segment's own query, then the country base query,
-        # so a too-specific search that finds nothing still yields on-theme footage.
-        info = fetch_one_clip(query, clip_dest, cfg, order, want_portrait, min_height, seed_str)
+        # the segment's own query first, then the country base query as a safety net
+        info, path = fetch_one_piece(query, args.out, i, cfg, order, want_portrait,
+                                     min_height, seed_str)
         if not info and query != base_query:
             print(f"[fetch_footage] segment {i}: {query!r} empty, retrying base query")
-            info = fetch_one_clip(base_query, clip_dest, cfg, order, want_portrait,
-                                  min_height, seed_str)
+            info, path = fetch_one_piece(base_query, args.out, i, cfg, order, want_portrait,
+                                         min_height, seed_str)
         if info:
             info["query"] = query
-            info["path"] = os.path.basename(clip_dest)
+            info["path"] = os.path.basename(path)
             clip_infos.append(info)
-            last_good_clip = clip_dest
-        elif last_good_clip:
-            # Last resort: reuse the previous clip so this segment still has a visual
-            # (better than a gradient dropped in the middle of real footage).
-            shutil.copyfile(last_good_clip, clip_dest)
-            clip_infos.append({"source": "reuse", "query": query,
-                               "path": os.path.basename(clip_dest)})
+            last_good = (path, info.get("type", "video"))
+        elif last_good:
+            # reuse the previous piece so this beat still has a visual
+            src_path, src_type = last_good
+            ext = "jpg" if src_type == "photo" else "mp4"
+            dup = os.path.join(args.out, f"footage_clip{i}.{ext}")
+            shutil.copyfile(src_path, dup)
+            clip_infos.append({"source": "reuse", "type": src_type, "query": query,
+                               "path": os.path.basename(dup)})
 
     if not clip_infos:
         print("ERROR: no footage could be fetched from any source.", file=sys.stderr)
         sys.exit(1)
 
+    n_photo = sum(1 for c in clip_infos if c.get("type") == "photo")
+    n_video = len(clip_infos) - n_photo
     manifest = {
         "clip_count": len(clip_infos),
         "clips": clip_infos,
@@ -382,8 +456,8 @@ def main():
     }
     with open(os.path.join(args.out, "footage.json"), "w", encoding="utf-8") as f:
         json.dump(manifest, f, indent=2)
-    print(f"[fetch_footage] saved {len(clip_infos)} clip(s): "
-          + ", ".join(f"{c['source']}({c.get('query', '?')})" for c in clip_infos))
+    print(f"[fetch_footage] saved {len(clip_infos)} pieces "
+          f"({n_video} video, {n_photo} photo)")
 
 
 if __name__ == "__main__":

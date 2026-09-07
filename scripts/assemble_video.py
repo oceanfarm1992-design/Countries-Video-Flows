@@ -138,13 +138,15 @@ def fontfile_escape(path):
     return path.replace("\\", "/").replace(":", "\\:")
 
 
-def build_video_filter(clip_durations, hook, cta, captions_path, duration):
-    """Build the video filtergraph for a montage of per-segment clips.
+def build_video_filter(pieces, hook, cta, captions_path, duration):
+    """Build the video filtergraph for a montage of per-segment pieces (videos AND photos).
 
-    Inputs 0..N-1 are the segment clips (each fed with -stream_loop -1 so a short clip
-    repeats to fill its segment). Each is trimmed to its segment's spoken duration, then
-    all are concatenated so the footage changes in step with the narration. Hook card,
-    lower-third captions, and the end CTA are burned on top."""
+    Inputs 0..N-1 are the pieces in order. A video piece is trimmed to its beat's spoken
+    duration; a photo piece gets a slow Ken Burns zoom (zoompan) over that duration so it
+    feels alive rather than static. All are concatenated so the imagery changes in step
+    with the narration. Hook card, lower-third captions and the end CTA are burned on top.
+
+    `pieces` is a list of {"type": "video"|"photo", "dur": seconds} in input order."""
     hook_e = drawtext_escape(hook)
     cta_e = drawtext_escape(cta)
     font_bold = fontfile_escape(FONT_BOLD)
@@ -164,14 +166,26 @@ def build_video_filter(clip_durations, hook, cta, captions_path, duration):
 
     parts = []
     labels = []
-    for i, d in enumerate(clip_durations):
-        parts.append(
-            f"[{i}:v]trim=duration={d:.3f},setpts=PTS-STARTPTS,"
-            "scale=1080:1920:force_original_aspect_ratio=increase,"
-            "crop=1080:1920,setsar=1,fps=30,format=yuv420p[c{}]".format(i)
-        )
+    for i, p in enumerate(pieces):
+        d = p["dur"]
+        if p["type"] == "photo":
+            frames = max(2, int(round(d * 30)))
+            # pre-scale to 1.5x for zoom headroom, then a slow push-in Ken Burns
+            parts.append(
+                f"[{i}:v]scale=1620:2880:force_original_aspect_ratio=increase,"
+                f"crop=1620:2880,setsar=1,"
+                f"zoompan=z='min(zoom+0.0009,1.25)':d={frames}:fps=30:"
+                f"x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1080x1920,"
+                f"trim=duration={d:.3f},setpts=PTS-STARTPTS,format=yuv420p[c{i}]"
+            )
+        else:
+            parts.append(
+                f"[{i}:v]trim=duration={d:.3f},setpts=PTS-STARTPTS,"
+                "scale=1080:1920:force_original_aspect_ratio=increase,"
+                f"crop=1080:1920,setsar=1,fps=30,format=yuv420p[c{i}]"
+            )
         labels.append(f"[c{i}]")
-    parts.append("".join(labels) + f"concat=n={len(clip_durations)}:v=1:a=0[base]")
+    parts.append("".join(labels) + f"concat=n={len(pieces)}:v=1:a=0[base]")
 
     # hook title card (top third), bold, semi-transparent box
     parts.append(
@@ -192,16 +206,34 @@ def build_video_filter(clip_durations, hook, cta, captions_path, duration):
     return ";".join(parts)
 
 
-def find_segment_clips(build_dir):
-    """Return the per-segment clip files (footage_clip0.mp4, footage_clip1.mp4, ...) in
-    numeric order, or [] if none exist (pre-segment-era single footage.mp4 layout)."""
-    clips = glob.glob(os.path.join(build_dir, "footage_clip*.mp4"))
+def find_segment_pieces(build_dir):
+    """Return the per-segment media pieces as [(path, type), ...] in order.
+
+    Prefers build/footage.json (which records each piece's type: video or photo); falls
+    back to globbing footage_clip*.mp4/.jpg if the manifest is missing."""
+    manifest = os.path.join(build_dir, "footage.json")
+    if os.path.exists(manifest):
+        try:
+            with open(manifest, encoding="utf-8") as f:
+                clips = json.load(f).get("clips", [])
+            pieces = []
+            for c in clips:
+                p = c.get("path")
+                if p:
+                    pieces.append((os.path.join(build_dir, p), c.get("type", "video")))
+            if pieces:
+                return pieces
+        except Exception:  # noqa: BLE001 — fall back to globbing
+            pass
+
+    found = glob.glob(os.path.join(build_dir, "footage_clip*.mp4")) + \
+        glob.glob(os.path.join(build_dir, "footage_clip*.jpg"))
 
     def idx(path):
-        m = re.search(r"footage_clip(\d+)\.mp4$", path)
+        m = re.search(r"footage_clip(\d+)\.", path)
         return int(m.group(1)) if m else 0
 
-    return sorted(clips, key=idx)
+    return [(p, "photo" if p.endswith(".jpg") else "video") for p in sorted(found, key=idx)]
 
 
 def segment_durations(script, total):
@@ -264,25 +296,29 @@ def main():
     else:
         print(f"[assemble_video] no music found in {args.music_dir!r} — voice only")
 
-    # Per-segment montage: one input clip per narration segment, each shown for the time
-    # its words take to speak. Falls back to the single looped footage.mp4 if no
-    # per-segment clips are present (older layout).
-    clips = find_segment_clips(os.path.dirname(args.out) or ".")
+    # Per-segment montage: one media piece (video or photo) per narration beat, each shown
+    # for the time its words take to speak. Falls back to the single looped footage.mp4 if
+    # no per-segment pieces are present (older layout).
+    found_pieces = find_segment_pieces(os.path.dirname(args.out) or ".")
     segs = script.get("segments") or []
-    if clips and segs:
+    if found_pieces and segs:
         durs = segment_durations(script, duration)
-        # Reconcile counts: map clip i to segment i; if fewer clips than segments (some
-        # failed to fetch), cycle through what we have so every segment still gets video.
-        clip_inputs = [clips[i % len(clips)] for i in range(len(durs))]
-        print(f"[assemble_video] {len(durs)} synced segment clips")
+        # map piece i to beat i; if fewer pieces than beats (some failed), cycle through
+        # what we have so every beat still gets a visual
+        piece_inputs = [found_pieces[i % len(found_pieces)] for i in range(len(durs))]
+        pieces = [{"type": t, "dur": durs[i]} for i, (_, t) in enumerate(piece_inputs)]
+        n_photo = sum(1 for p in pieces if p["type"] == "photo")
+        print(f"[assemble_video] {len(pieces)} synced pieces "
+              f"({len(pieces) - n_photo} video, {n_photo} photo)")
     else:
         # legacy single-clip path
         durs = [duration]
-        clip_inputs = [args.footage]
-        print("[assemble_video] no per-segment clips — single looped footage")
+        piece_inputs = [(args.footage, "video")]
+        pieces = [{"type": "video", "dur": duration}]
+        print("[assemble_video] no per-segment pieces — single looped footage")
 
-    video_fc = build_video_filter(durs, hook, cta, args.captions, duration)
-    voice_idx = len(clip_inputs)
+    video_fc = build_video_filter(pieces, hook, cta, args.captions, duration)
+    voice_idx = len(piece_inputs)
     music_idx = voice_idx + 1
     audio_fc = build_audio_filter(bool(music_path), duration, args.music_volume,
                                   voice_idx, music_idx)
@@ -294,9 +330,12 @@ def main():
     montage_out = (os.path.splitext(args.out)[0] + ".montage.mp4") if use_intro else args.out
 
     cmd = ["ffmpeg", "-y"]
-    for clip in clip_inputs:
-        cmd += ["-stream_loop", "-1", "-i", clip]  # each segment clip loops to fill its slot
-    cmd += ["-i", args.audio]                        # voice (input voice_idx)
+    for path, ptype in piece_inputs:
+        if ptype == "photo":
+            cmd += ["-loop", "1", "-i", path]          # still image, framed by zoompan
+        else:
+            cmd += ["-stream_loop", "-1", "-i", path]  # video loops to fill its slot
+    cmd += ["-i", args.audio]                            # voice (input voice_idx)
     if music_path:
         cmd += ["-stream_loop", "-1", "-i", music_path]  # music (input music_idx)
     cmd += [
@@ -316,32 +355,50 @@ def main():
         sys.exit(proc.returncode)
 
     if use_intro:
-        prepend_intro(args.intro, montage_out, args.out, args.intro_xfade)
+        intro_voice = os.path.join(os.path.dirname(args.out) or ".", "intro_voice.wav")
+        prepend_intro(args.intro, montage_out, args.out, args.intro_xfade,
+                      intro_voice if os.path.exists(intro_voice) else None)
         os.remove(montage_out)
     print(f"[assemble_video] wrote {args.out}")
 
 
-def prepend_intro(intro, montage, out, xfade):
-    """Crossfade the (silent) globe intro into the montage. The montage's audio is delayed
-    so the voice starts exactly as the montage becomes visible."""
+def prepend_intro(intro, montage, out, xfade, intro_voice=None):
+    """Crossfade the globe intro into the montage. The montage's audio is delayed so the
+    main voice starts once the intro finishes; if an intro voiceover is given ("Today we
+    travel to X"), it plays over the globe so the opening isn't silent."""
     intro_dur = ffprobe_duration(intro)
-    offset = max(0.0, intro_dur - xfade)   # when the crossfade begins
-    delay_ms = int(offset * 1000)          # push the voice/music to the montage's entrance
-    fc = (
+    voffset = max(0.0, intro_dur - xfade)     # when the video crossfade begins
+    delay_ms = int(intro_dur * 1000)          # main voice/music start after the intro
+
+    inputs = ["-i", intro, "-i", montage]
+    if intro_voice:
+        inputs += ["-i", intro_voice]
+
+    vfc = (
         f"[0:v]fps=30,scale=1080:1920,setsar=1,format=yuv420p,settb=AVTB[iv];"
         f"[1:v]fps=30,scale=1080:1920,setsar=1,format=yuv420p,settb=AVTB[mv];"
-        f"[iv][mv]xfade=transition=fade:duration={xfade}:offset={offset:.3f}[v];"
-        f"[1:a]adelay={delay_ms}|{delay_ms}[a]"
+        f"[iv][mv]xfade=transition=fade:duration={xfade}:offset={voffset:.3f}[v]"
     )
+    if intro_voice:
+        # intro VO starts ~0.3s in (over the globe), montage audio delayed to the intro end
+        afc = (
+            f"[2:a]adelay=300|300,loudnorm=I=-16:TP=-1.5:LRA=11[iva];"
+            f"[1:a]adelay={delay_ms}|{delay_ms}[mva];"
+            f"[iva][mva]amix=inputs=2:duration=longest:normalize=0[a]"
+        )
+    else:
+        afc = f"[1:a]adelay={delay_ms}|{delay_ms}[a]"
+
     cmd = [
-        "ffmpeg", "-y", "-i", intro, "-i", montage,
-        "-filter_complex", fc, "-map", "[v]", "-map", "[a]",
+        "ffmpeg", "-y", *inputs,
+        "-filter_complex", vfc + ";" + afc, "-map", "[v]", "-map", "[a]",
         "-c:v", "libx264", "-preset", "medium", "-crf", "20",
         "-pix_fmt", "yuv420p", "-r", "30",
         "-c:a", "aac", "-b:a", "128k", "-ar", "44100",
         "-movflags", "+faststart", out,
     ]
-    print(f"[assemble_video] crossfading intro ({intro_dur:.1f}s) into montage...")
+    print(f"[assemble_video] crossfading intro ({intro_dur:.1f}s"
+          f"{', with voiceover' if intro_voice else ''}) into montage...")
     proc = subprocess.run(cmd)
     if proc.returncode != 0:
         raise SystemExit(f"intro crossfade failed ({proc.returncode})")

@@ -112,6 +112,29 @@ def run_espeak(text, out_wav):
         raise SystemExit(f"espeak-ng failed with code {proc.returncode}")
 
 
+def synth(text, out, engines, openai_model, openai_voice, instructions,
+          piper_voice, voices_dir):
+    """Synthesize `text` to `out`, trying each engine in order until one succeeds."""
+    os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
+    last_error = None
+    for engine in engines:
+        try:
+            if engine == "openai":
+                run_openai_tts(text, out, openai_model, openai_voice, instructions)
+            elif engine == "piper":
+                onnx_path = ensure_voice(piper_voice, voices_dir)
+                run_piper(text, onnx_path, out)
+            elif engine == "espeak":
+                run_espeak(text, out)
+            if os.path.exists(out) and os.path.getsize(out) > 0:
+                print(f"[generate_tts] wrote {out} (engine={engine})")
+                return
+        except Exception as exc:  # noqa: BLE001 — try the next engine
+            last_error = exc
+            print(f"[generate_tts] {engine} failed: {type(exc).__name__}: {exc}", file=sys.stderr)
+    raise SystemExit(f"All TTS engines failed. Last error: {last_error}")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--script", default="build/script.txt")
@@ -124,6 +147,10 @@ def main():
     ap.add_argument("--voices-dir", default="voices")
     ap.add_argument("--fallback", choices=["espeak"], default=None,
                     help="Deprecated alias for --engine espeak.")
+    ap.add_argument("--intro-json", default="build/script.json",
+                    help="If it has an 'intro_line', also render it to --intro-out "
+                         "(the spoken opening over the globe zoom).")
+    ap.add_argument("--intro-out", default="build/intro_voice.wav")
     args = ap.parse_args()
 
     if args.fallback == "espeak":
@@ -131,7 +158,6 @@ def main():
 
     with open(args.script, encoding="utf-8") as f:
         text = f.read().strip()
-    os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
 
     tts_cfg = {}
     if os.path.exists(args.config):
@@ -142,27 +168,26 @@ def main():
     openai_model = tts_cfg.get("openai_model", "gpt-4o-mini-tts")
     openai_voice = tts_cfg.get("openai_voice", "marin")
     instructions = tts_cfg.get("instructions")
-
     engines = [args.engine] if args.engine != "auto" else ["openai", "piper", "espeak"]
 
-    last_error = None
-    for engine in engines:
-        try:
-            if engine == "openai":
-                run_openai_tts(text, args.out, openai_model, openai_voice, instructions)
-            elif engine == "piper":
-                onnx_path = ensure_voice(piper_voice, args.voices_dir)
-                run_piper(text, onnx_path, args.out)
-            elif engine == "espeak":
-                run_espeak(text, args.out)
-            if os.path.exists(args.out) and os.path.getsize(args.out) > 0:
-                print(f"[generate_tts] wrote {args.out} (engine={engine})")
-                return
-        except Exception as exc:  # noqa: BLE001 — try the next engine
-            last_error = exc
-            print(f"[generate_tts] {engine} failed: {type(exc).__name__}: {exc}", file=sys.stderr)
+    common = dict(engines=engines, openai_model=openai_model, openai_voice=openai_voice,
+                  instructions=instructions, piper_voice=piper_voice, voices_dir=args.voices_dir)
 
-    raise SystemExit(f"All TTS engines failed. Last error: {last_error}")
+    # main narration
+    synth(text, args.out, **common)
+
+    # intro announcement (best-effort; a failure here shouldn't break the run)
+    if args.intro_json and os.path.exists(args.intro_json):
+        try:
+            with open(args.intro_json, encoding="utf-8") as f:
+                intro_line = (json.load(f).get("intro_line") or "").strip()
+        except Exception:  # noqa: BLE001
+            intro_line = ""
+        if intro_line:
+            try:
+                synth(intro_line, args.intro_out, **common)
+            except SystemExit as exc:
+                print(f"[generate_tts] intro line TTS failed: {exc}", file=sys.stderr)
 
 
 if __name__ == "__main__":

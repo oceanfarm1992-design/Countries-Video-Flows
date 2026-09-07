@@ -3182,13 +3182,13 @@
     "words_per_second": 2.3,
     "min_seconds": 45,
     "max_seconds": 80,
-    "cta_text": "Follow for a new country every day",
+    "cta_text": "Follow for more stories",
     "font_hint": "DejaVuSans (preinstalled on GitHub Ubuntu runners)"
   },
   "openai": {
     "model": "gpt-4o-mini",
-    "narration_prompt": "You are writing a short, vivid YouTube Shorts narration about {country_name}. The video is exactly 65 seconds long when read at a natural pace (roughly 160-175 words spoken). Write ONLY the spoken narration — no stage directions, no titles. Start with a powerful hook sentence about what makes {country_name} extraordinary. Then {angle_instruction}. End with a single reflective line and a call-to-action: 'Follow for a new country every day.' Tone: documentary-style but warm, like a National Geographic short. Do not use bullet points or headers — pure flowing prose only. Aim for the full 160-175 words so the narration fills the entire 65 seconds.",
-    "max_tokens": 380,
+    "narration_prompt": "You are writing a short, vivid YouTube Shorts narration about {country_name}. The video is exactly 65 seconds long when read at a natural pace (roughly 160-175 words spoken). Write ONLY the spoken narration — no stage directions, no titles. Start with a powerful hook sentence about what makes {country_name} extraordinary. Then {angle_instruction}. End with a single reflective line and a call-to-action: 'Follow for more stories from around the world.' Tone: documentary-style but warm, like a National Geographic short. Do not use bullet points or headers — pure flowing prose only. Aim for the full 160-180 words.",
+    "max_tokens": 1500,
     "temperature": 0.8
   },
   "tts": {
