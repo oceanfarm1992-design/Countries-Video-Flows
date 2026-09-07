@@ -113,12 +113,11 @@ jobs:
           echo "video_url=$URL" >> "$GITHUB_OUTPUT"
           echo "Public video URL: $URL"
 
-      # ---- posting: append one row to the shared Google Sheet; Zapier does the rest ----
-      # One Zap per platform (Instagram / Facebook) watches this sheet with a free "New
-      # Spreadsheet Row" trigger and posts via Zapier's own connections. No platform
-      # tokens are stored in this repo. YouTube and TikTok go through direct API
-      # integrations below instead — don't also point a Zapier YouTube Zap at this
-      # sheet, or the video will be uploaded to YouTube twice.
+      # ---- posting: Instagram via the shared Google Sheet -> Zapier ----
+      # A Zapier "New Spreadsheet Row" trigger posts to Instagram via Zapier's own
+      # connection. Facebook and TikTok now go through Buffer (below), and YouTube
+      # through the direct API — make sure any Facebook/YouTube Zaps on this sheet are
+      # turned OFF so nothing double-posts.
       - name: Post via Google Sheet (Zapier)
         id: post_sheet
         continue-on-error: true
@@ -132,26 +131,26 @@ jobs:
             --caption-file build/caption_meta.txt \
             --config config/countries.json
 
-      # ---- posting: TikTok via Zernio (https://zernio.com) ----
-      # Independent of the Sheet/Zapier flow above — Zapier has no free TikTok posting
-      # integration, so TikTok goes through Zernio's own API instead. Safe by default:
-      # lands as a Creator Inbox draft the connected account owner taps to publish,
-      # rather than posting live. Silently skipped if the Zernio secrets aren't set.
-      # Uploads build/final.mp4 directly to Zernio's storage rather than passing the
-      # GitHub Release URL — that URL redirects through a signed link that expires
-      # ~1 hour after creation, which can silently break TikTok's fetch of it.
-      - name: Post to TikTok (Zernio)
-        id: post_tiktok
+      # ---- posting: Facebook + TikTok via Buffer (https://buffer.com) ----
+      # Buffer holds the Facebook page + TikTok connections and publishes immediately
+      # (shareNow). Buffer is an audited TikTok partner, so it handles TikTok's consent/
+      # privacy requirements itself. Facebook is posted as a Reel. Silently skipped if
+      # the Buffer secrets aren't set.
+      - name: Post to Facebook + TikTok (Buffer)
+        id: post_buffer
         continue-on-error: true
         env:
-          ZERNIO_API_KEY: ${{ secrets.ZERNIO_API_KEY }}
-          ZERNIO_PROFILE_ID: ${{ secrets.ZERNIO_PROFILE_ID }}
-          ZERNIO_TIKTOK_ACCOUNT_ID: ${{ secrets.ZERNIO_TIKTOK_ACCOUNT_ID }}
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+          BUFFER_ORG_ID: ${{ secrets.BUFFER_ORG_ID }}
+          BUFFER_FACEBOOK_CHANNEL_ID: ${{ secrets.BUFFER_FACEBOOK_CHANNEL_ID }}
+          BUFFER_TIKTOK_CHANNEL_ID: ${{ secrets.BUFFER_TIKTOK_CHANNEL_ID }}
         run: |
-          python scripts/post_zernio_tiktok.py \
-            --video-file build/final.mp4 \
+          python scripts/post_buffer.py \
+            --video-url "${{ steps.publish_asset.outputs.video_url }}" \
             --script build/script.json \
-            --caption-file build/caption_tiktok.txt
+            --caption-facebook build/caption_meta.txt \
+            --caption-tiktok build/caption_tiktok.txt \
+            --title-file build/yt_title.txt
 
       # ---- posting: YouTube Shorts via the YouTube Data API v3 directly ----
       # Uploads the local build/final.mp4 file (resumable upload) rather than going
