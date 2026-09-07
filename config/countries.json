@@ -12,7 +12,10 @@
         "The Bamiyan Valley once held the world's tallest standing Buddhas, carved into cliff faces 1,500 years ago",
         "The Hindu Kush mountains rise above 7,000 metres, forming one of the most dramatic landscapes on Earth",
         "Lapis lazuli, the deep-blue stone prized since ancient Egypt, has been mined in Afghanistan's Badakhshan province for 6,000 years"
-      ]
+      ],
+      "iso2": "AF",
+      "lat": 33.9391,
+      "lon": 67.71
     },
     {
       "id": "albania",
@@ -25,7 +28,10 @@
         "The city of Berat is called 'the city of a thousand windows' — its Ottoman houses climb the hillside in a UNESCO ensemble",
         "Albania has over 170,000 concrete bunkers built during the Cold War — more bunkers per capita than any nation",
         "The Blue Eye (Syri i Kaltër) is a mesmerizing karst spring where water surges from 50 metres deep in an impossibly vivid blue"
-      ]
+      ],
+      "iso2": "AL",
+      "lat": 41.1533,
+      "lon": 20.1683
     },
     {
       "id": "algeria",
@@ -38,7 +44,10 @@
         "Timgad, a perfectly preserved Roman city in the Algerian desert, was built by Emperor Trajan in 100 AD",
         "The Tassili n'Ajjer plateau contains 15,000 prehistoric cave paintings — some 12,000 years old — depicting a green Sahara",
         "Algeria's Berber (Amazigh) culture predates Arab and Roman arrival and is still thriving today"
-      ]
+      ],
+      "iso2": "DZ",
+      "lat": 28.0339,
+      "lon": 1.6596
     },
     {
       "id": "andorra",
@@ -51,7 +60,10 @@
         "At just 468 km², Andorra is one of the smallest nations in Europe, nestled entirely in the Pyrenees",
         "Andorra has no airport, no railway, and no military — yet it draws 8 million visitors a year for skiing and duty-free shopping",
         "Andorran Romanesque churches, some dating to the 9th century, dot the mountain valleys like stone sentinels"
-      ]
+      ],
+      "iso2": "AD",
+      "lat": 42.5462,
+      "lon": 1.6016
     },
     {
       "id": "angola",
@@ -64,7 +76,10 @@
         "The Kingdom of Kongo, which flourished from the 14th century, was one of the most powerful states in pre-colonial Africa",
         "Angola is Africa's second-largest oil producer and one of the world's top diamond producers",
         "The Namib Desert reaches into Angola's southwest, creating surreal landscapes where red dunes meet the sea"
-      ]
+      ],
+      "iso2": "AO",
+      "lat": -11.2027,
+      "lon": 17.8739
     },
     {
       "id": "antigua_and_barbuda",
@@ -77,7 +92,10 @@
         "English Harbour is home to Nelson's Dockyard, the only working Georgian dockyard in the world, a UNESCO World Heritage Site",
         "Antigua Sailing Week is one of the world's premier regattas, drawing boats from across the globe each spring",
         "Barbuda's Frigate Bird Sanctuary is the largest colony of magnificent frigate birds in the Western Hemisphere"
-      ]
+      ],
+      "iso2": "AG",
+      "lat": 17.0608,
+      "lon": -61.7964
     },
     {
       "id": "argentina",
@@ -90,7 +108,10 @@
         "Perito Moreno Glacier in Patagonia advances 2 metres per day — you can hear it crack and calve",
         "Tango, born in the immigrant slums of Buenos Aires in the late 19th century, is now a UNESCO art form",
         "Iguazú Falls, on Argentina's border with Brazil, is wider than Victoria Falls and taller than Niagara"
-      ]
+      ],
+      "iso2": "AR",
+      "lat": -38.4161,
+      "lon": -63.6167
     },
     {
       "id": "armenia",
@@ -103,7 +124,10 @@
         "Mount Ararat, the legendary resting place of Noah's Ark, dominates Armenia's skyline though it now sits in Turkey",
         "The Armenian alphabet, created by Mesrop Mashtots in 405 AD, has been in continuous use for over 1,600 years",
         "Tatev Monastery, perched on a basalt cliff, is reached by the world's longest reversible aerial tramway — the Wings of Tatev"
-      ]
+      ],
+      "iso2": "AM",
+      "lat": 40.0691,
+      "lon": 45.0382
     },
     {
       "id": "australia",
@@ -116,7 +140,10 @@
         "Australia has been isolated for 50 million years, producing unique wildlife found nowhere else",
         "The Aboriginal Australians are the world's oldest continuous culture — over 65,000 years",
         "Uluru, the sacred red sandstone monolith, changes color at sunrise and sunset like a living beacon"
-      ]
+      ],
+      "iso2": "AU",
+      "lat": -25.2744,
+      "lon": 133.7751
     },
     {
       "id": "austria",
@@ -129,7 +156,10 @@
         "Mozart, Beethoven, Schubert, Strauss, and Haydn all composed in Vienna — making it the world capital of classical music",
         "The Austrian Alps cover 62% of the country, with peaks reaching above 3,700 metres",
         "Austria's coffee house culture is a UNESCO Intangible Cultural Heritage — the Viennese café is a living institution"
-      ]
+      ],
+      "iso2": "AT",
+      "lat": 47.5162,
+      "lon": 14.5501
     },
     {
       "id": "azerbaijan",
@@ -142,7 +172,10 @@
         "Yanar Dag (Burning Mountain) has been ablaze for at least 4,000 years, fueled by gas escaping through the rock",
         "Baku's Flame Towers, the city's modern landmark, are shaped like three tongues of fire rising 190 metres",
         "Azerbaijan was the first Muslim-majority country to grant women the right to vote, in 1918"
-      ]
+      ],
+      "iso2": "AZ",
+      "lat": 40.1431,
+      "lon": 47.5769
     },
     {
       "id": "bahamas",
@@ -155,7 +188,10 @@
         "Dean's Blue Hole, at 202 metres, is the world's deepest known blue hole — a vertical underwater abyss",
         "The famous swimming pigs of Big Major Cay paddle out to greet visitors — nobody knows how they got there",
         "Christopher Columbus made his first landfall in the New World on San Salvador island in 1492"
-      ]
+      ],
+      "iso2": "BS",
+      "lat": 25.0343,
+      "lon": -77.3963
     },
     {
       "id": "bahrain",
@@ -168,7 +204,10 @@
         "Bahrain's pearl-diving heritage dates back 4,000 years — the Bahrain Pearling Trail is a UNESCO World Heritage Site",
         "The Tree of Life stands alone in Bahrain's desert — a 400-year-old mesquite tree with no visible water source",
         "Bahrain was the first Gulf state to discover oil in 1932, transforming the region forever"
-      ]
+      ],
+      "iso2": "BH",
+      "lat": 25.9304,
+      "lon": 50.6378
     },
     {
       "id": "bangladesh",
@@ -181,7 +220,10 @@
         "The Sundarbans, the world's largest mangrove forest, is home to the Royal Bengal Tiger",
         "Bangladesh is the world's second-largest garment exporter — its textile industry employs over 4 million people",
         "Despite being one of the most climate-vulnerable nations, Bangladesh has become a global leader in climate adaptation and disaster preparedness"
-      ]
+      ],
+      "iso2": "BD",
+      "lat": 23.685,
+      "lon": 90.3563
     },
     {
       "id": "barbados",
@@ -194,7 +236,10 @@
         "The island is made almost entirely of coral limestone, giving its buildings and beaches a distinctive character",
         "Barbados became a republic in 2021, replacing Queen Elizabeth II as head of state after nearly 400 years of British ties",
         "Rihanna, one of the world's best-selling music artists, was born and raised in Bridgetown, Barbados"
-      ]
+      ],
+      "iso2": "BB",
+      "lat": 13.1939,
+      "lon": -59.5432
     },
     {
       "id": "belarus",
@@ -207,7 +252,10 @@
         "The European bison (wisent) was driven to extinction in the wild but was reintroduced in Białowieża and now numbers over 7,000",
         "Mir Castle, a UNESCO World Heritage Site, is a stunning blend of Gothic, Renaissance, and Baroque architecture",
         "Belarus has some of the most well-preserved Soviet-era architecture and monuments in Europe"
-      ]
+      ],
+      "iso2": "BY",
+      "lat": 53.7098,
+      "lon": 27.9534
     },
     {
       "id": "belgium",
@@ -220,7 +268,10 @@
         "Brussels hosts the headquarters of the European Union and NATO, making tiny Belgium a global decision-making hub",
         "Belgium is the birthplace of Tintin, the Smurfs, and Lucky Luke — comics are considered the 'ninth art' here",
         "The Grand Place of Brussels, with its ornate gilded guildhalls, is often called the most beautiful square in Europe"
-      ]
+      ],
+      "iso2": "BE",
+      "lat": 50.5039,
+      "lon": 4.4699
     },
     {
       "id": "belize",
@@ -233,7 +284,10 @@
         "Belize is home to the Belize Barrier Reef, the second-largest in the world after Australia's Great Barrier Reef",
         "The Maya ruins of Caracol in the Belizean jungle were once larger than modern Belize City",
         "Belize is the only country in Central America with English as its official language"
-      ]
+      ],
+      "iso2": "BZ",
+      "lat": 17.1899,
+      "lon": -88.4976
     },
     {
       "id": "benin",
@@ -246,7 +300,10 @@
         "The Kingdom of Dahomey fielded the Dahomey Amazons, an all-female military regiment that terrified European colonizers",
         "Ganvié, a village of 30,000 people built entirely on stilts in Lake Nokoué, is called the 'Venice of Africa'",
         "Every January, Benin celebrates National Voodoo Day — a public holiday honouring ancestral traditions"
-      ]
+      ],
+      "iso2": "BJ",
+      "lat": 9.3077,
+      "lon": 2.3158
     },
     {
       "id": "bhutan",
@@ -259,7 +316,10 @@
         "Bhutan is the world's only carbon-negative country — its forests absorb more CO₂ than the nation produces",
         "Tiger's Nest Monastery (Paro Taktsang) clings to a sheer cliff face 3,120 metres above sea level",
         "Television and the internet were only introduced to Bhutan in 1999 — the last country in the world to get TV"
-      ]
+      ],
+      "iso2": "BT",
+      "lat": 27.5142,
+      "lon": 90.4336
     },
     {
       "id": "bolivia",
@@ -272,7 +332,10 @@
         "La Paz, at 3,640 metres, is the world's highest administrative capital — visitors gasp for breath on arrival",
         "Bolivia holds roughly half the world's lithium reserves, locked beneath the salt flats",
         "Bolivia has 36 official languages — more than almost any other country on Earth"
-      ]
+      ],
+      "iso2": "BO",
+      "lat": -16.2902,
+      "lon": -63.5887
     },
     {
       "id": "bosnia_and_herzegovina",
@@ -285,7 +348,10 @@
         "The Neretva and Una rivers are among the most stunning emerald waterways in Europe",
         "Sarajevo hosted the 1984 Winter Olympics — the bobsled track still winds through the forested hills above the city",
         "Bosnia's Kravice Waterfalls form a natural amphitheatre of cascading water surrounded by lush vegetation"
-      ]
+      ],
+      "iso2": "BA",
+      "lat": 43.9159,
+      "lon": 17.6791
     },
     {
       "id": "botswana",
@@ -298,7 +364,10 @@
         "Botswana transformed from one of Africa's poorest nations at independence (1966) to one of its most stable and prosperous through diamond wealth and good governance",
         "Chobe National Park has the largest concentration of elephants in Africa — over 50,000",
         "Botswana has set aside 38% of its land for national parks and wildlife reserves — one of the highest percentages on Earth"
-      ]
+      ],
+      "iso2": "BW",
+      "lat": -22.3285,
+      "lon": 24.6849
     },
     {
       "id": "brazil",
@@ -311,7 +380,10 @@
         "The Amazon River discharges 20% of all fresh water that flows into the world's oceans",
         "Rio Carnival is the largest festival on Earth, drawing 2 million people per day",
         "Brazil has won the FIFA World Cup a record 5 times"
-      ]
+      ],
+      "iso2": "BR",
+      "lat": -14.235,
+      "lon": -51.9253
     },
     {
       "id": "brunei",
@@ -324,7 +396,10 @@
         "Kampong Ayer, a village of 30,000 people built on stilts over the Brunei River, has been there for over 1,000 years",
         "Despite its tiny size, 75% of Brunei is covered in pristine Borneo rainforest",
         "The Sultan Omar Ali Saifuddien Mosque, with its golden dome reflected in a lagoon, is one of Asia's most stunning mosques"
-      ]
+      ],
+      "iso2": "BN",
+      "lat": 4.5353,
+      "lon": 114.7277
     },
     {
       "id": "bulgaria",
@@ -337,7 +412,10 @@
         "The Thracian Tomb of Kazanlak and the Panagyurishte Gold Treasure reveal a sophisticated civilization that predated the Greeks",
         "Rila Monastery, founded in the 10th century, is Bulgaria's spiritual heart and a stunning UNESCO World Heritage Site",
         "Bulgaria is the oldest country in Europe to have kept its original name — founded in 681 AD"
-      ]
+      ],
+      "iso2": "BG",
+      "lat": 42.7339,
+      "lon": 25.4858
     },
     {
       "id": "burkina_faso",
@@ -350,7 +428,10 @@
         "FESPACO, held in Ouagadougou, is Africa's largest and most prestigious film festival",
         "The Ruins of Loropéni, a mysterious 11th-century stone fortress, are a UNESCO World Heritage Site",
         "Burkina Faso's traditional masks and ceremonial dances are among the most elaborate in West Africa"
-      ]
+      ],
+      "iso2": "BF",
+      "lat": 12.2383,
+      "lon": -1.5616
     },
     {
       "id": "burundi",
@@ -363,7 +444,10 @@
         "A spring in Burundi's Rutovu hills is considered the southernmost source of the Nile River",
         "Lake Tanganyika, the world's second-deepest lake (1,470m), forms Burundi's western border",
         "Burundi is one of the smallest countries in Africa but one of the most densely populated"
-      ]
+      ],
+      "iso2": "BI",
+      "lat": -3.3731,
+      "lon": 29.9189
     },
     {
       "id": "cabo_verde",
@@ -376,7 +460,10 @@
         "Morna, Cabo Verde's melancholic folk music genre, is a UNESCO Intangible Cultural Heritage — Cesária Évora made it world-famous",
         "The island of Fogo has an active volcano that last erupted in 2014 — villagers live inside its ancient caldera",
         "Cabo Verde is one of Africa's most stable democracies and has one of the highest literacy rates on the continent"
-      ]
+      ],
+      "iso2": "CV",
+      "lat": 16.5388,
+      "lon": -23.0418
     },
     {
       "id": "cambodia",
@@ -389,7 +476,10 @@
         "The Khmer Empire (9th–15th century) ruled much of Southeast Asia from Angkor, one of the largest pre-industrial cities ever",
         "Tonlé Sap lake reverses its flow direction twice a year with the monsoons — a hydraulic phenomenon unique on Earth",
         "Cambodia's Apsara dance, depicting celestial nymphs from Hindu mythology, is a UNESCO Intangible Cultural Heritage"
-      ]
+      ],
+      "iso2": "KH",
+      "lat": 12.5657,
+      "lon": 104.991
     },
     {
       "id": "cameroon",
@@ -402,7 +492,10 @@
         "Mount Cameroon (4,095m) is the highest peak in West Africa and one of Africa's most active volcanoes",
         "Cameroon has over 250 ethnic groups speaking more than 270 languages",
         "The country is named after the Portuguese word 'camarões' (shrimp), which early explorers found in the Wouri River"
-      ]
+      ],
+      "iso2": "CM",
+      "lat": 7.3697,
+      "lon": 12.3547
     },
     {
       "id": "canada",
@@ -415,7 +508,10 @@
         "Canada has more lakes than the rest of the world combined — over 3 million",
         "The Northern Lights are visible from most of northern Canada for months each year",
         "Canada is consistently ranked one of the world's most multicultural and immigrant-welcoming nations"
-      ]
+      ],
+      "iso2": "CA",
+      "lat": 56.1304,
+      "lon": -106.3468
     },
     {
       "id": "central_african_republic",
@@ -428,7 +524,10 @@
         "The Dzanga Bai clearing is called the 'village of elephants' — up to 100 forest elephants gather at its mineral lick daily",
         "CAR's rivers are rich in alluvial diamonds — artisanal diamond mining shapes village economies",
         "The BaAka (Pygmy) people of CAR are renowned forest navigators whose polyphonic singing is a UNESCO Cultural Heritage"
-      ]
+      ],
+      "iso2": "CF",
+      "lat": 6.6111,
+      "lon": 20.9394
     },
     {
       "id": "chad",
@@ -441,7 +540,10 @@
         "The Ennedi Plateau contains towering sandstone arches and 10,000-year-old cave paintings of cattle, giraffes, and swimmers",
         "The Tibesti Mountains in northern Chad rise to 3,415 metres — volcanic peaks in the heart of the Sahara",
         "Toumaï, a 7-million-year-old hominid skull found in Chad, is one of the oldest known ancestors of the human lineage"
-      ]
+      ],
+      "iso2": "TD",
+      "lat": 15.4542,
+      "lon": 18.7322
     },
     {
       "id": "chile",
@@ -454,7 +556,10 @@
         "The Atacama Desert is so dry that parts have received no recorded rainfall — NASA uses it to test Mars rovers",
         "Easter Island's 900 moai statues were carved by the Rapa Nui people — some weigh 82 tonnes",
         "Chile produces nearly 30% of the world's copper and is one of the world's top wine-producing countries"
-      ]
+      ],
+      "iso2": "CL",
+      "lat": -35.6751,
+      "lon": -71.543
     },
     {
       "id": "china",
@@ -467,7 +572,10 @@
         "Paper, printing, the compass, and gunpowder were all invented in China",
         "China is home to the giant panda, found only in the misty mountain forests of Sichuan",
         "China's ancient Silk Road connected it to Rome, enabling a trade network spanning 6,400 km"
-      ]
+      ],
+      "iso2": "CN",
+      "lat": 35.8617,
+      "lon": 104.1954
     },
     {
       "id": "colombia",
@@ -480,7 +588,10 @@
         "The Lost City (Ciudad Perdida), built around 800 AD, predates Machu Picchu by 650 years",
         "Colombia hosts over 1,900 species of birds — more than any other country on Earth",
         "Gabriel García Márquez, Colombia's Nobel Prize winner, gave the world magical realism"
-      ]
+      ],
+      "iso2": "CO",
+      "lat": 4.5709,
+      "lon": -74.2973
     },
     {
       "id": "comoros",
@@ -493,7 +604,10 @@
         "A living coelacanth, a fish thought extinct for 65 million years, was discovered in Comoran waters in 1938",
         "Mount Karthala on Grand Comore is one of the world's most active volcanoes and dominates the tiny island",
         "Comoros sits between Madagascar and the African mainland — a crossroads of African, Arab, and Malagasy culture"
-      ]
+      ],
+      "iso2": "KM",
+      "lat": -11.875,
+      "lon": 43.8722
     },
     {
       "id": "costa_rica",
@@ -506,7 +620,10 @@
         "Despite covering just 0.03% of Earth's surface, Costa Rica contains nearly 5% of all known species",
         "Costa Rica runs on over 98% renewable energy — hydropower, geothermal, wind, and solar",
         "The phrase 'Pura Vida' (pure life) is the national motto and the greeting that defines Costa Rican culture"
-      ]
+      ],
+      "iso2": "CR",
+      "lat": 9.7489,
+      "lon": -83.7534
     },
     {
       "id": "croatia",
@@ -519,7 +636,10 @@
         "Plitvice Lakes National Park features 16 terraced lakes connected by 90 waterfalls and cascades",
         "Croatia has over 1,200 islands along its Adriatic coast — only about 50 are inhabited",
         "The necktie was invented in Croatia — the word 'cravat' comes from 'Croat,' after the silk scarves worn by Croatian soldiers"
-      ]
+      ],
+      "iso2": "HR",
+      "lat": 45.1,
+      "lon": 15.2
     },
     {
       "id": "cuba",
@@ -532,7 +652,10 @@
         "Cuban cigars are hand-rolled from tobacco grown in the Vuelta Abajo valley — considered the finest in the world",
         "Havana's crumbling colonial architecture is one of the most photographed cityscapes in the Americas",
         "Cuba has one of the highest literacy rates in the world (99.8%) and produces more doctors per capita than almost any other country"
-      ]
+      ],
+      "iso2": "CU",
+      "lat": 21.5218,
+      "lon": -77.7812
     },
     {
       "id": "cyprus",
@@ -545,7 +668,10 @@
         "Cyprus has been ruled by Egyptians, Assyrians, Romans, Byzantines, Crusaders, Venetians, Ottomans, and the British",
         "Paphos Archaeological Park contains Roman mosaics so exquisite they are considered among the finest in the Mediterranean",
         "Cyprus is the only country in the world divided by a United Nations buffer zone — the 'Green Line' since 1974"
-      ]
+      ],
+      "iso2": "CY",
+      "lat": 35.1264,
+      "lon": 33.4299
     },
     {
       "id": "czechia",
@@ -558,7 +684,10 @@
         "The Czech Republic drinks more beer per capita than any other country — 140 litres per person per year",
         "Pilsner beer was invented in the Czech city of Plzeň in 1842 — the golden lager that changed brewing forever",
         "Bohemian crystal has been world-renowned since the 13th century — Czech glassmakers perfected the art of cut glass"
-      ]
+      ],
+      "iso2": "CZ",
+      "lat": 49.8175,
+      "lon": 15.473
     },
     {
       "id": "cote_divoire",
@@ -571,7 +700,10 @@
         "The Basilica of Our Lady of Peace in Yamoussoukro is the world's largest church — larger than St. Peter's in Rome",
         "Abidjan, the economic capital, is one of the most vibrant and fastest-growing cities in West Africa",
         "Côte d'Ivoire's Taï National Park contains some of the last remaining primary rainforest in West Africa"
-      ]
+      ],
+      "iso2": "CI",
+      "lat": 7.54,
+      "lon": -5.5471
     },
     {
       "id": "congo_drc",
@@ -584,7 +716,10 @@
         "Virunga National Park, Africa's oldest, protects the critically endangered mountain gorilla",
         "Mount Nyiragongo holds the world's largest lava lake — a churning pool of molten rock in its summit crater",
         "The Congo River is the world's deepest river, reaching 220 metres in places"
-      ]
+      ],
+      "iso2": "CD",
+      "lat": -4.0383,
+      "lon": 21.7587
     },
     {
       "id": "denmark",
@@ -597,7 +732,10 @@
         "Danish Vikings explored and settled from Greenland to Constantinople between the 8th and 11th centuries",
         "LEGO was invented in Billund, Denmark, in 1932 — the name comes from 'leg godt' (play well)",
         "Denmark generates over 50% of its electricity from wind power — the highest share in the world"
-      ]
+      ],
+      "iso2": "DK",
+      "lat": 56.2639,
+      "lon": 9.5018
     },
     {
       "id": "djibouti",
@@ -610,7 +748,10 @@
         "Lake Assal, at 155 metres below sea level, is the lowest point in Africa and one of the saltiest bodies of water on Earth",
         "Djibouti hosts military bases from the USA, France, China, Japan, and Italy — more foreign bases per square km than anywhere",
         "The Gulf of Tadjoura off Djibouti is a seasonal gathering ground for whale sharks — the world's largest fish"
-      ]
+      ],
+      "iso2": "DJ",
+      "lat": 11.8251,
+      "lon": 42.5903
     },
     {
       "id": "dominica",
@@ -623,7 +764,10 @@
         "Dominica is called the 'Nature Isle of the Caribbean' — 60% of the island is covered in rainforest",
         "The Kalinago (Carib) people, the indigenous inhabitants who gave the Caribbean Sea its name, still live on Dominica",
         "Dominica has 365 rivers — one for every day of the year — more than any other Caribbean island"
-      ]
+      ],
+      "iso2": "DM",
+      "lat": 15.415,
+      "lon": -61.371
     },
     {
       "id": "dominican_republic",
@@ -636,7 +780,10 @@
         "Pico Duarte (3,098m) is the highest peak in the entire Caribbean",
         "Merengue, the Dominican Republic's signature dance and music, is a UNESCO Intangible Cultural Heritage",
         "The Dominican Republic shares the island of Hispaniola with Haiti — two nations, two very different cultures, one island"
-      ]
+      ],
+      "iso2": "DO",
+      "lat": 18.7357,
+      "lon": -70.1627
     },
     {
       "id": "ecuador",
@@ -649,7 +796,10 @@
         "Ecuador is named after the equator, which passes directly through it — the equator monument at Mitad del Mundo marks the line",
         "Giant Galápagos tortoises can live over 170 years — they are among the longest-lived vertebrates on Earth",
         "Ecuador's cloud forests are among the most biodiverse ecosystems on the planet per square kilometre"
-      ]
+      ],
+      "iso2": "EC",
+      "lat": -1.8312,
+      "lon": -78.1834
     },
     {
       "id": "egypt",
@@ -662,7 +812,10 @@
         "Ancient Egyptians invented writing — hieroglyphics date back over 5,000 years",
         "The Nile River, the world's longest, was the lifeblood of Egyptian civilization",
         "Cleopatra lived closer in time to the Moon landing than to the building of the pyramids"
-      ]
+      ],
+      "iso2": "EG",
+      "lat": 26.8206,
+      "lon": 30.8025
     },
     {
       "id": "el_salvador",
@@ -675,7 +828,10 @@
         "El Salvador's Pacific coast is a world-class surf destination, with El Tunco and Punta Roca drawing surfers from around the globe",
         "El Salvador became the first country in the world to adopt Bitcoin as legal tender in 2021",
         "The pupusa, a thick corn tortilla stuffed with cheese, beans, or pork, is El Salvador's beloved national dish"
-      ]
+      ],
+      "iso2": "SV",
+      "lat": 13.7942,
+      "lon": -88.8965
     },
     {
       "id": "equatorial_guinea",
@@ -688,7 +844,10 @@
         "Bioko Island's Monte Alén National Park holds some of the most pristine tropical rainforest in Central Africa",
         "The discovery of oil in the 1990s made Equatorial Guinea one of the wealthiest countries in Africa by GDP per capita",
         "Despite its name, Equatorial Guinea is not on the equator — the mainland is just north of it"
-      ]
+      ],
+      "iso2": "GQ",
+      "lat": 1.6508,
+      "lon": 10.2679
     },
     {
       "id": "eritrea",
@@ -701,7 +860,10 @@
         "The Dahlak Archipelago in the Red Sea has over 200 islands with pristine coral reefs and virtually no tourism",
         "Eritrea's ancient port of Adulis was a major trading hub of the Aksumite Empire 2,000 years ago",
         "Eritrea won its independence from Ethiopia in 1993 after a 30-year war — one of the longest in African history"
-      ]
+      ],
+      "iso2": "ER",
+      "lat": 15.1794,
+      "lon": 39.7823
     },
     {
       "id": "eswatini",
@@ -714,7 +876,10 @@
         "The Umhlanga (Reed Dance) festival brings tens of thousands of young Swazi women together in one of Africa's most spectacular cultural ceremonies",
         "Despite being one of Africa's smallest countries, Eswatini has rich biodiversity — Hlane Royal National Park is home to elephants, lions, and white rhinos",
         "Eswatini renamed itself from Swaziland in 2018 to distinguish itself from Switzerland in international contexts"
-      ]
+      ],
+      "iso2": "SZ",
+      "lat": -26.5225,
+      "lon": 31.4659
     },
     {
       "id": "ethiopia",
@@ -727,7 +892,10 @@
         "Coffee was discovered in Ethiopia — a goat herder in the Kaffa region first noticed the energizing berries",
         "The rock-hewn churches of Lalibela, carved from solid volcanic rock in the 12th century, are a UNESCO marvel",
         "Ethiopia is the only African country that was never colonized by a European power"
-      ]
+      ],
+      "iso2": "ET",
+      "lat": 9.145,
+      "lon": 40.4897
     },
     {
       "id": "fiji",
@@ -740,7 +908,10 @@
         "Fijian firewalking, where men walk barefoot across white-hot stones, is a centuries-old tradition of the Sawau tribe on Beqa Island",
         "The Great Astrolabe Reef off Fiji is one of the largest barrier reefs in the world",
         "Kava, a ceremonial drink made from the root of the pepper plant, is central to Fijian culture and welcomed at every gathering"
-      ]
+      ],
+      "iso2": "FJ",
+      "lat": -16.5782,
+      "lon": 179.4144
     },
     {
       "id": "finland",
@@ -753,7 +924,10 @@
         "Santa Claus's official home is in Rovaniemi, Finnish Lapland — the Arctic Circle runs through his village",
         "Finland's education system is consistently ranked the best in the world — and has no standardized tests",
         "Finland has over 188,000 lakes, earning it the nickname 'Land of a Thousand Lakes' — though that's an undercount by 187,000"
-      ]
+      ],
+      "iso2": "FI",
+      "lat": 61.9241,
+      "lon": 25.7482
     },
     {
       "id": "france",
@@ -766,7 +940,10 @@
         "The Eiffel Tower was built in 1889 and was originally meant to be temporary",
         "The French Revolution of 1789 gave the world liberty, equality, and fraternity",
         "French cuisine is a UNESCO Intangible Cultural Heritage"
-      ]
+      ],
+      "iso2": "FR",
+      "lat": 46.2276,
+      "lon": 2.2137
     },
     {
       "id": "gabon",
@@ -779,7 +956,10 @@
         "Gabon is home to one of the largest populations of African forest elephants remaining in the wild",
         "Lopé National Park is a UNESCO World Heritage Site containing both ancient rainforest and 400,000-year-old archaeological sites",
         "Gabon has set aside 11% of its territory as marine protected areas, including one of the largest marine reserves in Africa"
-      ]
+      ],
+      "iso2": "GA",
+      "lat": -0.8037,
+      "lon": 11.6094
     },
     {
       "id": "gambia",
@@ -792,7 +972,10 @@
         "The Gambia is one of the top birdwatching destinations in the world, with over 560 species in a tiny area",
         "Kunta Kinteh Island (formerly James Island) in the Gambia River was a key point in the transatlantic slave trade — a UNESCO World Heritage Site",
         "The Gambia is one of the few countries in the world whose shape is entirely defined by a river"
-      ]
+      ],
+      "iso2": "GM",
+      "lat": 13.4432,
+      "lon": -15.3101
     },
     {
       "id": "georgia",
@@ -805,7 +988,10 @@
         "The Caucasus Mountains in Georgia rise to over 5,000 metres — Shkhara peak reaches 5,193m",
         "Georgian script is one of only 14 living alphabets in the world — it has been in use for at least 1,500 years",
         "Tbilisi, Georgia's capital, was founded in the 5th century around hot sulfur springs — the bathhouses still operate today"
-      ]
+      ],
+      "iso2": "GE",
+      "lat": 42.3154,
+      "lon": 43.3569
     },
     {
       "id": "germany",
@@ -818,7 +1004,10 @@
         "Germany is the world's fourth-largest economy and Europe's industrial engine — especially in automobiles and engineering",
         "Neuschwanstein Castle in Bavaria inspired Disney's Sleeping Beauty Castle",
         "Germany has produced Bach, Beethoven, Brahms, Goethe, Einstein, and the printing press (Gutenberg, 1440)"
-      ]
+      ],
+      "iso2": "DE",
+      "lat": 51.1657,
+      "lon": 10.4515
     },
     {
       "id": "ghana",
@@ -831,7 +1020,10 @@
         "The Ashanti Kingdom's Golden Stool is believed to contain the soul of the Ashanti nation — no one sits on it, not even the king",
         "Kente cloth, woven in vibrant geometric patterns, originated with the Ashanti people and is now a global symbol of African heritage",
         "Cape Coast Castle, a UNESCO World Heritage Site, was one of the largest slave-trading posts in West Africa"
-      ]
+      ],
+      "iso2": "GH",
+      "lat": 7.9465,
+      "lon": -1.0232
     },
     {
       "id": "greece",
@@ -844,7 +1036,10 @@
         "Socrates, Plato, and Aristotle laid the foundations of modern thought",
         "The Acropolis of Athens has stood for over 2,500 years atop its rocky outcrop",
         "Greece has over 6,000 islands and islets in the Aegean and Ionian seas"
-      ]
+      ],
+      "iso2": "GR",
+      "lat": 39.0742,
+      "lon": 21.8243
     },
     {
       "id": "grenada",
@@ -857,7 +1052,10 @@
         "The Moliniere Underwater Sculpture Park off Grenada's coast is the world's first — eerie concrete figures colonized by coral",
         "Grenada produces more spices per square mile than anywhere else on Earth — cinnamon, cloves, ginger, and mace alongside nutmeg",
         "Grand Anse Beach in Grenada is regularly ranked among the best beaches in the world"
-      ]
+      ],
+      "iso2": "GD",
+      "lat": 12.2628,
+      "lon": -61.6042
     },
     {
       "id": "guatemala",
@@ -870,7 +1068,10 @@
         "Lake Atitlán, surrounded by three volcanoes, was called 'the most beautiful lake in the world' by Aldous Huxley",
         "Guatemala is the birthplace of chocolate — the Maya brewed cacao as a sacred drink over 2,000 years ago",
         "The resplendent quetzal, Guatemala's national bird, was so sacred to the Maya that killing one was punishable by death"
-      ]
+      ],
+      "iso2": "GT",
+      "lat": 15.7835,
+      "lon": -90.2308
     },
     {
       "id": "guinea",
@@ -883,7 +1084,10 @@
         "Guinea holds one-third of the world's bauxite reserves — the ore that becomes aluminium",
         "The Nimba Mountains, shared with Liberia and Côte d'Ivoire, are a UNESCO site with species found nowhere else",
         "The chimpanzees of Bossou, Guinea, use stone tools — one of the best-studied populations of tool-using primates"
-      ]
+      ],
+      "iso2": "GN",
+      "lat": 9.9456,
+      "lon": -9.6966
     },
     {
       "id": "guinea_bissau",
@@ -896,7 +1100,10 @@
         "Guinea-Bissau is one of the world's largest cashew nut producers — cashews are its main export",
         "The Bijagós islands have a matriarchal society — women choose their husbands and can divorce at will",
         "Guinea-Bissau has virtually no tourist infrastructure, making it one of the least-visited countries on Earth"
-      ]
+      ],
+      "iso2": "GW",
+      "lat": 11.8037,
+      "lon": -15.1804
     },
     {
       "id": "guyana",
@@ -909,7 +1116,10 @@
         "Over 80% of Guyana is covered in pristine rainforest — one of the highest forest-cover rates in the world",
         "Guyana is the only English-speaking country in South America",
         "Guyana's interior is so remote that some indigenous communities can only be reached by small aircraft or river boat"
-      ]
+      ],
+      "iso2": "GY",
+      "lat": 4.8604,
+      "lon": -58.9302
     },
     {
       "id": "haiti",
@@ -922,7 +1132,10 @@
         "The Citadelle Laferrière, built atop a 900-metre peak after independence, is the largest fortress in the Americas",
         "Haiti's Vodou tradition blends West African spirituality with Caribbean culture — it is a recognized religion, not a caricature",
         "Haitian art — vivid, symbolic, and expressive — is collected and exhibited in museums worldwide"
-      ]
+      ],
+      "iso2": "HT",
+      "lat": 18.9712,
+      "lon": -72.2852
     },
     {
       "id": "honduras",
@@ -935,7 +1148,10 @@
         "The Bay Islands (Roatán, Utila, Guanaja) sit on the Mesoamerican Barrier Reef — world-class diving at a fraction of typical prices",
         "Honduras's cloud forests are home to the resplendent quetzal, jaguars, and over 700 bird species",
         "The Mosquito Coast of eastern Honduras is one of the most remote and biodiverse regions in Central America"
-      ]
+      ],
+      "iso2": "HN",
+      "lat": 15.2,
+      "lon": -86.2419
     },
     {
       "id": "hungary",
@@ -948,7 +1164,10 @@
         "The Hungarian Parliament Building on the Danube is 268 metres long and took 17 years to build — one of the most stunning in Europe",
         "Hungary gave the world the Rubik's Cube, invented by Ernő Rubik in 1974 — over 450 million have been sold",
         "Tokaji wine, from Hungary's Tokaj region, was called 'the wine of kings and the king of wines' by Louis XIV of France"
-      ]
+      ],
+      "iso2": "HU",
+      "lat": 47.1625,
+      "lon": 19.5033
     },
     {
       "id": "iceland",
@@ -961,7 +1180,10 @@
         "One third of all lava erupted on Earth in the last 500 years came from Iceland",
         "Iceland runs on nearly 100% renewable geothermal and hydropower energy",
         "Iceland has no standing army and consistently ranks as the world's most peaceful nation"
-      ]
+      ],
+      "iso2": "IS",
+      "lat": 64.9631,
+      "lon": -19.0208
     },
     {
       "id": "india",
@@ -974,7 +1196,10 @@
         "The Taj Mahal, built by Emperor Shah Jahan, took 22 years and 20,000 workers",
         "India invented the number zero, chess, and yoga",
         "India has 22 officially recognized languages and over 1,600 dialects"
-      ]
+      ],
+      "iso2": "IN",
+      "lat": 20.5937,
+      "lon": 78.9629
     },
     {
       "id": "indonesia",
@@ -987,7 +1212,10 @@
         "Komodo dragons, the world's largest living lizards, are found only on a handful of Indonesian islands",
         "Borobudur in Java is the world's largest Buddhist temple — 2 million stone blocks arranged in a giant mandala",
         "Indonesia has over 270 million people speaking 700+ languages — the fourth most populous country on Earth"
-      ]
+      ],
+      "iso2": "ID",
+      "lat": -0.7893,
+      "lon": 113.9213
     },
     {
       "id": "iran",
@@ -1000,7 +1228,10 @@
         "The word 'paradise' comes from the Old Persian 'pairidaeza' — a walled garden",
         "Isfahan's Naqsh-e Jahan Square is one of the largest public squares in the world, surrounded by stunning blue-tiled mosques",
         "Rumi and Hafez, two of the world's most-read poets, wrote in Persian — Rumi is the best-selling poet in the United States"
-      ]
+      ],
+      "iso2": "IR",
+      "lat": 32.4279,
+      "lon": 53.688
     },
     {
       "id": "iraq",
@@ -1013,7 +1244,10 @@
         "The Code of Hammurabi, carved in Babylon around 1754 BC, is one of the oldest written legal codes in human history",
         "The Marshes of southern Iraq (Ahwar) are a UNESCO World Heritage Site — a unique wetland ecosystem inhabited for 5,000 years",
         "The ancient city of Babylon, with its Hanging Gardens, was one of the most magnificent cities the world has ever known"
-      ]
+      ],
+      "iso2": "IQ",
+      "lat": 33.2232,
+      "lon": 43.6793
     },
     {
       "id": "ireland",
@@ -1026,7 +1260,10 @@
         "Ireland has produced four Nobel laureates in literature — Yeats, Shaw, Beckett, and Heaney — more per capita than any other country",
         "The Book of Kells, an illuminated manuscript from around 800 AD, is one of the most beautiful books ever created",
         "Irish pubs are found in virtually every country on Earth — there are over 7,000 in Ireland alone"
-      ]
+      ],
+      "iso2": "IE",
+      "lat": 53.4129,
+      "lon": -8.2439
     },
     {
       "id": "israel",
@@ -1039,7 +1276,10 @@
         "The Dead Sea, bordering Israel and Jordan, is the lowest point on Earth's surface — 430 metres below sea level",
         "Israel has more startups per capita than any other country — earning the nickname 'Startup Nation'",
         "Masada, a desert fortress on a plateau above the Dead Sea, is a symbol of Jewish resistance and a UNESCO World Heritage Site"
-      ]
+      ],
+      "iso2": "IL",
+      "lat": 31.0461,
+      "lon": 34.8516
     },
     {
       "id": "italy",
@@ -1052,7 +1292,10 @@
         "The Roman Empire, born here, shaped law, language, and architecture worldwide",
         "Leonardo da Vinci, Michelangelo, and Raphael all lived and worked in Italy",
         "The Vatican City, the world's smallest country, sits inside Rome"
-      ]
+      ],
+      "iso2": "IT",
+      "lat": 41.8719,
+      "lon": 12.5674
     },
     {
       "id": "jamaica",
@@ -1065,7 +1308,10 @@
         "Usain Bolt, the fastest human in recorded history (9.58s for 100m), was born and raised in Trelawny, Jamaica",
         "Jamaican Blue Mountain Coffee is among the rarest and most expensive coffees in the world",
         "Jamaica's Rastafari movement, which emerged in the 1930s, has influenced music, fashion, and philosophy worldwide"
-      ]
+      ],
+      "iso2": "JM",
+      "lat": 18.1096,
+      "lon": -77.2975
     },
     {
       "id": "japan",
@@ -1078,7 +1324,10 @@
         "Mount Fuji, standing at 3,776 m, is an active stratovolcano and sacred symbol",
         "Japan invented modern bullet trains (Shinkansen), reaching 320 km/h",
         "Cherry blossom season (hanami) is a national celebration every spring"
-      ]
+      ],
+      "iso2": "JP",
+      "lat": 36.2048,
+      "lon": 138.2529
     },
     {
       "id": "jordan",
@@ -1091,7 +1340,10 @@
         "Wadi Rum, the 'Valley of the Moon,' is a desert landscape so otherworldly that The Martian was filmed here",
         "Jordan shares the Dead Sea with Israel — the lowest point on Earth's surface and so salty you float effortlessly",
         "Jordan has welcomed more refugees per capita than almost any country in the world"
-      ]
+      ],
+      "iso2": "JO",
+      "lat": 30.5852,
+      "lon": 36.2384
     },
     {
       "id": "kazakhstan",
@@ -1104,7 +1356,10 @@
         "The Baikonur Cosmodrome in Kazakhstan is where Yuri Gagarin launched into space — it's still the world's busiest spaceport",
         "The Kazakh steppe is the ancestral homeland of the horse — horses were first domesticated here over 5,500 years ago",
         "Charyn Canyon, 80 km long, rivals the Grand Canyon in beauty — its red rock formations are called the 'Valley of Castles'"
-      ]
+      ],
+      "iso2": "KZ",
+      "lat": 48.0196,
+      "lon": 66.9237
     },
     {
       "id": "kenya",
@@ -1117,7 +1372,10 @@
         "Kenya is home to the Maasai, a semi-nomadic people who have lived alongside lions for centuries",
         "The Great Rift Valley runs through Kenya — a 6,000 km geological scar visible from space",
         "Kenyan runners dominate marathon world records — more Olympic medals in distance running than any other country"
-      ]
+      ],
+      "iso2": "KE",
+      "lat": -0.0236,
+      "lon": 37.9062
     },
     {
       "id": "kiribati",
@@ -1130,7 +1388,10 @@
         "Kiribati's 33 atolls are scattered across 3.5 million km² of the Pacific — an ocean area larger than India",
         "Most of Kiribati is less than 2 metres above sea level — rising seas threaten to make it uninhabitable within decades",
         "The Phoenix Islands Protected Area in Kiribati is one of the largest marine reserves on Earth"
-      ]
+      ],
+      "iso2": "KI",
+      "lat": -3.3704,
+      "lon": -168.734
     },
     {
       "id": "kosovo",
@@ -1143,7 +1404,10 @@
         "The medieval Serbian Orthodox monasteries of Kosovo, including Gračanica, are UNESCO World Heritage Sites",
         "Prizren, with its Ottoman bridge and riverside bazaar, is one of the most picturesque cities in the Balkans",
         "Kosovo has one of the youngest populations in Europe — the median age is just 29"
-      ]
+      ],
+      "iso2": "XK",
+      "lat": 42.6026,
+      "lon": 20.903
     },
     {
       "id": "kuwait",
@@ -1156,7 +1420,10 @@
         "Kuwait was the first Gulf state to establish a constitution and parliament, in 1962",
         "The Kuwait Towers, futuristic mushroom-shaped structures built in 1979, are a symbol of the nation's modernization",
         "Kuwait experiences some of the hottest temperatures on Earth — reaching over 54°C in summer"
-      ]
+      ],
+      "iso2": "KW",
+      "lat": 29.3117,
+      "lon": 47.4818
     },
     {
       "id": "kyrgyzstan",
@@ -1169,7 +1436,10 @@
         "The Epic of Manas, Kyrgyzstan's national poem, is 20 times longer than Homer's Odyssey — the longest epic poem in the world",
         "Lake Issyk-Kul, one of the world's largest alpine lakes, never freezes despite being surrounded by snow-capped peaks",
         "Nomadic yurt culture is alive in Kyrgyzstan — families still migrate to high pastures (jailoo) each summer"
-      ]
+      ],
+      "iso2": "KG",
+      "lat": 41.2044,
+      "lon": 74.7661
     },
     {
       "id": "laos",
@@ -1182,7 +1452,10 @@
         "The Plain of Jars contains thousands of massive stone jars scattered across plateaus — their purpose is still debated by archaeologists",
         "Luang Prabang, where the Mekong and Nam Khan rivers meet, is a UNESCO World Heritage city of golden temples and French colonial architecture",
         "Laos is the most heavily bombed country per capita in history — more bombs fell on it during the Vietnam War than in all of WWII combined"
-      ]
+      ],
+      "iso2": "LA",
+      "lat": 19.8563,
+      "lon": 102.4955
     },
     {
       "id": "latvia",
@@ -1195,7 +1468,10 @@
         "Latvia regained independence in 1991 through the 'Singing Revolution' — 2 million Balts formed a 600km human chain",
         "The Latvian Song and Dance Festival, held every five years, brings together 40,000 performers — a UNESCO tradition",
         "Latvia's Baltic coast is rich in amber — 'Baltic gold' — traded since ancient times along the Amber Road to Rome"
-      ]
+      ],
+      "iso2": "LV",
+      "lat": 56.8796,
+      "lon": 24.6032
     },
     {
       "id": "lebanon",
@@ -1208,7 +1484,10 @@
         "The Cedars of God, a grove of ancient Lebanese cedar trees, are mentioned in the Epic of Gilgamesh — some are over 3,000 years old",
         "Baalbek's Temple of Jupiter contains the largest stone blocks ever used in construction — some weigh over 800 tonnes",
         "Lebanon can go from skiing in the mountains to swimming in the Mediterranean in under an hour"
-      ]
+      ],
+      "iso2": "LB",
+      "lat": 33.8547,
+      "lon": 35.8623
     },
     {
       "id": "lesotho",
@@ -1221,7 +1500,10 @@
         "Lesotho is entirely surrounded by South Africa — one of only three countries in the world completely enclosed by another",
         "Basotho people navigate the mountains on horseback — the Basotho pony is a symbol of national identity",
         "Maletsunyane Falls plunges 192 metres — one of the highest single-drop waterfalls in southern Africa"
-      ]
+      ],
+      "iso2": "LS",
+      "lat": -29.61,
+      "lon": 28.2336
     },
     {
       "id": "liberia",
@@ -1234,7 +1516,10 @@
         "Liberia's capital, Monrovia, is named after U.S. President James Monroe",
         "Sapo National Park contains some of the last remaining primary tropical rainforest in West Africa",
         "Liberia was the first African country to have a female head of state — Ellen Johnson Sirleaf, elected in 2005"
-      ]
+      ],
+      "iso2": "LR",
+      "lat": 6.4281,
+      "lon": -9.4295
     },
     {
       "id": "libya",
@@ -1247,7 +1532,10 @@
         "Libya is 90% Sahara Desert — one of the least populated regions on Earth",
         "Cyrene, founded by Greek colonists in 631 BC, was a thriving ancient city whose ruins are a UNESCO World Heritage Site",
         "Libya holds Africa's largest proven oil reserves"
-      ]
+      ],
+      "iso2": "LY",
+      "lat": 26.3351,
+      "lon": 17.2283
     },
     {
       "id": "liechtenstein",
@@ -1260,7 +1548,10 @@
         "At just 160 km², Liechtenstein is the sixth-smallest country in the world — smaller than most major cities",
         "Despite its size, Liechtenstein has the highest GDP per capita of any country in the world",
         "Vaduz Castle, perched above the capital, has been home to the princely family since 1938 and is still their residence"
-      ]
+      ],
+      "iso2": "LI",
+      "lat": 47.166,
+      "lon": 9.5554
     },
     {
       "id": "lithuania",
@@ -1273,7 +1564,10 @@
         "Lithuania was the first Soviet republic to declare independence, on March 11, 1990",
         "Vilnius Old Town is one of the largest surviving medieval old towns in Europe — a UNESCO World Heritage Site",
         "Lithuania's amber deposits along the Baltic coast have been traded for over 5,000 years — amber is called 'Lithuanian gold'"
-      ]
+      ],
+      "iso2": "LT",
+      "lat": 55.1694,
+      "lon": 23.8813
     },
     {
       "id": "luxembourg",
@@ -1286,7 +1580,10 @@
         "The Bock Casemates, a network of underground tunnels carved into the fortress rock, stretch 17 km beneath the city",
         "Luxembourg has three official languages — Luxembourgish, French, and German — spoken interchangeably in daily life",
         "Luxembourg has the highest GDP per capita in the European Union — driven by its major banking sector"
-      ]
+      ],
+      "iso2": "LU",
+      "lat": 49.8153,
+      "lon": 6.1296
     },
     {
       "id": "madagascar",
@@ -1299,7 +1596,10 @@
         "The Avenue of the Baobabs features 800-year-old trees towering 30 metres — one of Africa's most iconic landscapes",
         "Madagascar is home to over 100 species of lemurs — primates found nowhere else — many critically endangered",
         "Madagascar produces 80% of the world's natural vanilla"
-      ]
+      ],
+      "iso2": "MG",
+      "lat": -18.7669,
+      "lon": 46.8691
     },
     {
       "id": "malawi",
@@ -1312,7 +1612,10 @@
         "Malawi is called the 'Warm Heart of Africa' for the friendliness of its people",
         "Lake Malawi occupies nearly a third of the country's total area and is the third-largest lake in Africa",
         "The Lake Malawi National Park was the first freshwater park to be designated a UNESCO World Heritage Site"
-      ]
+      ],
+      "iso2": "MW",
+      "lat": -13.2543,
+      "lon": 34.3015
     },
     {
       "id": "malaysia",
@@ -1325,7 +1628,10 @@
         "Malaysian Borneo is home to orangutans, pygmy elephants, and one of the oldest rainforests on Earth — 130 million years old",
         "Malaysian street food — nasi lemak, char kway teow, roti canai — is consistently ranked among the best in the world",
         "The Cameron Highlands, a colonial-era hill station, grow some of Southeast Asia's finest tea at 1,500 metres above sea level"
-      ]
+      ],
+      "iso2": "MY",
+      "lat": 4.2105,
+      "lon": 101.9758
     },
     {
       "id": "maldives",
@@ -1338,7 +1644,10 @@
         "The Maldives consists of 1,192 coral islands grouped in 26 atolls — only 200 are inhabited",
         "The bioluminescent plankton on some Maldivian beaches make the shoreline glow electric blue at night",
         "The Maldives is one of the most climate-vulnerable nations — a 1-metre rise in sea level would submerge 80% of the country"
-      ]
+      ],
+      "iso2": "MV",
+      "lat": 3.2028,
+      "lon": 73.2207
     },
     {
       "id": "mali",
@@ -1351,7 +1660,10 @@
         "The Great Mosque of Djenné is the largest mud-brick building in the world — rebuilt by the community each year in a massive festival",
         "Mansa Musa of Mali's 1324 pilgrimage to Mecca was so lavish that his gold gifts crashed the Egyptian economy for a decade",
         "Mali's Dogon people have lived in the Bandiagara Cliffs for centuries — their astronomy and cosmology astound researchers"
-      ]
+      ],
+      "iso2": "ML",
+      "lat": 17.5707,
+      "lon": -3.9962
     },
     {
       "id": "malta",
@@ -1364,7 +1676,10 @@
         "The Knights of St. John (Knights Hospitaller) ruled Malta from 1530 to 1798, building the fortified city of Valletta",
         "Despite being one of the world's smallest and most densely populated countries, Malta has three UNESCO World Heritage Sites",
         "Maltese, the national language, is the only Semitic language written in the Latin alphabet"
-      ]
+      ],
+      "iso2": "MT",
+      "lat": 35.9375,
+      "lon": 14.3754
     },
     {
       "id": "marshall_islands",
@@ -1377,7 +1692,10 @@
         "Marshallese stick charts are ancient navigation tools — woven from palm fronds to map ocean swell patterns for canoe voyaging",
         "The Marshall Islands designated its entire 1.9 million km² of ocean as a shark sanctuary — one of the world's largest",
         "Kwajalein Atoll has the world's largest lagoon — 2,174 km² of sheltered turquoise water"
-      ]
+      ],
+      "iso2": "MH",
+      "lat": 7.1315,
+      "lon": 171.1845
     },
     {
       "id": "mauritania",
@@ -1390,7 +1708,10 @@
         "Chinguetti, a medieval desert trading city, is home to one of Africa's oldest libraries of Islamic manuscripts",
         "Mauritania's ancient caravan routes transported salt, gold, and slaves across the Sahara for centuries",
         "The Banc d'Arguin National Park on Mauritania's coast is one of the world's most important bird breeding grounds"
-      ]
+      ],
+      "iso2": "MR",
+      "lat": 21.0079,
+      "lon": -10.9408
     },
     {
       "id": "mauritius",
@@ -1403,7 +1724,10 @@
         "The 'underwater waterfall' illusion off Mauritius's coast, created by sand and silt flowing off the shelf, is breathtaking from above",
         "The Seven Coloured Earth of Chamarel — dunes of seven distinct mineral colours that never blend despite rain — is a natural wonder",
         "Mauritius is a cultural mosaic of Indian, African, Chinese, and European heritage — reflected in its food, festivals, and languages"
-      ]
+      ],
+      "iso2": "MU",
+      "lat": -20.3484,
+      "lon": 57.5522
     },
     {
       "id": "mexico",
@@ -1416,7 +1740,10 @@
         "Mexican cuisine — tamales, mole, and chocolate — is inscribed on the UNESCO cultural heritage list",
         "The Day of the Dead (Día de los Muertos) is a UNESCO-recognized tradition honoring ancestors",
         "Mexico City, the largest Spanish-speaking city in the world, was built atop an ancient Aztec lake"
-      ]
+      ],
+      "iso2": "MX",
+      "lat": 23.6345,
+      "lon": -102.5528
     },
     {
       "id": "micronesia",
@@ -1429,7 +1756,10 @@
         "Micronesia spans over 2,500 km of the western Pacific — 607 islands with a total land area smaller than London",
         "Yap's stone money (rai) — limestone discs up to 4 metres across — is still used for ceremonial transactions",
         "Chuuk (Truk) Lagoon contains the world's largest underwater museum — a WWII Japanese fleet sunk in 1944"
-      ]
+      ],
+      "iso2": "FM",
+      "lat": 7.4256,
+      "lon": 150.5508
     },
     {
       "id": "moldova",
@@ -1442,7 +1772,10 @@
         "Wine is so central to Moldovan culture that the country celebrates a national Wine Day every October",
         "Orheiul Vechi, a cave monastery carved into a limestone cliff above the Răut River, has been a sacred site for 2,000 years",
         "Moldova is one of Europe's least-visited countries — but its rolling countryside and hospitality are gems"
-      ]
+      ],
+      "iso2": "MD",
+      "lat": 47.4116,
+      "lon": 28.3699
     },
     {
       "id": "monaco",
@@ -1455,7 +1788,10 @@
         "The Monaco Grand Prix, held on the streets of Monte Carlo since 1929, is the most prestigious Formula 1 race",
         "Monaco has no income tax — making it a magnet for the world's ultra-wealthy",
         "The Oceanographic Museum of Monaco, founded by Prince Albert I in 1910, perches dramatically on a cliffside above the sea"
-      ]
+      ],
+      "iso2": "MC",
+      "lat": 43.7503,
+      "lon": 7.4128
     },
     {
       "id": "mongolia",
@@ -1468,7 +1804,10 @@
         "Mongolia is the world's most sparsely populated country — just 2 people per km² across vast steppes and deserts",
         "Kazakh eagle hunters in western Mongolia still hunt with golden eagles from horseback — a tradition over 4,000 years old",
         "The Gobi Desert spans 1.3 million km² — home to two-humped Bactrian camels, dinosaur fossils, and shifting sand dunes"
-      ]
+      ],
+      "iso2": "MN",
+      "lat": 46.8625,
+      "lon": 103.8467
     },
     {
       "id": "montenegro",
@@ -1481,7 +1820,10 @@
         "Tara River Canyon is the deepest canyon in Europe (1,300m) and second deepest in the world after the Grand Canyon",
         "Montenegro's name means 'Black Mountain' — its rugged mountains are covered in dark pine forests",
         "Durmitor National Park, a UNESCO World Heritage Site, has 48 peaks over 2,000 metres and 18 glacial lakes"
-      ]
+      ],
+      "iso2": "ME",
+      "lat": 42.7087,
+      "lon": 19.3744
     },
     {
       "id": "morocco",
@@ -1494,7 +1836,10 @@
         "The ancient medina of Fez is home to the world's oldest continuously operating university — founded in 859 AD",
         "Moroccan spice markets (souks) have traded saffron, cumin, and argan oil for centuries",
         "The blue-painted city of Chefchaouen is one of the world's most photographed places"
-      ]
+      ],
+      "iso2": "MA",
+      "lat": 31.7917,
+      "lon": -7.0926
     },
     {
       "id": "mozambique",
@@ -1507,7 +1852,10 @@
         "The Bazaruto Archipelago is a chain of tropical islands with some of the best snorkeling in the Indian Ocean",
         "Mozambique's dhow sailing tradition dates back to Arab and Persian trading voyages over 1,000 years ago",
         "Mozambique has one of the longest coastlines in Africa — 2,470 km of Indian Ocean beaches"
-      ]
+      ],
+      "iso2": "MZ",
+      "lat": -18.6657,
+      "lon": 35.5296
     },
     {
       "id": "myanmar",
@@ -1520,7 +1868,10 @@
         "Shwedagon Pagoda in Yangon is covered in real gold — over 60 tonnes of gold leaf and topped with a 76-carat diamond",
         "Inle Lake's leg-rowing fishermen balance on one leg while rowing with the other — a technique found nowhere else on Earth",
         "Myanmar is one of the world's largest producers of jade and rubies — the 'Pigeon Blood' rubies from Mogok are the finest on Earth"
-      ]
+      ],
+      "iso2": "MM",
+      "lat": 21.914,
+      "lon": 95.9562
     },
     {
       "id": "namibia",
@@ -1533,7 +1884,10 @@
         "The Skeleton Coast is littered with shipwrecks and whale bones — so hostile that the San people called it 'the land God made in anger'",
         "Namibia's desert-adapted elephants have evolved to walk massive distances between water sources across the barren landscape",
         "Namibia was the first country in the world to put environmental protection into its constitution"
-      ]
+      ],
+      "iso2": "NA",
+      "lat": -22.9576,
+      "lon": 18.4904
     },
     {
       "id": "nauru",
@@ -1546,7 +1900,10 @@
         "In the 1970s–80s, Nauru had the highest GDP per capita in the world due to phosphate mining — then the phosphate ran out",
         "Nauru has no official capital city — government offices are in the Yaren district",
         "80% of Nauru's surface was strip-mined for phosphate, leaving a moonscape of jagged coral pinnacles"
-      ]
+      ],
+      "iso2": "NR",
+      "lat": -0.5228,
+      "lon": 166.9315
     },
     {
       "id": "nepal",
@@ -1559,7 +1916,10 @@
         "Siddhartha Gautama, who became the Buddha, was born in Lumbini, Nepal, around 563 BC",
         "Nepal is the only country in the world with a non-rectangular flag — its double-pennant shape represents the Himalayas",
         "Kathmandu Valley alone has 7 UNESCO World Heritage Sites — more per square km than anywhere"
-      ]
+      ],
+      "iso2": "NP",
+      "lat": 28.3949,
+      "lon": 84.124
     },
     {
       "id": "netherlands",
@@ -1572,7 +1932,10 @@
         "Amsterdam's canal ring is a UNESCO World Heritage Site",
         "Rembrandt, Vermeer, and Van Gogh are all Dutch",
         "The Netherlands has more bicycles than people"
-      ]
+      ],
+      "iso2": "NL",
+      "lat": 52.1326,
+      "lon": 5.2913
     },
     {
       "id": "new_zealand",
@@ -1585,7 +1948,10 @@
         "The Maori people, Polynesian navigators, sailed here by the stars across the Pacific",
         "Peter Jackson filmed The Lord of the Rings trilogy here because the landscapes are unlike anywhere else",
         "New Zealand was the first country in the world to give women the right to vote, in 1893"
-      ]
+      ],
+      "iso2": "NZ",
+      "lat": -40.9006,
+      "lon": 174.886
     },
     {
       "id": "nicaragua",
@@ -1598,7 +1964,10 @@
         "Nicaragua has 19 volcanoes — several still active — forming a dramatic chain along the Pacific coast",
         "Granada, founded in 1524, is one of the oldest colonial cities in the Americas — its colourful architecture is beautifully preserved",
         "Nicaragua is the largest country in Central America by area"
-      ]
+      ],
+      "iso2": "NI",
+      "lat": 12.8654,
+      "lon": -85.2072
     },
     {
       "id": "niger",
@@ -1611,7 +1980,10 @@
         "The Agadez Mosque, built in the 16th century from mud-brick, is one of the tallest mud-brick structures in the world",
         "Niger has the world's youngest population — the median age is just 15",
         "The Tuareg nomads of Niger, known as the 'Blue People' for their indigo-dyed garments, have traversed the Sahara for centuries"
-      ]
+      ],
+      "iso2": "NE",
+      "lat": 17.6078,
+      "lon": 8.0817
     },
     {
       "id": "nigeria",
@@ -1624,7 +1996,10 @@
         "Nollywood produces more films per year than Hollywood — it's the world's second-largest film industry by volume",
         "The Benin Bronzes, looted by the British in 1897, are among the finest metal sculptures ever created",
         "Nigeria has over 250 ethnic groups and 500 languages — one of the most culturally diverse countries on Earth"
-      ]
+      ],
+      "iso2": "NG",
+      "lat": 9.082,
+      "lon": 8.6753
     },
     {
       "id": "north_korea",
@@ -1637,7 +2012,10 @@
         "The Demilitarized Zone (DMZ) between North and South Korea is the most heavily fortified border in the world — yet ironically teems with wildlife",
         "The Ryugyong Hotel in Pyongyang, a 105-storey pyramid, has been under construction since 1987 and has never opened",
         "North Korea operates on its own calendar — Juche Year 1 starts in 1912, the birth year of founder Kim Il-sung"
-      ]
+      ],
+      "iso2": "KP",
+      "lat": 40.3399,
+      "lon": 127.5101
     },
     {
       "id": "north_macedonia",
@@ -1650,7 +2028,10 @@
         "The Ohrid literary school helped create the Cyrillic alphabet — making Ohrid the cradle of Slavic literacy",
         "Matka Canyon, just outside Skopje, has one of Europe's deepest underwater caves — Vrelo at 212 metres",
         "North Macedonia changed its name from 'Macedonia' in 2019 to resolve a decades-long dispute with Greece"
-      ]
+      ],
+      "iso2": "MK",
+      "lat": 41.6086,
+      "lon": 21.7453
     },
     {
       "id": "norway",
@@ -1663,7 +2044,10 @@
         "Viking explorers from Norway reached North America 500 years before Columbus",
         "Norway invented the concept of the sovereign wealth fund — worth over $1.7 trillion",
         "The midnight sun means Norway has 24-hour daylight for months in summer"
-      ]
+      ],
+      "iso2": "NO",
+      "lat": 60.472,
+      "lon": 8.4689
     },
     {
       "id": "oman",
@@ -1676,7 +2060,10 @@
         "The Musandam Peninsula, Oman's northern enclave, has dramatic fjord-like inlets carved into limestone cliffs",
         "Oman's wadis — seasonal riverbeds — fill with turquoise water after rains, creating natural swimming pools in the desert",
         "Oman is consistently ranked as one of the safest and most welcoming countries in the Middle East"
-      ]
+      ],
+      "iso2": "OM",
+      "lat": 21.5126,
+      "lon": 55.9233
     },
     {
       "id": "pakistan",
@@ -1689,7 +2076,10 @@
         "The Karakoram Highway, connecting Pakistan and China, is the highest paved international road in the world (4,714m)",
         "Mohenjo-daro, in Pakistan's Sindh province, was one of the world's first great cities — part of the Indus Valley Civilization 4,500 years ago",
         "Pakistani truck art — brilliantly painted lorries covered in jingling chains and poetry — is a folk-art tradition found nowhere else"
-      ]
+      ],
+      "iso2": "PK",
+      "lat": 30.3753,
+      "lon": 69.3451
     },
     {
       "id": "palau",
@@ -1702,7 +2092,10 @@
         "The Rock Islands of Palau, a UNESCO World Heritage Site, are over 400 mushroom-shaped limestone islets covered in jungle",
         "Palau created one of the world's first shark sanctuaries in 2009 — covering 600,000 km² of ocean",
         "Palau stamps a conservation pledge into every visitor's passport — the Palau Pledge — the first country to do so"
-      ]
+      ],
+      "iso2": "PW",
+      "lat": 7.515,
+      "lon": 134.5825
     },
     {
       "id": "palestine",
@@ -1715,7 +2108,10 @@
         "Bethlehem, in the West Bank, is revered as the birthplace of Jesus Christ — the Church of the Nativity is a UNESCO World Heritage Site",
         "Palestinian olive oil has been produced for over 5,000 years — ancient olive trees still bear fruit across the hills",
         "Palestinian embroidery (tatreez) is a distinctive cross-stitch tradition where each village has its own signature pattern"
-      ]
+      ],
+      "iso2": "PS",
+      "lat": 31.9522,
+      "lon": 35.2332
     },
     {
       "id": "panama",
@@ -1728,7 +2124,10 @@
         "Panama is the only place in the world where you can watch the sun rise over the Pacific and set over the Atlantic",
         "The Darién Gap, between Panama and Colombia, is one of the most impenetrable jungles on Earth — no road has ever crossed it",
         "Panama is a biological corridor — its land bridge allowed species from North and South America to mix 3 million years ago"
-      ]
+      ],
+      "iso2": "PA",
+      "lat": 8.538,
+      "lon": -80.7821
     },
     {
       "id": "papua_new_guinea",
@@ -1741,7 +2140,10 @@
         "Highland warriors paint their faces and wear elaborate headdresses of bird-of-paradise feathers for sing-sing festivals",
         "The bird of paradise, found only in New Guinea and nearby islands, was once believed to be a bird from heaven",
         "Agriculture was independently invented in the PNG Highlands about 10,000 years ago — one of only a few places on Earth where this happened"
-      ]
+      ],
+      "iso2": "PG",
+      "lat": -6.315,
+      "lon": 143.9555
     },
     {
       "id": "paraguay",
@@ -1754,7 +2156,10 @@
         "The Jesuit Missions of La Santísima Trinidad de Paraná are a UNESCO World Heritage Site — ruins of a 17th-century utopian experiment",
         "The Paraguayan harp is the national instrument — its cascading sound defines the country's folk music",
         "The Gran Chaco region in western Paraguay is one of the most remote and sparsely populated areas in South America"
-      ]
+      ],
+      "iso2": "PY",
+      "lat": -23.4425,
+      "lon": -58.4438
     },
     {
       "id": "peru",
@@ -1767,7 +2172,10 @@
         "Peru's Amazon basin contains 10% of all species on Earth",
         "Peru is the origin of the potato — 3,000 varieties still grow in the Andes",
         "Lake Titicaca is the highest navigable lake in the world at 3,812 m"
-      ]
+      ],
+      "iso2": "PE",
+      "lat": -9.19,
+      "lon": -75.0152
     },
     {
       "id": "philippines",
@@ -1780,7 +2188,10 @@
         "The Banaue Rice Terraces, carved into the Ifugao mountains 2,000 years ago, are called the 'Eighth Wonder of the World'",
         "The Chocolate Hills of Bohol — over 1,200 perfectly cone-shaped mounds — turn brown in dry season, looking like giant chocolate drops",
         "The Philippines is the world's largest exporter of coconut products and one of the world's top producers of gold and nickel"
-      ]
+      ],
+      "iso2": "PH",
+      "lat": 12.8797,
+      "lon": 121.774
     },
     {
       "id": "poland",
@@ -1793,7 +2204,10 @@
         "Wieliczka Salt Mine near Kraków has been in operation since the 13th century — it contains underground chapels carved entirely from salt",
         "Frédéric Chopin, born near Warsaw in 1810, is considered the greatest piano composer of all time",
         "Poland has the largest remaining primeval forest in Europe (shared with Belarus) — Białowieża, home to the European bison"
-      ]
+      ],
+      "iso2": "PL",
+      "lat": 51.9194,
+      "lon": 19.1451
     },
     {
       "id": "portugal",
@@ -1806,7 +2220,10 @@
         "Fado, Portugal's folk music of longing (saudade), is a UNESCO Cultural Heritage",
         "Sintra's fairytale palaces inspired Lord Byron to call it 'this glorious Eden'",
         "Portugal's port wine, aged in oak barrels in the Douro Valley, has been exported since the 17th century"
-      ]
+      ],
+      "iso2": "PT",
+      "lat": 39.3999,
+      "lon": -8.2245
     },
     {
       "id": "qatar",
@@ -1819,7 +2236,10 @@
         "The Museum of Islamic Art in Doha, designed by I.M. Pei, holds one of the world's finest collections of Islamic art",
         "Qatar hosted the 2022 FIFA World Cup — the first Middle Eastern country to do so",
         "Traditional falcon racing and camel racing remain important cultural pursuits in Qatar"
-      ]
+      ],
+      "iso2": "QA",
+      "lat": 25.3548,
+      "lon": 51.1839
     },
     {
       "id": "congo_republic",
@@ -1832,7 +2252,10 @@
         "Brazzaville, the capital, sits directly across the Congo River from Kinshasa — the two closest capital cities in the world",
         "The Republic of the Congo has one of the highest proportions of forest cover of any country — over 65%",
         "The Nouabalé-Ndoki National Park is a pristine wilderness sometimes called the 'Last Place on Earth'"
-      ]
+      ],
+      "iso2": "CG",
+      "lat": -0.228,
+      "lon": 15.8277
     },
     {
       "id": "romania",
@@ -1845,7 +2268,10 @@
         "Romania's Carpathian Mountains are home to Europe's largest population of brown bears — over 6,000",
         "The painted monasteries of Bucovina, with their vivid exterior frescoes from the 15th–16th century, are UNESCO World Heritage Sites",
         "The Danube Delta, where Europe's mightiest river meets the Black Sea, is one of the world's great wetlands — home to over 300 bird species"
-      ]
+      ],
+      "iso2": "RO",
+      "lat": 45.9432,
+      "lon": 24.9668
     },
     {
       "id": "russia",
@@ -1858,7 +2284,10 @@
         "Lake Baikal in Siberia is the world's deepest and oldest lake — containing 20% of the world's unfrozen fresh water",
         "The Trans-Siberian Railway covers 9,289 km from Moscow to Vladivostok — the longest railway line in the world",
         "Russia's Hermitage Museum in St. Petersburg has over 3 million items — so many that seeing each for 30 seconds would take 11 years"
-      ]
+      ],
+      "iso2": "RU",
+      "lat": 61.524,
+      "lon": 105.3188
     },
     {
       "id": "rwanda",
@@ -1871,7 +2300,10 @@
         "Kigali is consistently ranked the cleanest city in Africa — plastic bags have been banned since 2008",
         "Rwanda has the highest percentage of women in parliament of any country in the world — over 60%",
         "Rwanda has transformed from the devastation of the 1994 genocide into one of Africa's fastest-growing economies"
-      ]
+      ],
+      "iso2": "RW",
+      "lat": -1.9403,
+      "lon": 29.8739
     },
     {
       "id": "saint_kitts_and_nevis",
@@ -1884,7 +2316,10 @@
         "Brimstone Hill Fortress, built over 100 years, is one of the best-preserved historical fortifications in the Caribbean — a UNESCO site",
         "Saint Kitts was the first Caribbean island to be settled by both the English and French in the 17th century",
         "The narrow-gauge scenic railway circling St. Kitts was originally built to transport sugar cane and is now a tourist attraction"
-      ]
+      ],
+      "iso2": "KN",
+      "lat": 17.3578,
+      "lon": -62.783
     },
     {
       "id": "saint_lucia",
@@ -1897,7 +2332,10 @@
         "Saint Lucia has the world's only 'drive-in volcano' — the Soufrière volcano, where you can drive right up to bubbling sulphur springs",
         "Saint Lucia has produced two Nobel laureates — Sir Arthur Lewis (Economics) and Derek Walcott (Literature) — the most per capita of any nation",
         "The island changes colonial hands 14 times between Britain and France — more than any other Caribbean island"
-      ]
+      ],
+      "iso2": "LC",
+      "lat": 13.9094,
+      "lon": -60.9789
     },
     {
       "id": "saint_vincent_and_the_grenadines",
@@ -1910,7 +2348,10 @@
         "Multiple Pirates of the Caribbean films were shot on the islands of St. Vincent and the Grenadines",
         "La Soufrière volcano on St. Vincent erupted explosively in April 2021, displacing 20,000 people",
         "Mustique, one of the Grenadines, is a private island retreat favoured by royals and rock stars"
-      ]
+      ],
+      "iso2": "VC",
+      "lat": 12.9843,
+      "lon": -61.2872
     },
     {
       "id": "samoa",
@@ -1923,7 +2364,10 @@
         "The fa'a Samoa (Samoan way) is a living cultural system of chiefs, extended family, and communal values that still governs daily life",
         "Robert Louis Stevenson, author of Treasure Island, spent his final years in Samoa and is buried on Mount Vaea overlooking Apia",
         "In 2011, Samoa skipped an entire day — jumping across the International Date Line from the American side to the Asian side"
-      ]
+      ],
+      "iso2": "WS",
+      "lat": -13.759,
+      "lon": -172.1046
     },
     {
       "id": "saudi_arabia",
@@ -1936,7 +2380,10 @@
         "Hegra (Madin Salih) contains over 100 monumental Nabataean tombs carved into sandstone — Saudi Arabia's first UNESCO World Heritage Site",
         "The Rub' al Khali (Empty Quarter) is the world's largest contiguous sand desert — 650,000 km² of dunes in southern Saudi Arabia",
         "Al-Ula, a 200,000-year-old oasis, is being developed as Saudi Arabia's answer to Luxor — ancient ruins set in dramatic desert canyons"
-      ]
+      ],
+      "iso2": "SA",
+      "lat": 23.8859,
+      "lon": 45.0792
     },
     {
       "id": "senegal",
@@ -1949,7 +2396,10 @@
         "Teranga (hospitality) is Senegal's cultural cornerstone — visitors are treated like family",
         "Senegalese wrestling (laamb) is the national sport — bouts draw tens of thousands of spectators and top wrestlers are celebrities",
         "Lake Retba (Lac Rose) turns vivid pink due to salt-loving algae — its salt content rivals the Dead Sea"
-      ]
+      ],
+      "iso2": "SN",
+      "lat": 14.4974,
+      "lon": -14.4524
     },
     {
       "id": "serbia",
@@ -1962,7 +2412,10 @@
         "Belgrade Fortress sits at the confluence of the Danube and Sava rivers and has been destroyed and rebuilt over 100 times in 7,000 years",
         "Serbia's medieval monasteries, including Studenica, contain some of the finest Byzantine-style frescoes in Europe",
         "Belgrade's floating river clubs (splavovi) and nightlife are legendary — the city never sleeps"
-      ]
+      ],
+      "iso2": "RS",
+      "lat": 44.0165,
+      "lon": 21.0059
     },
     {
       "id": "seychelles",
@@ -1975,7 +2428,10 @@
         "The Coco de Mer palm produces the world's heaviest seed — up to 25 kg — found naturally only in Seychelles",
         "Aldabra Atoll is home to over 100,000 giant Aldabra tortoises — the world's largest population of giant tortoises",
         "The Seychelles was uninhabited until the 18th century — today its population is one of the most culturally diverse on Earth"
-      ]
+      ],
+      "iso2": "SC",
+      "lat": -4.6796,
+      "lon": 55.492
     },
     {
       "id": "sierra_leone",
@@ -1988,7 +2444,10 @@
         "Freetown was founded as a colony for freed slaves in 1787 — the cotton tree in its centre is a symbol of liberation",
         "Tacugama Chimpanzee Sanctuary rescues and rehabilitates orphaned and injured chimpanzees — Sierra Leone is one of their last West African habitats",
         "Sierra Leone's beaches — including Tokeh and River No. 2 — are among the most beautiful and least touristed in West Africa"
-      ]
+      ],
+      "iso2": "SL",
+      "lat": 8.4606,
+      "lon": -11.7799
     },
     {
       "id": "singapore",
@@ -2001,7 +2460,10 @@
         "Gardens by the Bay's Supertree Grove — 50-metre-tall vertical gardens — has become one of the most iconic structures in the world",
         "Singapore's hawker centres serve some of the best and cheapest food in the world — Michelin-starred meals for under $2",
         "Changi Airport has been voted the world's best airport for decades — it has a waterfall, butterfly garden, and rooftop pool"
-      ]
+      ],
+      "iso2": "SG",
+      "lat": 1.3521,
+      "lon": 103.8198
     },
     {
       "id": "slovakia",
@@ -2014,7 +2476,10 @@
         "The High Tatras, the smallest alpine mountain range in the world, rise abruptly from the Slovak plains to nearly 2,700 metres",
         "Slovak folk traditions — including embroidered costumes, Easter whip-braiding, and mountain shepherd festivals — are still practiced in villages",
         "The Dobšiná Ice Cave, a UNESCO World Heritage Site, has been continuously frozen for over 250,000 years"
-      ]
+      ],
+      "iso2": "SK",
+      "lat": 48.669,
+      "lon": 19.699
     },
     {
       "id": "slovenia",
@@ -2027,7 +2492,10 @@
         "Postojna Cave, the largest karst cave in Europe open to tourists, is home to the olm — a blind cave salamander called the 'human fish'",
         "Ljubljana was named European Green Capital in 2016 — its car-free old town is one of the most liveable in Europe",
         "Slovenia has the word 'LOVE' in its name — and the country's tourism slogan leans into it"
-      ]
+      ],
+      "iso2": "SI",
+      "lat": 46.1512,
+      "lon": 14.9955
     },
     {
       "id": "solomon_islands",
@@ -2040,7 +2508,10 @@
         "The Solomon Islands sit in the Coral Triangle — the epicentre of marine biodiversity with the richest coral reefs on Earth",
         "Many Solomon Islanders live by kastom (custom) law alongside modern governance — land is communally held by clans",
         "Some people in the Solomon Islands have naturally blond hair due to a unique genetic mutation unrelated to European ancestry"
-      ]
+      ],
+      "iso2": "SB",
+      "lat": -9.6457,
+      "lon": 160.1562
     },
     {
       "id": "somalia",
@@ -2053,7 +2524,10 @@
         "Somalia is known as the 'Nation of Poets' — oral poetry (gabay) is the highest art form and a vehicle for news, politics, and philosophy",
         "Ancient Somali ports like Zeila traded frankincense and myrrh to Egypt, Greece, and Rome for thousands of years",
         "Somali camel herding culture is central to national identity — Somalia has the largest camel population in the world"
-      ]
+      ],
+      "iso2": "SO",
+      "lat": 5.1521,
+      "lon": 46.1996
     },
     {
       "id": "south_africa",
@@ -2066,7 +2540,10 @@
         "Table Mountain, one of the oldest mountains on Earth, overlooks Cape Town — the meeting point of the Atlantic and Indian Oceans",
         "Nelson Mandela's walk from prison after 27 years and his choice of reconciliation over retribution changed the world",
         "South Africa has 11 official languages — more than almost any other country"
-      ]
+      ],
+      "iso2": "ZA",
+      "lat": -30.5595,
+      "lon": 22.9375
     },
     {
       "id": "south_korea",
@@ -2079,7 +2556,10 @@
         "South Korea has the world's fastest average internet speeds",
         "K-pop and K-dramas have created a global cultural wave — the 'Korean Wave' (Hallyu)",
         "Taekwondo, the Korean martial art, became an Olympic sport in 2000 and is practiced by 80 million people"
-      ]
+      ],
+      "iso2": "KR",
+      "lat": 35.9078,
+      "lon": 127.7669
     },
     {
       "id": "south_sudan",
@@ -2092,7 +2572,10 @@
         "The Sudd is one of the world's largest wetlands — a vast swamp where the White Nile spreads across the plains",
         "The Dinka and Nuer people are among the tallest populations on Earth — cattle are central to their culture, wealth, and identity",
         "South Sudan has enormous biodiversity — the annual migration of white-eared kob antelope is the second-largest land migration in Africa"
-      ]
+      ],
+      "iso2": "SS",
+      "lat": 6.877,
+      "lon": 31.307
     },
     {
       "id": "spain",
@@ -2105,7 +2588,10 @@
         "The Alhambra palace in Granada is one of the finest examples of Moorish architecture in the world",
         "Flamenco, born from Andalusian gypsy culture, is a UNESCO Intangible Cultural Heritage",
         "The Running of the Bulls in Pamplona has been held every July since 1592"
-      ]
+      ],
+      "iso2": "ES",
+      "lat": 40.4637,
+      "lon": -3.7492
     },
     {
       "id": "sri_lanka",
@@ -2118,7 +2604,10 @@
         "Sri Lanka is the world's fourth-largest producer of tea — 'Ceylon tea' is one of the most prized varieties globally",
         "Sri Lanka is home to wild elephants, leopards, blue whales, and over 430 bird species on an island the size of Ireland",
         "The Temple of the Tooth in Kandy is said to house a tooth of the Buddha — it is Sri Lanka's most sacred site"
-      ]
+      ],
+      "iso2": "LK",
+      "lat": 7.8731,
+      "lon": 80.7718
     },
     {
       "id": "sudan",
@@ -2131,7 +2620,10 @@
         "The Kingdom of Kush was a powerful Nubian civilization that at its height conquered and ruled Egypt itself",
         "The confluence of the Blue Nile and White Nile at Khartoum is one of the most dramatic river junctions on Earth",
         "Nubian culture, one of the oldest on Earth, survives along the Nile in northern Sudan with its distinctive architecture and language"
-      ]
+      ],
+      "iso2": "SD",
+      "lat": 12.8628,
+      "lon": 30.2176
     },
     {
       "id": "suriname",
@@ -2144,7 +2636,10 @@
         "Suriname is the smallest country in South America and the only one with Dutch as its official language",
         "Paramaribo's historic inner city is a UNESCO World Heritage Site — a unique blend of Dutch colonial and tropical architecture",
         "Suriname's interior is so sparsely populated that indigenous and Maroon communities live largely as they have for centuries"
-      ]
+      ],
+      "iso2": "SR",
+      "lat": 3.9193,
+      "lon": -56.0278
     },
     {
       "id": "sweden",
@@ -2157,7 +2652,10 @@
         "Sweden's Icehotel in Jukkasjärv is rebuilt entirely from ice and snow every winter — guests sleep in sub-zero rooms",
         "ABBA and IKEA are both Swedish — the country punches far above its weight in pop culture, design, and innovation",
         "Sweden has the Right of Public Access (Allemansrätten) — anyone can walk, camp, or forage almost anywhere in nature"
-      ]
+      ],
+      "iso2": "SE",
+      "lat": 60.1282,
+      "lon": 18.6435
     },
     {
       "id": "switzerland",
@@ -2170,7 +2668,10 @@
         "The Swiss Alps contain 48 peaks above 4,000 metres, including the iconic Matterhorn",
         "Swiss watch industry began in the 16th century",
         "The Large Hadron Collider, the world's most powerful particle accelerator, runs at CERN under Swiss and French soil"
-      ]
+      ],
+      "iso2": "CH",
+      "lat": 46.8182,
+      "lon": 8.2275
     },
     {
       "id": "syria",
@@ -2183,7 +2684,10 @@
         "Palmyra's ancient Roman ruins, a UNESCO World Heritage Site, once rivalled Rome itself in grandeur",
         "Syria sits at the crossroads of Mesopotamia, Egypt, Anatolia, and the Mediterranean — a nexus of ancient civilizations",
         "The Umayyad Mosque in Damascus, built in 715 AD, is one of the oldest and grandest mosques in the world"
-      ]
+      ],
+      "iso2": "SY",
+      "lat": 34.8021,
+      "lon": 38.9968
     },
     {
       "id": "sao_tome_and_principe",
@@ -2196,7 +2700,10 @@
         "The islands produce some of the world's finest single-origin chocolate — organic cacao grown in volcanic soil under rainforest canopy",
         "Portuguese roça plantations from the colonial era are being converted into eco-lodges and community farms",
         "Príncipe's Obo National Park was declared a UNESCO Biosphere Reserve — the island is 90% pristine rainforest"
-      ]
+      ],
+      "iso2": "ST",
+      "lat": 0.1864,
+      "lon": 6.6131
     },
     {
       "id": "taiwan",
@@ -2209,7 +2716,10 @@
         "Taroko Gorge is a 19-km marble canyon carved by the Liwu River — one of the most dramatic landscapes in East Asia",
         "Taiwan's night markets — shilin, raohe, and hundreds more — serve some of the world's most inventive street food",
         "Taiwan was the first country in Asia to legalize same-sex marriage, in 2019"
-      ]
+      ],
+      "iso2": "TW",
+      "lat": 23.6978,
+      "lon": 120.9605
     },
     {
       "id": "tajikistan",
@@ -2222,7 +2732,10 @@
         "93% of Tajikistan is mountainous — including peaks above 7,000 metres in the Pamir range, the 'Roof of the World'",
         "The Fann Mountains contain turquoise alpine lakes surrounded by 5,000-metre peaks — among Central Asia's most stunning scenery",
         "Tajikistan was a key segment of the ancient Silk Road — caravans passed through the Wakhan Corridor connecting China to the West"
-      ]
+      ],
+      "iso2": "TJ",
+      "lat": 38.861,
+      "lon": 71.2761
     },
     {
       "id": "tanzania",
@@ -2235,7 +2748,10 @@
         "The Serengeti hosts the Great Migration — 1.5 million wildebeest and hundreds of thousands of zebras in an annual loop",
         "Zanzibar, the 'Spice Island,' was a major hub of the East African spice and slave trades for centuries",
         "The Ngorongoro Crater, a collapsed volcanic caldera, is home to one of the densest concentrations of wildlife in Africa"
-      ]
+      ],
+      "iso2": "TZ",
+      "lat": -6.369,
+      "lon": 34.8888
     },
     {
       "id": "thailand",
@@ -2248,7 +2764,10 @@
         "Thailand was never colonized by a European power — 'Thailand' means Land of the Free",
         "Thai street food is among the most celebrated in the world",
         "Elephants are sacred in Thai culture and have been working alongside humans for centuries"
-      ]
+      ],
+      "iso2": "TH",
+      "lat": 15.87,
+      "lon": 100.9925
     },
     {
       "id": "timor_leste",
@@ -2261,7 +2780,10 @@
         "Atauro Island off the coast is one of the world's most biodiverse marine environments — over 600 reef fish species in a single area",
         "Tais, hand-woven textiles with intricate patterns, are central to Timorese cultural identity and ceremonial life",
         "Despite decades of conflict, Timor-Leste has maintained its unique blend of Austronesian and Portuguese-influenced culture"
-      ]
+      ],
+      "iso2": "TL",
+      "lat": -8.8742,
+      "lon": 125.7275
     },
     {
       "id": "togo",
@@ -2274,7 +2796,10 @@
         "The Tamberma (Batammariba) people build fortress-like mud tower houses called tata somba — a UNESCO World Heritage Site",
         "Togo is one of the smallest countries in Africa but has a remarkably diverse landscape — from palm-lined coast to rolling savanna",
         "Lomé, the capital, is known for its Grand Marché — one of West Africa's most vibrant and colourful markets"
-      ]
+      ],
+      "iso2": "TG",
+      "lat": 8.6195,
+      "lon": 0.8248
     },
     {
       "id": "tonga",
@@ -2287,7 +2812,10 @@
         "Every year from July to October, humpback whales migrate to Tonga's warm waters to give birth and nurse their calves",
         "Tonga was never colonized by a European power — it voluntarily became a British protectorate but maintained self-governance",
         "The Ha'amonga 'a Maui trilithon, a 12th-century stone archway, is called the 'Stonehenge of the Pacific'"
-      ]
+      ],
+      "iso2": "TO",
+      "lat": -21.179,
+      "lon": -175.1982
     },
     {
       "id": "trinidad_and_tobago",
@@ -2300,7 +2828,10 @@
         "Trinidad Carnival is one of the most spectacular on Earth — a riot of feathered costumes, soca music, and dancing",
         "The Pitch Lake in Trinidad is the world's largest natural deposit of asphalt — a bubbling 40-hectare lake of tar",
         "Calypso music originated in Trinidad — it was a medium for slaves and free people to comment on politics and society"
-      ]
+      ],
+      "iso2": "TT",
+      "lat": 10.6918,
+      "lon": -61.2225
     },
     {
       "id": "tunisia",
@@ -2313,7 +2844,10 @@
         "The original Star Wars films used locations in southern Tunisia — Matmata's troglodyte dwellings became Luke Skywalker's home",
         "Sidi Bou Saïd, a clifftop village of blue and white, is one of the most beautiful towns in the Mediterranean",
         "Tunisia's 2010–11 Jasmine Revolution was the spark that ignited the Arab Spring movement across the Middle East"
-      ]
+      ],
+      "iso2": "TN",
+      "lat": 33.8869,
+      "lon": 9.5375
     },
     {
       "id": "turkey",
@@ -2326,7 +2860,10 @@
         "Cappadocia's fairy-tale landscape of volcanic rock 'chimneys' is filled with ancient underground cities",
         "The Hagia Sophia was the world's largest cathedral for nearly 1,000 years",
         "The Grand Bazaar of Istanbul has 4,000 shops"
-      ]
+      ],
+      "iso2": "TR",
+      "lat": 38.9637,
+      "lon": 35.2433
     },
     {
       "id": "turkmenistan",
@@ -2339,7 +2876,10 @@
         "Ashgabat holds the Guinness record for the most white-marble-clad buildings in the world",
         "Turkmenistan sits on the world's fourth-largest natural gas reserves",
         "The ancient Silk Road city of Merv was once one of the largest cities in the world — now a UNESCO ruin in the desert"
-      ]
+      ],
+      "iso2": "TM",
+      "lat": 38.9697,
+      "lon": 59.5563
     },
     {
       "id": "tuvalu",
@@ -2352,7 +2892,10 @@
         "Tuvalu earns millions each year by licensing its .tv internet domain — a lifeline for one of the world's smallest economies",
         "Tuvalu's highest point is just 4.6 metres above sea level — it is one of the countries most threatened by sea-level rise",
         "Despite its tiny size, Tuvalu has a seat at the United Nations and is a vocal advocate for climate action"
-      ]
+      ],
+      "iso2": "TV",
+      "lat": -7.1095,
+      "lon": 177.6493
     },
     {
       "id": "uganda",
@@ -2365,7 +2908,10 @@
         "Bwindi Impenetrable Forest is home to roughly half the world's remaining mountain gorillas",
         "Winston Churchill called Uganda 'the Pearl of Africa' for its stunning landscapes",
         "Uganda has one of the youngest populations in the world — over 75% are under 30"
-      ]
+      ],
+      "iso2": "UG",
+      "lat": 1.3733,
+      "lon": 32.2903
     },
     {
       "id": "ukraine",
@@ -2378,7 +2924,10 @@
         "Kyiv-Pechersk Lavra (Monastery of the Caves), founded in 1051, is a UNESCO World Heritage Site with golden domes above an underground labyrinth",
         "Ukraine has a rich tradition of pysanky — intricately decorated Easter eggs that are true works of art",
         "The Chernobyl Exclusion Zone, site of the 1986 nuclear disaster, has become an unintended wildlife sanctuary"
-      ]
+      ],
+      "iso2": "UA",
+      "lat": 48.3794,
+      "lon": 31.1656
     },
     {
       "id": "uae",
@@ -2391,7 +2940,10 @@
         "Just 50 years ago, the UAE was a collection of Bedouin fishing and pearling villages — the transformation is unprecedented",
         "The Sheikh Zayed Grand Mosque in Abu Dhabi has 82 domes, 1,000 columns, and the world's largest hand-knotted carpet",
         "Falconry is the national sport of the UAE — falcons even have their own passports for international travel"
-      ]
+      ],
+      "iso2": "AE",
+      "lat": 23.4241,
+      "lon": 53.8478
     },
     {
       "id": "united_kingdom",
@@ -2404,7 +2956,10 @@
         "Stonehenge, built around 3000 BC, remains one of the most mysterious monuments on Earth — how and why it was built is still debated",
         "The British monarchy is the oldest surviving continuous hereditary monarchy in Europe — tracing an unbroken line for over 1,000 years",
         "The UK has produced the Beatles, the Rolling Stones, David Bowie, and Adele — its music industry is second only to the United States"
-      ]
+      ],
+      "iso2": "GB",
+      "lat": 55.3781,
+      "lon": -3.436
     },
     {
       "id": "united_states",
@@ -2417,7 +2972,10 @@
         "The United States landed humans on the Moon six times between 1969 and 1972 — a feat unmatched for over 50 years",
         "Jazz, born in New Orleans from African American communities in the early 20th century, became 'America's classical music'",
         "Yellowstone, established in 1872, was the world's first national park — the US now has 63 national parks"
-      ]
+      ],
+      "iso2": "US",
+      "lat": 37.0902,
+      "lon": -95.7129
     },
     {
       "id": "uruguay",
@@ -2430,7 +2988,10 @@
         "Uruguay generates nearly 100% of its electricity from renewable sources — primarily wind and hydropower",
         "Mate, the bitter herbal tea drunk from a gourd with a metal straw (bombilla), is a national ritual shared between friends everywhere",
         "Uruguay won the first-ever FIFA World Cup, hosted in Montevideo in 1930"
-      ]
+      ],
+      "iso2": "UY",
+      "lat": -32.5228,
+      "lon": -55.7658
     },
     {
       "id": "uzbekistan",
@@ -2443,7 +3004,10 @@
         "Bukhara was a major intellectual centre of the Islamic world for centuries — the philosopher Avicenna was born nearby",
         "Khiva's inner city (Ichan Kala) is a perfectly preserved walled Silk Road city — a UNESCO World Heritage Site",
         "Uzbekistan was the heart of Tamerlane's (Amir Timur's) vast empire in the 14th century — Samarkand was his dazzling capital"
-      ]
+      ],
+      "iso2": "UZ",
+      "lat": 41.3775,
+      "lon": 64.5853
     },
     {
       "id": "vanuatu",
@@ -2456,7 +3020,10 @@
         "Mount Yasur on Tanna Island has been erupting nearly continuously for over 800 years — one of the most accessible active volcanoes in the world",
         "Vanuatu has 138 distinct languages for a population of just 300,000 — the highest language-to-population ratio on Earth",
         "Vanuatu consistently ranks as one of the happiest countries in the world despite being one of the poorest"
-      ]
+      ],
+      "iso2": "VU",
+      "lat": -15.3767,
+      "lon": 166.9592
     },
     {
       "id": "vatican_city",
@@ -2469,7 +3036,10 @@
         "The Sistine Chapel ceiling, painted by Michelangelo between 1508 and 1512, is one of the greatest artistic achievements in history",
         "St. Peter's Basilica is the largest church in the world — its dome, designed by Michelangelo, defines the Roman skyline",
         "The Vatican Secret Archives hold documents spanning over 1,000 years — including letters from Michelangelo, Henry VIII, and Abraham Lincoln"
-      ]
+      ],
+      "iso2": "VA",
+      "lat": 41.9029,
+      "lon": 12.4534
     },
     {
       "id": "venezuela",
@@ -2482,7 +3052,10 @@
         "Venezuela's tepuis — flat-topped table mountains — inspired Arthur Conan Doyle's novel The Lost World",
         "Venezuela has the world's largest proven oil reserves — more than Saudi Arabia",
         "The Caribbean coast of Venezuela has some of the most beautiful and least-known beaches in the region"
-      ]
+      ],
+      "iso2": "VE",
+      "lat": 6.4238,
+      "lon": -66.5897
     },
     {
       "id": "vietnam",
@@ -2495,7 +3068,10 @@
         "The ancient town of Hội An glows with thousands of silk lanterns every full moon",
         "Vietnam's terraced rice fields in Mù Cang Chải have been farmed by Hmong people for hundreds of years",
         "Despite centuries of foreign rule, Vietnam maintained a continuous culture over 4,000 years"
-      ]
+      ],
+      "iso2": "VN",
+      "lat": 14.0583,
+      "lon": 108.2772
     },
     {
       "id": "yemen",
@@ -2508,7 +3084,10 @@
         "Shibam, the 'Manhattan of the Desert,' has mud-brick skyscrapers up to 11 storeys tall — some dating to the 16th century",
         "Yemen was the ancient Land of Sheba — the legendary queen who visited King Solomon came from here",
         "Yemen's coffee history predates the rest of the world — the port of Mocha gave its name to the famous coffee variety"
-      ]
+      ],
+      "iso2": "YE",
+      "lat": 15.5527,
+      "lon": 48.5164
     },
     {
       "id": "zambia",
@@ -2521,7 +3100,10 @@
         "South Luangwa National Park pioneered the concept of walking safaris — tracking wildlife on foot with expert guides",
         "Zambia has one of the highest concentrations of hippos and crocodiles in Africa — the Luangwa River teems with both",
         "Zambia changed its name from Northern Rhodesia at independence in 1964 — naming itself after the Zambezi River"
-      ]
+      ],
+      "iso2": "ZM",
+      "lat": -13.1339,
+      "lon": 27.8493
     },
     {
       "id": "zimbabwe",
@@ -2534,7 +3116,10 @@
         "Zimbabwe shares Victoria Falls with Zambia — the spray can be seen from 50 km away and the roar heard from 40 km",
         "Hwange National Park has one of the largest elephant populations in Africa — over 40,000",
         "The Zimbabwe Bird, a soapstone carving from Great Zimbabwe, appears on the national flag and is the nation's symbol"
-      ]
+      ],
+      "iso2": "ZW",
+      "lat": -19.0154,
+      "lon": 29.1549
     }
   ],
   "footage": {

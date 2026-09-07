@@ -317,6 +317,10 @@ def main():
         "specialty": country["specialty"],
         "hook": country["hook_text"],
         "footage_query": country["footage_query"],
+        # geo fields drive the globe-zoom intro (scripts/generate_intro.py)
+        "iso2": country.get("iso2", ""),
+        "lat": country.get("lat"),
+        "lon": country.get("lon"),
         "text": f"{country['name']} — {country['specialty']}",
         "narration": narration,
         "segments": segments,

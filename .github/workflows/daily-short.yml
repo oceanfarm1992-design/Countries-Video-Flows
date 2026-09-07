@@ -80,8 +80,23 @@ jobs:
       - name: Generate background music (ambient pad)
         run: python scripts/generate_music.py
 
+      - name: Generate globe-zoom intro
+        # Reads the country name + coordinates from build/script.json and renders the
+        # rotate-and-zoom Blue Marble intro (flag pin + name). Non-fatal: if it fails
+        # the assemble step just builds the montage without an intro.
+        continue-on-error: true
+        run: |
+          python -c "import json;d=json.load(open('build/script.json'));print(f\"--name={d['name']}\n--lat={d['lat']}\n--lon={d['lon']}\n--iso={d['iso2']}\")" > /tmp/introargs
+          NAME=$(sed -n 's/^--name=//p' /tmp/introargs)
+          LAT=$(sed -n 's/^--lat=//p' /tmp/introargs)
+          LON=$(sed -n 's/^--lon=//p' /tmp/introargs)
+          ISO=$(sed -n 's/^--iso=//p' /tmp/introargs)
+          python scripts/generate_intro.py --name "$NAME" --lat "$LAT" --lon "$LON" \
+            --iso "$ISO" --map assets/map/bluemarble.jpg --out build/intro.mp4 \
+            --config config/countries.json
+
       - name: Assemble video
-        run: python scripts/assemble_video.py --config config/countries.json
+        run: python scripts/assemble_video.py --config config/countries.json --intro build/intro.mp4
 
       # ---- make the video publicly fetchable (Zapier / Instagram Reels needs a public URL) ----
       # NOTE: release assets are only PUBLICLY reachable if this repo is PUBLIC.

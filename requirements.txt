@@ -1,6 +1,10 @@
 # Core pipeline dependencies (all pure-python or wheels that install cleanly on GitHub Actions Ubuntu)
 requests>=2.31.0
 
+# Music synthesis: scripts/generate_music.py builds the upbeat backing track from
+# scratch with numpy (no audio files, no license concerns).
+numpy>=1.24.0
+
 # OpenAI SDK — used by scripts/generate_country_script.py to write narrations via GPT-4o-mini
 openai>=1.0.0
 

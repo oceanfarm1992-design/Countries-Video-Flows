@@ -229,6 +229,11 @@ def main():
                     help="Folder of background-music tracks (optional; picks one by date).")
     ap.add_argument("--music-volume", type=float, default=0.30,
                     help="Background music level, 0..1 (voice stays at full).")
+    ap.add_argument("--intro", default="build/intro.mp4",
+                    help="Optional globe-zoom intro to crossfade in front of the montage. "
+                         "Ignored if the file doesn't exist.")
+    ap.add_argument("--intro-xfade", type=float, default=0.8,
+                    help="Crossfade duration (s) between the intro and the montage.")
     args = ap.parse_args()
 
     with open(args.script, encoding="utf-8") as f:
@@ -284,6 +289,10 @@ def main():
     filter_complex = video_fc + ";" + audio_fc
 
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
+    use_intro = bool(args.intro) and os.path.exists(args.intro)
+    # When an intro will be crossfaded in front, render the montage to a temp file first.
+    montage_out = (os.path.splitext(args.out)[0] + ".montage.mp4") if use_intro else args.out
+
     cmd = ["ffmpeg", "-y"]
     for clip in clip_inputs:
         cmd += ["-stream_loop", "-1", "-i", clip]  # each segment clip loops to fill its slot
@@ -298,14 +307,44 @@ def main():
         "-pix_fmt", "yuv420p", "-r", "30",
         "-c:a", "aac", "-b:a", "128k", "-ar", "44100",
         "-movflags", "+faststart",
-        args.out,
+        montage_out,
     ]
     print("[assemble_video] running ffmpeg...")
     proc = subprocess.run(cmd)
     if proc.returncode != 0:
         print("ERROR: ffmpeg assembly failed.", file=sys.stderr)
         sys.exit(proc.returncode)
+
+    if use_intro:
+        prepend_intro(args.intro, montage_out, args.out, args.intro_xfade)
+        os.remove(montage_out)
     print(f"[assemble_video] wrote {args.out}")
+
+
+def prepend_intro(intro, montage, out, xfade):
+    """Crossfade the (silent) globe intro into the montage. The montage's audio is delayed
+    so the voice starts exactly as the montage becomes visible."""
+    intro_dur = ffprobe_duration(intro)
+    offset = max(0.0, intro_dur - xfade)   # when the crossfade begins
+    delay_ms = int(offset * 1000)          # push the voice/music to the montage's entrance
+    fc = (
+        f"[0:v]fps=30,scale=1080:1920,setsar=1,format=yuv420p,settb=AVTB[iv];"
+        f"[1:v]fps=30,scale=1080:1920,setsar=1,format=yuv420p,settb=AVTB[mv];"
+        f"[iv][mv]xfade=transition=fade:duration={xfade}:offset={offset:.3f}[v];"
+        f"[1:a]adelay={delay_ms}|{delay_ms}[a]"
+    )
+    cmd = [
+        "ffmpeg", "-y", "-i", intro, "-i", montage,
+        "-filter_complex", fc, "-map", "[v]", "-map", "[a]",
+        "-c:v", "libx264", "-preset", "medium", "-crf", "20",
+        "-pix_fmt", "yuv420p", "-r", "30",
+        "-c:a", "aac", "-b:a", "128k", "-ar", "44100",
+        "-movflags", "+faststart", out,
+    ]
+    print(f"[assemble_video] crossfading intro ({intro_dur:.1f}s) into montage...")
+    proc = subprocess.run(cmd)
+    if proc.returncode != 0:
+        raise SystemExit(f"intro crossfade failed ({proc.returncode})")
 
 
 if __name__ == "__main__":
