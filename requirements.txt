@@ -1,0 +1,18 @@
+# Core pipeline dependencies (all pure-python or wheels that install cleanly on GitHub Actions Ubuntu)
+requests>=2.31.0
+
+# OpenAI SDK — used by scripts/generate_country_script.py to write narrations via GPT-4o-mini
+openai>=1.0.0
+
+# TTS: piper-tts ships prebuilt wheels for linux and runs fully offline (no API key).
+# VERIFY: exact package name / version. On PyPI the package is "piper-tts" and the CLI entrypoint is "piper".
+# Voice model files are downloaded separately at runtime (see scripts/generate_tts.py).
+piper-tts>=1.2.0
+
+# GitHub secret encryption (write-back scripts) uses libsodium sealed boxes.
+PyNaCl>=1.5.0
+
+# YouTube upload via google's official client libraries.
+google-auth>=2.23.0
+google-auth-oauthlib>=1.1.0
+google-api-python-client>=2.100.0

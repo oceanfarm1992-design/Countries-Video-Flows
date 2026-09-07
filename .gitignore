@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+env/
+
+# Local secrets (never commit)
+.env
+*.env
+*.local.ps1
+*.local.json
+API.txt
+
+# Pipeline working output (regenerated every run)
+build/
+output/
+*.wav
+*.mp3
+*.mp4
+*.srt
+*.ass
+
+# TTS voice model cache
+voices/
+
+# Local-dev font cache (Windows/macOS fallback fonts copied for ffmpeg testing —
+# CI always uses the Ubuntu DejaVu path directly, this dir never applies there)
+.font_cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Claude Code local settings
+.claude/

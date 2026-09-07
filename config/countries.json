@@ -1,0 +1,2616 @@
+{
+  "_comment": "All ~195 world countries. GPT writes a 40-50s narration, Pexels/Pixabay supply footage, Piper TTS reads it aloud.",
+  "countries": [
+    {
+      "id": "afghanistan",
+      "name": "Afghanistan",
+      "specialty": "Ancient crossroads of the Silk Road and mountain empires",
+      "hook_text": "WHERE EMPIRES COLLIDED FOR MILLENNIA",
+      "footage_query": "Afghanistan mountains Hindu Kush ancient ruins cinematic",
+      "facts": [
+        "Afghanistan sits at the crossroads of Central, South, and West Asia — every great empire from Alexander to the Mongols fought to control it",
+        "The Bamiyan Valley once held the world's tallest standing Buddhas, carved into cliff faces 1,500 years ago",
+        "The Hindu Kush mountains rise above 7,000 metres, forming one of the most dramatic landscapes on Earth",
+        "Lapis lazuli, the deep-blue stone prized since ancient Egypt, has been mined in Afghanistan's Badakhshan province for 6,000 years"
+      ]
+    },
+    {
+      "id": "albania",
+      "name": "Albania",
+      "specialty": "Europe's hidden Riviera with ancient Illyrian roots",
+      "hook_text": "EUROPE'S BEST-KEPT SECRET COASTLINE",
+      "footage_query": "Albania Riviera blue eye spring Berat old town cinematic",
+      "facts": [
+        "Albania's coastline along the Ionian Sea rivals the Greek islands — turquoise water, zero crowds",
+        "The city of Berat is called 'the city of a thousand windows' — its Ottoman houses climb the hillside in a UNESCO ensemble",
+        "Albania has over 170,000 concrete bunkers built during the Cold War — more bunkers per capita than any nation",
+        "The Blue Eye (Syri i Kaltër) is a mesmerizing karst spring where water surges from 50 metres deep in an impossibly vivid blue"
+      ]
+    },
+    {
+      "id": "algeria",
+      "name": "Algeria",
+      "specialty": "Africa's largest country — Sahara dunes, Roman ruins, and Berber heritage",
+      "hook_text": "THE SAHARA'S GATEWAY TO ANCIENT ROME",
+      "footage_query": "Algeria Sahara desert dunes Timgad Roman ruins cinematic",
+      "facts": [
+        "Algeria is the largest country in Africa — 80% of its territory is the Sahara Desert",
+        "Timgad, a perfectly preserved Roman city in the Algerian desert, was built by Emperor Trajan in 100 AD",
+        "The Tassili n'Ajjer plateau contains 15,000 prehistoric cave paintings — some 12,000 years old — depicting a green Sahara",
+        "Algeria's Berber (Amazigh) culture predates Arab and Roman arrival and is still thriving today"
+      ]
+    },
+    {
+      "id": "andorra",
+      "name": "Andorra",
+      "specialty": "A tiny Pyrenean principality ruled by two foreign princes",
+      "hook_text": "THE MOUNTAIN NATION WITH TWO FOREIGN HEADS OF STATE",
+      "footage_query": "Andorra Pyrenees mountains ski village stone church cinematic",
+      "facts": [
+        "Andorra has two co-princes: the President of France and the Bishop of Urgell in Spain — a system unchanged since 1278",
+        "At just 468 km², Andorra is one of the smallest nations in Europe, nestled entirely in the Pyrenees",
+        "Andorra has no airport, no railway, and no military — yet it draws 8 million visitors a year for skiing and duty-free shopping",
+        "Andorran Romanesque churches, some dating to the 9th century, dot the mountain valleys like stone sentinels"
+      ]
+    },
+    {
+      "id": "angola",
+      "name": "Angola",
+      "specialty": "Oil wealth, ancient kingdoms, and Africa's wildest coastline",
+      "hook_text": "WHERE AFRICAN KINGDOMS MET THE ATLANTIC",
+      "footage_query": "Angola Kalandula waterfall Luanda coast savanna cinematic",
+      "facts": [
+        "Kalandula Falls, one of Africa's largest waterfalls by volume, plunges 105 metres in the Malanje province",
+        "The Kingdom of Kongo, which flourished from the 14th century, was one of the most powerful states in pre-colonial Africa",
+        "Angola is Africa's second-largest oil producer and one of the world's top diamond producers",
+        "The Namib Desert reaches into Angola's southwest, creating surreal landscapes where red dunes meet the sea"
+      ]
+    },
+    {
+      "id": "antigua_and_barbuda",
+      "name": "Antigua and Barbuda",
+      "specialty": "365 beaches, one for every day of the year",
+      "hook_text": "A DIFFERENT BEACH FOR EVERY DAY OF THE YEAR",
+      "footage_query": "Antigua Caribbean turquoise beach sailboat harbour cinematic",
+      "facts": [
+        "Antigua claims 365 beaches — one for each day of the year — each with powder-white sand and calm turquoise water",
+        "English Harbour is home to Nelson's Dockyard, the only working Georgian dockyard in the world, a UNESCO World Heritage Site",
+        "Antigua Sailing Week is one of the world's premier regattas, drawing boats from across the globe each spring",
+        "Barbuda's Frigate Bird Sanctuary is the largest colony of magnificent frigate birds in the Western Hemisphere"
+      ]
+    },
+    {
+      "id": "argentina",
+      "name": "Argentina",
+      "specialty": "Patagonian wilderness, tango, and the passion of the pampas",
+      "hook_text": "WHERE TANGO WAS BORN AND GLACIERS TOUCH THE SEA",
+      "footage_query": "Argentina Patagonia glacier tango Iguazu Falls cinematic",
+      "facts": [
+        "Patagonia, shared with Chile, contains some of the most untouched wilderness on the planet",
+        "Perito Moreno Glacier in Patagonia advances 2 metres per day — you can hear it crack and calve",
+        "Tango, born in the immigrant slums of Buenos Aires in the late 19th century, is now a UNESCO art form",
+        "Iguazú Falls, on Argentina's border with Brazil, is wider than Victoria Falls and taller than Niagara"
+      ]
+    },
+    {
+      "id": "armenia",
+      "name": "Armenia",
+      "specialty": "The world's oldest Christian nation, carved into volcanic stone",
+      "hook_text": "THE FIRST NATION TO EMBRACE CHRISTIANITY",
+      "footage_query": "Armenia ancient monastery Mount Ararat church stone cinematic",
+      "facts": [
+        "Armenia adopted Christianity as its state religion in 301 AD — the first country in the world to do so",
+        "Mount Ararat, the legendary resting place of Noah's Ark, dominates Armenia's skyline though it now sits in Turkey",
+        "The Armenian alphabet, created by Mesrop Mashtots in 405 AD, has been in continuous use for over 1,600 years",
+        "Tatev Monastery, perched on a basalt cliff, is reached by the world's longest reversible aerial tramway — the Wings of Tatev"
+      ]
+    },
+    {
+      "id": "australia",
+      "name": "Australia",
+      "specialty": "Ancient outback, unique wildlife, and the Great Barrier Reef",
+      "hook_text": "THE CONTINENT THAT EVOLUTION FORGOT — IN THE BEST WAY",
+      "footage_query": "Australia Great Barrier Reef kangaroo Uluru outback cinematic",
+      "facts": [
+        "The Great Barrier Reef is the world's largest living structure — visible from space",
+        "Australia has been isolated for 50 million years, producing unique wildlife found nowhere else",
+        "The Aboriginal Australians are the world's oldest continuous culture — over 65,000 years",
+        "Uluru, the sacred red sandstone monolith, changes color at sunrise and sunset like a living beacon"
+      ]
+    },
+    {
+      "id": "austria",
+      "name": "Austria",
+      "specialty": "Mozart, imperial Vienna, and Alpine grandeur at the heart of Europe",
+      "hook_text": "WHERE MOZART'S MUSIC ECHOES THROUGH MARBLE HALLS",
+      "footage_query": "Austria Vienna palace Alps Salzburg classical music cinematic",
+      "facts": [
+        "Vienna was the capital of the Habsburg Empire for over 600 years, ruling much of Europe from its ornate palaces",
+        "Mozart, Beethoven, Schubert, Strauss, and Haydn all composed in Vienna — making it the world capital of classical music",
+        "The Austrian Alps cover 62% of the country, with peaks reaching above 3,700 metres",
+        "Austria's coffee house culture is a UNESCO Intangible Cultural Heritage — the Viennese café is a living institution"
+      ]
+    },
+    {
+      "id": "azerbaijan",
+      "name": "Azerbaijan",
+      "specialty": "The Land of Fire — where natural gas flames burn eternally from the earth",
+      "hook_text": "THE LAND WHERE FIRE BURNS FROM THE EARTH ITSELF",
+      "footage_query": "Azerbaijan Baku flame towers Yanar Dag fire Caspian cinematic",
+      "facts": [
+        "Azerbaijan is called the 'Land of Fire' — natural gas seeps have created flames that burn continuously from the ground for millennia",
+        "Yanar Dag (Burning Mountain) has been ablaze for at least 4,000 years, fueled by gas escaping through the rock",
+        "Baku's Flame Towers, the city's modern landmark, are shaped like three tongues of fire rising 190 metres",
+        "Azerbaijan was the first Muslim-majority country to grant women the right to vote, in 1918"
+      ]
+    },
+    {
+      "id": "bahamas",
+      "name": "Bahamas",
+      "specialty": "700 islands, swimming pigs, and the world's clearest water",
+      "hook_text": "WHERE PIGS SWIM IN THE CLEAREST WATER ON EARTH",
+      "footage_query": "Bahamas turquoise ocean swimming pigs coral reef island cinematic",
+      "facts": [
+        "The Bahamas consists of over 700 islands and cays — only 30 are inhabited",
+        "Dean's Blue Hole, at 202 metres, is the world's deepest known blue hole — a vertical underwater abyss",
+        "The famous swimming pigs of Big Major Cay paddle out to greet visitors — nobody knows how they got there",
+        "Christopher Columbus made his first landfall in the New World on San Salvador island in 1492"
+      ]
+    },
+    {
+      "id": "bahrain",
+      "name": "Bahrain",
+      "specialty": "Ancient Dilmun civilization and the pearl-diving heritage of the Gulf",
+      "hook_text": "THE ISLAND WHERE PEARL DIVERS BUILT AN EMPIRE",
+      "footage_query": "Bahrain pearl diving ancient fort desert island skyline cinematic",
+      "facts": [
+        "Bahrain was the centre of the ancient Dilmun civilization, a major trading hub between Mesopotamia and the Indus Valley 4,000 years ago",
+        "Bahrain's pearl-diving heritage dates back 4,000 years — the Bahrain Pearling Trail is a UNESCO World Heritage Site",
+        "The Tree of Life stands alone in Bahrain's desert — a 400-year-old mesquite tree with no visible water source",
+        "Bahrain was the first Gulf state to discover oil in 1932, transforming the region forever"
+      ]
+    },
+    {
+      "id": "bangladesh",
+      "name": "Bangladesh",
+      "specialty": "The world's largest river delta and a resilient Bengali culture",
+      "hook_text": "THE DELTA WHERE THREE MIGHTY RIVERS CONVERGE",
+      "footage_query": "Bangladesh Sundarbans river delta rickshaw Dhaka colorful cinematic",
+      "facts": [
+        "Bangladesh sits on the world's largest river delta — where the Ganges, Brahmaputra, and Meghna rivers merge before the Bay of Bengal",
+        "The Sundarbans, the world's largest mangrove forest, is home to the Royal Bengal Tiger",
+        "Bangladesh is the world's second-largest garment exporter — its textile industry employs over 4 million people",
+        "Despite being one of the most climate-vulnerable nations, Bangladesh has become a global leader in climate adaptation and disaster preparedness"
+      ]
+    },
+    {
+      "id": "barbados",
+      "name": "Barbados",
+      "specialty": "Birthplace of rum, coral-stone beauty, and Caribbean soul",
+      "hook_text": "THE ISLAND THAT GAVE THE WORLD RUM",
+      "footage_query": "Barbados coral coast rum distillery plantation Caribbean cinematic",
+      "facts": [
+        "Barbados is the birthplace of rum — Mount Gay distillery has been producing rum since 1703, the oldest in the world",
+        "The island is made almost entirely of coral limestone, giving its buildings and beaches a distinctive character",
+        "Barbados became a republic in 2021, replacing Queen Elizabeth II as head of state after nearly 400 years of British ties",
+        "Rihanna, one of the world's best-selling music artists, was born and raised in Bridgetown, Barbados"
+      ]
+    },
+    {
+      "id": "belarus",
+      "name": "Belarus",
+      "specialty": "Europe's last great primeval forest and Soviet-era time capsule",
+      "hook_text": "HOME TO EUROPE'S LAST PRIMEVAL WILDERNESS",
+      "footage_query": "Belarus Bialowieza forest European bison Mir Castle cinematic",
+      "facts": [
+        "Białowieża Forest, shared with Poland, is the last remaining primeval forest in lowland Europe — home to the European bison",
+        "The European bison (wisent) was driven to extinction in the wild but was reintroduced in Białowieża and now numbers over 7,000",
+        "Mir Castle, a UNESCO World Heritage Site, is a stunning blend of Gothic, Renaissance, and Baroque architecture",
+        "Belarus has some of the most well-preserved Soviet-era architecture and monuments in Europe"
+      ]
+    },
+    {
+      "id": "belgium",
+      "name": "Belgium",
+      "specialty": "Chocolate, waffles, comic strips, and the capital of Europe",
+      "hook_text": "THE TINY KINGDOM THAT RUNS THE EUROPEAN UNION",
+      "footage_query": "Belgium Brussels Grand Place Bruges canal chocolate cinematic",
+      "facts": [
+        "Belgium produces over 220,000 tonnes of chocolate per year — Brussels Airport is the world's biggest chocolate shop by sales volume",
+        "Brussels hosts the headquarters of the European Union and NATO, making tiny Belgium a global decision-making hub",
+        "Belgium is the birthplace of Tintin, the Smurfs, and Lucky Luke — comics are considered the 'ninth art' here",
+        "The Grand Place of Brussels, with its ornate gilded guildhalls, is often called the most beautiful square in Europe"
+      ]
+    },
+    {
+      "id": "belize",
+      "name": "Belize",
+      "specialty": "Maya temples in the jungle and the world's second-largest barrier reef",
+      "hook_text": "WHERE MAYA PYRAMIDS RISE FROM THE JUNGLE CANOPY",
+      "footage_query": "Belize Great Blue Hole Maya ruins barrier reef jungle cinematic",
+      "facts": [
+        "The Great Blue Hole, a giant marine sinkhole off Belize's coast, is 300 metres across and 125 metres deep — visible from space",
+        "Belize is home to the Belize Barrier Reef, the second-largest in the world after Australia's Great Barrier Reef",
+        "The Maya ruins of Caracol in the Belizean jungle were once larger than modern Belize City",
+        "Belize is the only country in Central America with English as its official language"
+      ]
+    },
+    {
+      "id": "benin",
+      "name": "Benin",
+      "specialty": "Birthplace of Voodoo and the mighty Kingdom of Dahomey",
+      "hook_text": "WHERE VOODOO WAS BORN AND WARRIOR QUEENS REIGNED",
+      "footage_query": "Benin Voodoo festival Ganvie lake village Dahomey cinematic",
+      "facts": [
+        "Benin is the birthplace of Voodoo (Vodun) — it remains an official religion practiced by millions",
+        "The Kingdom of Dahomey fielded the Dahomey Amazons, an all-female military regiment that terrified European colonizers",
+        "Ganvié, a village of 30,000 people built entirely on stilts in Lake Nokoué, is called the 'Venice of Africa'",
+        "Every January, Benin celebrates National Voodoo Day — a public holiday honouring ancestral traditions"
+      ]
+    },
+    {
+      "id": "bhutan",
+      "name": "Bhutan",
+      "specialty": "The world's only carbon-negative country that measures Gross National Happiness",
+      "hook_text": "THE KINGDOM THAT CHOSE HAPPINESS OVER GDP",
+      "footage_query": "Bhutan Tiger Nest monastery Himalayas prayer flags valley cinematic",
+      "facts": [
+        "Bhutan measures its success not by GDP but by Gross National Happiness — a philosophy enshrined in its constitution",
+        "Bhutan is the world's only carbon-negative country — its forests absorb more CO₂ than the nation produces",
+        "Tiger's Nest Monastery (Paro Taktsang) clings to a sheer cliff face 3,120 metres above sea level",
+        "Television and the internet were only introduced to Bhutan in 1999 — the last country in the world to get TV"
+      ]
+    },
+    {
+      "id": "bolivia",
+      "name": "Bolivia",
+      "specialty": "The world's largest salt flat and the highest capital city on Earth",
+      "hook_text": "WHERE THE SKY MEETS A MIRROR OF SALT",
+      "footage_query": "Bolivia Salar de Uyuni salt flat mirror sky La Paz cinematic",
+      "facts": [
+        "Salar de Uyuni is the world's largest salt flat — 10,582 km² of blinding white that becomes a perfect mirror when wet",
+        "La Paz, at 3,640 metres, is the world's highest administrative capital — visitors gasp for breath on arrival",
+        "Bolivia holds roughly half the world's lithium reserves, locked beneath the salt flats",
+        "Bolivia has 36 official languages — more than almost any other country on Earth"
+      ]
+    },
+    {
+      "id": "bosnia_and_herzegovina",
+      "name": "Bosnia and Herzegovina",
+      "specialty": "Ottoman bridges, emerald rivers, and a nation reborn from conflict",
+      "hook_text": "THE LAND OF EMERALD RIVERS AND RESILIENT SPIRIT",
+      "footage_query": "Bosnia Mostar bridge emerald river Sarajevo mountains cinematic",
+      "facts": [
+        "The Stari Most (Old Bridge) in Mostar, built by the Ottomans in 1566, was destroyed in 1993 and rebuilt in 2004 as a symbol of reconciliation",
+        "The Neretva and Una rivers are among the most stunning emerald waterways in Europe",
+        "Sarajevo hosted the 1984 Winter Olympics — the bobsled track still winds through the forested hills above the city",
+        "Bosnia's Kravice Waterfalls form a natural amphitheatre of cascading water surrounded by lush vegetation"
+      ]
+    },
+    {
+      "id": "botswana",
+      "name": "Botswana",
+      "specialty": "The Okavango Delta — where a river dies in the desert and life explodes",
+      "hook_text": "WHERE A RIVER VANISHES INTO THE KALAHARI — AND CREATES PARADISE",
+      "footage_query": "Botswana Okavango Delta elephant aerial Kalahari wildlife cinematic",
+      "facts": [
+        "The Okavango Delta is the world's largest inland delta — a river that never reaches the sea, flooding the Kalahari Desert each year",
+        "Botswana transformed from one of Africa's poorest nations at independence (1966) to one of its most stable and prosperous through diamond wealth and good governance",
+        "Chobe National Park has the largest concentration of elephants in Africa — over 50,000",
+        "Botswana has set aside 38% of its land for national parks and wildlife reserves — one of the highest percentages on Earth"
+      ]
+    },
+    {
+      "id": "brazil",
+      "name": "Brazil",
+      "specialty": "The Amazon, Carnival, and the beating heart of South America",
+      "hook_text": "EARTH'S LUNGS MEET UNSTOPPABLE RHYTHM",
+      "footage_query": "Brazil Amazon rainforest Iguazu Falls aerial cinematic",
+      "facts": [
+        "Brazil contains 60% of the Amazon rainforest — the world's largest tropical forest",
+        "The Amazon River discharges 20% of all fresh water that flows into the world's oceans",
+        "Rio Carnival is the largest festival on Earth, drawing 2 million people per day",
+        "Brazil has won the FIFA World Cup a record 5 times"
+      ]
+    },
+    {
+      "id": "brunei",
+      "name": "Brunei",
+      "specialty": "A tiny oil-rich sultanate cloaked in ancient Borneo rainforest",
+      "hook_text": "THE SULTAN'S RAINFOREST KINGDOM ON BORNEO",
+      "footage_query": "Brunei mosque gold dome Borneo rainforest water village cinematic",
+      "facts": [
+        "Brunei's Sultan is one of the world's wealthiest monarchs, ruling an absolute monarchy from a 1,788-room palace",
+        "Kampong Ayer, a village of 30,000 people built on stilts over the Brunei River, has been there for over 1,000 years",
+        "Despite its tiny size, 75% of Brunei is covered in pristine Borneo rainforest",
+        "The Sultan Omar Ali Saifuddien Mosque, with its golden dome reflected in a lagoon, is one of Asia's most stunning mosques"
+      ]
+    },
+    {
+      "id": "bulgaria",
+      "name": "Bulgaria",
+      "specialty": "Rose Valley perfumes, Thracian gold, and Black Sea beaches",
+      "hook_text": "THE VALLEY THAT PERFUMES THE WORLD",
+      "footage_query": "Bulgaria Rose Valley Rila Monastery Black Sea coast cinematic",
+      "facts": [
+        "Bulgaria's Rose Valley produces 85% of the world's rose oil — the essential ingredient in high-end perfumes",
+        "The Thracian Tomb of Kazanlak and the Panagyurishte Gold Treasure reveal a sophisticated civilization that predated the Greeks",
+        "Rila Monastery, founded in the 10th century, is Bulgaria's spiritual heart and a stunning UNESCO World Heritage Site",
+        "Bulgaria is the oldest country in Europe to have kept its original name — founded in 681 AD"
+      ]
+    },
+    {
+      "id": "burkina_faso",
+      "name": "Burkina Faso",
+      "specialty": "Africa's cinema capital and the land of upright people",
+      "hook_text": "THE LAND OF UPRIGHT PEOPLE — AFRICA'S FILM CAPITAL",
+      "footage_query": "Burkina Faso FESPACO festival Sahel architecture mask dance cinematic",
+      "facts": [
+        "Burkina Faso means 'Land of Upright (Honest) People' — renamed from Upper Volta in 1984",
+        "FESPACO, held in Ouagadougou, is Africa's largest and most prestigious film festival",
+        "The Ruins of Loropéni, a mysterious 11th-century stone fortress, are a UNESCO World Heritage Site",
+        "Burkina Faso's traditional masks and ceremonial dances are among the most elaborate in West Africa"
+      ]
+    },
+    {
+      "id": "burundi",
+      "name": "Burundi",
+      "specialty": "Sacred drumming traditions and the southernmost source of the Nile",
+      "hook_text": "WHERE ROYAL DRUMS ECHO OVER THE SOURCE OF THE NILE",
+      "footage_query": "Burundi Lake Tanganyika drumming ceremony green hills cinematic",
+      "facts": [
+        "Burundi's ritual drum dance (the Royal Drummers of Burundi) is a UNESCO Intangible Heritage — drums are sacred, not mere instruments",
+        "A spring in Burundi's Rutovu hills is considered the southernmost source of the Nile River",
+        "Lake Tanganyika, the world's second-deepest lake (1,470m), forms Burundi's western border",
+        "Burundi is one of the smallest countries in Africa but one of the most densely populated"
+      ]
+    },
+    {
+      "id": "cabo_verde",
+      "name": "Cabo Verde",
+      "specialty": "Atlantic crossroads — volcanic islands where morna music drifts on the trade winds",
+      "hook_text": "THE VOLCANIC ISLANDS WHERE AFRICA MEETS THE ATLANTIC",
+      "footage_query": "Cabo Verde volcanic island Atlantic ocean colorful village cinematic",
+      "facts": [
+        "Cabo Verde is a 10-island archipelago 570 km off West Africa — once a vital stop on Atlantic sailing routes",
+        "Morna, Cabo Verde's melancholic folk music genre, is a UNESCO Intangible Cultural Heritage — Cesária Évora made it world-famous",
+        "The island of Fogo has an active volcano that last erupted in 2014 — villagers live inside its ancient caldera",
+        "Cabo Verde is one of Africa's most stable democracies and has one of the highest literacy rates on the continent"
+      ]
+    },
+    {
+      "id": "cambodia",
+      "name": "Cambodia",
+      "specialty": "Angkor Wat — the largest religious monument ever built by human hands",
+      "hook_text": "THE TEMPLE THAT DWARFS EVERY CATHEDRAL ON EARTH",
+      "footage_query": "Cambodia Angkor Wat temple sunrise Mekong monks cinematic",
+      "facts": [
+        "Angkor Wat is the world's largest religious monument — its moat alone is 5.5 km around",
+        "The Khmer Empire (9th–15th century) ruled much of Southeast Asia from Angkor, one of the largest pre-industrial cities ever",
+        "Tonlé Sap lake reverses its flow direction twice a year with the monsoons — a hydraulic phenomenon unique on Earth",
+        "Cambodia's Apsara dance, depicting celestial nymphs from Hindu mythology, is a UNESCO Intangible Cultural Heritage"
+      ]
+    },
+    {
+      "id": "cameroon",
+      "name": "Cameroon",
+      "specialty": "Africa in miniature — every African landscape in one country",
+      "hook_text": "EVERY LANDSCAPE IN AFRICA — IN A SINGLE COUNTRY",
+      "footage_query": "Cameroon Mount Cameroon rainforest savanna waterfall cinematic",
+      "facts": [
+        "Cameroon is called 'Africa in miniature' because it contains nearly every African landscape — desert, rainforest, savanna, mountains, coast",
+        "Mount Cameroon (4,095m) is the highest peak in West Africa and one of Africa's most active volcanoes",
+        "Cameroon has over 250 ethnic groups speaking more than 270 languages",
+        "The country is named after the Portuguese word 'camarões' (shrimp), which early explorers found in the Wouri River"
+      ]
+    },
+    {
+      "id": "canada",
+      "name": "Canada",
+      "specialty": "Rocky Mountains, Northern Lights, and the world's most diverse nation",
+      "hook_text": "WHERE THE WILDERNESS STRETCHES TO THE AURORA",
+      "footage_query": "Canada Rocky Mountains Banff Northern Lights maple forest cinematic",
+      "facts": [
+        "Canada is the world's second-largest country by land area, with 10% of the world's forests",
+        "Canada has more lakes than the rest of the world combined — over 3 million",
+        "The Northern Lights are visible from most of northern Canada for months each year",
+        "Canada is consistently ranked one of the world's most multicultural and immigrant-welcoming nations"
+      ]
+    },
+    {
+      "id": "central_african_republic",
+      "name": "Central African Republic",
+      "specialty": "Pristine rainforest, lowland gorillas, and diamond rivers",
+      "hook_text": "AFRICA'S UNTOUCHED HEART",
+      "footage_query": "Central African Republic rainforest gorilla river jungle cinematic",
+      "facts": [
+        "Dzanga-Sangha is one of the best places on Earth to see western lowland gorillas and forest elephants in the wild",
+        "The Dzanga Bai clearing is called the 'village of elephants' — up to 100 forest elephants gather at its mineral lick daily",
+        "CAR's rivers are rich in alluvial diamonds — artisanal diamond mining shapes village economies",
+        "The BaAka (Pygmy) people of CAR are renowned forest navigators whose polyphonic singing is a UNESCO Cultural Heritage"
+      ]
+    },
+    {
+      "id": "chad",
+      "name": "Chad",
+      "specialty": "Where the Sahara meets the Sahel — ancient rock art and vanishing lakes",
+      "hook_text": "THE LAKE THAT IS DISAPPEARING BEFORE OUR EYES",
+      "footage_query": "Chad Sahara Tibesti Mountains Ennedi Plateau desert cinematic",
+      "facts": [
+        "Lake Chad has shrunk by 90% since the 1960s — from 25,000 km² to under 1,500 km² — one of the most dramatic environmental changes on Earth",
+        "The Ennedi Plateau contains towering sandstone arches and 10,000-year-old cave paintings of cattle, giraffes, and swimmers",
+        "The Tibesti Mountains in northern Chad rise to 3,415 metres — volcanic peaks in the heart of the Sahara",
+        "Toumaï, a 7-million-year-old hominid skull found in Chad, is one of the oldest known ancestors of the human lineage"
+      ]
+    },
+    {
+      "id": "chile",
+      "name": "Chile",
+      "specialty": "The world's driest desert, Easter Island statues, and Patagonian ice",
+      "hook_text": "4,300 KM OF EXTREMES — DESERT TO GLACIER",
+      "footage_query": "Chile Atacama Desert Easter Island moai Patagonia Torres del Paine cinematic",
+      "facts": [
+        "Chile stretches 4,300 km from the driest desert on Earth (Atacama) to the glaciers of Patagonia",
+        "The Atacama Desert is so dry that parts have received no recorded rainfall — NASA uses it to test Mars rovers",
+        "Easter Island's 900 moai statues were carved by the Rapa Nui people — some weigh 82 tonnes",
+        "Chile produces nearly 30% of the world's copper and is one of the world's top wine-producing countries"
+      ]
+    },
+    {
+      "id": "china",
+      "name": "China",
+      "specialty": "5,000 years of civilization, the Great Wall, and modern megacities",
+      "hook_text": "THE DRAGON THAT NEVER STOPPED RISING",
+      "footage_query": "China Great Wall misty mountains panda bamboo cinematic",
+      "facts": [
+        "China's Great Wall stretches over 21,000 km — the longest man-made structure on Earth",
+        "Paper, printing, the compass, and gunpowder were all invented in China",
+        "China is home to the giant panda, found only in the misty mountain forests of Sichuan",
+        "China's ancient Silk Road connected it to Rome, enabling a trade network spanning 6,400 km"
+      ]
+    },
+    {
+      "id": "colombia",
+      "name": "Colombia",
+      "specialty": "Coffee, magical realism, lost cities, and the world's most biodiverse corner",
+      "hook_text": "THE MOST BIODIVERSE SQUARE KILOMETRE ON EARTH",
+      "footage_query": "Colombia coffee farm Cartagena Lost City jungle cinematic",
+      "facts": [
+        "Colombia is one of the world's 17 'megadiverse' countries — home to 10% of all species on Earth",
+        "The Lost City (Ciudad Perdida), built around 800 AD, predates Machu Picchu by 650 years",
+        "Colombia hosts over 1,900 species of birds — more than any other country on Earth",
+        "Gabriel García Márquez, Colombia's Nobel Prize winner, gave the world magical realism"
+      ]
+    },
+    {
+      "id": "comoros",
+      "name": "Comoros",
+      "specialty": "The perfume islands — ylang-ylang, vanilla, and the living fossil coelacanth",
+      "hook_text": "THE PERFUME ISLANDS OF THE INDIAN OCEAN",
+      "footage_query": "Comoros volcanic island Indian Ocean ylang-ylang plantation cinematic",
+      "facts": [
+        "Comoros is the world's largest producer of ylang-ylang — the fragrant flower essential to Chanel No. 5",
+        "A living coelacanth, a fish thought extinct for 65 million years, was discovered in Comoran waters in 1938",
+        "Mount Karthala on Grand Comore is one of the world's most active volcanoes and dominates the tiny island",
+        "Comoros sits between Madagascar and the African mainland — a crossroads of African, Arab, and Malagasy culture"
+      ]
+    },
+    {
+      "id": "costa_rica",
+      "name": "Costa Rica",
+      "specialty": "Pura Vida — no army, cloud forests, and 5% of Earth's biodiversity",
+      "hook_text": "THE COUNTRY THAT ABOLISHED ITS ARMY AND CHOSE NATURE",
+      "footage_query": "Costa Rica cloud forest toucan volcano rainforest beach cinematic",
+      "facts": [
+        "Costa Rica abolished its army in 1948 and redirected military spending to education and healthcare",
+        "Despite covering just 0.03% of Earth's surface, Costa Rica contains nearly 5% of all known species",
+        "Costa Rica runs on over 98% renewable energy — hydropower, geothermal, wind, and solar",
+        "The phrase 'Pura Vida' (pure life) is the national motto and the greeting that defines Costa Rican culture"
+      ]
+    },
+    {
+      "id": "croatia",
+      "name": "Croatia",
+      "specialty": "Adriatic jewels — Dubrovnik's walls and Plitvice's cascading lakes",
+      "hook_text": "WHERE ANCIENT WALLS GUARD THE TURQUOISE ADRIATIC",
+      "footage_query": "Croatia Dubrovnik old town Plitvice Lakes waterfalls Adriatic cinematic",
+      "facts": [
+        "Dubrovnik's medieval city walls, over 2 km long, are among the best-preserved fortifications in Europe — and doubled as King's Landing in Game of Thrones",
+        "Plitvice Lakes National Park features 16 terraced lakes connected by 90 waterfalls and cascades",
+        "Croatia has over 1,200 islands along its Adriatic coast — only about 50 are inhabited",
+        "The necktie was invented in Croatia — the word 'cravat' comes from 'Croat,' after the silk scarves worn by Croatian soldiers"
+      ]
+    },
+    {
+      "id": "cuba",
+      "name": "Cuba",
+      "specialty": "Vintage cars, cigars, salsa, and a revolution frozen in time",
+      "hook_text": "WHERE TIME STOPPED — AND THE MUSIC NEVER DID",
+      "footage_query": "Cuba Havana vintage car colorful street salsa music cigar cinematic",
+      "facts": [
+        "Cuba's streets are a rolling museum — over 60,000 classic American cars from the 1950s still drive daily",
+        "Cuban cigars are hand-rolled from tobacco grown in the Vuelta Abajo valley — considered the finest in the world",
+        "Havana's crumbling colonial architecture is one of the most photographed cityscapes in the Americas",
+        "Cuba has one of the highest literacy rates in the world (99.8%) and produces more doctors per capita than almost any other country"
+      ]
+    },
+    {
+      "id": "cyprus",
+      "name": "Cyprus",
+      "specialty": "Birthplace of Aphrodite and a crossroads of Greek and Turkish worlds",
+      "hook_text": "THE ISLAND WHERE THE GODDESS OF LOVE WAS BORN",
+      "footage_query": "Cyprus Aphrodite rock ancient ruins Mediterranean coast cinematic",
+      "facts": [
+        "Greek mythology says Aphrodite, goddess of love, was born from the sea foam at Petra tou Romiou on Cyprus's coast",
+        "Cyprus has been ruled by Egyptians, Assyrians, Romans, Byzantines, Crusaders, Venetians, Ottomans, and the British",
+        "Paphos Archaeological Park contains Roman mosaics so exquisite they are considered among the finest in the Mediterranean",
+        "Cyprus is the only country in the world divided by a United Nations buffer zone — the 'Green Line' since 1974"
+      ]
+    },
+    {
+      "id": "czechia",
+      "name": "Czechia",
+      "specialty": "Prague's Gothic spires, Bohemian crystal, and the birthplace of Pilsner",
+      "hook_text": "THE CITY OF A HUNDRED SPIRES AND A THOUSAND BEERS",
+      "footage_query": "Prague castle Charles Bridge Gothic spires Bohemia cinematic",
+      "facts": [
+        "Prague Castle, covering 70,000 m², is the largest ancient castle complex in the world",
+        "The Czech Republic drinks more beer per capita than any other country — 140 litres per person per year",
+        "Pilsner beer was invented in the Czech city of Plzeň in 1842 — the golden lager that changed brewing forever",
+        "Bohemian crystal has been world-renowned since the 13th century — Czech glassmakers perfected the art of cut glass"
+      ]
+    },
+    {
+      "id": "cote_divoire",
+      "name": "Côte d'Ivoire",
+      "specialty": "The world's largest cocoa producer — where your chocolate begins",
+      "hook_text": "EVERY CHOCOLATE BAR STARTS HERE",
+      "footage_query": "Ivory Coast cocoa plantation Abidjan Basilica Yamoussoukro cinematic",
+      "facts": [
+        "Côte d'Ivoire produces over 40% of the world's cocoa — your chocolate almost certainly started here",
+        "The Basilica of Our Lady of Peace in Yamoussoukro is the world's largest church — larger than St. Peter's in Rome",
+        "Abidjan, the economic capital, is one of the most vibrant and fastest-growing cities in West Africa",
+        "Côte d'Ivoire's Taï National Park contains some of the last remaining primary rainforest in West Africa"
+      ]
+    },
+    {
+      "id": "congo_drc",
+      "name": "Democratic Republic of the Congo",
+      "specialty": "Mountain gorillas, the Congo River, and staggering mineral wealth",
+      "hook_text": "THE COUNTRY THAT HOLDS THE KEY TO THE MODERN WORLD'S BATTERIES",
+      "footage_query": "DR Congo Virunga mountain gorillas Congo River Nyiragongo volcano cinematic",
+      "facts": [
+        "The DRC produces over 70% of the world's cobalt — essential for every smartphone and electric vehicle battery on Earth",
+        "Virunga National Park, Africa's oldest, protects the critically endangered mountain gorilla",
+        "Mount Nyiragongo holds the world's largest lava lake — a churning pool of molten rock in its summit crater",
+        "The Congo River is the world's deepest river, reaching 220 metres in places"
+      ]
+    },
+    {
+      "id": "denmark",
+      "name": "Denmark",
+      "specialty": "Viking legacy, hygge living, and a global leader in green energy",
+      "hook_text": "FROM VIKING RAIDERS TO THE WORLD'S HAPPIEST PEOPLE",
+      "footage_query": "Denmark Copenhagen Nyhavn colorful harbour Viking wind turbines cinematic",
+      "facts": [
+        "Denmark consistently ranks as one of the happiest countries on Earth — the Danish concept of 'hygge' (cozy contentment) is central to daily life",
+        "Danish Vikings explored and settled from Greenland to Constantinople between the 8th and 11th centuries",
+        "LEGO was invented in Billund, Denmark, in 1932 — the name comes from 'leg godt' (play well)",
+        "Denmark generates over 50% of its electricity from wind power — the highest share in the world"
+      ]
+    },
+    {
+      "id": "djibouti",
+      "name": "Djibouti",
+      "specialty": "Where tectonic plates tear apart and the sea boils below sea level",
+      "hook_text": "THE PLACE WHERE THE EARTH IS LITERALLY SPLITTING APART",
+      "footage_query": "Djibouti Lake Assal salt plain Afar desert whale shark cinematic",
+      "facts": [
+        "Djibouti sits where three tectonic plates meet — the Afar Triple Junction — making it one of the most geologically active places on Earth",
+        "Lake Assal, at 155 metres below sea level, is the lowest point in Africa and one of the saltiest bodies of water on Earth",
+        "Djibouti hosts military bases from the USA, France, China, Japan, and Italy — more foreign bases per square km than anywhere",
+        "The Gulf of Tadjoura off Djibouti is a seasonal gathering ground for whale sharks — the world's largest fish"
+      ]
+    },
+    {
+      "id": "dominica",
+      "name": "Dominica",
+      "specialty": "The Nature Isle — a boiling lake, rainforest, and Kalinago heritage",
+      "hook_text": "THE ISLAND WITH A LAKE THAT BOILS",
+      "footage_query": "Dominica boiling lake rainforest waterfall volcanic Caribbean cinematic",
+      "facts": [
+        "Dominica's Boiling Lake is the second-largest hot spring in the world — its water literally boils from volcanic heat beneath",
+        "Dominica is called the 'Nature Isle of the Caribbean' — 60% of the island is covered in rainforest",
+        "The Kalinago (Carib) people, the indigenous inhabitants who gave the Caribbean Sea its name, still live on Dominica",
+        "Dominica has 365 rivers — one for every day of the year — more than any other Caribbean island"
+      ]
+    },
+    {
+      "id": "dominican_republic",
+      "name": "Dominican Republic",
+      "specialty": "The Caribbean's highest peak, merengue rhythms, and the New World's oldest city",
+      "hook_text": "WHERE THE NEW WORLD BEGAN — AND THE MUSIC NEVER STOPPED",
+      "footage_query": "Dominican Republic Punta Cana beach colonial zone Santo Domingo merengue cinematic",
+      "facts": [
+        "Santo Domingo, founded in 1496, is the oldest continuously inhabited European settlement in the Americas",
+        "Pico Duarte (3,098m) is the highest peak in the entire Caribbean",
+        "Merengue, the Dominican Republic's signature dance and music, is a UNESCO Intangible Cultural Heritage",
+        "The Dominican Republic shares the island of Hispaniola with Haiti — two nations, two very different cultures, one island"
+      ]
+    },
+    {
+      "id": "ecuador",
+      "name": "Ecuador",
+      "specialty": "The Galápagos Islands — where Darwin's theory of evolution was born",
+      "hook_text": "THE ISLANDS THAT CHANGED HOW WE UNDERSTAND LIFE ITSELF",
+      "footage_query": "Ecuador Galapagos Islands giant tortoise iguana volcanic coast cinematic",
+      "facts": [
+        "The Galápagos Islands inspired Charles Darwin's theory of evolution — their unique species exist nowhere else on Earth",
+        "Ecuador is named after the equator, which passes directly through it — the equator monument at Mitad del Mundo marks the line",
+        "Giant Galápagos tortoises can live over 170 years — they are among the longest-lived vertebrates on Earth",
+        "Ecuador's cloud forests are among the most biodiverse ecosystems on the planet per square kilometre"
+      ]
+    },
+    {
+      "id": "egypt",
+      "name": "Egypt",
+      "specialty": "Pharaohs, pyramids, and the dawn of written history",
+      "hook_text": "WHERE CIVILIZATION WAS BORN",
+      "footage_query": "Egypt pyramids Giza Nile River sunset cinematic",
+      "facts": [
+        "The Great Pyramid of Giza is the only surviving Wonder of the Ancient World",
+        "Ancient Egyptians invented writing — hieroglyphics date back over 5,000 years",
+        "The Nile River, the world's longest, was the lifeblood of Egyptian civilization",
+        "Cleopatra lived closer in time to the Moon landing than to the building of the pyramids"
+      ]
+    },
+    {
+      "id": "el_salvador",
+      "name": "El Salvador",
+      "specialty": "Land of volcanoes, world-class surf, and the pupusa",
+      "hook_text": "THE VOLCANO COAST WITH THE WORLD'S BEST SURF",
+      "footage_query": "El Salvador volcano surf coast colorful village pupusa cinematic",
+      "facts": [
+        "El Salvador has over 20 volcanoes — including several still active — and is called the 'Land of Volcanoes'",
+        "El Salvador's Pacific coast is a world-class surf destination, with El Tunco and Punta Roca drawing surfers from around the globe",
+        "El Salvador became the first country in the world to adopt Bitcoin as legal tender in 2021",
+        "The pupusa, a thick corn tortilla stuffed with cheese, beans, or pork, is El Salvador's beloved national dish"
+      ]
+    },
+    {
+      "id": "equatorial_guinea",
+      "name": "Equatorial Guinea",
+      "specialty": "The only Spanish-speaking country in Africa",
+      "hook_text": "AFRICA'S ONLY SPANISH-SPEAKING NATION",
+      "footage_query": "Equatorial Guinea Bioko Island tropical forest Malabo coast cinematic",
+      "facts": [
+        "Equatorial Guinea is the only country in Africa where Spanish is the official language",
+        "Bioko Island's Monte Alén National Park holds some of the most pristine tropical rainforest in Central Africa",
+        "The discovery of oil in the 1990s made Equatorial Guinea one of the wealthiest countries in Africa by GDP per capita",
+        "Despite its name, Equatorial Guinea is not on the equator — the mainland is just north of it"
+      ]
+    },
+    {
+      "id": "eritrea",
+      "name": "Eritrea",
+      "specialty": "Red Sea coral reefs and an Art Deco capital frozen in the 1930s",
+      "hook_text": "THE ART DECO CITY BY THE RED SEA",
+      "footage_query": "Eritrea Asmara Art Deco architecture Red Sea coral reef cinematic",
+      "facts": [
+        "Asmara, Eritrea's capital, has one of the world's finest collections of Art Deco, Futurist, and Modernist architecture — a UNESCO site",
+        "The Dahlak Archipelago in the Red Sea has over 200 islands with pristine coral reefs and virtually no tourism",
+        "Eritrea's ancient port of Adulis was a major trading hub of the Aksumite Empire 2,000 years ago",
+        "Eritrea won its independence from Ethiopia in 1993 after a 30-year war — one of the longest in African history"
+      ]
+    },
+    {
+      "id": "eswatini",
+      "name": "Eswatini",
+      "specialty": "Africa's last absolute monarchy and the spectacular Reed Dance",
+      "hook_text": "THE LAST ABSOLUTE KINGDOM IN AFRICA",
+      "footage_query": "Eswatini Reed Dance ceremony Hlane wildlife reserve Swazi cinematic",
+      "facts": [
+        "Eswatini (formerly Swaziland) is Africa's last remaining absolute monarchy — the king holds executive, legislative, and judicial power",
+        "The Umhlanga (Reed Dance) festival brings tens of thousands of young Swazi women together in one of Africa's most spectacular cultural ceremonies",
+        "Despite being one of Africa's smallest countries, Eswatini has rich biodiversity — Hlane Royal National Park is home to elephants, lions, and white rhinos",
+        "Eswatini renamed itself from Swaziland in 2018 to distinguish itself from Switzerland in international contexts"
+      ]
+    },
+    {
+      "id": "ethiopia",
+      "name": "Ethiopia",
+      "specialty": "Birthplace of coffee, ancient Christian kingdoms, and human origins",
+      "hook_text": "WHERE HUMANITY TOOK ITS FIRST STEPS",
+      "footage_query": "Ethiopia coffee ceremony rock church Lalibela Blue Nile Falls cinematic",
+      "facts": [
+        "Ethiopia is where the earliest known human ancestors walked — 'Lucy', a 3.2 million year old hominin, was found here",
+        "Coffee was discovered in Ethiopia — a goat herder in the Kaffa region first noticed the energizing berries",
+        "The rock-hewn churches of Lalibela, carved from solid volcanic rock in the 12th century, are a UNESCO marvel",
+        "Ethiopia is the only African country that was never colonized by a European power"
+      ]
+    },
+    {
+      "id": "fiji",
+      "name": "Fiji",
+      "specialty": "333 tropical islands, firewalking warriors, and coral paradise",
+      "hook_text": "333 ISLANDS OF FIRE, CORAL, AND KAVA",
+      "footage_query": "Fiji tropical island coral reef palm tree crystal water cinematic",
+      "facts": [
+        "Fiji consists of 333 islands — about one-third are inhabited — spread across 1.3 million km² of the South Pacific",
+        "Fijian firewalking, where men walk barefoot across white-hot stones, is a centuries-old tradition of the Sawau tribe on Beqa Island",
+        "The Great Astrolabe Reef off Fiji is one of the largest barrier reefs in the world",
+        "Kava, a ceremonial drink made from the root of the pepper plant, is central to Fijian culture and welcomed at every gathering"
+      ]
+    },
+    {
+      "id": "finland",
+      "name": "Finland",
+      "specialty": "Land of saunas, Santa Claus, midnight sun, and the best education on Earth",
+      "hook_text": "WHERE SANTA LIVES AND THE SUN NEVER SETS",
+      "footage_query": "Finland Northern Lights sauna frozen lake midnight sun reindeer cinematic",
+      "facts": [
+        "Finland has 3.3 million saunas for 5.5 million people — there are more saunas than cars",
+        "Santa Claus's official home is in Rovaniemi, Finnish Lapland — the Arctic Circle runs through his village",
+        "Finland's education system is consistently ranked the best in the world — and has no standardized tests",
+        "Finland has over 188,000 lakes, earning it the nickname 'Land of a Thousand Lakes' — though that's an undercount by 187,000"
+      ]
+    },
+    {
+      "id": "france",
+      "name": "France",
+      "specialty": "Fashion, fine cuisine, and the cradle of human rights",
+      "hook_text": "THE COUNTRY THAT DEFINED ELEGANCE",
+      "footage_query": "France Eiffel Tower Paris Seine River cinematic",
+      "facts": [
+        "France is the world's most visited country, welcoming ~90 million tourists a year",
+        "The Eiffel Tower was built in 1889 and was originally meant to be temporary",
+        "The French Revolution of 1789 gave the world liberty, equality, and fraternity",
+        "French cuisine is a UNESCO Intangible Cultural Heritage"
+      ]
+    },
+    {
+      "id": "gabon",
+      "name": "Gabon",
+      "specialty": "88% rainforest — one of the last great wild places on Earth",
+      "hook_text": "THE COUNTRY THAT IS 88% RAINFOREST",
+      "footage_query": "Gabon rainforest forest elephant Lopé National Park coast cinematic",
+      "facts": [
+        "88% of Gabon is covered in rainforest — one of the highest forest-cover percentages of any country",
+        "Gabon is home to one of the largest populations of African forest elephants remaining in the wild",
+        "Lopé National Park is a UNESCO World Heritage Site containing both ancient rainforest and 400,000-year-old archaeological sites",
+        "Gabon has set aside 11% of its territory as marine protected areas, including one of the largest marine reserves in Africa"
+      ]
+    },
+    {
+      "id": "gambia",
+      "name": "Gambia",
+      "specialty": "Africa's smallest mainland nation — a sliver of river and birdsong",
+      "hook_text": "THE TINY RIVER COUNTRY THAT IS A BIRDWATCHER'S PARADISE",
+      "footage_query": "Gambia River bird watching mangrove colorful market cinematic",
+      "facts": [
+        "The Gambia is the smallest country on mainland Africa — just 50 km wide at its widest, wrapped around the Gambia River",
+        "The Gambia is one of the top birdwatching destinations in the world, with over 560 species in a tiny area",
+        "Kunta Kinteh Island (formerly James Island) in the Gambia River was a key point in the transatlantic slave trade — a UNESCO World Heritage Site",
+        "The Gambia is one of the few countries in the world whose shape is entirely defined by a river"
+      ]
+    },
+    {
+      "id": "georgia",
+      "name": "Georgia",
+      "specialty": "The birthplace of wine — 8,000 years of winemaking in clay vessels",
+      "hook_text": "THE COUNTRY THAT INVENTED WINE — 8,000 YEARS AGO",
+      "footage_query": "Georgia Caucasus Mountains ancient monastery vineyard Tbilisi cinematic",
+      "facts": [
+        "Georgia is the birthplace of wine — archaeological evidence shows winemaking in clay qvevri vessels dating back 8,000 years",
+        "The Caucasus Mountains in Georgia rise to over 5,000 metres — Shkhara peak reaches 5,193m",
+        "Georgian script is one of only 14 living alphabets in the world — it has been in use for at least 1,500 years",
+        "Tbilisi, Georgia's capital, was founded in the 5th century around hot sulfur springs — the bathhouses still operate today"
+      ]
+    },
+    {
+      "id": "germany",
+      "name": "Germany",
+      "specialty": "Engineering precision, Beethoven, and a nation reborn after the Wall fell",
+      "hook_text": "THE COUNTRY THAT TORE DOWN A WALL AND REBUILT ITSELF",
+      "footage_query": "Germany Berlin Brandenburg Gate Neuschwanstein castle Rhine cinematic",
+      "facts": [
+        "The fall of the Berlin Wall on November 9, 1989, was one of the most significant events of the 20th century",
+        "Germany is the world's fourth-largest economy and Europe's industrial engine — especially in automobiles and engineering",
+        "Neuschwanstein Castle in Bavaria inspired Disney's Sleeping Beauty Castle",
+        "Germany has produced Bach, Beethoven, Brahms, Goethe, Einstein, and the printing press (Gutenberg, 1440)"
+      ]
+    },
+    {
+      "id": "ghana",
+      "name": "Ghana",
+      "specialty": "The Gold Coast — Ashanti gold, kente cloth, and Africa's first independent nation",
+      "hook_text": "THE FIRST SUB-SAHARAN AFRICAN NATION TO WIN INDEPENDENCE",
+      "footage_query": "Ghana Ashanti gold kente cloth Cape Coast Castle Accra cinematic",
+      "facts": [
+        "Ghana was the first sub-Saharan African country to gain independence from colonial rule, in 1957 under Kwame Nkrumah",
+        "The Ashanti Kingdom's Golden Stool is believed to contain the soul of the Ashanti nation — no one sits on it, not even the king",
+        "Kente cloth, woven in vibrant geometric patterns, originated with the Ashanti people and is now a global symbol of African heritage",
+        "Cape Coast Castle, a UNESCO World Heritage Site, was one of the largest slave-trading posts in West Africa"
+      ]
+    },
+    {
+      "id": "greece",
+      "name": "Greece",
+      "specialty": "The birthplace of democracy, philosophy, and the Olympics",
+      "hook_text": "WHERE WESTERN CIVILIZATION BEGAN",
+      "footage_query": "Greece Santorini Acropolis blue white Aegean Sea cinematic",
+      "facts": [
+        "Ancient Greece gave the world democracy, philosophy, the Olympics, and Western theatre",
+        "Socrates, Plato, and Aristotle laid the foundations of modern thought",
+        "The Acropolis of Athens has stood for over 2,500 years atop its rocky outcrop",
+        "Greece has over 6,000 islands and islets in the Aegean and Ionian seas"
+      ]
+    },
+    {
+      "id": "grenada",
+      "name": "Grenada",
+      "specialty": "The Spice Isle — nutmeg capital of the world and an underwater sculpture park",
+      "hook_text": "THE ISLAND THAT FLAVOURS THE WORLD'S KITCHENS",
+      "footage_query": "Grenada spice plantation nutmeg underwater sculpture Caribbean cinematic",
+      "facts": [
+        "Grenada is the world's second-largest producer of nutmeg per capita — the nutmeg even appears on the national flag",
+        "The Moliniere Underwater Sculpture Park off Grenada's coast is the world's first — eerie concrete figures colonized by coral",
+        "Grenada produces more spices per square mile than anywhere else on Earth — cinnamon, cloves, ginger, and mace alongside nutmeg",
+        "Grand Anse Beach in Grenada is regularly ranked among the best beaches in the world"
+      ]
+    },
+    {
+      "id": "guatemala",
+      "name": "Guatemala",
+      "specialty": "Heart of the Maya world — Tikal's pyramids rise above the jungle canopy",
+      "hook_text": "WHERE MAYA PYRAMIDS PIERCE THE JUNGLE CANOPY",
+      "footage_query": "Guatemala Tikal Maya pyramid jungle Lake Atitlan volcano cinematic",
+      "facts": [
+        "Tikal, one of the largest Maya cities, has pyramids rising 70 metres above the jungle — howler monkeys call from the treetops",
+        "Lake Atitlán, surrounded by three volcanoes, was called 'the most beautiful lake in the world' by Aldous Huxley",
+        "Guatemala is the birthplace of chocolate — the Maya brewed cacao as a sacred drink over 2,000 years ago",
+        "The resplendent quetzal, Guatemala's national bird, was so sacred to the Maya that killing one was punishable by death"
+      ]
+    },
+    {
+      "id": "guinea",
+      "name": "Guinea",
+      "specialty": "The water tower of West Africa — where great rivers are born",
+      "hook_text": "THE HIGHLANDS WHERE WEST AFRICA'S RIVERS BEGIN",
+      "footage_query": "Guinea Fouta Djallon highlands waterfall river chimpanzee cinematic",
+      "facts": [
+        "Guinea is called the 'water tower of West Africa' — the Niger, Senegal, and Gambia rivers all originate in its Fouta Djallon highlands",
+        "Guinea holds one-third of the world's bauxite reserves — the ore that becomes aluminium",
+        "The Nimba Mountains, shared with Liberia and Côte d'Ivoire, are a UNESCO site with species found nowhere else",
+        "The chimpanzees of Bossou, Guinea, use stone tools — one of the best-studied populations of tool-using primates"
+      ]
+    },
+    {
+      "id": "guinea_bissau",
+      "name": "Guinea-Bissau",
+      "specialty": "The Bijagós Archipelago — Africa's most remote and wild island chain",
+      "hook_text": "AFRICA'S WILDEST ISLAND ARCHIPELAGO",
+      "footage_query": "Guinea-Bissau Bijagos Archipelago mangrove island hippo sea cinematic",
+      "facts": [
+        "The Bijagós Archipelago is one of the most pristine island groups in Africa — home to saltwater hippos that swim between islands",
+        "Guinea-Bissau is one of the world's largest cashew nut producers — cashews are its main export",
+        "The Bijagós islands have a matriarchal society — women choose their husbands and can divorce at will",
+        "Guinea-Bissau has virtually no tourist infrastructure, making it one of the least-visited countries on Earth"
+      ]
+    },
+    {
+      "id": "guyana",
+      "name": "Guyana",
+      "specialty": "Kaieteur Falls — the world's most powerful single-drop waterfall, hidden in jungle",
+      "hook_text": "THE WATERFALL FIVE TIMES TALLER THAN NIAGARA — HIDDEN IN THE JUNGLE",
+      "footage_query": "Guyana Kaieteur Falls rainforest tepui waterfall aerial cinematic",
+      "facts": [
+        "Kaieteur Falls drops 226 metres in a single plunge — five times the height of Niagara and the world's largest single-drop waterfall by volume",
+        "Over 80% of Guyana is covered in pristine rainforest — one of the highest forest-cover rates in the world",
+        "Guyana is the only English-speaking country in South America",
+        "Guyana's interior is so remote that some indigenous communities can only be reached by small aircraft or river boat"
+      ]
+    },
+    {
+      "id": "haiti",
+      "name": "Haiti",
+      "specialty": "The world's first Black republic and a fortress that defied empires",
+      "hook_text": "THE SLAVE REVOLUTION THAT SHOOK THE WORLD",
+      "footage_query": "Haiti Citadelle Laferriere mountain fortress Caribbean coast cinematic",
+      "facts": [
+        "Haiti became the world's first independent Black republic in 1804, after enslaved people defeated Napoleon's army",
+        "The Citadelle Laferrière, built atop a 900-metre peak after independence, is the largest fortress in the Americas",
+        "Haiti's Vodou tradition blends West African spirituality with Caribbean culture — it is a recognized religion, not a caricature",
+        "Haitian art — vivid, symbolic, and expressive — is collected and exhibited in museums worldwide"
+      ]
+    },
+    {
+      "id": "honduras",
+      "name": "Honduras",
+      "specialty": "Maya ruins at Copán, cloud-forest orchids, and Caribbean reef diving",
+      "hook_text": "WHERE MAYA ASTRONOMERS MAPPED THE STARS",
+      "footage_query": "Honduras Copan Maya ruins Bay Islands diving cloud forest cinematic",
+      "facts": [
+        "Copán, one of the greatest Maya cities, has the most elaborate hieroglyphic stairway in the Maya world — 63 steps of carved history",
+        "The Bay Islands (Roatán, Utila, Guanaja) sit on the Mesoamerican Barrier Reef — world-class diving at a fraction of typical prices",
+        "Honduras's cloud forests are home to the resplendent quetzal, jaguars, and over 700 bird species",
+        "The Mosquito Coast of eastern Honduras is one of the most remote and biodiverse regions in Central America"
+      ]
+    },
+    {
+      "id": "hungary",
+      "name": "Hungary",
+      "specialty": "Thermal baths, paprika, and the Danube's most beautiful Parliament",
+      "hook_text": "WHERE THERMAL WATERS FUEL A CAPITAL OF GRANDEUR",
+      "footage_query": "Hungary Budapest Parliament Danube thermal bath bridge night cinematic",
+      "facts": [
+        "Budapest has over 120 natural thermal springs — more than any other capital city in the world",
+        "The Hungarian Parliament Building on the Danube is 268 metres long and took 17 years to build — one of the most stunning in Europe",
+        "Hungary gave the world the Rubik's Cube, invented by Ernő Rubik in 1974 — over 450 million have been sold",
+        "Tokaji wine, from Hungary's Tokaj region, was called 'the wine of kings and the king of wines' by Louis XIV of France"
+      ]
+    },
+    {
+      "id": "iceland",
+      "name": "Iceland",
+      "specialty": "Fire, ice, and the northern lights on the edge of the world",
+      "hook_text": "THE ISLAND OF FIRE AND ICE",
+      "footage_query": "Iceland Northern Lights aurora glacier waterfall cinematic",
+      "facts": [
+        "Iceland sits on the Mid-Atlantic Ridge, where two tectonic plates meet and drift apart",
+        "One third of all lava erupted on Earth in the last 500 years came from Iceland",
+        "Iceland runs on nearly 100% renewable geothermal and hydropower energy",
+        "Iceland has no standing army and consistently ranks as the world's most peaceful nation"
+      ]
+    },
+    {
+      "id": "india",
+      "name": "India",
+      "specialty": "Ancient civilization, spirituality, and explosive creativity",
+      "hook_text": "A CIVILIZATION 5,000 YEARS IN THE MAKING",
+      "footage_query": "India Taj Mahal Ganges River golden hour cinematic",
+      "facts": [
+        "India is home to one of the world's oldest civilisations — the Indus Valley",
+        "The Taj Mahal, built by Emperor Shah Jahan, took 22 years and 20,000 workers",
+        "India invented the number zero, chess, and yoga",
+        "India has 22 officially recognized languages and over 1,600 dialects"
+      ]
+    },
+    {
+      "id": "indonesia",
+      "name": "Indonesia",
+      "specialty": "17,000 islands, Bali's temples, Komodo dragons, and the world's largest archipelago",
+      "hook_text": "17,000 ISLANDS — THE LARGEST ARCHIPELAGO ON EARTH",
+      "footage_query": "Indonesia Bali temple rice terrace Komodo dragon volcano cinematic",
+      "facts": [
+        "Indonesia is the world's largest archipelago — over 17,000 islands stretching 5,120 km across the equator",
+        "Komodo dragons, the world's largest living lizards, are found only on a handful of Indonesian islands",
+        "Borobudur in Java is the world's largest Buddhist temple — 2 million stone blocks arranged in a giant mandala",
+        "Indonesia has over 270 million people speaking 700+ languages — the fourth most populous country on Earth"
+      ]
+    },
+    {
+      "id": "iran",
+      "name": "Iran",
+      "specialty": "Persia reborn — 2,500 years of empire, poetry, and breathtaking mosques",
+      "hook_text": "THE ANCIENT EMPIRE THAT GAVE THE WORLD POETRY AND PARADISE",
+      "footage_query": "Iran Persepolis Isfahan mosque mosaic desert garden cinematic",
+      "facts": [
+        "Persepolis, built by Darius the Great around 518 BC, was the ceremonial capital of the Achaemenid Empire — the largest empire the ancient world had seen",
+        "The word 'paradise' comes from the Old Persian 'pairidaeza' — a walled garden",
+        "Isfahan's Naqsh-e Jahan Square is one of the largest public squares in the world, surrounded by stunning blue-tiled mosques",
+        "Rumi and Hafez, two of the world's most-read poets, wrote in Persian — Rumi is the best-selling poet in the United States"
+      ]
+    },
+    {
+      "id": "iraq",
+      "name": "Iraq",
+      "specialty": "Mesopotamia — the cradle of civilization, writing, and the wheel",
+      "hook_text": "WHERE HUMANITY WROTE ITS FIRST WORD",
+      "footage_query": "Iraq Mesopotamia ancient ruins Tigris marshlands ziggurat cinematic",
+      "facts": [
+        "Mesopotamia, the land between the Tigris and Euphrates in modern Iraq, is where civilization began — writing, the wheel, law, and cities were all born here",
+        "The Code of Hammurabi, carved in Babylon around 1754 BC, is one of the oldest written legal codes in human history",
+        "The Marshes of southern Iraq (Ahwar) are a UNESCO World Heritage Site — a unique wetland ecosystem inhabited for 5,000 years",
+        "The ancient city of Babylon, with its Hanging Gardens, was one of the most magnificent cities the world has ever known"
+      ]
+    },
+    {
+      "id": "ireland",
+      "name": "Ireland",
+      "specialty": "Celtic legends, dramatic cliffs, and a literary tradition that shaped the world",
+      "hook_text": "THE EMERALD ISLE THAT GAVE THE WORLD ITS GREATEST STORIES",
+      "footage_query": "Ireland Cliffs of Moher green rolling hills Celtic castle cinematic",
+      "facts": [
+        "The Cliffs of Moher rise 214 metres straight out of the Atlantic — one of the most dramatic coastlines in Europe",
+        "Ireland has produced four Nobel laureates in literature — Yeats, Shaw, Beckett, and Heaney — more per capita than any other country",
+        "The Book of Kells, an illuminated manuscript from around 800 AD, is one of the most beautiful books ever created",
+        "Irish pubs are found in virtually every country on Earth — there are over 7,000 in Ireland alone"
+      ]
+    },
+    {
+      "id": "israel",
+      "name": "Israel",
+      "specialty": "The Holy Land — ancient sacred sites and a modern tech powerhouse",
+      "hook_text": "THE LAND SACRED TO THREE FAITHS — AND A STARTUP NATION",
+      "footage_query": "Israel Jerusalem Old City Dead Sea Negev desert cinematic",
+      "facts": [
+        "Jerusalem's Old City contains sites sacred to Judaism, Christianity, and Islam within a single square kilometre",
+        "The Dead Sea, bordering Israel and Jordan, is the lowest point on Earth's surface — 430 metres below sea level",
+        "Israel has more startups per capita than any other country — earning the nickname 'Startup Nation'",
+        "Masada, a desert fortress on a plateau above the Dead Sea, is a symbol of Jewish resistance and a UNESCO World Heritage Site"
+      ]
+    },
+    {
+      "id": "italy",
+      "name": "Italy",
+      "specialty": "Birthplace of the Renaissance, art, and world cuisine",
+      "hook_text": "WHERE ART AND FLAVOR BUILT CIVILIZATION",
+      "footage_query": "Italy Colosseum Tuscany rolling hills cinematic",
+      "facts": [
+        "Italy has more UNESCO World Heritage Sites than any country — 58 in total",
+        "The Roman Empire, born here, shaped law, language, and architecture worldwide",
+        "Leonardo da Vinci, Michelangelo, and Raphael all lived and worked in Italy",
+        "The Vatican City, the world's smallest country, sits inside Rome"
+      ]
+    },
+    {
+      "id": "jamaica",
+      "name": "Jamaica",
+      "specialty": "Birthplace of reggae, the fastest humans, and Blue Mountain coffee",
+      "hook_text": "THE ISLAND THAT GAVE THE WORLD REGGAE AND THE FASTEST MAN ALIVE",
+      "footage_query": "Jamaica Blue Mountains reggae beach Rastafari waterfall cinematic",
+      "facts": [
+        "Reggae music, born in Jamaica in the late 1960s, is a UNESCO Intangible Cultural Heritage — Bob Marley made it a global movement",
+        "Usain Bolt, the fastest human in recorded history (9.58s for 100m), was born and raised in Trelawny, Jamaica",
+        "Jamaican Blue Mountain Coffee is among the rarest and most expensive coffees in the world",
+        "Jamaica's Rastafari movement, which emerged in the 1930s, has influenced music, fashion, and philosophy worldwide"
+      ]
+    },
+    {
+      "id": "japan",
+      "name": "Japan",
+      "specialty": "Ancient traditions meet hyper-modern innovation",
+      "hook_text": "THE LAND WHERE PAST MEETS FUTURE",
+      "footage_query": "Japan cherry blossoms Mount Fuji cinematic",
+      "facts": [
+        "Japan has over 6,800 islands and more than 127 million people",
+        "Mount Fuji, standing at 3,776 m, is an active stratovolcano and sacred symbol",
+        "Japan invented modern bullet trains (Shinkansen), reaching 320 km/h",
+        "Cherry blossom season (hanami) is a national celebration every spring"
+      ]
+    },
+    {
+      "id": "jordan",
+      "name": "Jordan",
+      "specialty": "Petra — a rose-red city carved into desert cliffs by an ancient people",
+      "hook_text": "THE ROSE-RED CITY HALF AS OLD AS TIME",
+      "footage_query": "Jordan Petra Treasury Wadi Rum desert Dead Sea cinematic",
+      "facts": [
+        "Petra, the ancient Nabataean city carved from rose-red sandstone cliffs, is one of the New Seven Wonders of the World",
+        "Wadi Rum, the 'Valley of the Moon,' is a desert landscape so otherworldly that The Martian was filmed here",
+        "Jordan shares the Dead Sea with Israel — the lowest point on Earth's surface and so salty you float effortlessly",
+        "Jordan has welcomed more refugees per capita than almost any country in the world"
+      ]
+    },
+    {
+      "id": "kazakhstan",
+      "name": "Kazakhstan",
+      "specialty": "The world's largest landlocked country — steppe nomads and the space launch pad",
+      "hook_text": "WHERE NOMADIC HORSEMEN LAUNCHED THE SPACE AGE",
+      "footage_query": "Kazakhstan steppe horseman Baikonur space launch Charyn Canyon cinematic",
+      "facts": [
+        "Kazakhstan is the world's largest landlocked country — the size of Western Europe",
+        "The Baikonur Cosmodrome in Kazakhstan is where Yuri Gagarin launched into space — it's still the world's busiest spaceport",
+        "The Kazakh steppe is the ancestral homeland of the horse — horses were first domesticated here over 5,500 years ago",
+        "Charyn Canyon, 80 km long, rivals the Grand Canyon in beauty — its red rock formations are called the 'Valley of Castles'"
+      ]
+    },
+    {
+      "id": "kenya",
+      "name": "Kenya",
+      "specialty": "The Great Migration, Maasai warriors, and Africa's wild heart",
+      "hook_text": "WHERE THE GREATEST WILDLIFE SHOW ON EARTH UNFOLDS",
+      "footage_query": "Kenya Maasai Mara wildebeest migration savanna lion cinematic",
+      "facts": [
+        "The Great Migration — 1.5 million wildebeest crossing the Mara River — is the greatest wildlife spectacle on Earth",
+        "Kenya is home to the Maasai, a semi-nomadic people who have lived alongside lions for centuries",
+        "The Great Rift Valley runs through Kenya — a 6,000 km geological scar visible from space",
+        "Kenyan runners dominate marathon world records — more Olympic medals in distance running than any other country"
+      ]
+    },
+    {
+      "id": "kiribati",
+      "name": "Kiribati",
+      "specialty": "The first place on Earth to see each new day — and the most at risk of vanishing",
+      "hook_text": "THE NATION THAT SEES EVERY SUNRISE FIRST — AND MAY VANISH BENEATH THE WAVES",
+      "footage_query": "Kiribati Pacific atoll coral reef sunrise ocean village cinematic",
+      "facts": [
+        "Kiribati straddles the International Date Line and the equator — it is the first country to see each new day",
+        "Kiribati's 33 atolls are scattered across 3.5 million km² of the Pacific — an ocean area larger than India",
+        "Most of Kiribati is less than 2 metres above sea level — rising seas threaten to make it uninhabitable within decades",
+        "The Phoenix Islands Protected Area in Kiribati is one of the largest marine reserves on Earth"
+      ]
+    },
+    {
+      "id": "kosovo",
+      "name": "Kosovo",
+      "specialty": "Europe's youngest nation, ancient monasteries, and a determined new identity",
+      "hook_text": "EUROPE'S YOUNGEST NATION — BORN IN THE 21ST CENTURY",
+      "footage_query": "Kosovo Prizren fortress medieval monastery Pristina cinematic",
+      "facts": [
+        "Kosovo declared independence from Serbia in 2008, making it one of the youngest nations in the world",
+        "The medieval Serbian Orthodox monasteries of Kosovo, including Gračanica, are UNESCO World Heritage Sites",
+        "Prizren, with its Ottoman bridge and riverside bazaar, is one of the most picturesque cities in the Balkans",
+        "Kosovo has one of the youngest populations in Europe — the median age is just 29"
+      ]
+    },
+    {
+      "id": "kuwait",
+      "name": "Kuwait",
+      "specialty": "Pearl-diving heritage, desert towers, and the world's hottest summers",
+      "hook_text": "THE DESERT STATE BUILT ON PEARL DIVING AND BLACK GOLD",
+      "footage_query": "Kuwait towers skyline desert Arabian Gulf pearl diving cinematic",
+      "facts": [
+        "Before oil, Kuwait's economy depended on pearl diving — Kuwaiti divers harvested some of the finest natural pearls in the world",
+        "Kuwait was the first Gulf state to establish a constitution and parliament, in 1962",
+        "The Kuwait Towers, futuristic mushroom-shaped structures built in 1979, are a symbol of the nation's modernization",
+        "Kuwait experiences some of the hottest temperatures on Earth — reaching over 54°C in summer"
+      ]
+    },
+    {
+      "id": "kyrgyzstan",
+      "name": "Kyrgyzstan",
+      "specialty": "Nomadic yurt culture and the Celestial Mountains of Central Asia",
+      "hook_text": "THE LAND OF CELESTIAL MOUNTAINS AND NOMADIC HORSEMEN",
+      "footage_query": "Kyrgyzstan Tian Shan mountains yurt nomad horse Issyk Kul lake cinematic",
+      "facts": [
+        "The Tian Shan ('Celestial Mountains') dominate Kyrgyzstan — 94% of the country is above 1,000 metres",
+        "The Epic of Manas, Kyrgyzstan's national poem, is 20 times longer than Homer's Odyssey — the longest epic poem in the world",
+        "Lake Issyk-Kul, one of the world's largest alpine lakes, never freezes despite being surrounded by snow-capped peaks",
+        "Nomadic yurt culture is alive in Kyrgyzstan — families still migrate to high pastures (jailoo) each summer"
+      ]
+    },
+    {
+      "id": "laos",
+      "name": "Laos",
+      "specialty": "The land of a million elephants, Mekong temples, and the mysterious Plain of Jars",
+      "hook_text": "THE LAND OF A MILLION ELEPHANTS",
+      "footage_query": "Laos Luang Prabang temple Mekong river Plain of Jars cinematic",
+      "facts": [
+        "Laos was historically known as 'Lan Xang' — the Land of a Million Elephants",
+        "The Plain of Jars contains thousands of massive stone jars scattered across plateaus — their purpose is still debated by archaeologists",
+        "Luang Prabang, where the Mekong and Nam Khan rivers meet, is a UNESCO World Heritage city of golden temples and French colonial architecture",
+        "Laos is the most heavily bombed country per capita in history — more bombs fell on it during the Vietnam War than in all of WWII combined"
+      ]
+    },
+    {
+      "id": "latvia",
+      "name": "Latvia",
+      "specialty": "Art Nouveau masterpieces, amber shores, and the Baltic singing revolution",
+      "hook_text": "THE NATION THAT SANG ITS WAY TO FREEDOM",
+      "footage_query": "Latvia Riga Art Nouveau old town Baltic amber coast cinematic",
+      "facts": [
+        "Riga has the finest collection of Art Nouveau architecture in Europe — over 800 buildings in the style",
+        "Latvia regained independence in 1991 through the 'Singing Revolution' — 2 million Balts formed a 600km human chain",
+        "The Latvian Song and Dance Festival, held every five years, brings together 40,000 performers — a UNESCO tradition",
+        "Latvia's Baltic coast is rich in amber — 'Baltic gold' — traded since ancient times along the Amber Road to Rome"
+      ]
+    },
+    {
+      "id": "lebanon",
+      "name": "Lebanon",
+      "specialty": "The Phoenician coast that invented the alphabet and the Cedars of God",
+      "hook_text": "THE COAST THAT GAVE THE WORLD ITS LETTERS",
+      "footage_query": "Lebanon Baalbek temple cedars Beirut coast mountains cinematic",
+      "facts": [
+        "The Phoenicians of ancient Lebanon invented the ancestor of every modern alphabet — from Arabic to English",
+        "The Cedars of God, a grove of ancient Lebanese cedar trees, are mentioned in the Epic of Gilgamesh — some are over 3,000 years old",
+        "Baalbek's Temple of Jupiter contains the largest stone blocks ever used in construction — some weigh over 800 tonnes",
+        "Lebanon can go from skiing in the mountains to swimming in the Mediterranean in under an hour"
+      ]
+    },
+    {
+      "id": "lesotho",
+      "name": "Lesotho",
+      "specialty": "The Mountain Kingdom — the only country in the world entirely above 1,000 metres",
+      "hook_text": "THE KINGDOM IN THE SKY",
+      "footage_query": "Lesotho mountain kingdom Basotho horseback waterfall snow cinematic",
+      "facts": [
+        "Lesotho is the only country in the world where every point of land is above 1,000 metres — its lowest point is the highest of any country",
+        "Lesotho is entirely surrounded by South Africa — one of only three countries in the world completely enclosed by another",
+        "Basotho people navigate the mountains on horseback — the Basotho pony is a symbol of national identity",
+        "Maletsunyane Falls plunges 192 metres — one of the highest single-drop waterfalls in southern Africa"
+      ]
+    },
+    {
+      "id": "liberia",
+      "name": "Liberia",
+      "specialty": "Africa's oldest republic, founded by freed American slaves",
+      "hook_text": "THE AFRICAN NATION FOUNDED BY FREED SLAVES",
+      "footage_query": "Liberia rainforest coast Monrovia Sapo National Park cinematic",
+      "facts": [
+        "Liberia was founded in 1847 by freed American slaves — it is Africa's oldest republic",
+        "Liberia's capital, Monrovia, is named after U.S. President James Monroe",
+        "Sapo National Park contains some of the last remaining primary tropical rainforest in West Africa",
+        "Liberia was the first African country to have a female head of state — Ellen Johnson Sirleaf, elected in 2005"
+      ]
+    },
+    {
+      "id": "libya",
+      "name": "Libya",
+      "specialty": "Roman cities in the Sahara and ancient Greek colonies on the Mediterranean",
+      "hook_text": "WHERE ROME'S GRANDEST RUINS STAND IN THE SAHARA",
+      "footage_query": "Libya Leptis Magna Roman ruins Sahara desert Mediterranean coast cinematic",
+      "facts": [
+        "Leptis Magna, a Roman city in Libya, is one of the best-preserved Roman archaeological sites anywhere — rivalling Pompeii",
+        "Libya is 90% Sahara Desert — one of the least populated regions on Earth",
+        "Cyrene, founded by Greek colonists in 631 BC, was a thriving ancient city whose ruins are a UNESCO World Heritage Site",
+        "Libya holds Africa's largest proven oil reserves"
+      ]
+    },
+    {
+      "id": "liechtenstein",
+      "name": "Liechtenstein",
+      "specialty": "A double-landlocked Alpine principality smaller than many cities",
+      "hook_text": "THE ALPINE PRINCIPALITY YOU CAN WALK ACROSS IN A DAY",
+      "footage_query": "Liechtenstein Vaduz castle Alps Rhine Valley village cinematic",
+      "facts": [
+        "Liechtenstein is one of only two double-landlocked countries in the world — completely surrounded by landlocked countries (Austria and Switzerland)",
+        "At just 160 km², Liechtenstein is the sixth-smallest country in the world — smaller than most major cities",
+        "Despite its size, Liechtenstein has the highest GDP per capita of any country in the world",
+        "Vaduz Castle, perched above the capital, has been home to the princely family since 1938 and is still their residence"
+      ]
+    },
+    {
+      "id": "lithuania",
+      "name": "Lithuania",
+      "specialty": "Amber capital of the world, the Hill of Crosses, and Baltic independence",
+      "hook_text": "THE HILL OF 200,000 CROSSES THAT NO REGIME COULD DESTROY",
+      "footage_query": "Lithuania Hill of Crosses Vilnius old town amber Baltic coast cinematic",
+      "facts": [
+        "The Hill of Crosses near Šiauliai has over 200,000 crosses — Soviet authorities bulldozed it multiple times, but it always grew back",
+        "Lithuania was the first Soviet republic to declare independence, on March 11, 1990",
+        "Vilnius Old Town is one of the largest surviving medieval old towns in Europe — a UNESCO World Heritage Site",
+        "Lithuania's amber deposits along the Baltic coast have been traded for over 5,000 years — amber is called 'Lithuanian gold'"
+      ]
+    },
+    {
+      "id": "luxembourg",
+      "name": "Luxembourg",
+      "specialty": "A tiny Grand Duchy with fortress walls and the heart of the European Union",
+      "hook_text": "THE FORTRESS DUCHY AT THE HEART OF EUROPE",
+      "footage_query": "Luxembourg old town fortress Grund valley European institutions cinematic",
+      "facts": [
+        "Luxembourg is one of the smallest sovereign states in Europe — yet hosts the European Court of Justice and key EU institutions",
+        "The Bock Casemates, a network of underground tunnels carved into the fortress rock, stretch 17 km beneath the city",
+        "Luxembourg has three official languages — Luxembourgish, French, and German — spoken interchangeably in daily life",
+        "Luxembourg has the highest GDP per capita in the European Union — driven by its major banking sector"
+      ]
+    },
+    {
+      "id": "madagascar",
+      "name": "Madagascar",
+      "specialty": "The island where 90% of wildlife exists nowhere else on Earth",
+      "hook_text": "THE ISLAND THAT EVOLUTION CLAIMED AS ITS OWN LABORATORY",
+      "footage_query": "Madagascar baobab avenue lemur rainforest chameleon cinematic",
+      "facts": [
+        "Madagascar has been isolated from Africa for 88 million years — 90% of its wildlife is found nowhere else on Earth",
+        "The Avenue of the Baobabs features 800-year-old trees towering 30 metres — one of Africa's most iconic landscapes",
+        "Madagascar is home to over 100 species of lemurs — primates found nowhere else — many critically endangered",
+        "Madagascar produces 80% of the world's natural vanilla"
+      ]
+    },
+    {
+      "id": "malawi",
+      "name": "Malawi",
+      "specialty": "The warm heart of Africa — Lake Malawi has more fish species than any lake on Earth",
+      "hook_text": "THE WARM HEART OF AFRICA AND ITS INCREDIBLE LAKE",
+      "footage_query": "Malawi Lake Malawi fish eagle village mountain cinematic",
+      "facts": [
+        "Lake Malawi contains more species of fish than any other lake on Earth — over 1,000, most found nowhere else",
+        "Malawi is called the 'Warm Heart of Africa' for the friendliness of its people",
+        "Lake Malawi occupies nearly a third of the country's total area and is the third-largest lake in Africa",
+        "The Lake Malawi National Park was the first freshwater park to be designated a UNESCO World Heritage Site"
+      ]
+    },
+    {
+      "id": "malaysia",
+      "name": "Malaysia",
+      "specialty": "Borneo's orangutans, the Petronas Towers, and the world's best street food",
+      "hook_text": "WHERE THE JUNGLE CANOPY MEETS A SOARING SKYLINE",
+      "footage_query": "Malaysia Petronas Towers Borneo orangutan rainforest street food cinematic",
+      "facts": [
+        "The Petronas Twin Towers in Kuala Lumpur were the world's tallest buildings from 1998 to 2004 — they remain the tallest twin towers",
+        "Malaysian Borneo is home to orangutans, pygmy elephants, and one of the oldest rainforests on Earth — 130 million years old",
+        "Malaysian street food — nasi lemak, char kway teow, roti canai — is consistently ranked among the best in the world",
+        "The Cameron Highlands, a colonial-era hill station, grow some of Southeast Asia's finest tea at 1,500 metres above sea level"
+      ]
+    },
+    {
+      "id": "maldives",
+      "name": "Maldives",
+      "specialty": "The lowest-lying nation on Earth — coral atolls in an azure ocean",
+      "hook_text": "PARADISE — AND THE COUNTRY MOST AT RISK OF DISAPPEARING",
+      "footage_query": "Maldives overwater bungalow coral reef turquoise Indian Ocean cinematic",
+      "facts": [
+        "The Maldives is the lowest-lying country on Earth — its highest natural point is just 2.4 metres above sea level",
+        "The Maldives consists of 1,192 coral islands grouped in 26 atolls — only 200 are inhabited",
+        "The bioluminescent plankton on some Maldivian beaches make the shoreline glow electric blue at night",
+        "The Maldives is one of the most climate-vulnerable nations — a 1-metre rise in sea level would submerge 80% of the country"
+      ]
+    },
+    {
+      "id": "mali",
+      "name": "Mali",
+      "specialty": "Timbuktu — legendary city of gold and learning at the edge of the Sahara",
+      "hook_text": "TIMBUKTU — THE FABLED CITY THAT REALLY EXISTS",
+      "footage_query": "Mali Timbuktu Djenne mosque Sahara Desert Niger River cinematic",
+      "facts": [
+        "Timbuktu was one of the world's great centres of learning — its Sankore University had 25,000 students in the 15th century",
+        "The Great Mosque of Djenné is the largest mud-brick building in the world — rebuilt by the community each year in a massive festival",
+        "Mansa Musa of Mali's 1324 pilgrimage to Mecca was so lavish that his gold gifts crashed the Egyptian economy for a decade",
+        "Mali's Dogon people have lived in the Bandiagara Cliffs for centuries — their astronomy and cosmology astound researchers"
+      ]
+    },
+    {
+      "id": "malta",
+      "name": "Malta",
+      "specialty": "Megalithic temples older than the pyramids and the Knights of St. John",
+      "hook_text": "TEMPLES 1,000 YEARS OLDER THAN THE PYRAMIDS — ON A TINY ISLAND",
+      "footage_query": "Malta Valletta harbour megalithic temple fortress Mediterranean cinematic",
+      "facts": [
+        "Malta's Megalithic Temples are the oldest free-standing structures on Earth — older than Stonehenge and the Egyptian pyramids by 1,000 years",
+        "The Knights of St. John (Knights Hospitaller) ruled Malta from 1530 to 1798, building the fortified city of Valletta",
+        "Despite being one of the world's smallest and most densely populated countries, Malta has three UNESCO World Heritage Sites",
+        "Maltese, the national language, is the only Semitic language written in the Latin alphabet"
+      ]
+    },
+    {
+      "id": "marshall_islands",
+      "name": "Marshall Islands",
+      "specialty": "Nuclear test legacy, master navigators, and the world's largest shark sanctuary",
+      "hook_text": "THE ATOLL NATION STILL HEALING FROM THE NUCLEAR AGE",
+      "footage_query": "Marshall Islands Bikini Atoll coral reef Pacific Ocean island cinematic",
+      "facts": [
+        "Bikini Atoll in the Marshall Islands was the site of 23 nuclear weapon tests between 1946 and 1958 — the islanders were relocated and many never returned",
+        "Marshallese stick charts are ancient navigation tools — woven from palm fronds to map ocean swell patterns for canoe voyaging",
+        "The Marshall Islands designated its entire 1.9 million km² of ocean as a shark sanctuary — one of the world's largest",
+        "Kwajalein Atoll has the world's largest lagoon — 2,174 km² of sheltered turquoise water"
+      ]
+    },
+    {
+      "id": "mauritania",
+      "name": "Mauritania",
+      "specialty": "Ancient Saharan caravan cities and the Eye of Africa",
+      "hook_text": "THE EYE OF THE SAHARA — VISIBLE FROM SPACE",
+      "footage_query": "Mauritania Richat Structure Sahara caravan Chinguetti cinematic",
+      "facts": [
+        "The Richat Structure ('Eye of the Sahara') is a 40 km-wide geological formation visible from space — its origin is still debated",
+        "Chinguetti, a medieval desert trading city, is home to one of Africa's oldest libraries of Islamic manuscripts",
+        "Mauritania's ancient caravan routes transported salt, gold, and slaves across the Sahara for centuries",
+        "The Banc d'Arguin National Park on Mauritania's coast is one of the world's most important bird breeding grounds"
+      ]
+    },
+    {
+      "id": "mauritius",
+      "name": "Mauritius",
+      "specialty": "Where the dodo lived, the ocean turns seven colours, and cultures converge",
+      "hook_text": "THE ISLAND WHERE SEVEN COLOURS SHIMMER IN THE SEA",
+      "footage_query": "Mauritius underwater waterfall seven coloured earth beach tropical cinematic",
+      "facts": [
+        "The dodo, the world's most famous extinct bird, was native only to Mauritius — it vanished by 1681",
+        "The 'underwater waterfall' illusion off Mauritius's coast, created by sand and silt flowing off the shelf, is breathtaking from above",
+        "The Seven Coloured Earth of Chamarel — dunes of seven distinct mineral colours that never blend despite rain — is a natural wonder",
+        "Mauritius is a cultural mosaic of Indian, African, Chinese, and European heritage — reflected in its food, festivals, and languages"
+      ]
+    },
+    {
+      "id": "mexico",
+      "name": "Mexico",
+      "specialty": "Ancient Maya wonders, vibrant culture, and world-class cuisine",
+      "hook_text": "WHERE ANCIENT GODS MEET LIVING CULTURE",
+      "footage_query": "Mexico Chichen Itza Maya ruins colorful market cinematic",
+      "facts": [
+        "Chichén Itzá's El Castillo pyramid is precisely aligned so sunlight forms a serpent shadow at the spring equinox",
+        "Mexican cuisine — tamales, mole, and chocolate — is inscribed on the UNESCO cultural heritage list",
+        "The Day of the Dead (Día de los Muertos) is a UNESCO-recognized tradition honoring ancestors",
+        "Mexico City, the largest Spanish-speaking city in the world, was built atop an ancient Aztec lake"
+      ]
+    },
+    {
+      "id": "micronesia",
+      "name": "Micronesia",
+      "specialty": "Nan Madol — the ancient 'Venice of the Pacific' built on coral reefs",
+      "hook_text": "THE ANCIENT CITY BUILT ON CORAL — THE VENICE OF THE PACIFIC",
+      "footage_query": "Micronesia Nan Madol ruins coral reef Pacific island diving cinematic",
+      "facts": [
+        "Nan Madol, on the island of Pohnpei, is an ancient city built on 92 artificial islets linked by canals — the 'Venice of the Pacific'",
+        "Micronesia spans over 2,500 km of the western Pacific — 607 islands with a total land area smaller than London",
+        "Yap's stone money (rai) — limestone discs up to 4 metres across — is still used for ceremonial transactions",
+        "Chuuk (Truk) Lagoon contains the world's largest underwater museum — a WWII Japanese fleet sunk in 1944"
+      ]
+    },
+    {
+      "id": "moldova",
+      "name": "Moldova",
+      "specialty": "The world's largest wine cellar and an underdog nation finding its way",
+      "hook_text": "THE COUNTRY WITH THE WORLD'S LARGEST WINE CELLAR",
+      "footage_query": "Moldova wine cellar vineyard Orheiul Vechi monastery village cinematic",
+      "facts": [
+        "Mileștii Mici wine cellar holds 2 million bottles in 200 km of underground tunnels — the largest wine collection in the world",
+        "Wine is so central to Moldovan culture that the country celebrates a national Wine Day every October",
+        "Orheiul Vechi, a cave monastery carved into a limestone cliff above the Răut River, has been a sacred site for 2,000 years",
+        "Moldova is one of Europe's least-visited countries — but its rolling countryside and hospitality are gems"
+      ]
+    },
+    {
+      "id": "monaco",
+      "name": "Monaco",
+      "specialty": "The world's most densely populated country — glamour compressed into 2 km²",
+      "hook_text": "THE ENTIRE COUNTRY FITS IN CENTRAL PARK",
+      "footage_query": "Monaco Monte Carlo yacht harbour Formula 1 Mediterranean cinematic",
+      "facts": [
+        "Monaco is the world's second-smallest country (2.02 km²) and most densely populated — 26,000 people per km²",
+        "The Monaco Grand Prix, held on the streets of Monte Carlo since 1929, is the most prestigious Formula 1 race",
+        "Monaco has no income tax — making it a magnet for the world's ultra-wealthy",
+        "The Oceanographic Museum of Monaco, founded by Prince Albert I in 1910, perches dramatically on a cliffside above the sea"
+      ]
+    },
+    {
+      "id": "mongolia",
+      "name": "Mongolia",
+      "specialty": "Genghis Khan's empire, the Gobi Desert, and the last great nomadic horseback culture",
+      "hook_text": "THE LAND WHERE GENGHIS KHAN RODE AND NOMADS STILL ROAM",
+      "footage_query": "Mongolia Gobi Desert nomad ger horseback eagle hunter steppe cinematic",
+      "facts": [
+        "Genghis Khan's Mongol Empire was the largest contiguous land empire in history — stretching from Korea to Hungary",
+        "Mongolia is the world's most sparsely populated country — just 2 people per km² across vast steppes and deserts",
+        "Kazakh eagle hunters in western Mongolia still hunt with golden eagles from horseback — a tradition over 4,000 years old",
+        "The Gobi Desert spans 1.3 million km² — home to two-humped Bactrian camels, dinosaur fossils, and shifting sand dunes"
+      ]
+    },
+    {
+      "id": "montenegro",
+      "name": "Montenegro",
+      "specialty": "Adriatic fjords, medieval walled towns, and Europe's deepest canyon",
+      "hook_text": "THE ADRIATIC'S MOST DRAMATIC HIDDEN GEM",
+      "footage_query": "Montenegro Bay of Kotor Durmitor canyon walled town Adriatic cinematic",
+      "facts": [
+        "The Bay of Kotor is often called Europe's southernmost fjord — a dramatic inlet surrounded by mountains and medieval walled towns",
+        "Tara River Canyon is the deepest canyon in Europe (1,300m) and second deepest in the world after the Grand Canyon",
+        "Montenegro's name means 'Black Mountain' — its rugged mountains are covered in dark pine forests",
+        "Durmitor National Park, a UNESCO World Heritage Site, has 48 peaks over 2,000 metres and 18 glacial lakes"
+      ]
+    },
+    {
+      "id": "morocco",
+      "name": "Morocco",
+      "specialty": "Ancient medinas, Sahara dunes, and a crossroads of cultures",
+      "hook_text": "WHERE THE SAHARA MEETS THE SEA",
+      "footage_query": "Morocco Sahara Desert camel dunes blue city Chefchaouen cinematic",
+      "facts": [
+        "Morocco has coasts on both the Atlantic Ocean and Mediterranean Sea",
+        "The ancient medina of Fez is home to the world's oldest continuously operating university — founded in 859 AD",
+        "Moroccan spice markets (souks) have traded saffron, cumin, and argan oil for centuries",
+        "The blue-painted city of Chefchaouen is one of the world's most photographed places"
+      ]
+    },
+    {
+      "id": "mozambique",
+      "name": "Mozambique",
+      "specialty": "Indian Ocean islands, dhow sailing, and the Gorongosa wildlife revival",
+      "hook_text": "THE WILDLIFE COMEBACK STORY OF THE CENTURY",
+      "footage_query": "Mozambique Bazaruto Island dhow sailing Gorongosa wildlife cinematic",
+      "facts": [
+        "Gorongosa National Park, devastated by civil war, has become one of Africa's greatest wildlife restoration stories",
+        "The Bazaruto Archipelago is a chain of tropical islands with some of the best snorkeling in the Indian Ocean",
+        "Mozambique's dhow sailing tradition dates back to Arab and Persian trading voyages over 1,000 years ago",
+        "Mozambique has one of the longest coastlines in Africa — 2,470 km of Indian Ocean beaches"
+      ]
+    },
+    {
+      "id": "myanmar",
+      "name": "Myanmar",
+      "specialty": "Bagan's 2,000 ancient temples rising from the plains at dawn",
+      "hook_text": "2,000 TEMPLES RISING FROM A SINGLE PLAIN",
+      "footage_query": "Myanmar Bagan temples hot air balloon Inle Lake golden pagoda cinematic",
+      "facts": [
+        "Bagan's temple plain contains over 2,000 ancient Buddhist monuments built between the 9th and 13th centuries — a UNESCO World Heritage Site",
+        "Shwedagon Pagoda in Yangon is covered in real gold — over 60 tonnes of gold leaf and topped with a 76-carat diamond",
+        "Inle Lake's leg-rowing fishermen balance on one leg while rowing with the other — a technique found nowhere else on Earth",
+        "Myanmar is one of the world's largest producers of jade and rubies — the 'Pigeon Blood' rubies from Mogok are the finest on Earth"
+      ]
+    },
+    {
+      "id": "namibia",
+      "name": "Namibia",
+      "specialty": "The oldest desert on Earth, shipwreck coast, and desert-adapted elephants",
+      "hook_text": "THE OLDEST DESERT ON EARTH — WHERE ELEPHANTS WALK THE DUNES",
+      "footage_query": "Namibia Sossusvlei red dunes Skeleton Coast Etosha elephant cinematic",
+      "facts": [
+        "The Namib Desert is the world's oldest desert — 55 million years old — its red dunes at Sossusvlei reach 300 metres",
+        "The Skeleton Coast is littered with shipwrecks and whale bones — so hostile that the San people called it 'the land God made in anger'",
+        "Namibia's desert-adapted elephants have evolved to walk massive distances between water sources across the barren landscape",
+        "Namibia was the first country in the world to put environmental protection into its constitution"
+      ]
+    },
+    {
+      "id": "nauru",
+      "name": "Nauru",
+      "specialty": "The world's smallest island nation — 21 km² of cautionary boom and bust",
+      "hook_text": "THE 21 KM² ISLAND THAT WAS ONCE THE RICHEST COUNTRY ON EARTH",
+      "footage_query": "Nauru Pacific island coral reef small nation aerial cinematic",
+      "facts": [
+        "Nauru is the world's smallest island nation — just 21 km² and about 10,000 people",
+        "In the 1970s–80s, Nauru had the highest GDP per capita in the world due to phosphate mining — then the phosphate ran out",
+        "Nauru has no official capital city — government offices are in the Yaren district",
+        "80% of Nauru's surface was strip-mined for phosphate, leaving a moonscape of jagged coral pinnacles"
+      ]
+    },
+    {
+      "id": "nepal",
+      "name": "Nepal",
+      "specialty": "Home of Mount Everest, 8 of the 10 highest peaks, and the birthplace of the Buddha",
+      "hook_text": "THE ROOF OF THE WORLD — WHERE EVEREST TOUCHES THE SKY",
+      "footage_query": "Nepal Mount Everest Himalayas prayer flags Kathmandu temple cinematic",
+      "facts": [
+        "Nepal is home to Mount Everest (8,849m) — the highest point on Earth — and 8 of the world's 10 tallest peaks",
+        "Siddhartha Gautama, who became the Buddha, was born in Lumbini, Nepal, around 563 BC",
+        "Nepal is the only country in the world with a non-rectangular flag — its double-pennant shape represents the Himalayas",
+        "Kathmandu Valley alone has 7 UNESCO World Heritage Sites — more per square km than anywhere"
+      ]
+    },
+    {
+      "id": "netherlands",
+      "name": "Netherlands",
+      "specialty": "Tulip fields, canals, Rembrandt, and a nation built on water",
+      "hook_text": "THE COUNTRY THAT ENGINEERED ITS OWN LAND",
+      "footage_query": "Netherlands tulip fields windmill Amsterdam canal cinematic",
+      "facts": [
+        "One quarter of the Netherlands lies below sea level — the Dutch have been engineering polders and dikes for 800 years",
+        "Amsterdam's canal ring is a UNESCO World Heritage Site",
+        "Rembrandt, Vermeer, and Van Gogh are all Dutch",
+        "The Netherlands has more bicycles than people"
+      ]
+    },
+    {
+      "id": "new_zealand",
+      "name": "New Zealand",
+      "specialty": "Maori culture, dramatic landscapes, and the edge of the Earth",
+      "hook_text": "WHERE MIDDLE-EARTH COMES ALIVE",
+      "footage_query": "New Zealand Milford Sound Maori culture mountains cinematic",
+      "facts": [
+        "New Zealand was the last large landmass on Earth to be settled by humans — around 700 years ago",
+        "The Maori people, Polynesian navigators, sailed here by the stars across the Pacific",
+        "Peter Jackson filmed The Lord of the Rings trilogy here because the landscapes are unlike anywhere else",
+        "New Zealand was the first country in the world to give women the right to vote, in 1893"
+      ]
+    },
+    {
+      "id": "nicaragua",
+      "name": "Nicaragua",
+      "specialty": "Volcanoes, colonial cities, and Central America's largest lake with sharks",
+      "hook_text": "THE LAKE WITH BULL SHARKS — IN THE MIDDLE OF CENTRAL AMERICA",
+      "footage_query": "Nicaragua volcano Granada colonial lake island cinematic",
+      "facts": [
+        "Lake Nicaragua is home to bull sharks — one of the only places on Earth where sharks live in a freshwater lake",
+        "Nicaragua has 19 volcanoes — several still active — forming a dramatic chain along the Pacific coast",
+        "Granada, founded in 1524, is one of the oldest colonial cities in the Americas — its colourful architecture is beautifully preserved",
+        "Nicaragua is the largest country in Central America by area"
+      ]
+    },
+    {
+      "id": "niger",
+      "name": "Niger",
+      "specialty": "Saharan dinosaur graveyards, Tuareg nomads, and the world's youngest population",
+      "hook_text": "THE DESERT THAT HIDES DINOSAUR BONES",
+      "footage_query": "Niger Sahara Tuareg nomad camel Agadez mosque cinematic",
+      "facts": [
+        "Niger's Saharan landscape has yielded major dinosaur discoveries — including Nigersaurus, which had over 500 teeth",
+        "The Agadez Mosque, built in the 16th century from mud-brick, is one of the tallest mud-brick structures in the world",
+        "Niger has the world's youngest population — the median age is just 15",
+        "The Tuareg nomads of Niger, known as the 'Blue People' for their indigo-dyed garments, have traversed the Sahara for centuries"
+      ]
+    },
+    {
+      "id": "nigeria",
+      "name": "Nigeria",
+      "specialty": "Africa's most populous nation — Nollywood, Yoruba art, and unstoppable energy",
+      "hook_text": "AFRICA'S GIANT — 220 MILLION PEOPLE, ONE RELENTLESS HEARTBEAT",
+      "footage_query": "Nigeria Lagos cityscape Nollywood Yoruba art festival cinematic",
+      "facts": [
+        "Nigeria is Africa's most populous country — over 220 million people — and projected to be the world's third most populous by 2050",
+        "Nollywood produces more films per year than Hollywood — it's the world's second-largest film industry by volume",
+        "The Benin Bronzes, looted by the British in 1897, are among the finest metal sculptures ever created",
+        "Nigeria has over 250 ethnic groups and 500 languages — one of the most culturally diverse countries on Earth"
+      ]
+    },
+    {
+      "id": "north_korea",
+      "name": "North Korea",
+      "specialty": "The Hermit Kingdom — the most isolated country on Earth",
+      "hook_text": "THE MOST SECRETIVE NATION ON THE PLANET",
+      "footage_query": "North Korea Pyongyang Juche tower DMZ Korean Peninsula cinematic",
+      "facts": [
+        "North Korea is the most isolated country on Earth — internet access is restricted to a tiny elite and foreign visitors are closely monitored",
+        "The Demilitarized Zone (DMZ) between North and South Korea is the most heavily fortified border in the world — yet ironically teems with wildlife",
+        "The Ryugyong Hotel in Pyongyang, a 105-storey pyramid, has been under construction since 1987 and has never opened",
+        "North Korea operates on its own calendar — Juche Year 1 starts in 1912, the birth year of founder Kim Il-sung"
+      ]
+    },
+    {
+      "id": "north_macedonia",
+      "name": "North Macedonia",
+      "specialty": "Lake Ohrid's ancient waters and a crossroads of Balkan empires",
+      "hook_text": "EUROPE'S OLDEST LAKE AND THE CRADLE OF SLAVIC LITERACY",
+      "footage_query": "North Macedonia Lake Ohrid church mountain Matka Canyon cinematic",
+      "facts": [
+        "Lake Ohrid is one of Europe's oldest and deepest lakes — over 3 million years old — with species found nowhere else",
+        "The Ohrid literary school helped create the Cyrillic alphabet — making Ohrid the cradle of Slavic literacy",
+        "Matka Canyon, just outside Skopje, has one of Europe's deepest underwater caves — Vrelo at 212 metres",
+        "North Macedonia changed its name from 'Macedonia' in 2019 to resolve a decades-long dispute with Greece"
+      ]
+    },
+    {
+      "id": "norway",
+      "name": "Norway",
+      "specialty": "Fjords, Vikings, and the world's most breathtaking coastline",
+      "hook_text": "LAND OF THE MIDNIGHT SUN AND FIERCE EXPLORERS",
+      "footage_query": "Norway fjords mountains aurora borealis cinematic",
+      "facts": [
+        "Norway's coastline, including fjords and islands, is over 83,000 km long",
+        "Viking explorers from Norway reached North America 500 years before Columbus",
+        "Norway invented the concept of the sovereign wealth fund — worth over $1.7 trillion",
+        "The midnight sun means Norway has 24-hour daylight for months in summer"
+      ]
+    },
+    {
+      "id": "oman",
+      "name": "Oman",
+      "specialty": "Frankincense trails, turquoise wadis, and Arabia's most welcoming kingdom",
+      "hook_text": "THE ARABIAN SULTANATE OF FRANKINCENSE AND TURQUOISE POOLS",
+      "footage_query": "Oman Musandam fjord wadi Muscat fort frankincense cinematic",
+      "facts": [
+        "Oman was the ancient world's main source of frankincense — the aromatic resin was worth more than gold in Roman times",
+        "The Musandam Peninsula, Oman's northern enclave, has dramatic fjord-like inlets carved into limestone cliffs",
+        "Oman's wadis — seasonal riverbeds — fill with turquoise water after rains, creating natural swimming pools in the desert",
+        "Oman is consistently ranked as one of the safest and most welcoming countries in the Middle East"
+      ]
+    },
+    {
+      "id": "pakistan",
+      "name": "Pakistan",
+      "specialty": "K2, Mohenjo-daro, truck art, and the Karakoram Highway through the sky",
+      "hook_text": "THE HIGHWAY THROUGH THE HIGHEST MOUNTAINS ON EARTH",
+      "footage_query": "Pakistan K2 Karakoram Highway Mohenjo-daro truck art cinematic",
+      "facts": [
+        "K2 (8,611m), the world's second-highest and most dangerous mountain, stands in Pakistan's Karakoram range",
+        "The Karakoram Highway, connecting Pakistan and China, is the highest paved international road in the world (4,714m)",
+        "Mohenjo-daro, in Pakistan's Sindh province, was one of the world's first great cities — part of the Indus Valley Civilization 4,500 years ago",
+        "Pakistani truck art — brilliantly painted lorries covered in jingling chains and poetry — is a folk-art tradition found nowhere else"
+      ]
+    },
+    {
+      "id": "palau",
+      "name": "Palau",
+      "specialty": "A marine wonderland — Jellyfish Lake and pristine coral kingdoms",
+      "hook_text": "THE OCEAN PARADISE WITH A LAKE FULL OF GOLDEN JELLYFISH",
+      "footage_query": "Palau Jellyfish Lake coral reef Rock Islands aerial Pacific cinematic",
+      "facts": [
+        "Palau's Jellyfish Lake contains millions of golden jellyfish that have lost their sting — you can swim among them",
+        "The Rock Islands of Palau, a UNESCO World Heritage Site, are over 400 mushroom-shaped limestone islets covered in jungle",
+        "Palau created one of the world's first shark sanctuaries in 2009 — covering 600,000 km² of ocean",
+        "Palau stamps a conservation pledge into every visitor's passport — the Palau Pledge — the first country to do so"
+      ]
+    },
+    {
+      "id": "palestine",
+      "name": "Palestine",
+      "specialty": "Bethlehem, ancient olive groves, and one of the world's oldest continuously inhabited cities",
+      "hook_text": "WHERE OLIVE TREES HAVE WITNESSED 5,000 YEARS OF HISTORY",
+      "footage_query": "Palestine Bethlehem olive groves ancient city old town cinematic",
+      "facts": [
+        "Jericho, in the Palestinian territories, is one of the oldest continuously inhabited cities on Earth — settled over 10,000 years ago",
+        "Bethlehem, in the West Bank, is revered as the birthplace of Jesus Christ — the Church of the Nativity is a UNESCO World Heritage Site",
+        "Palestinian olive oil has been produced for over 5,000 years — ancient olive trees still bear fruit across the hills",
+        "Palestinian embroidery (tatreez) is a distinctive cross-stitch tradition where each village has its own signature pattern"
+      ]
+    },
+    {
+      "id": "panama",
+      "name": "Panama",
+      "specialty": "The canal that changed the world and a land bridge between two continents",
+      "hook_text": "THE 77 KM CUT THAT RESHAPED GLOBAL TRADE",
+      "footage_query": "Panama Canal ship crossing rainforest skyline bridge cinematic",
+      "facts": [
+        "The Panama Canal, completed in 1914, is one of the greatest engineering feats in history — ships save 12,000 km by avoiding Cape Horn",
+        "Panama is the only place in the world where you can watch the sun rise over the Pacific and set over the Atlantic",
+        "The Darién Gap, between Panama and Colombia, is one of the most impenetrable jungles on Earth — no road has ever crossed it",
+        "Panama is a biological corridor — its land bridge allowed species from North and South America to mix 3 million years ago"
+      ]
+    },
+    {
+      "id": "papua_new_guinea",
+      "name": "Papua New Guinea",
+      "specialty": "850 languages, Highland warriors, and the most linguistically diverse nation on Earth",
+      "hook_text": "850 LANGUAGES — MORE THAN ANY COUNTRY ON EARTH",
+      "footage_query": "Papua New Guinea Highland warrior bird of paradise tribal ceremony cinematic",
+      "facts": [
+        "Papua New Guinea has over 850 languages — more than any other country — many spoken by only a few hundred people",
+        "Highland warriors paint their faces and wear elaborate headdresses of bird-of-paradise feathers for sing-sing festivals",
+        "The bird of paradise, found only in New Guinea and nearby islands, was once believed to be a bird from heaven",
+        "Agriculture was independently invented in the PNG Highlands about 10,000 years ago — one of only a few places on Earth where this happened"
+      ]
+    },
+    {
+      "id": "paraguay",
+      "name": "Paraguay",
+      "specialty": "Guaraní bilingualism, Jesuit missions, and the wild Chaco",
+      "hook_text": "THE BILINGUAL HEART OF SOUTH AMERICA",
+      "footage_query": "Paraguay Jesuit mission ruins Chaco wetland harp music cinematic",
+      "facts": [
+        "Paraguay is one of the most bilingual countries in the world — 90% of the population speaks both Spanish and Guaraní",
+        "The Jesuit Missions of La Santísima Trinidad de Paraná are a UNESCO World Heritage Site — ruins of a 17th-century utopian experiment",
+        "The Paraguayan harp is the national instrument — its cascading sound defines the country's folk music",
+        "The Gran Chaco region in western Paraguay is one of the most remote and sparsely populated areas in South America"
+      ]
+    },
+    {
+      "id": "peru",
+      "name": "Peru",
+      "specialty": "The Inca Empire, Machu Picchu, and the Amazon headwaters",
+      "hook_text": "CITY IN THE CLOUDS — THE INCA MIRACLE",
+      "footage_query": "Peru Machu Picchu Andes mountains Amazon mist cinematic",
+      "facts": [
+        "Machu Picchu was built by the Inca around 1450 AD and abandoned 100 years later — its purpose is still debated",
+        "Peru's Amazon basin contains 10% of all species on Earth",
+        "Peru is the origin of the potato — 3,000 varieties still grow in the Andes",
+        "Lake Titicaca is the highest navigable lake in the world at 3,812 m"
+      ]
+    },
+    {
+      "id": "philippines",
+      "name": "Philippines",
+      "specialty": "7,641 islands, the Chocolate Hills, and the world's most beautiful rice terraces",
+      "hook_text": "7,641 ISLANDS AND THE EIGHTH WONDER OF THE WORLD",
+      "footage_query": "Philippines Banaue rice terraces Chocolate Hills island beach cinematic",
+      "facts": [
+        "The Philippines has 7,641 islands — and Filipinos joke that the true number depends on whether the tide is in or out",
+        "The Banaue Rice Terraces, carved into the Ifugao mountains 2,000 years ago, are called the 'Eighth Wonder of the World'",
+        "The Chocolate Hills of Bohol — over 1,200 perfectly cone-shaped mounds — turn brown in dry season, looking like giant chocolate drops",
+        "The Philippines is the world's largest exporter of coconut products and one of the world's top producers of gold and nickel"
+      ]
+    },
+    {
+      "id": "poland",
+      "name": "Poland",
+      "specialty": "Chopin, Wieliczka salt mines, and a spirit forged through centuries of defiance",
+      "hook_text": "THE NATION THAT REBUILT ITSELF FROM RUBBLE — TWICE",
+      "footage_query": "Poland Krakow old town Wieliczka salt mine Warsaw Chopin cinematic",
+      "facts": [
+        "Warsaw was 85% destroyed in WWII and was meticulously rebuilt — the reconstructed Old Town is a UNESCO World Heritage Site",
+        "Wieliczka Salt Mine near Kraków has been in operation since the 13th century — it contains underground chapels carved entirely from salt",
+        "Frédéric Chopin, born near Warsaw in 1810, is considered the greatest piano composer of all time",
+        "Poland has the largest remaining primeval forest in Europe (shared with Belarus) — Białowieża, home to the European bison"
+      ]
+    },
+    {
+      "id": "portugal",
+      "name": "Portugal",
+      "specialty": "Age of Exploration, Fado music, and the edge of the old world",
+      "hook_text": "THE TINY NATION THAT MAPPED THE WORLD",
+      "footage_query": "Portugal Sintra palaces Lisbon tram Atlantic coast cinematic",
+      "facts": [
+        "Portugal launched the Age of Discovery — Vasco da Gama reached India, and Magellan's ship first circumnavigated the globe",
+        "Fado, Portugal's folk music of longing (saudade), is a UNESCO Cultural Heritage",
+        "Sintra's fairytale palaces inspired Lord Byron to call it 'this glorious Eden'",
+        "Portugal's port wine, aged in oak barrels in the Douro Valley, has been exported since the 17th century"
+      ]
+    },
+    {
+      "id": "qatar",
+      "name": "Qatar",
+      "specialty": "From pearl diving to the world's richest country per capita in a single generation",
+      "hook_text": "THE DESERT PENINSULA THAT BECAME THE WORLD'S RICHEST",
+      "footage_query": "Qatar Doha skyline desert falcon race pearl diving cinematic",
+      "facts": [
+        "Qatar has one of the highest GDP per capita figures in the world — transforming from a pearl-diving backwater to ultra-modern in 50 years",
+        "The Museum of Islamic Art in Doha, designed by I.M. Pei, holds one of the world's finest collections of Islamic art",
+        "Qatar hosted the 2022 FIFA World Cup — the first Middle Eastern country to do so",
+        "Traditional falcon racing and camel racing remain important cultural pursuits in Qatar"
+      ]
+    },
+    {
+      "id": "congo_republic",
+      "name": "Republic of the Congo",
+      "specialty": "Congo Basin rainforest — Earth's second lung",
+      "hook_text": "THE SECOND GREAT LUNG OF THE PLANET",
+      "footage_query": "Congo Basin rainforest river gorilla canopy aerial cinematic",
+      "facts": [
+        "The Congo Basin rainforest is the second largest tropical forest on Earth — second only to the Amazon",
+        "Brazzaville, the capital, sits directly across the Congo River from Kinshasa — the two closest capital cities in the world",
+        "The Republic of the Congo has one of the highest proportions of forest cover of any country — over 65%",
+        "The Nouabalé-Ndoki National Park is a pristine wilderness sometimes called the 'Last Place on Earth'"
+      ]
+    },
+    {
+      "id": "romania",
+      "name": "Romania",
+      "specialty": "Transylvania, painted monasteries, and Europe's last great wilderness",
+      "hook_text": "BEYOND DRACULA — EUROPE'S WILDEST CARPATHIAN FRONTIER",
+      "footage_query": "Romania Bran Castle Transylvania Carpathian mountains painted monastery cinematic",
+      "facts": [
+        "Transylvania, land of Bram Stoker's Dracula, is a real region of forested mountains, medieval citadels, and brown bears",
+        "Romania's Carpathian Mountains are home to Europe's largest population of brown bears — over 6,000",
+        "The painted monasteries of Bucovina, with their vivid exterior frescoes from the 15th–16th century, are UNESCO World Heritage Sites",
+        "The Danube Delta, where Europe's mightiest river meets the Black Sea, is one of the world's great wetlands — home to over 300 bird species"
+      ]
+    },
+    {
+      "id": "russia",
+      "name": "Russia",
+      "specialty": "The largest country on Earth — from the Kremlin to Kamchatka's volcanoes",
+      "hook_text": "11 TIME ZONES — THE COUNTRY THAT SPANS A CONTINENT AND A HALF",
+      "footage_query": "Russia Moscow Kremlin Lake Baikal Trans-Siberian Railway snow cinematic",
+      "facts": [
+        "Russia spans 11 time zones and covers more than one-eighth of Earth's inhabited land area — the largest country by far",
+        "Lake Baikal in Siberia is the world's deepest and oldest lake — containing 20% of the world's unfrozen fresh water",
+        "The Trans-Siberian Railway covers 9,289 km from Moscow to Vladivostok — the longest railway line in the world",
+        "Russia's Hermitage Museum in St. Petersburg has over 3 million items — so many that seeing each for 30 seconds would take 11 years"
+      ]
+    },
+    {
+      "id": "rwanda",
+      "name": "Rwanda",
+      "specialty": "Mountain gorillas, the cleanest city in Africa, and a miraculous transformation",
+      "hook_text": "THE PHOENIX NATION — FROM TRAGEDY TO AFRICA'S CLEANEST CITY",
+      "footage_query": "Rwanda mountain gorilla Kigali green hills Volcanoes National Park cinematic",
+      "facts": [
+        "Rwanda's Volcanoes National Park is one of the last remaining habitats of the endangered mountain gorilla",
+        "Kigali is consistently ranked the cleanest city in Africa — plastic bags have been banned since 2008",
+        "Rwanda has the highest percentage of women in parliament of any country in the world — over 60%",
+        "Rwanda has transformed from the devastation of the 1994 genocide into one of Africa's fastest-growing economies"
+      ]
+    },
+    {
+      "id": "saint_kitts_and_nevis",
+      "name": "Saint Kitts and Nevis",
+      "specialty": "The smallest nation in the Americas and the fortress that shaped Caribbean history",
+      "hook_text": "THE CARIBBEAN'S MIGHTIEST FORTRESS ON THE TINIEST NATION",
+      "footage_query": "Saint Kitts Brimstone Hill Fortress Caribbean volcanic island cinematic",
+      "facts": [
+        "Saint Kitts and Nevis is the smallest sovereign nation in the Americas — 261 km²",
+        "Brimstone Hill Fortress, built over 100 years, is one of the best-preserved historical fortifications in the Caribbean — a UNESCO site",
+        "Saint Kitts was the first Caribbean island to be settled by both the English and French in the 17th century",
+        "The narrow-gauge scenic railway circling St. Kitts was originally built to transport sugar cane and is now a tourist attraction"
+      ]
+    },
+    {
+      "id": "saint_lucia",
+      "name": "Saint Lucia",
+      "specialty": "Twin volcanic peaks rising from the sea and the world's only drive-in volcano",
+      "hook_text": "THE ISLAND WITH TWIN VOLCANIC PEAKS AND A DRIVE-IN VOLCANO",
+      "footage_query": "Saint Lucia Pitons twin peaks Caribbean volcanic sulphur springs cinematic",
+      "facts": [
+        "The Pitons — Gros Piton and Petit Piton — are two volcanic spires that rise dramatically 700+ metres from the sea",
+        "Saint Lucia has the world's only 'drive-in volcano' — the Soufrière volcano, where you can drive right up to bubbling sulphur springs",
+        "Saint Lucia has produced two Nobel laureates — Sir Arthur Lewis (Economics) and Derek Walcott (Literature) — the most per capita of any nation",
+        "The island changes colonial hands 14 times between Britain and France — more than any other Caribbean island"
+      ]
+    },
+    {
+      "id": "saint_vincent_and_the_grenadines",
+      "name": "Saint Vincent and the Grenadines",
+      "specialty": "The Grenadines — private islands, turquoise shallows, and Pirates of the Caribbean",
+      "hook_text": "THE ISLANDS WHERE PIRATES OF THE CARIBBEAN WAS FILMED",
+      "footage_query": "Saint Vincent Grenadines Tobago Cays turquoise water sailing cinematic",
+      "facts": [
+        "The Tobago Cays are a cluster of tiny uninhabited islands surrounded by coral reefs and the most vivid turquoise water in the Caribbean",
+        "Multiple Pirates of the Caribbean films were shot on the islands of St. Vincent and the Grenadines",
+        "La Soufrière volcano on St. Vincent erupted explosively in April 2021, displacing 20,000 people",
+        "Mustique, one of the Grenadines, is a private island retreat favoured by royals and rock stars"
+      ]
+    },
+    {
+      "id": "samoa",
+      "name": "Samoa",
+      "specialty": "Polynesian cultural heartland — the fa'a Samoa way of life",
+      "hook_text": "THE HEART OF POLYNESIA — WHERE TRADITION SHAPES EVERY DAY",
+      "footage_query": "Samoa Polynesian village ocean tropical fale waterfall cinematic",
+      "facts": [
+        "Samoa is considered the 'Cradle of Polynesia' — the Polynesian migration across the Pacific is believed to have begun here",
+        "The fa'a Samoa (Samoan way) is a living cultural system of chiefs, extended family, and communal values that still governs daily life",
+        "Robert Louis Stevenson, author of Treasure Island, spent his final years in Samoa and is buried on Mount Vaea overlooking Apia",
+        "In 2011, Samoa skipped an entire day — jumping across the International Date Line from the American side to the Asian side"
+      ]
+    },
+    {
+      "id": "saudi_arabia",
+      "name": "Saudi Arabia",
+      "specialty": "Mecca, ancient Nabataean tombs, and the world's largest sand desert",
+      "hook_text": "THE HOLIEST LAND IN ISLAM AND THE SEA OF SAND",
+      "footage_query": "Saudi Arabia Hegra tombs desert Al Ula Mecca Rub al Khali cinematic",
+      "facts": [
+        "Mecca, in Saudi Arabia, is the holiest city in Islam — over 2 million Muslims make the Hajj pilgrimage there each year",
+        "Hegra (Madin Salih) contains over 100 monumental Nabataean tombs carved into sandstone — Saudi Arabia's first UNESCO World Heritage Site",
+        "The Rub' al Khali (Empty Quarter) is the world's largest contiguous sand desert — 650,000 km² of dunes in southern Saudi Arabia",
+        "Al-Ula, a 200,000-year-old oasis, is being developed as Saudi Arabia's answer to Luxor — ancient ruins set in dramatic desert canyons"
+      ]
+    },
+    {
+      "id": "senegal",
+      "name": "Senegal",
+      "specialty": "Gorée Island, Teranga hospitality, and Africa's wrestling tradition",
+      "hook_text": "THE LAND OF TERANGA — AFRICA'S MOST WELCOMING NATION",
+      "footage_query": "Senegal Goree Island Dakar wrestling Lake Retba pink lake cinematic",
+      "facts": [
+        "Gorée Island, off Dakar, is a UNESCO World Heritage Site and a powerful memorial to the transatlantic slave trade",
+        "Teranga (hospitality) is Senegal's cultural cornerstone — visitors are treated like family",
+        "Senegalese wrestling (laamb) is the national sport — bouts draw tens of thousands of spectators and top wrestlers are celebrities",
+        "Lake Retba (Lac Rose) turns vivid pink due to salt-loving algae — its salt content rivals the Dead Sea"
+      ]
+    },
+    {
+      "id": "serbia",
+      "name": "Serbia",
+      "specialty": "Nikola Tesla's homeland, medieval monasteries, and Belgrade's legendary nightlife",
+      "hook_text": "THE LAND THAT GAVE THE WORLD ALTERNATING CURRENT",
+      "footage_query": "Serbia Belgrade fortress Danube medieval monastery cinematic",
+      "facts": [
+        "Nikola Tesla, who invented alternating current and changed the modern world, was born in the village of Smiljan (then Austria-Hungary, now Croatia), but was of Serbian heritage",
+        "Belgrade Fortress sits at the confluence of the Danube and Sava rivers and has been destroyed and rebuilt over 100 times in 7,000 years",
+        "Serbia's medieval monasteries, including Studenica, contain some of the finest Byzantine-style frescoes in Europe",
+        "Belgrade's floating river clubs (splavovi) and nightlife are legendary — the city never sleeps"
+      ]
+    },
+    {
+      "id": "seychelles",
+      "name": "Seychelles",
+      "specialty": "Granite islands, giant tortoises, and the world's heaviest seed",
+      "hook_text": "THE GRANITE ISLANDS WHERE GIANT TORTOISES ROAM FREE",
+      "footage_query": "Seychelles granite beach turquoise ocean giant tortoise tropical cinematic",
+      "facts": [
+        "The Seychelles has 115 islands — the granite islands are among the oldest oceanic islands on Earth, dating back 750 million years",
+        "The Coco de Mer palm produces the world's heaviest seed — up to 25 kg — found naturally only in Seychelles",
+        "Aldabra Atoll is home to over 100,000 giant Aldabra tortoises — the world's largest population of giant tortoises",
+        "The Seychelles was uninhabited until the 18th century — today its population is one of the most culturally diverse on Earth"
+      ]
+    },
+    {
+      "id": "sierra_leone",
+      "name": "Sierra Leone",
+      "specialty": "Diamond recovery, golden beaches, and the roots of freed-slave heritage",
+      "hook_text": "THE LION MOUNTAIN — RISING FROM DIAMONDS AND CONFLICT TO HOPE",
+      "footage_query": "Sierra Leone Freetown beach Tacugama chimps mountain coast cinematic",
+      "facts": [
+        "Sierra Leone means 'Lion Mountains' — Portuguese sailors named it for the roaring thunderstorms over the hills",
+        "Freetown was founded as a colony for freed slaves in 1787 — the cotton tree in its centre is a symbol of liberation",
+        "Tacugama Chimpanzee Sanctuary rescues and rehabilitates orphaned and injured chimpanzees — Sierra Leone is one of their last West African habitats",
+        "Sierra Leone's beaches — including Tokeh and River No. 2 — are among the most beautiful and least touristed in West Africa"
+      ]
+    },
+    {
+      "id": "singapore",
+      "name": "Singapore",
+      "specialty": "From colonial port to the world's most liveable city-state — in one generation",
+      "hook_text": "THE CITY-STATE THAT REWROTE WHAT A COUNTRY CAN BE",
+      "footage_query": "Singapore Gardens by the Bay skyline hawker centre Marina Bay cinematic",
+      "facts": [
+        "Singapore is a city-state of just 733 km² — smaller than many cities — yet is one of the world's wealthiest and most advanced nations",
+        "Gardens by the Bay's Supertree Grove — 50-metre-tall vertical gardens — has become one of the most iconic structures in the world",
+        "Singapore's hawker centres serve some of the best and cheapest food in the world — Michelin-starred meals for under $2",
+        "Changi Airport has been voted the world's best airport for decades — it has a waterfall, butterfly garden, and rooftop pool"
+      ]
+    },
+    {
+      "id": "slovakia",
+      "name": "Slovakia",
+      "specialty": "Hundreds of castles, Tatra peaks, and folk traditions alive in the hills",
+      "hook_text": "MORE CASTLES PER PERSON THAN ALMOST ANYWHERE ON EARTH",
+      "footage_query": "Slovakia High Tatras castle Spiš folk village winter cinematic",
+      "facts": [
+        "Slovakia has more castles and chateaux per capita than almost any country — over 180, including the massive ruins of Spiš Castle",
+        "The High Tatras, the smallest alpine mountain range in the world, rise abruptly from the Slovak plains to nearly 2,700 metres",
+        "Slovak folk traditions — including embroidered costumes, Easter whip-braiding, and mountain shepherd festivals — are still practiced in villages",
+        "The Dobšiná Ice Cave, a UNESCO World Heritage Site, has been continuously frozen for over 250,000 years"
+      ]
+    },
+    {
+      "id": "slovenia",
+      "name": "Slovenia",
+      "specialty": "Lake Bled's island church, Postojna Cave, and Europe's greenest capital",
+      "hook_text": "THE FAIRY-TALE LAKE WITH A CHURCH ON AN ISLAND",
+      "footage_query": "Slovenia Lake Bled island church Postojna Cave Ljubljana green cinematic",
+      "facts": [
+        "Lake Bled, with its island church and cliff-top castle, is one of the most photographed landscapes in Europe",
+        "Postojna Cave, the largest karst cave in Europe open to tourists, is home to the olm — a blind cave salamander called the 'human fish'",
+        "Ljubljana was named European Green Capital in 2016 — its car-free old town is one of the most liveable in Europe",
+        "Slovenia has the word 'LOVE' in its name — and the country's tourism slogan leans into it"
+      ]
+    },
+    {
+      "id": "solomon_islands",
+      "name": "Solomon Islands",
+      "specialty": "WWII history, customary traditions, and some of the richest coral reefs on Earth",
+      "hook_text": "THE CORAL KINGDOM WHERE WWII'S FIERCEST PACIFIC BATTLES RAGED",
+      "footage_query": "Solomon Islands coral reef WWII wreck tropical island custom village cinematic",
+      "facts": [
+        "Iron Bottom Sound off Guadalcanal is named for the dozens of WWII warships and aircraft on the seabed — one of the war's fiercest theatres",
+        "The Solomon Islands sit in the Coral Triangle — the epicentre of marine biodiversity with the richest coral reefs on Earth",
+        "Many Solomon Islanders live by kastom (custom) law alongside modern governance — land is communally held by clans",
+        "Some people in the Solomon Islands have naturally blond hair due to a unique genetic mutation unrelated to European ancestry"
+      ]
+    },
+    {
+      "id": "somalia",
+      "name": "Somalia",
+      "specialty": "Ancient frankincense coast, Somali poetry, and the longest coastline in Africa",
+      "hook_text": "THE NATION OF POETS AND THE LAND OF FRANKINCENSE",
+      "footage_query": "Somalia coast Indian Ocean Mogadishu frankincense camel cinematic",
+      "facts": [
+        "Somalia has the longest coastline in mainland Africa — over 3,000 km along the Indian Ocean and Gulf of Aden",
+        "Somalia is known as the 'Nation of Poets' — oral poetry (gabay) is the highest art form and a vehicle for news, politics, and philosophy",
+        "Ancient Somali ports like Zeila traded frankincense and myrrh to Egypt, Greece, and Rome for thousands of years",
+        "Somali camel herding culture is central to national identity — Somalia has the largest camel population in the world"
+      ]
+    },
+    {
+      "id": "south_africa",
+      "name": "South Africa",
+      "specialty": "Table Mountain, Big Five safaris, and the nation that chose reconciliation",
+      "hook_text": "THE RAINBOW NATION THAT CHOSE FORGIVENESS OVER REVENGE",
+      "footage_query": "South Africa Table Mountain Cape Town safari Big Five Mandela cinematic",
+      "facts": [
+        "South Africa is the only country in the world with three capital cities — Pretoria (executive), Cape Town (legislative), Bloemfontein (judicial)",
+        "Table Mountain, one of the oldest mountains on Earth, overlooks Cape Town — the meeting point of the Atlantic and Indian Oceans",
+        "Nelson Mandela's walk from prison after 27 years and his choice of reconciliation over retribution changed the world",
+        "South Africa has 11 official languages — more than almost any other country"
+      ]
+    },
+    {
+      "id": "south_korea",
+      "name": "South Korea",
+      "specialty": "K-pop, ancient palaces, and the world's fastest internet",
+      "hook_text": "FROM WAR RUINS TO GLOBAL CULTURAL POWERHOUSE",
+      "footage_query": "South Korea Seoul palace cherry blossom K-pop neon cinematic",
+      "facts": [
+        "South Korea went from one of the world's poorest countries in the 1960s to a global tech powerhouse in two generations",
+        "South Korea has the world's fastest average internet speeds",
+        "K-pop and K-dramas have created a global cultural wave — the 'Korean Wave' (Hallyu)",
+        "Taekwondo, the Korean martial art, became an Olympic sport in 2000 and is practiced by 80 million people"
+      ]
+    },
+    {
+      "id": "south_sudan",
+      "name": "South Sudan",
+      "specialty": "The world's newest country, the Sudd wetland, and the Nile's journey",
+      "hook_text": "THE WORLD'S NEWEST COUNTRY — BORN IN 2011",
+      "footage_query": "South Sudan Sudd wetland Nile river cattle herding Dinka cinematic",
+      "facts": [
+        "South Sudan became the world's newest country on July 9, 2011, after decades of civil war with Sudan",
+        "The Sudd is one of the world's largest wetlands — a vast swamp where the White Nile spreads across the plains",
+        "The Dinka and Nuer people are among the tallest populations on Earth — cattle are central to their culture, wealth, and identity",
+        "South Sudan has enormous biodiversity — the annual migration of white-eared kob antelope is the second-largest land migration in Africa"
+      ]
+    },
+    {
+      "id": "spain",
+      "name": "Spain",
+      "specialty": "Flamenco, Gaudí's masterpieces, and a passion for life",
+      "hook_text": "WHERE PASSION IS BUILT INTO THE ARCHITECTURE",
+      "footage_query": "Spain Sagrada Familia Alhambra flamenco dance cinematic",
+      "facts": [
+        "Antoni Gaudí's Sagrada Família cathedral in Barcelona has been under construction since 1882 and is still unfinished",
+        "The Alhambra palace in Granada is one of the finest examples of Moorish architecture in the world",
+        "Flamenco, born from Andalusian gypsy culture, is a UNESCO Intangible Cultural Heritage",
+        "The Running of the Bulls in Pamplona has been held every July since 1592"
+      ]
+    },
+    {
+      "id": "sri_lanka",
+      "name": "Sri Lanka",
+      "specialty": "Ceylon tea, Sigiriya's sky fortress, and a teardrop island of temples",
+      "hook_text": "THE TEARDROP ISLAND WITH A FORTRESS IN THE SKY",
+      "footage_query": "Sri Lanka Sigiriya rock fortress tea plantation elephant temple cinematic",
+      "facts": [
+        "Sigiriya, a 200-metre rock fortress built by King Kashyapa in the 5th century, rises dramatically from the jungle — the 'Lion Rock'",
+        "Sri Lanka is the world's fourth-largest producer of tea — 'Ceylon tea' is one of the most prized varieties globally",
+        "Sri Lanka is home to wild elephants, leopards, blue whales, and over 430 bird species on an island the size of Ireland",
+        "The Temple of the Tooth in Kandy is said to house a tooth of the Buddha — it is Sri Lanka's most sacred site"
+      ]
+    },
+    {
+      "id": "sudan",
+      "name": "Sudan",
+      "specialty": "More pyramids than Egypt, the ancient Kingdom of Kush, and Nubian heritage",
+      "hook_text": "THE COUNTRY WITH MORE PYRAMIDS THAN EGYPT",
+      "footage_query": "Sudan Meroe pyramids Nile Nubian desert ancient ruins cinematic",
+      "facts": [
+        "Sudan has more pyramids than Egypt — over 200 ancient pyramids at Meroë, built by the Kingdom of Kush",
+        "The Kingdom of Kush was a powerful Nubian civilization that at its height conquered and ruled Egypt itself",
+        "The confluence of the Blue Nile and White Nile at Khartoum is one of the most dramatic river junctions on Earth",
+        "Nubian culture, one of the oldest on Earth, survives along the Nile in northern Sudan with its distinctive architecture and language"
+      ]
+    },
+    {
+      "id": "suriname",
+      "name": "Suriname",
+      "specialty": "The most forested country on Earth — 93% rainforest in South America",
+      "hook_text": "93% RAINFOREST — THE GREENEST COUNTRY ON THE PLANET",
+      "footage_query": "Suriname rainforest canopy river Paramaribo colonial jungle cinematic",
+      "facts": [
+        "Suriname is the most forested country in the world — 93% of its territory is covered in pristine tropical rainforest",
+        "Suriname is the smallest country in South America and the only one with Dutch as its official language",
+        "Paramaribo's historic inner city is a UNESCO World Heritage Site — a unique blend of Dutch colonial and tropical architecture",
+        "Suriname's interior is so sparsely populated that indigenous and Maroon communities live largely as they have for centuries"
+      ]
+    },
+    {
+      "id": "sweden",
+      "name": "Sweden",
+      "specialty": "ABBA, IKEA, the Nobel Prize, and a midnight sun that never sets",
+      "hook_text": "THE LAND OF MIDNIGHT SUN, FLAT-PACK FURNITURE, AND THE NOBEL PRIZE",
+      "footage_query": "Sweden Stockholm archipelago Northern Lights midnight sun forest cinematic",
+      "facts": [
+        "The Nobel Prize, awarded annually since 1901, was established by Swedish inventor Alfred Nobel — the ceremony is held in Stockholm",
+        "Sweden's Icehotel in Jukkasjärv is rebuilt entirely from ice and snow every winter — guests sleep in sub-zero rooms",
+        "ABBA and IKEA are both Swedish — the country punches far above its weight in pop culture, design, and innovation",
+        "Sweden has the Right of Public Access (Allemansrätten) — anyone can walk, camp, or forage almost anywhere in nature"
+      ]
+    },
+    {
+      "id": "switzerland",
+      "name": "Switzerland",
+      "specialty": "Alpine peaks, precision watchmaking, and centuries of neutrality",
+      "hook_text": "WHERE THE ALPS GUARD FIVE CENTURIES OF PEACE",
+      "footage_query": "Switzerland Alps snow mountains lake Interlaken cinematic",
+      "facts": [
+        "Switzerland has been officially neutral in all international conflicts since 1815",
+        "The Swiss Alps contain 48 peaks above 4,000 metres, including the iconic Matterhorn",
+        "Swiss watch industry began in the 16th century",
+        "The Large Hadron Collider, the world's most powerful particle accelerator, runs at CERN under Swiss and French soil"
+      ]
+    },
+    {
+      "id": "syria",
+      "name": "Syria",
+      "specialty": "Damascus — the world's oldest continuously inhabited city and a cradle of civilizations",
+      "hook_text": "THE OLDEST CITY IN THE WORLD — INHABITED FOR 11,000 YEARS",
+      "footage_query": "Syria Damascus old city ancient ruins Palmyra desert cinematic",
+      "facts": [
+        "Damascus is one of the oldest continuously inhabited cities in the world — people have lived there for over 11,000 years",
+        "Palmyra's ancient Roman ruins, a UNESCO World Heritage Site, once rivalled Rome itself in grandeur",
+        "Syria sits at the crossroads of Mesopotamia, Egypt, Anatolia, and the Mediterranean — a nexus of ancient civilizations",
+        "The Umayyad Mosque in Damascus, built in 715 AD, is one of the oldest and grandest mosques in the world"
+      ]
+    },
+    {
+      "id": "sao_tome_and_principe",
+      "name": "São Tomé and Príncipe",
+      "specialty": "The chocolate islands — equatorial rainforest and roça plantations",
+      "hook_text": "AFRICA'S TINY CHOCOLATE ISLANDS ON THE EQUATOR",
+      "footage_query": "Sao Tome rainforest volcanic island cocoa plantation equatorial cinematic",
+      "facts": [
+        "São Tomé and Príncipe is Africa's second-smallest country — two tiny volcanic islands straddling the equator in the Gulf of Guinea",
+        "The islands produce some of the world's finest single-origin chocolate — organic cacao grown in volcanic soil under rainforest canopy",
+        "Portuguese roça plantations from the colonial era are being converted into eco-lodges and community farms",
+        "Príncipe's Obo National Park was declared a UNESCO Biosphere Reserve — the island is 90% pristine rainforest"
+      ]
+    },
+    {
+      "id": "taiwan",
+      "name": "Taiwan",
+      "specialty": "Semiconductor capital of the world, night market culture, and Taroko Gorge",
+      "hook_text": "THE ISLAND THAT POWERS EVERY CHIP IN YOUR POCKET",
+      "footage_query": "Taiwan Taroko Gorge marble canyon Taipei night market temple cinematic",
+      "facts": [
+        "Taiwan produces over 90% of the world's most advanced semiconductors — TSMC is the backbone of global electronics",
+        "Taroko Gorge is a 19-km marble canyon carved by the Liwu River — one of the most dramatic landscapes in East Asia",
+        "Taiwan's night markets — shilin, raohe, and hundreds more — serve some of the world's most inventive street food",
+        "Taiwan was the first country in Asia to legalize same-sex marriage, in 2019"
+      ]
+    },
+    {
+      "id": "tajikistan",
+      "name": "Tajikistan",
+      "specialty": "The Pamir Highway — one of the world's highest and most remote roads",
+      "hook_text": "THE ROOF OF THE WORLD — WHERE THE PAMIR HIGHWAY CLIMBS TO THE SKY",
+      "footage_query": "Tajikistan Pamir Highway mountains yurt lake remote road cinematic",
+      "facts": [
+        "The Pamir Highway (M41) is one of the highest and most remote roads in the world, reaching 4,655 metres — built by the Soviets in the 1930s",
+        "93% of Tajikistan is mountainous — including peaks above 7,000 metres in the Pamir range, the 'Roof of the World'",
+        "The Fann Mountains contain turquoise alpine lakes surrounded by 5,000-metre peaks — among Central Asia's most stunning scenery",
+        "Tajikistan was a key segment of the ancient Silk Road — caravans passed through the Wakhan Corridor connecting China to the West"
+      ]
+    },
+    {
+      "id": "tanzania",
+      "name": "Tanzania",
+      "specialty": "Kilimanjaro, the Serengeti, and Zanzibar's spice islands",
+      "hook_text": "KILIMANJARO RISING ABOVE THE ENDLESS SERENGETI PLAINS",
+      "footage_query": "Tanzania Kilimanjaro Serengeti migration Zanzibar spice island cinematic",
+      "facts": [
+        "Mount Kilimanjaro (5,895m) is Africa's highest peak and the world's tallest free-standing mountain",
+        "The Serengeti hosts the Great Migration — 1.5 million wildebeest and hundreds of thousands of zebras in an annual loop",
+        "Zanzibar, the 'Spice Island,' was a major hub of the East African spice and slave trades for centuries",
+        "The Ngorongoro Crater, a collapsed volcanic caldera, is home to one of the densest concentrations of wildlife in Africa"
+      ]
+    },
+    {
+      "id": "thailand",
+      "name": "Thailand",
+      "specialty": "Golden temples, floating markets, and smiles that define a culture",
+      "hook_text": "THE LAND OF SMILES AND GOLDEN SPIRES",
+      "footage_query": "Thailand Buddhist temple floating market elephant jungle cinematic",
+      "facts": [
+        "Thailand is home to over 40,000 Buddhist temples, many covered in gold leaf",
+        "Thailand was never colonized by a European power — 'Thailand' means Land of the Free",
+        "Thai street food is among the most celebrated in the world",
+        "Elephants are sacred in Thai culture and have been working alongside humans for centuries"
+      ]
+    },
+    {
+      "id": "timor_leste",
+      "name": "Timor-Leste",
+      "specialty": "Asia's youngest nation — untouched coral reefs and tais weaving traditions",
+      "hook_text": "ASIA'S YOUNGEST NATION — BORN FROM STRUGGLE IN 2002",
+      "footage_query": "Timor-Leste coral reef Atauro Island mountain village tais weaving cinematic",
+      "facts": [
+        "Timor-Leste (East Timor) became independent in 2002 after a long struggle — making it one of the youngest nations in the world",
+        "Atauro Island off the coast is one of the world's most biodiverse marine environments — over 600 reef fish species in a single area",
+        "Tais, hand-woven textiles with intricate patterns, are central to Timorese cultural identity and ceremonial life",
+        "Despite decades of conflict, Timor-Leste has maintained its unique blend of Austronesian and Portuguese-influenced culture"
+      ]
+    },
+    {
+      "id": "togo",
+      "name": "Togo",
+      "specialty": "Voodoo markets, Tamberma fortress villages, and the heart of West Africa",
+      "hook_text": "THE LAND OF FORTRESS VILLAGES AND LIVING VOODOO",
+      "footage_query": "Togo Tamberma castle village Akodessewa Voodoo market Lomé cinematic",
+      "facts": [
+        "The Akodessewa Fetish Market in Lomé is the world's largest Voodoo market — selling charms, skulls, and traditional medicine",
+        "The Tamberma (Batammariba) people build fortress-like mud tower houses called tata somba — a UNESCO World Heritage Site",
+        "Togo is one of the smallest countries in Africa but has a remarkably diverse landscape — from palm-lined coast to rolling savanna",
+        "Lomé, the capital, is known for its Grand Marché — one of West Africa's most vibrant and colourful markets"
+      ]
+    },
+    {
+      "id": "tonga",
+      "name": "Tonga",
+      "specialty": "The last Polynesian monarchy and a humpback whale nursery",
+      "hook_text": "THE LAST POLYNESIAN KINGDOM — AND A NURSERY FOR HUMPBACK WHALES",
+      "footage_query": "Tonga humpback whale Polynesian island royal ceremony ocean cinematic",
+      "facts": [
+        "Tonga is the only remaining monarchy in Polynesia — the king still plays an active role in governance",
+        "Every year from July to October, humpback whales migrate to Tonga's warm waters to give birth and nurse their calves",
+        "Tonga was never colonized by a European power — it voluntarily became a British protectorate but maintained self-governance",
+        "The Ha'amonga 'a Maui trilithon, a 12th-century stone archway, is called the 'Stonehenge of the Pacific'"
+      ]
+    },
+    {
+      "id": "trinidad_and_tobago",
+      "name": "Trinidad and Tobago",
+      "specialty": "Birthplace of Carnival, the steel pan, and calypso — where rhythm was forged",
+      "hook_text": "THE ISLANDS THAT INVENTED THE STEEL PAN AND CARNIVAL",
+      "footage_query": "Trinidad Tobago Carnival steel pan calypso Pitch Lake cinematic",
+      "facts": [
+        "Trinidad and Tobago is the birthplace of the steel pan — the only acoustic instrument invented in the 20th century",
+        "Trinidad Carnival is one of the most spectacular on Earth — a riot of feathered costumes, soca music, and dancing",
+        "The Pitch Lake in Trinidad is the world's largest natural deposit of asphalt — a bubbling 40-hectare lake of tar",
+        "Calypso music originated in Trinidad — it was a medium for slaves and free people to comment on politics and society"
+      ]
+    },
+    {
+      "id": "tunisia",
+      "name": "Tunisia",
+      "specialty": "Carthage ruins, Star Wars filming locations, and the spark of the Arab Spring",
+      "hook_text": "FROM CARTHAGE TO THE ARAB SPRING — ALWAYS AT THE CENTRE OF HISTORY",
+      "footage_query": "Tunisia Carthage ruins Sahara Star Wars Sidi Bou Said blue white cinematic",
+      "facts": [
+        "Carthage, near modern Tunis, was once Rome's greatest rival — Hannibal led elephants across the Alps to attack Rome from here",
+        "The original Star Wars films used locations in southern Tunisia — Matmata's troglodyte dwellings became Luke Skywalker's home",
+        "Sidi Bou Saïd, a clifftop village of blue and white, is one of the most beautiful towns in the Mediterranean",
+        "Tunisia's 2010–11 Jasmine Revolution was the spark that ignited the Arab Spring movement across the Middle East"
+      ]
+    },
+    {
+      "id": "turkey",
+      "name": "Turkey",
+      "specialty": "Where East meets West — empires, bazaars, and Cappadocia's skies",
+      "hook_text": "THE COUNTRY THAT BRIDGES TWO WORLDS",
+      "footage_query": "Turkey Cappadocia hot air balloon Hagia Sophia Istanbul cinematic",
+      "facts": [
+        "Turkey straddles two continents — Europe and Asia",
+        "Cappadocia's fairy-tale landscape of volcanic rock 'chimneys' is filled with ancient underground cities",
+        "The Hagia Sophia was the world's largest cathedral for nearly 1,000 years",
+        "The Grand Bazaar of Istanbul has 4,000 shops"
+      ]
+    },
+    {
+      "id": "turkmenistan",
+      "name": "Turkmenistan",
+      "specialty": "The Gates of Hell burning crater and a white-marble capital in the desert",
+      "hook_text": "THE DOOR TO HELL — A CRATER THAT HAS BURNED FOR 50 YEARS",
+      "footage_query": "Turkmenistan Darvaza Gas Crater fire Ashgabat white marble desert cinematic",
+      "facts": [
+        "The Darvaza Gas Crater ('Door to Hell') has been burning since 1971 — a 70-metre-wide pit of fire in the Karakum Desert",
+        "Ashgabat holds the Guinness record for the most white-marble-clad buildings in the world",
+        "Turkmenistan sits on the world's fourth-largest natural gas reserves",
+        "The ancient Silk Road city of Merv was once one of the largest cities in the world — now a UNESCO ruin in the desert"
+      ]
+    },
+    {
+      "id": "tuvalu",
+      "name": "Tuvalu",
+      "specialty": "The fourth-smallest country — sinking coral atolls and a .tv domain fortune",
+      "hook_text": "THE COUNTRY THAT MAY VANISH — BUT FUNDS ITSELF WITH .TV",
+      "footage_query": "Tuvalu coral atoll Pacific Ocean small island village cinematic",
+      "facts": [
+        "Tuvalu is the fourth-smallest country in the world — just 26 km² and about 11,000 people spread across 9 coral atolls",
+        "Tuvalu earns millions each year by licensing its .tv internet domain — a lifeline for one of the world's smallest economies",
+        "Tuvalu's highest point is just 4.6 metres above sea level — it is one of the countries most threatened by sea-level rise",
+        "Despite its tiny size, Tuvalu has a seat at the United Nations and is a vocal advocate for climate action"
+      ]
+    },
+    {
+      "id": "uganda",
+      "name": "Uganda",
+      "specialty": "The Pearl of Africa — source of the Nile, mountain gorillas, and the equator",
+      "hook_text": "THE PEARL OF AFRICA — WHERE THE NILE BEGINS",
+      "footage_query": "Uganda mountain gorilla source Nile Bwindi rainforest cinematic",
+      "facts": [
+        "Uganda contains the source of the Nile — where the White Nile flows out of Lake Victoria at Jinja",
+        "Bwindi Impenetrable Forest is home to roughly half the world's remaining mountain gorillas",
+        "Winston Churchill called Uganda 'the Pearl of Africa' for its stunning landscapes",
+        "Uganda has one of the youngest populations in the world — over 75% are under 30"
+      ]
+    },
+    {
+      "id": "ukraine",
+      "name": "Ukraine",
+      "specialty": "Breadbasket of Europe, Chernobyl's legacy, and a nation fighting for its future",
+      "hook_text": "THE BREADBASKET OF EUROPE — GOLDEN FIELDS FROM HORIZON TO HORIZON",
+      "footage_query": "Ukraine Kyiv golden domes sunflower field Carpathian mountains cinematic",
+      "facts": [
+        "Ukraine's black soil (chornozem) is among the most fertile on Earth — the country is one of the world's top grain exporters",
+        "Kyiv-Pechersk Lavra (Monastery of the Caves), founded in 1051, is a UNESCO World Heritage Site with golden domes above an underground labyrinth",
+        "Ukraine has a rich tradition of pysanky — intricately decorated Easter eggs that are true works of art",
+        "The Chernobyl Exclusion Zone, site of the 1986 nuclear disaster, has become an unintended wildlife sanctuary"
+      ]
+    },
+    {
+      "id": "uae",
+      "name": "United Arab Emirates",
+      "specialty": "From Bedouin desert to Burj Khalifa — the world's most futuristic skyline",
+      "hook_text": "THE DESERT THAT BUILT THE WORLD'S TALLEST BUILDING IN 50 YEARS",
+      "footage_query": "UAE Dubai Burj Khalifa Abu Dhabi mosque desert falcon cinematic",
+      "facts": [
+        "The Burj Khalifa in Dubai stands at 828 metres — the tallest structure ever built by humans",
+        "Just 50 years ago, the UAE was a collection of Bedouin fishing and pearling villages — the transformation is unprecedented",
+        "The Sheikh Zayed Grand Mosque in Abu Dhabi has 82 domes, 1,000 columns, and the world's largest hand-knotted carpet",
+        "Falconry is the national sport of the UAE — falcons even have their own passports for international travel"
+      ]
+    },
+    {
+      "id": "united_kingdom",
+      "name": "United Kingdom",
+      "specialty": "Shakespeare, the monarchy, the Industrial Revolution, and cultural global reach",
+      "hook_text": "THE ISLAND THAT SHAPED THE MODERN WORLD",
+      "footage_query": "United Kingdom London Big Ben Scottish Highlands Stonehenge cinematic",
+      "facts": [
+        "The United Kingdom gave the world Shakespeare, the Industrial Revolution, parliamentary democracy, and the English language's global reach",
+        "Stonehenge, built around 3000 BC, remains one of the most mysterious monuments on Earth — how and why it was built is still debated",
+        "The British monarchy is the oldest surviving continuous hereditary monarchy in Europe — tracing an unbroken line for over 1,000 years",
+        "The UK has produced the Beatles, the Rolling Stones, David Bowie, and Adele — its music industry is second only to the United States"
+      ]
+    },
+    {
+      "id": "united_states",
+      "name": "United States",
+      "specialty": "Grand Canyon to Silicon Valley — innovation, jazz, and wild frontiers",
+      "hook_text": "THE COUNTRY THAT PUT A MAN ON THE MOON",
+      "footage_query": "United States Grand Canyon New York City national park space launch cinematic",
+      "facts": [
+        "The Grand Canyon, carved by the Colorado River over 5–6 million years, reveals 2 billion years of geological history",
+        "The United States landed humans on the Moon six times between 1969 and 1972 — a feat unmatched for over 50 years",
+        "Jazz, born in New Orleans from African American communities in the early 20th century, became 'America's classical music'",
+        "Yellowstone, established in 1872, was the world's first national park — the US now has 63 national parks"
+      ]
+    },
+    {
+      "id": "uruguay",
+      "name": "Uruguay",
+      "specialty": "South America's most progressive small nation — gauchos, mate, and beach culture",
+      "hook_text": "THE QUIET PROGRESSIVE POWERHOUSE OF SOUTH AMERICA",
+      "footage_query": "Uruguay Punta del Este gaucho Montevideo coast mate tea cinematic",
+      "facts": [
+        "Uruguay was the first country in the world to fully legalize cannabis (2013), same-sex civil unions (2008), and abortion access (2012)",
+        "Uruguay generates nearly 100% of its electricity from renewable sources — primarily wind and hydropower",
+        "Mate, the bitter herbal tea drunk from a gourd with a metal straw (bombilla), is a national ritual shared between friends everywhere",
+        "Uruguay won the first-ever FIFA World Cup, hosted in Montevideo in 1930"
+      ]
+    },
+    {
+      "id": "uzbekistan",
+      "name": "Uzbekistan",
+      "specialty": "Silk Road cities of turquoise domes — Samarkand, Bukhara, Khiva",
+      "hook_text": "THE SILK ROAD'S MOST DAZZLING CITIES — PRESERVED IN TURQUOISE AND GOLD",
+      "footage_query": "Uzbekistan Samarkand Registan Bukhara Khiva Silk Road blue dome cinematic",
+      "facts": [
+        "Samarkand's Registan Square — three massive madrasas covered in turquoise tilework — is one of the most stunning architectural ensembles on Earth",
+        "Bukhara was a major intellectual centre of the Islamic world for centuries — the philosopher Avicenna was born nearby",
+        "Khiva's inner city (Ichan Kala) is a perfectly preserved walled Silk Road city — a UNESCO World Heritage Site",
+        "Uzbekistan was the heart of Tamerlane's (Amir Timur's) vast empire in the 14th century — Samarkand was his dazzling capital"
+      ]
+    },
+    {
+      "id": "vanuatu",
+      "name": "Vanuatu",
+      "specialty": "Land diving, active volcanoes, and kastom village life in the South Pacific",
+      "hook_text": "THE ISLANDS WHERE MEN JUMP FROM TOWERS WITH VINES TIED TO THEIR ANKLES",
+      "footage_query": "Vanuatu land diving Yasur volcano tropical island custom village cinematic",
+      "facts": [
+        "Vanuatu's Naghol (land diving) on Pentecost Island is the original bungee jump — men leap from wooden towers with vines tied to their ankles",
+        "Mount Yasur on Tanna Island has been erupting nearly continuously for over 800 years — one of the most accessible active volcanoes in the world",
+        "Vanuatu has 138 distinct languages for a population of just 300,000 — the highest language-to-population ratio on Earth",
+        "Vanuatu consistently ranks as one of the happiest countries in the world despite being one of the poorest"
+      ]
+    },
+    {
+      "id": "vatican_city",
+      "name": "Vatican City",
+      "specialty": "The world's smallest country — the spiritual centre of 1.3 billion Catholics",
+      "hook_text": "THE 44-HECTARE STATE THAT GUIDES 1.3 BILLION SOULS",
+      "footage_query": "Vatican City St Peters Basilica Sistine Chapel papal audience cinematic",
+      "facts": [
+        "Vatican City is the world's smallest independent state — just 0.44 km² (44 hectares) inside Rome",
+        "The Sistine Chapel ceiling, painted by Michelangelo between 1508 and 1512, is one of the greatest artistic achievements in history",
+        "St. Peter's Basilica is the largest church in the world — its dome, designed by Michelangelo, defines the Roman skyline",
+        "The Vatican Secret Archives hold documents spanning over 1,000 years — including letters from Michelangelo, Henry VIII, and Abraham Lincoln"
+      ]
+    },
+    {
+      "id": "venezuela",
+      "name": "Venezuela",
+      "specialty": "Angel Falls — the world's highest waterfall plunging from a lost-world tepui",
+      "hook_text": "THE HIGHEST WATERFALL ON EARTH — PLUNGING FROM A LOST WORLD",
+      "footage_query": "Venezuela Angel Falls tepui table mountain Caribbean coast cinematic",
+      "facts": [
+        "Angel Falls (Salto Ángel) is the world's highest uninterrupted waterfall — 979 metres, so tall that water turns to mist before hitting the ground",
+        "Venezuela's tepuis — flat-topped table mountains — inspired Arthur Conan Doyle's novel The Lost World",
+        "Venezuela has the world's largest proven oil reserves — more than Saudi Arabia",
+        "The Caribbean coast of Venezuela has some of the most beautiful and least-known beaches in the region"
+      ]
+    },
+    {
+      "id": "vietnam",
+      "name": "Vietnam",
+      "specialty": "Emerald bays, ancient temples, lantern festivals, and resilient spirit",
+      "hook_text": "WHERE LIMESTONE RISES FROM AN EMERALD SEA",
+      "footage_query": "Vietnam Ha Long Bay limestone karst Hoi An lanterns rice terrace cinematic",
+      "facts": [
+        "Ha Long Bay's 1,600 limestone karst islands jut from emerald waters in patterns that seem impossible",
+        "The ancient town of Hội An glows with thousands of silk lanterns every full moon",
+        "Vietnam's terraced rice fields in Mù Cang Chải have been farmed by Hmong people for hundreds of years",
+        "Despite centuries of foreign rule, Vietnam maintained a continuous culture over 4,000 years"
+      ]
+    },
+    {
+      "id": "yemen",
+      "name": "Yemen",
+      "specialty": "Socotra's alien landscapes, ancient skyscraper cities, and the frankincense route",
+      "hook_text": "THE ISLAND THAT LOOKS LIKE ANOTHER PLANET",
+      "footage_query": "Yemen Socotra dragon blood tree Shibam skyscraper desert cinematic",
+      "facts": [
+        "Socotra Island has been isolated for so long that a third of its plant species are found nowhere else — the dragon blood tree looks like an alien umbrella",
+        "Shibam, the 'Manhattan of the Desert,' has mud-brick skyscrapers up to 11 storeys tall — some dating to the 16th century",
+        "Yemen was the ancient Land of Sheba — the legendary queen who visited King Solomon came from here",
+        "Yemen's coffee history predates the rest of the world — the port of Mocha gave its name to the famous coffee variety"
+      ]
+    },
+    {
+      "id": "zambia",
+      "name": "Zambia",
+      "specialty": "Victoria Falls — 'The Smoke That Thunders' — and Africa's best walking safaris",
+      "hook_text": "THE SMOKE THAT THUNDERS — THE GREATEST CURTAIN OF FALLING WATER ON EARTH",
+      "footage_query": "Zambia Victoria Falls Mosi-oa-Tunya walking safari South Luangwa cinematic",
+      "facts": [
+        "Victoria Falls (Mosi-oa-Tunya — 'The Smoke That Thunders') is the world's largest curtain of falling water — 1,708 metres wide and 108 metres high",
+        "South Luangwa National Park pioneered the concept of walking safaris — tracking wildlife on foot with expert guides",
+        "Zambia has one of the highest concentrations of hippos and crocodiles in Africa — the Luangwa River teems with both",
+        "Zambia changed its name from Northern Rhodesia at independence in 1964 — naming itself after the Zambezi River"
+      ]
+    },
+    {
+      "id": "zimbabwe",
+      "name": "Zimbabwe",
+      "specialty": "Great Zimbabwe — the medieval stone city that defied colonial myths",
+      "hook_text": "THE GREAT STONE CITY THAT SHATTERED A COLONIAL LIE",
+      "footage_query": "Zimbabwe Great Zimbabwe ruins Victoria Falls Hwange elephant cinematic",
+      "facts": [
+        "Great Zimbabwe, a medieval stone city built between the 11th and 15th centuries, was the capital of a powerful trading empire — colonial powers refused to believe Africans built it",
+        "Zimbabwe shares Victoria Falls with Zambia — the spray can be seen from 50 km away and the roar heard from 40 km",
+        "Hwange National Park has one of the largest elephant populations in Africa — over 40,000",
+        "The Zimbabwe Bird, a soapstone carving from Great Zimbabwe, appears on the national flag and is the nation's symbol"
+      ]
+    }
+  ],
+  "footage": {
+    "source_order": [
+      "pexels",
+      "pixabay",
+      "animate"
+    ],
+    "orientation": "portrait",
+    "min_height": 720,
+    "animation_seconds": 14,
+    "clips_per_video": 3,
+    "max_clip_seconds": 22,
+    "include_drone_shot": true,
+    "drone_query_suffix": "aerial drone view cinematic",
+    "fallback_queries": [
+      "travel landscape aerial cinematic",
+      "world culture people golden hour",
+      "ancient ruins historical cinematic",
+      "nature beauty earth cinematic",
+      "city skyline dramatic dusk"
+    ],
+    "animation_palettes": [
+      [
+        "0d1b2a",
+        "1b263b",
+        "415a77"
+      ],
+      [
+        "1a1423",
+        "3d2c2e",
+        "6b4226"
+      ],
+      [
+        "0b1d16",
+        "14342b",
+        "2d6a4f"
+      ],
+      [
+        "10002b",
+        "240046",
+        "5a189a"
+      ],
+      [
+        "1c2431",
+        "2c3e50",
+        "557a95"
+      ]
+    ]
+  },
+  "hashtags": {
+    "instagram": "#travel #countries #culture #history #worldwonders #exploretheworld #geography #facts #reels #travelgram",
+    "facebook": "#travel #culture #history #worldwonders #geography #exploretheworld",
+    "tiktok": "#travel #countries #culture #facts #history #worldwonders #learnontiktok #fyp",
+    "youtube": "#Shorts #travel #countries #culture #history #worldwonders #geography"
+  },
+  "video": {
+    "width": 1080,
+    "height": 1920,
+    "words_per_second": 2.3,
+    "min_seconds": 65,
+    "max_seconds": 80,
+    "cta_text": "Follow for a new country every day",
+    "font_hint": "DejaVuSans (preinstalled on GitHub Ubuntu runners)"
+  },
+  "openai": {
+    "model": "gpt-4o-mini",
+    "narration_prompt": "You are writing a short, vivid YouTube Shorts narration about {country_name}. The video is exactly 65 seconds long when read at a natural pace (roughly 160-175 words spoken). Write ONLY the spoken narration — no stage directions, no titles. Start with a powerful hook sentence about what makes {country_name} extraordinary. Then {angle_instruction}. End with a single reflective line and a call-to-action: 'Follow for a new country every day.' Tone: documentary-style but warm, like a National Geographic short. Do not use bullet points or headers — pure flowing prose only. Aim for the full 160-175 words so the narration fills the entire 65 seconds.",
+    "max_tokens": 380,
+    "temperature": 0.8
+  },
+  "tts": {
+    "provider": "openai",
+    "openai_model": "gpt-4o-mini-tts",
+    "openai_voice": "marin",
+    "instructions": "Narrate like a warm, engaging documentary host — natural pacing, clear enunciation, genuine curiosity and gentle enthusiasm. Not flat or robotic; speak like you're sharing something you find genuinely fascinating.",
+    "piper_voice": "en_US-amy-medium"
+  }
+}

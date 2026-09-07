@@ -1,0 +1,88 @@
+{
+  "_comment": "Curated public-domain source config. All texts are Project Gutenberg public domain. archive.org collections are verified public-domain B-roll sources.",
+
+  "gutenberg_texts": [
+    {
+      "id": "meditations",
+      "title": "Meditations",
+      "author": "Marcus Aurelius",
+      "gutenberg_id": 2680,
+      "footage_query": "calm misty mountains sunrise cinematic",
+      "excerpts": [
+        "You have power over your mind, not outside events. Realize this, and you will find strength. The happiness of your life depends upon the quality of your thoughts. Waste no more time arguing about what a good person should be. Be one.",
+        "When you arise in the morning, think of what a precious privilege it is to be alive, to breathe, to think, to enjoy, to love. Confine yourself to the present. The universe is change; our life is what our thoughts make it.",
+        "Dwell on the beauty of life. Watch the stars, and see yourself running with them. Very little is needed to make a happy life; it is all within yourself, in your way of thinking."
+      ]
+    },
+    {
+      "id": "self_reliance",
+      "title": "Self-Reliance",
+      "author": "Ralph Waldo Emerson",
+      "gutenberg_id": 16643,
+      "footage_query": "lone tree open field golden light cinematic",
+      "excerpts": [
+        "To be yourself in a world that is constantly trying to make you something else is the greatest accomplishment. Trust thyself: every heart vibrates to that iron string. Nothing can bring you peace but yourself. Nothing can bring you peace but the triumph of principles.",
+        "What lies behind us and what lies before us are tiny matters compared to what lies within us. A man is relieved and gay when he has put his heart into his work and done his best. Do the thing and you shall have the power."
+      ]
+    },
+    {
+      "id": "seneca_letters",
+      "title": "Letters from a Stoic (Moral Letters to Lucilius)",
+      "author": "Seneca",
+      "gutenberg_id": 56075,
+      "footage_query": "ocean waves rocks slow motion cinematic",
+      "excerpts": [
+        "We suffer more often in imagination than in reality. It is not that we have a short time to live, but that we waste a lot of it. Life is long enough if you know how to use it. Begin at once to live, and count each separate day as a separate life.",
+        "Luck is what happens when preparation meets opportunity. Difficulties strengthen the mind, as labor does the body. As is a tale, so is life: not how long it is, but how good it is, is what matters."
+      ]
+    }
+  ],
+
+  "footage": {
+    "_comment": "Footage is fetched by scripts/fetch_footage.py, which tries sources in this order using whichever API keys are present. Stock (pexels/pixabay) is keyword-matched to the quote's footage_query so the clip is RELEVANT. 'animate' is a generated cinematic gradient (scripts/generate_animation.py) used when no suitable stock clip is found — it never fails and is always on-tone, so it replaces the old habit of dropping in random/irrelevant footage. 'archive' (NASA public domain) is still available but not in the default order; add it back here if you want it tried before the animation.",
+    "source_order": ["pexels", "pixabay", "animate"],
+    "orientation": "portrait",
+    "min_height": 720,
+    "animation_seconds": 14,
+    "fallback_queries": [
+      "calm nature landscape cinematic",
+      "night sky stars timelapse",
+      "clouds slow motion sky",
+      "forest sunlight peaceful",
+      "ocean horizon calm"
+    ],
+    "animation_palettes": [
+      ["0d1b2a", "1b263b", "415a77"],
+      ["1a1423", "3d2c2e", "6b4226"],
+      ["0b1d16", "14342b", "2d6a4f"],
+      ["10002b", "240046", "5a189a"],
+      ["1c2431", "2c3e50", "557a95"]
+    ]
+  },
+
+  "archive_collections": {
+    "_comment": "Fallback only. Allowlist of verified public-domain archive.org collection IDs. NASA space/Earth footage stays on-tone for motivational content; prelinger was removed.",
+    "allowlist": ["nasa"],
+    "mediatype": "movies",
+    "max_source_seconds": 600,
+    "min_source_seconds": 20,
+    "min_height": 480
+  },
+
+  "hashtags": {
+    "instagram": "#motivation #stoicism #discipline #mindset #selfimprovement #wisdom #reels #dailymotivation",
+    "facebook": "#motivation #stoicism #mindset #wisdom #selfimprovement",
+    "tiktok": "#motivation #stoic #mindset #discipline #fyp #selfimprovement",
+    "youtube": "#Shorts #motivation #stoicism #discipline #mindset #wisdom"
+  },
+
+  "video": {
+    "width": 1080,
+    "height": 1920,
+    "words_per_second": 2.6,
+    "min_seconds": 30,
+    "max_seconds": 62,
+    "cta_text": "Follow for daily wisdom",
+    "font_hint": "DejaVuSans (preinstalled on GitHub Ubuntu runners)"
+  }
+}
