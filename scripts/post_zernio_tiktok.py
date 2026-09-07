@@ -2,11 +2,20 @@
 """
 Post the finished short to TikTok via the Zernio API (https://zernio.com).
 
-Zernio holds the actual TikTok OAuth connection; this script just calls Zernio's
-REST API with the public video URL (the GitHub Release asset from this run) and a
-caption. Instagram/Facebook/YouTube keep going through the existing Google Sheet ->
-Zapier flow (post_sheet.py) — this is TikTok-only, since Zapier has no free TikTok
-posting integration.
+Zernio holds the actual TikTok OAuth connection; this script uploads the local video
+file directly to Zernio's own storage, then calls Zernio's REST API with the resulting
+stable URL and a caption. Instagram/Facebook/YouTube keep going through the existing
+Google Sheet -> Zapier flow (post_sheet.py) — this is TikTok-only, since Zapier has no
+free TikTok posting integration.
+
+Why upload the file instead of passing a GitHub Release asset URL: GitHub Release
+downloads 302-redirect to a SIGNED, TIME-LIMITED Azure blob URL (expires ~1 hour after
+the redirect is generated). Zernio's own initial API call succeeds either way (it just
+accepts the URL), but if TikTok's actual fetch of that URL is queued/delayed past the
+expiry, the video never really lands — Zernio reports "success" while TikTok has
+nothing (or a broken partial fetch). Uploading straight to Zernio's storage (POST
+/v1/media/presign, matching the pattern post_youtube.py already uses for its own
+direct upload) avoids the whole class of problem.
 
 Requires (GitHub Secrets):
     ZERNIO_API_KEY            Bearer token — https://zernio.com/dashboard/api-keys
@@ -25,9 +34,9 @@ TikTok app to actually publish it. Pass --publish to direct-post immediately ins
 (TikTok's DIRECT_POST mode) once you've confirmed the pipeline end-to-end.
 
 Usage:
-    python scripts/post_zernio_tiktok.py --video-url https://.../final.mp4 \
+    python scripts/post_zernio_tiktok.py --video-file build/final.mp4 \
         --script build/script.json --caption-file build/caption_tiktok.txt
-    python scripts/post_zernio_tiktok.py --video-url ... --publish
+    python scripts/post_zernio_tiktok.py --video-file build/final.mp4 --publish
 """
 import argparse
 import json
@@ -37,6 +46,27 @@ import sys
 import requests
 
 API_BASE = "https://zernio.com/api/v1"
+
+
+def upload_to_zernio(video_path, headers):
+    """Presign + PUT the local file to Zernio's storage; return the stable publicUrl."""
+    filename = os.path.basename(video_path)
+    size = os.path.getsize(video_path)
+    r = requests.post(
+        f"{API_BASE}/media/presign", headers=headers,
+        json={"filename": filename, "contentType": "video/mp4", "size": size},
+        timeout=30,
+    )
+    r.raise_for_status()
+    presign = r.json()
+
+    with open(video_path, "rb") as f:
+        put_r = requests.put(
+            presign["uploadUrl"], data=f,
+            headers={"Content-Type": "video/mp4"}, timeout=600,
+        )
+    put_r.raise_for_status()
+    return presign["publicUrl"]
 
 
 def get_privacy_level(account_id, headers):
@@ -55,8 +85,12 @@ def get_privacy_level(account_id, headers):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--video-url", required=True,
-                    help="Publicly reachable HTTPS URL of the finished .mp4.")
+    ap.add_argument("--video-file", default="build/final.mp4",
+                    help="Local video file to upload directly to Zernio.")
+    ap.add_argument("--video-url", default=None,
+                    help="Use an already-public, STABLE URL instead of uploading "
+                         "--video-file. Do NOT use a GitHub Release asset URL here — "
+                         "see the module docstring for why.")
     ap.add_argument("--script", default="build/script.json")
     ap.add_argument("--caption-file", default="build/caption_tiktok.txt")
     ap.add_argument("--publish", action="store_true",
@@ -83,12 +117,19 @@ def main():
             s = json.load(f)
         caption = f"{s.get('name', '')} — {s.get('specialty', '')}"
 
+    if args.video_url:
+        media_url = args.video_url
+    else:
+        print(f"[post_zernio_tiktok] uploading {args.video_file} to Zernio...")
+        media_url = upload_to_zernio(args.video_file, {"Authorization": f"Bearer {api_key}"})
+        print(f"[post_zernio_tiktok] uploaded -> {media_url}")
+
     privacy_level = get_privacy_level(account_id, headers)
 
     body = {
         "profileId": profile_id,
         "content": caption,
-        "mediaItems": [{"type": "video", "url": args.video_url}],
+        "mediaItems": [{"type": "video", "url": media_url}],
         # Top-level: tells ZERNIO to act on this now (omitting this would just save
         # a Zernio-side draft and never call TikTok at all).
         "publishNow": True,

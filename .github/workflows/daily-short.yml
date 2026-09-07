@@ -122,6 +122,9 @@ jobs:
       # integration, so TikTok goes through Zernio's own API instead. Safe by default:
       # lands as a Creator Inbox draft the connected account owner taps to publish,
       # rather than posting live. Silently skipped if the Zernio secrets aren't set.
+      # Uploads build/final.mp4 directly to Zernio's storage rather than passing the
+      # GitHub Release URL — that URL redirects through a signed link that expires
+      # ~1 hour after creation, which can silently break TikTok's fetch of it.
       - name: Post to TikTok (Zernio)
         id: post_tiktok
         continue-on-error: true
@@ -131,7 +134,7 @@ jobs:
           ZERNIO_TIKTOK_ACCOUNT_ID: ${{ secrets.ZERNIO_TIKTOK_ACCOUNT_ID }}
         run: |
           python scripts/post_zernio_tiktok.py \
-            --video-url "${{ steps.publish_asset.outputs.video_url }}" \
+            --video-file build/final.mp4 \
             --script build/script.json \
             --caption-file build/caption_tiktok.txt
 
