@@ -100,30 +100,36 @@ SUBFOCI = {
 # Fallback: build a simple narration without GPT (used when no API key / lib)
 # ---------------------------------------------------------------------------
 
-def _fallback_narration(country: dict) -> str:
+def _fallback_script(country: dict):
+    """No-GPT fallback: build (narration, segments) from the curated facts. Each fact
+    becomes one segment; its visual query is the country's base footage_query so the
+    footage stage still has something on-theme to fetch per segment."""
     name = country["name"]
     specialty = country["specialty"]
     facts = country.get("facts", [])
+    base_visual = country.get("footage_query", f"{name} landscape cinematic")
 
-    lines = [
-        f"{name} — {specialty}.",
-        "",
-    ]
+    segments = [{"text": f"{name} — {specialty}.", "visual": base_visual}]
     for fact in facts:
-        lines.append(fact + ".")
-    lines += [
-        "",
-        f"There is no place on Earth quite like {name}.",
-        "Follow for a new country every day.",
-    ]
-    return "\n".join(lines)
+        segments.append({"text": fact + ".", "visual": base_visual})
+    segments.append({
+        "text": f"There is no place on Earth quite like {name}. "
+                "Follow for a new country every day.",
+        "visual": base_visual,
+    })
+    narration = " ".join(s["text"] for s in segments)
+    return narration, segments
 
 
 # ---------------------------------------------------------------------------
 # OpenAI narration
 # ---------------------------------------------------------------------------
 
-def _gpt_narration(country: dict, openai_cfg: dict, angle: str, subfocus: str, cycle: int) -> str:
+def _gpt_script(country: dict, openai_cfg: dict, angle: str, subfocus: str, cycle: int):
+    """Return (narration, segments). segments is a list of
+    {"text": <spoken sentence(s)>, "visual": <stock-footage search query>} so the
+    assemble stage can show a clip that MATCHES what's being said at that moment
+    (e.g. narration mentions islands -> an island clip plays over those words)."""
     api_key = os.environ.get("OPENAI_API_KEY", "").strip()
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY is not set — cannot call GPT.")
@@ -144,10 +150,32 @@ def _gpt_narration(country: dict, openai_cfg: dict, angle: str, subfocus: str, c
             f"only reuse a listed fact if it's a strong fit for this angle"
         )
 
-    system_prompt = openai_cfg["narration_prompt"].format(
+    base_prompt = openai_cfg["narration_prompt"].format(
         country_name=country["name"],
         angle_instruction=angle_instruction,
     )
+
+    # Layer the segmentation contract on top of the existing narration prompt.
+    system_prompt = base_prompt + " " + textwrap.dedent(f"""
+        Return your answer as a JSON object with one key, "segments", whose value is an
+        array of 7 to 10 objects. Each object has:
+          - "text": one or two spoken sentences of the narration (this is what the
+            voiceover reads for this beat).
+          - "visual": a short English stock-footage search query (3-6 words) describing
+            concrete, filmable imagery that MATCHES what "text" is about, so a video clip
+            of exactly that can play while these words are spoken. Name the specific
+            subject — if the text mentions islands, say "{country['name']} tropical island
+            aerial"; if it mentions a mountain, name the mountain; a city, name the city;
+            food, name the dish. Avoid abstract queries; always give something a camera
+            could actually film. Every visual query should be about {country['name']}
+            unless the subject is inherently generic.
+        Concatenating every "text" in order must read as one smooth narration that
+        starts with a strong hook and ends with the call-to-action 'Follow for a new
+        country every day.' IMPORTANT: the combined narration must total between 160 and
+        180 spoken words — count them and do not go under 160; if you are short, enrich
+        the segments with more specific, accurate detail rather than padding. Output ONLY
+        the JSON object.
+    """).strip()
 
     user_message = textwrap.dedent(f"""
         Country: {country['name']}
@@ -163,10 +191,21 @@ def _gpt_narration(country: dict, openai_cfg: dict, angle: str, subfocus: str, c
             {"role": "system", "content": system_prompt},
             {"role": "user", "content": user_message},
         ],
-        max_tokens=openai_cfg.get("max_tokens", 300),
+        max_tokens=openai_cfg.get("max_tokens", 700),
         temperature=openai_cfg.get("temperature", 0.8),
+        response_format={"type": "json_object"},
     )
-    return response.choices[0].message.content.strip()
+    data = json.loads(response.choices[0].message.content)
+    segments = []
+    for seg in data.get("segments", []):
+        text = (seg.get("text") or "").strip()
+        visual = (seg.get("visual") or "").strip()
+        if text:
+            segments.append({"text": text, "visual": visual or country["footage_query"]})
+    if not segments:
+        raise RuntimeError("GPT returned no usable segments.")
+    narration = " ".join(s["text"] for s in segments)
+    return narration, segments
 
 
 # ---------------------------------------------------------------------------
@@ -252,17 +291,22 @@ def main():
         print(f"[generate_country_script] calling OpenAI {openai_cfg.get('model', 'gpt-4o-mini')} "
               f"(cycle {cycle + 1}, angle={angle!r}, subfocus={subfocus!r}) ...")
         try:
-            narration = _gpt_narration(country, openai_cfg, angle, subfocus, cycle)
+            narration, segments = _gpt_script(country, openai_cfg, angle, subfocus, cycle)
             source = "openai"
         except Exception as exc:
-            print(f"[generate_country_script] OpenAI error: {exc} — using fallback narration")
-            narration = _fallback_narration(country)
+            print(f"[generate_country_script] OpenAI error: {exc} — using fallback script")
+            narration, segments = _fallback_script(country)
             source = "fallback"
     else:
         reason = "openai library not installed" if not OPENAI_AVAILABLE else "OPENAI_API_KEY not set"
-        print(f"[generate_country_script] {reason} — using fallback narration")
-        narration = _fallback_narration(country)
+        print(f"[generate_country_script] {reason} — using fallback script")
+        narration, segments = _fallback_script(country)
         source = "fallback"
+
+    # Precompute each segment's word count so the footage/assemble stages can time each
+    # clip to how long its words take to speak (footage stays in sync with the voice).
+    for seg in segments:
+        seg["words"] = len(seg["text"].split())
 
     # Build output record (compatible with the rest of the pipeline)
     record = {
@@ -275,6 +319,7 @@ def main():
         "footage_query": country["footage_query"],
         "text": f"{country['name']} — {country['specialty']}",
         "narration": narration,
+        "segments": segments,
         "narration_source": source,
         "country_index": idx,
         "country_total": len(countries),

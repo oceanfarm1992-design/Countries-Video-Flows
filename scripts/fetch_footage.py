@@ -26,9 +26,11 @@ Usage:
 """
 import argparse
 import datetime
+import glob
 import json
 import os
 import random
+import shutil
 import subprocess
 import sys
 
@@ -268,26 +270,6 @@ def choose_query(args, cfg, script):
     return random.choice(fq) if fq else "calm nature cinematic"
 
 
-def build_clip_queries(base_query, country_name, cfg):
-    """Build one search query per clip in the montage: the base query, then an
-    aerial/drone-angle variant (if enabled), then fallback queries for extra variety."""
-    fcfg = cfg.get("footage", {})
-    n = max(1, fcfg.get("clips_per_video", 3))
-    queries = [base_query]
-
-    if fcfg.get("include_drone_shot", True) and n > 1:
-        suffix = fcfg.get("drone_query_suffix", "aerial drone view cinematic")
-        subject = country_name or base_query
-        queries.append(f"{subject} {suffix}")
-
-    fallback = fcfg.get("fallback_queries", [])
-    pool = [q for q in fallback if q not in queries] or fallback or [base_query]
-    while len(queries) < n:
-        queries.append(random.choice(pool))
-
-    return queries[:n]
-
-
 def fetch_one_clip(query, dest, cfg, order, want_portrait, min_height, seed_str):
     """Run the per-source cascade (pexels -> pixabay -> archive -> animate) for a
     single clip. Returns the source info dict, or None if every source failed."""
@@ -313,48 +295,27 @@ def fetch_one_clip(query, dest, cfg, order, want_portrait, min_height, seed_str)
     return None
 
 
-def concat_clips(clip_paths, dest, width, height, max_clip_seconds):
-    """Trim each clip to max_clip_seconds, normalize to width x height / 30fps, and
-    concatenate into a single silent video file at `dest`."""
-    if len(clip_paths) == 1:
-        # Still re-encode through the same filter so the single-clip case behaves
-        # identically to the multi-clip case (consistent format for the assemble stage).
-        cmd = [
-            "ffmpeg", "-y", "-i", clip_paths[0],
-            "-t", str(max_clip_seconds),
-            "-vf", f"scale={width}:{height}:force_original_aspect_ratio=increase,"
-                   f"crop={width}:{height},setsar=1,fps=30,format=yuv420p",
-            "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", dest,
-        ]
-    else:
-        cmd = ["ffmpeg", "-y"]
-        for p in clip_paths:
-            cmd += ["-i", p]
-        chains = []
-        labels = []
-        for i in range(len(clip_paths)):
-            chains.append(
-                f"[{i}:v]trim=duration={max_clip_seconds},setpts=PTS-STARTPTS,"
-                f"scale={width}:{height}:force_original_aspect_ratio=increase,"
-                f"crop={width}:{height},setsar=1,fps=30,format=yuv420p[c{i}]"
-            )
-            labels.append(f"[c{i}]")
-        concat = "".join(labels) + f"concat=n={len(clip_paths)}:v=1:a=0[outv]"
-        filter_complex = ";".join(chains) + ";" + concat
-        cmd += ["-filter_complex", filter_complex, "-map", "[outv]",
-                "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "18", dest]
-
-    proc = subprocess.run(cmd, capture_output=True)
-    if proc.returncode != 0:
-        sys.stderr.write(proc.stderr.decode("utf-8", "replace")[-3000:])
-        raise SystemExit(f"ffmpeg concat failed ({proc.returncode})")
+def segment_queries(script, cfg):
+    """One footage search query per narration segment, so each clip matches what's being
+    said while it plays. Falls back to the country's base query for any segment missing a
+    visual, and to a synthetic single-segment list if the script has no segments."""
+    base = script.get("footage_query") or "travel landscape cinematic"
+    segs = script.get("segments") or []
+    if segs:
+        return [(s.get("visual") or base) for s in segs]
+    # No segments (old-style script.json): fetch a few generic on-theme clips.
+    fallback = cfg.get("footage", {}).get("fallback_queries", [])
+    extras = fallback[:2] if fallback else []
+    return [base] + extras
 
 
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--config", default="config/countries.json")
     ap.add_argument("--out", default="build")
-    ap.add_argument("--query", default=None, help="Override the footage search keyword.")
+    ap.add_argument("--query", default=None,
+                    help="Override: fetch a single clip for this query instead of one "
+                         "clip per narration segment.")
     ap.add_argument("--source", default=None,
                     choices=["pexels", "pixabay", "archive", "animate"],
                     help="Force a single source instead of the configured order.")
@@ -364,58 +325,65 @@ def main():
         cfg = json.load(f)
 
     fcfg = cfg.get("footage", {})
-    vcfg = cfg.get("video", {})
     want_portrait = fcfg.get("orientation", "portrait") == "portrait"
     min_height = fcfg.get("min_height", 720)
-    max_clip_seconds = fcfg.get("max_clip_seconds", 22)
-    width = vcfg.get("width", 1080)
-    height = vcfg.get("height", 1920)
     order = [args.source] if args.source else fcfg.get(
         "source_order", ["pexels", "pixabay", "animate"])
 
     script = read_script(args)
-    base_query = choose_query(args, cfg, script)
     country_name = script.get("name", "")
-    queries = build_clip_queries(base_query, country_name, cfg)
+    base_query = choose_query(args, cfg, script)
+    if args.query:
+        queries = [args.query]
+    else:
+        queries = segment_queries(script, cfg)
 
     os.makedirs(args.out, exist_ok=True)
-    dest = os.path.join(args.out, "footage.mp4")
-    print(f"[fetch_footage] queries={queries!r} sources={order}")
+    print(f"[fetch_footage] {len(queries)} segment clip(s), sources={order}")
 
-    clip_paths = []
+    # Clean any stale clips from a previous run so the assemble stage never picks them up.
+    for old in glob.glob(os.path.join(args.out, "footage_clip*.mp4")):
+        os.remove(old)
+
     clip_infos = []
+    last_good_clip = None
     for i, query in enumerate(queries):
         clip_dest = os.path.join(args.out, f"footage_clip{i}.mp4")
         seed_str = f"{country_name or query}-{i}"
+        # Per-segment cascade: the segment's own query, then the country base query,
+        # so a too-specific search that finds nothing still yields on-theme footage.
         info = fetch_one_clip(query, clip_dest, cfg, order, want_portrait, min_height, seed_str)
+        if not info and query != base_query:
+            print(f"[fetch_footage] segment {i}: {query!r} empty, retrying base query")
+            info = fetch_one_clip(base_query, clip_dest, cfg, order, want_portrait,
+                                  min_height, seed_str)
         if info:
-            clip_paths.append(clip_dest)
+            info["query"] = query
+            info["path"] = os.path.basename(clip_dest)
             clip_infos.append(info)
+            last_good_clip = clip_dest
+        elif last_good_clip:
+            # Last resort: reuse the previous clip so this segment still has a visual
+            # (better than a gradient dropped in the middle of real footage).
+            shutil.copyfile(last_good_clip, clip_dest)
+            clip_infos.append({"source": "reuse", "query": query,
+                               "path": os.path.basename(clip_dest)})
 
-    if not clip_paths:
+    if not clip_infos:
         print("ERROR: no footage could be fetched from any source.", file=sys.stderr)
         sys.exit(1)
 
-    concat_clips(clip_paths, dest, width, height, max_clip_seconds)
-    for p in clip_paths:
-        os.remove(p)
-
-    if not (os.path.exists(dest) and os.path.getsize(dest) > 0):
-        print("ERROR: footage concat produced no output.", file=sys.stderr)
-        sys.exit(1)
-
-    combined_info = {
+    manifest = {
         "clip_count": len(clip_infos),
         "clips": clip_infos,
-        # top-level fields kept for backward-compat with scripts that read a single
-        # source/identifier (e.g. the workflow's history-log step)
+        # top-level fields kept for backward-compat with the workflow's history-log step
         "source": "+".join(sorted({c["source"] for c in clip_infos})),
         "identifier": clip_infos[0].get("identifier", clip_infos[0].get("source", "unknown")),
     }
     with open(os.path.join(args.out, "footage.json"), "w", encoding="utf-8") as f:
-        json.dump(combined_info, f, indent=2)
-    print(f"[fetch_footage] saved {dest} — {len(clip_infos)} clip(s): "
-          + ", ".join(f"{c['source']}({c.get('resolution', '?')})" for c in clip_infos))
+        json.dump(manifest, f, indent=2)
+    print(f"[fetch_footage] saved {len(clip_infos)} clip(s): "
+          + ", ".join(f"{c['source']}({c.get('query', '?')})" for c in clip_infos))
 
 
 if __name__ == "__main__":

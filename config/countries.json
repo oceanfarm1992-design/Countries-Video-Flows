@@ -2595,7 +2595,7 @@
     "width": 1080,
     "height": 1920,
     "words_per_second": 2.3,
-    "min_seconds": 65,
+    "min_seconds": 45,
     "max_seconds": 80,
     "cta_text": "Follow for a new country every day",
     "font_hint": "DejaVuSans (preinstalled on GitHub Ubuntu runners)"

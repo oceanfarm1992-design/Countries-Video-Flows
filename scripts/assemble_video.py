@@ -28,8 +28,10 @@ Usage:
 """
 import argparse
 import datetime
+import glob
 import json
 import os
+import re
 import shutil
 import subprocess
 import sys
@@ -85,19 +87,22 @@ def pick_music(music_dir):
     return os.path.join(music_dir, tracks[idx])
 
 
-def build_audio_filter(has_music, duration, music_vol):
+def build_audio_filter(has_music, duration, music_vol, voice_idx=1, music_idx=2):
     """Audio graph: clean up the TTS voice (denoise + high-pass + loudness-normalize),
     and if a music track is present, duck it low and mix it under the voice.
 
+    voice_idx/music_idx are the ffmpeg input indices — they shift because the per-segment
+    montage adds one video input per segment ahead of the audio inputs.
+
     afftdn removes the faint hiss/"old radio" noise between words; loudnorm gives a
     consistent, clear speech level."""
-    voice = "[1:a]afftdn=nr=12,highpass=f=70,loudnorm=I=-16:TP=-1.5:LRA=11"
+    voice = f"[{voice_idx}:a]afftdn=nr=12,highpass=f=70,loudnorm=I=-16:TP=-1.5:LRA=11"
     if not has_music:
         return voice + "[aout]"
     fade_out = max(0.0, duration - 2.0)
     return (
         voice + "[va];"
-        f"[2:a]volume={music_vol},afade=t=in:st=0:d=1.5,"
+        f"[{music_idx}:a]volume={music_vol},afade=t=in:st=0:d=1.5,"
         f"afade=t=out:st={fade_out:.2f}:d=2[mus];"
         # duration=longest so the music plays the FULL video length (incl. the tail
         # after the voice ends) — duration=first cut the audio off at the voice length,
@@ -133,48 +138,80 @@ def fontfile_escape(path):
     return path.replace("\\", "/").replace(":", "\\:")
 
 
-def build_filter_complex(hook, cta, captions_path, duration):
+def build_video_filter(clip_durations, hook, cta, captions_path, duration):
+    """Build the video filtergraph for a montage of per-segment clips.
+
+    Inputs 0..N-1 are the segment clips (each fed with -stream_loop -1 so a short clip
+    repeats to fill its segment). Each is trimmed to its segment's spoken duration, then
+    all are concatenated so the footage changes in step with the narration. Hook card,
+    lower-third captions, and the end CTA are burned on top."""
     hook_e = drawtext_escape(hook)
     cta_e = drawtext_escape(cta)
     font_bold = fontfile_escape(FONT_BOLD)
-    # subtitles filter path: colons/backslashes would need escaping on Windows,
-    # but CI runs on Linux with a simple relative path.
     subs = captions_path.replace("\\", "/")
     hook_end = 4.0
     cta_start = max(0.0, duration - 4.0)
 
-    # Alignment=2 is bottom-centre; MarginV is the gap from the bottom, measured in
-    # libass's default 288px canvas (then scaled to the real 1920 height, ~6.67x). So
-    # MarginV=144 (= half of 288) lands the captions in the VERTICAL MIDDLE of the frame.
-    # The old value 280 pushed them ~6.67x past that, jamming them at the very top.
+    # Lower-third captions: Alignment=2 (bottom-centre); MarginV is measured up from the
+    # bottom in libass's 288px canvas (~6.67x -> real 1920). MarginV=90 lands them around
+    # 69% down the frame — off the subject's face (the old MarginV=144 sat dead-centre),
+    # and clear of the CTA card at the very bottom.
     caption_style = (
-        "FontName=DejaVu Sans,Fontsize=16,PrimaryColour=&H00FFFFFF,"
-        "OutlineColour=&H00000000,BorderStyle=1,Outline=2,Shadow=1,"
-        "Alignment=2,MarginV=144"
+        "FontName=DejaVu Sans,Fontsize=18,Bold=1,PrimaryColour=&H00FFFFFF,"
+        "OutlineColour=&H00000000,BorderStyle=1,Outline=3,Shadow=1,"
+        "Alignment=2,MarginV=90"
     )
-    # VERIFY: force_style keys are ASS style names (case-sensitive-ish). If captions
-    # look unstyled, check the ffmpeg build supports libass (`ffmpeg -filters | grep subtitles`).
 
-    parts = [
-        "[0:v]scale=1080:1920:force_original_aspect_ratio=increase,"
-        "crop=1080:1920,setsar=1,fps=30,format=yuv420p[base]",
+    parts = []
+    labels = []
+    for i, d in enumerate(clip_durations):
+        parts.append(
+            f"[{i}:v]trim=duration={d:.3f},setpts=PTS-STARTPTS,"
+            "scale=1080:1920:force_original_aspect_ratio=increase,"
+            "crop=1080:1920,setsar=1,fps=30,format=yuv420p[c{}]".format(i)
+        )
+        labels.append(f"[c{i}]")
+    parts.append("".join(labels) + f"concat=n={len(clip_durations)}:v=1:a=0[base]")
 
-        # hook title card (top third), bold, semi-transparent box
+    # hook title card (top third), bold, semi-transparent box
+    parts.append(
         f"[base]drawtext=fontfile={font_bold}:text='{hook_e}':"
         "fontcolor=white:fontsize=54:line_spacing=8:"
         "box=1:boxcolor=black@0.5:boxborderw=24:"
-        f"x=(w-text_w)/2:y=h*0.14:enable='between(t,0,{hook_end})'[v1]",
-
-        # burned-in captions
-        f"[v1]subtitles='{subs}':force_style='{caption_style}'[v2]",
-
-        # end-card CTA / watermark (bottom)
+        f"x=(w-text_w)/2:y=h*0.14:enable='between(t,0,{hook_end})'[v1]"
+    )
+    # burned-in lower-third captions
+    parts.append(f"[v1]subtitles='{subs}':force_style='{caption_style}'[v2]")
+    # end-card CTA / watermark (bottom)
+    parts.append(
         f"[v2]drawtext=fontfile={font_bold}:text='{cta_e}':"
         "fontcolor=white:fontsize=44:"
         "box=1:boxcolor=black@0.55:boxborderw=20:"
-        f"x=(w-text_w)/2:y=h*0.86:enable='gte(t,{cta_start:.2f})'[vout]",
-    ]
+        f"x=(w-text_w)/2:y=h*0.86:enable='gte(t,{cta_start:.2f})'[vout]"
+    )
     return ";".join(parts)
+
+
+def find_segment_clips(build_dir):
+    """Return the per-segment clip files (footage_clip0.mp4, footage_clip1.mp4, ...) in
+    numeric order, or [] if none exist (pre-segment-era single footage.mp4 layout)."""
+    clips = glob.glob(os.path.join(build_dir, "footage_clip*.mp4"))
+
+    def idx(path):
+        m = re.search(r"footage_clip(\d+)\.mp4$", path)
+        return int(m.group(1)) if m else 0
+
+    return sorted(clips, key=idx)
+
+
+def segment_durations(script, total):
+    """Split `total` seconds across the narration segments in proportion to how many
+    words each one has, so each clip is on screen for exactly as long as its words are
+    spoken."""
+    segs = script.get("segments") or []
+    words = [max(1, s.get("words", len(s.get("text", "").split()))) for s in segs]
+    tw = sum(words) or 1
+    return [total * w / tw for w in words]
 
 
 def main():
@@ -202,10 +239,11 @@ def main():
     hook = script.get("hook", "STAY STRONG")
     cta = cfg.get("cta_text", "Follow for daily wisdom")
 
-    duration = ffprobe_duration(args.audio)
-    # clamp to configured bounds (in case an excerpt is unusually long/short)
-    duration = max(cfg["min_seconds"], min(duration + 0.6, cfg["max_seconds"]))
-    print(f"[assemble_video] target duration {duration:.1f}s")
+    audio_dur = ffprobe_duration(args.audio)
+    # Footage should track the voice exactly, so the total is the voice length (+ a small
+    # tail so the last word/CTA has room to breathe), clamped to the configured bounds.
+    duration = max(cfg["min_seconds"], min(audio_dur + 0.4, cfg["max_seconds"]))
+    print(f"[assemble_video] voice {audio_dur:.1f}s -> target duration {duration:.1f}s")
 
     # Prefer a real track dropped in --music-dir; otherwise use the generated ambient
     # pad (--music, built by generate_music.py). So adding real music later just works.
@@ -221,18 +259,37 @@ def main():
     else:
         print(f"[assemble_video] no music found in {args.music_dir!r} — voice only")
 
-    video_fc = build_filter_complex(hook, cta, args.captions, duration)
-    audio_fc = build_audio_filter(bool(music_path), duration, args.music_volume)
+    # Per-segment montage: one input clip per narration segment, each shown for the time
+    # its words take to speak. Falls back to the single looped footage.mp4 if no
+    # per-segment clips are present (older layout).
+    clips = find_segment_clips(os.path.dirname(args.out) or ".")
+    segs = script.get("segments") or []
+    if clips and segs:
+        durs = segment_durations(script, duration)
+        # Reconcile counts: map clip i to segment i; if fewer clips than segments (some
+        # failed to fetch), cycle through what we have so every segment still gets video.
+        clip_inputs = [clips[i % len(clips)] for i in range(len(durs))]
+        print(f"[assemble_video] {len(durs)} synced segment clips")
+    else:
+        # legacy single-clip path
+        durs = [duration]
+        clip_inputs = [args.footage]
+        print("[assemble_video] no per-segment clips — single looped footage")
+
+    video_fc = build_video_filter(durs, hook, cta, args.captions, duration)
+    voice_idx = len(clip_inputs)
+    music_idx = voice_idx + 1
+    audio_fc = build_audio_filter(bool(music_path), duration, args.music_volume,
+                                  voice_idx, music_idx)
     filter_complex = video_fc + ";" + audio_fc
 
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
-    cmd = [
-        "ffmpeg", "-y",
-        "-stream_loop", "-1", "-i", args.footage,   # input 0: loop footage to cover audio
-        "-i", args.audio,                            # input 1: TTS voice
-    ]
+    cmd = ["ffmpeg", "-y"]
+    for clip in clip_inputs:
+        cmd += ["-stream_loop", "-1", "-i", clip]  # each segment clip loops to fill its slot
+    cmd += ["-i", args.audio]                        # voice (input voice_idx)
     if music_path:
-        cmd += ["-stream_loop", "-1", "-i", music_path]  # input 2: looped background music
+        cmd += ["-stream_loop", "-1", "-i", music_path]  # music (input music_idx)
     cmd += [
         "-filter_complex", filter_complex,
         "-map", "[vout]", "-map", "[aout]",
