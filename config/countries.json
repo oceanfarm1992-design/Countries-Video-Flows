@@ -3182,12 +3182,12 @@
     "words_per_second": 2.3,
     "min_seconds": 45,
     "max_seconds": 80,
-    "cta_text": "Follow for more stories",
+    "cta_text": "Love this? Like the video! From here? Comment I love my country",
     "font_hint": "DejaVuSans (preinstalled on GitHub Ubuntu runners)"
   },
   "openai": {
     "model": "gpt-4o-mini",
-    "narration_prompt": "You are writing a short, vivid YouTube Shorts narration about {country_name}. The video is 45-70 seconds long when read at a natural pace (roughly 120-175 words spoken). Write ONLY the spoken narration — no stage directions, no titles. Start with a powerful hook sentence about what makes {country_name} extraordinary. Then {angle_instruction}. End with a single reflective line and a call-to-action: 'Follow for more stories from around the world.' Tone: documentary-style but warm, like a National Geographic short. Do not use bullet points or headers — pure flowing prose only. Aim for 130-175 words.",
+    "narration_prompt": "You are writing a short, vivid YouTube Shorts narration about {country_name}. The video is 45-70 seconds long when read at a natural pace (roughly 120-175 words spoken). Write ONLY the spoken narration — no stage directions, no titles. Start with a powerful hook sentence about what makes {country_name} extraordinary. Then {angle_instruction}. End with a brief reflective closing line, then speak this call-to-action naturally: 'If you love {country_name}, give this video a like — and if you are from {country_name}, drop a comment saying I love my country. Follow for more stories from around the world.' Tone: documentary-style but warm, like a National Geographic short. Do not use bullet points or headers — pure flowing prose only. Aim for 130-175 words.",
     "max_tokens": 1500,
     "temperature": 0.8
   },
