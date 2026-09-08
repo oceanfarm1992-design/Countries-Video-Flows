@@ -132,7 +132,7 @@ def drawtext_escape(text):
     countries like Romania’s "EUROPE’S ..." hook). Swapping it for a typographic
     apostrophe (‘) sidesteps the quoting entirely and still reads correctly on screen."""
     return (text.replace("\\", "\\\\")
-                .replace("’", "’")
+                .replace("'", "’")
                 .replace(":", "\\:")
                 .replace("%", "\\%"))
 
