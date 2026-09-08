@@ -60,8 +60,11 @@ def fontfile_escape(path):
 
 
 def drawtext_escape(text):
-    return (text.replace("\\", "\\\\").replace(":", "\\:")
-                .replace("'", "\\'").replace("%", "\\%"))
+    # Swap the ASCII apostrophe for a typographic one — a literal ' inside our
+    # single-quoted -filter_complex argument corrupts the filtergraph (see the same
+    # note in assemble_video.py). Country names like "Côte d'Ivoire" need this.
+    return (text.replace("\\", "\\\\").replace("'", "’")
+                .replace(":", "\\:").replace("%", "\\%"))
 
 
 def ease_out_cubic(p):

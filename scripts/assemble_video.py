@@ -124,10 +124,16 @@ def ffprobe_duration(path):
 
 
 def drawtext_escape(text):
-    """Escape characters special to ffmpeg's drawtext text= option."""
+    """Escape characters special to ffmpeg's drawtext text= option.
+
+    An ASCII apostrophe is the nasty one: our text is wrapped in single quotes inside a
+    single -filter_complex argument, and there is no reliable backslash escape for a '
+    there — it terminates the quote and corrupts the whole filtergraph (this crashed
+    countries like Romania's "EUROPE'S ..." hook). Swapping it for a typographic
+    apostrophe (’) sidesteps the quoting entirely and still reads correctly on screen."""
     return (text.replace("\\", "\\\\")
+                .replace("'", "’")
                 .replace(":", "\\:")
-                .replace("'", "\\'")
                 .replace("%", "\\%"))
 
 
