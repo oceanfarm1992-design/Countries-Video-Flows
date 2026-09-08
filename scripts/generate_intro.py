@@ -71,6 +71,34 @@ def ease_out_cubic(p):
     return 1 - (1 - p) ** 3
 
 
+def _name_fontsize(name):
+    """Scale the country-name font so it always fits within the 1080px frame width.
+    At DejaVu Bold the average char is roughly 0.58× the point size wide."""
+    n = len(name)
+    if n <= 10: return 110
+    if n <= 15: return 90
+    if n <= 22: return 72
+    return 60   # e.g. "Democratic Republic of the Congo" (32 chars) at 60pt ≈ 1114px — use wrap
+
+
+def wrap_drawtext(text, max_chars):
+    """Word-wrap `text` and return a drawtext-safe string.
+    Lines are joined with \\n (backslash-n), which ffmpeg drawtext renders as a newline."""
+    words = text.split()
+    lines, current, count = [], [], 0
+    for w in words:
+        space = 1 if current else 0
+        if current and count + space + len(w) > max_chars:
+            lines.append(" ".join(current))
+            current, count = [w], len(w)
+        else:
+            current.append(w)
+            count += space + len(w)
+    if current:
+        lines.append(" ".join(current))
+    return r"\n".join(drawtext_escape(line) for line in lines)
+
+
 def fetch_flag(iso2, dest):
     """Download the country's flag png from flagcdn (free, no key)."""
     url = f"https://flagcdn.com/w1280/{iso2.lower()}.png"
@@ -156,7 +184,14 @@ def main():
     # country (pole + flag + marker dot) that drops in as the globe settles, and the
     # country name shown throughout the rotation.
     font = fontfile_escape(FONT_BOLD)
-    name_e = drawtext_escape(args.name.upper())
+    name_upper = args.name.upper()
+    name_fontsize = _name_fontsize(name_upper)
+    # Wrap names longer than 22 chars at 20 chars/line so they don't exceed the frame.
+    # "Democratic Republic of the Congo" (32 chars) → 2 lines, each well within 1080px.
+    if len(name_upper) > 22:
+        name_e = wrap_drawtext(name_upper, 20)
+    else:
+        name_e = drawtext_escape(name_upper)
     globe_y = 120
     globe_cx = width // 2
     country_y = globe_y + width // 2          # globe is scaled to width x width; centre = country
@@ -199,11 +234,14 @@ def main():
         f"enable='gte(t,{pin_show:.2f})'[vd]"
     )
     last = "vd"
-    # country name banner, shown for the whole intro (announced during the rotation)
+    # Country name banner — adaptive fontsize keeps even long names inside the frame;
+    # wrapping splits names >22 chars onto 2 lines.  y is lifted slightly (height-420)
+    # to give a 2-line block room before the bottom edge.
     fc.append(
         f"[{last}]drawtext=fontfile={font}:text='{name_e}':"
-        "fontcolor=white:fontsize=110:borderw=5:bordercolor=black@0.85:"
-        f"x=(w-text_w)/2:y={height - 380}[vout]"
+        f"fontcolor=white:fontsize={name_fontsize}:line_spacing=6:"
+        "borderw=4:bordercolor=black@0.85:"
+        f"x=(w-text_w)/2:y={height - 420}[vout]"
     )
     filter_complex = ";".join(fc)
 

@@ -124,17 +124,39 @@ def ffprobe_duration(path):
 
 
 def drawtext_escape(text):
-    """Escape characters special to ffmpeg's drawtext text= option.
+    """Escape characters special to ffmpeg’s drawtext text= option.
 
     An ASCII apostrophe is the nasty one: our text is wrapped in single quotes inside a
-    single -filter_complex argument, and there is no reliable backslash escape for a '
+    single -filter_complex argument, and there is no reliable backslash escape for a ‘
     there — it terminates the quote and corrupts the whole filtergraph (this crashed
-    countries like Romania's "EUROPE'S ..." hook). Swapping it for a typographic
-    apostrophe (’) sidesteps the quoting entirely and still reads correctly on screen."""
+    countries like Romania’s "EUROPE’S ..." hook). Swapping it for a typographic
+    apostrophe (‘) sidesteps the quoting entirely and still reads correctly on screen."""
     return (text.replace("\\", "\\\\")
-                .replace("'", "’")
+                .replace("’", "’")
                 .replace(":", "\\:")
                 .replace("%", "\\%"))
+
+
+def wrap_drawtext(text, max_chars=30):
+    """Wrap `text` at word boundaries so it fits within the frame width.
+
+    Returns a drawtext-safe string where each line is individually escaped and lines
+    are separated by \\n (the two characters backslash-n), which ffmpeg drawtext
+    interprets as a newline. Escaping each line separately ensures the backslash from
+    drawtext_escape is not later confused with the \\n line-break marker."""
+    words = text.split()
+    lines, current, count = [], [], 0
+    for w in words:
+        space = 1 if current else 0
+        if current and count + space + len(w) > max_chars:
+            lines.append(" ".join(current))
+            current, count = [w], len(w)
+        else:
+            current.append(w)
+            count += space + len(w)
+    if current:
+        lines.append(" ".join(current))
+    return r"\n".join(drawtext_escape(line) for line in lines)
 
 
 def fontfile_escape(path):
@@ -153,8 +175,10 @@ def build_video_filter(pieces, hook, cta, captions_path, duration):
     with the narration. Hook card, lower-third captions and the end CTA are burned on top.
 
     `pieces` is a list of {"type": "video"|"photo", "dur": seconds} in input order."""
-    hook_e = drawtext_escape(hook)
-    cta_e = drawtext_escape(cta)
+    # Wrap at ~28 chars so a 50-char hook fits on 2 lines at fontsize=48 within 1080px.
+    # Wrap CTA at ~38 chars; "Follow for more stories from around the world" is 45 chars.
+    hook_e = wrap_drawtext(hook, 28)
+    cta_e = wrap_drawtext(cta, 38)
     font_bold = fontfile_escape(FONT_BOLD)
     subs = captions_path.replace("\\", "/")
     hook_end = 4.0
@@ -193,21 +217,23 @@ def build_video_filter(pieces, hook, cta, captions_path, duration):
         labels.append(f"[c{i}]")
     parts.append("".join(labels) + f"concat=n={len(pieces)}:v=1:a=0[base]")
 
-    # hook title card (top third), bold, semi-transparent box
+    # hook title card — fontsize=48 (down from 54) leaves headroom for 2-line wraps;
+    # y=h*0.10 pushes it slightly higher so even a 2-line block clears the subject's face.
     parts.append(
         f"[base]drawtext=fontfile={font_bold}:text='{hook_e}':"
-        "fontcolor=white:fontsize=54:line_spacing=8:"
+        "fontcolor=white:fontsize=48:line_spacing=8:"
         "box=1:boxcolor=black@0.5:boxborderw=24:"
-        f"x=(w-text_w)/2:y=h*0.14:enable='between(t,0,{hook_end})'[v1]"
+        f"x=(w-text_w)/2:y=h*0.10:enable='between(t,0,{hook_end})'[v1]"
     )
     # burned-in lower-third captions
     parts.append(f"[v1]subtitles='{subs}':force_style='{caption_style}'[v2]")
-    # end-card CTA / watermark (bottom)
+    # end-card CTA — wrapped so the full 45-char string fits on 2 lines within 1080px.
+    # y=h*0.82 gives the 2-line card breathing room above the bottom edge.
     parts.append(
         f"[v2]drawtext=fontfile={font_bold}:text='{cta_e}':"
-        "fontcolor=white:fontsize=44:"
+        "fontcolor=white:fontsize=44:line_spacing=8:"
         "box=1:boxcolor=black@0.55:boxborderw=20:"
-        f"x=(w-text_w)/2:y=h*0.86:enable='gte(t,{cta_start:.2f})'[vout]"
+        f"x=(w-text_w)/2:y=h*0.82:enable='gte(t,{cta_start:.2f})'[vout]"
     )
     return ";".join(parts)
 
