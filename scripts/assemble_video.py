@@ -400,7 +400,11 @@ def prepend_intro(intro, montage, out, xfade, intro_voice=None):
     travel to X"), it plays over the globe so the opening isn't silent."""
     intro_dur = ffprobe_duration(intro)
     voffset = max(0.0, intro_dur - xfade)     # when the video crossfade begins
-    delay_ms = int(intro_dur * 1000)          # main voice/music start after the intro
+    # Align voice with the moment the montage video starts showing (= voffset),
+    # NOT with intro_dur. Using intro_dur caused the captions (burned into the
+    # montage at t=0) to appear xfade seconds BEFORE the voice, because the
+    # montage video leads the delayed audio by exactly the xfade duration.
+    delay_ms = int(voffset * 1000)
 
     inputs = ["-i", intro, "-i", montage]
     if intro_voice:

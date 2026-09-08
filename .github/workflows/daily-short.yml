@@ -75,6 +75,8 @@ jobs:
         run: python scripts/generate_tts.py --config config/countries.json
 
       - name: Generate captions
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
         run: python scripts/generate_captions.py --config config/countries.json
 
       - name: Generate background music (ambient pad)
