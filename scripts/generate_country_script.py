@@ -26,7 +26,9 @@ import argparse
 import json
 import os
 import random
+import re
 import textwrap
+import unicodedata
 from datetime import date
 
 OPENAI_AVAILABLE = False
@@ -225,25 +227,57 @@ def _gpt_script(country: dict, openai_cfg: dict, angle: str, subfocus: str, cycl
 # Caption / metadata helpers
 # ---------------------------------------------------------------------------
 
+def _country_hashtag(name: str) -> str:
+    """Build a country-specific hashtag: accent-stripped, lowercase, letters only.
+    e.g. "São Tomé and Príncipe" -> "#saotomeandprincipe", "Japan" -> "#japan"."""
+    ascii_name = unicodedata.normalize("NFKD", name).encode("ascii", "ignore").decode("ascii")
+    return "#" + re.sub(r"[^a-z]", "", ascii_name.lower())
+
+
 def _write_platform_captions(country: dict, narration: str, config: dict, out_dir: str):
     hashtags = config.get("hashtags", {})
     name = country["name"]
     specialty = country["specialty"]
-    yt_title = f"{name}: {specialty} #Shorts"
+    hook = country.get("hook_text", specialty)
+    facts = country.get("facts", [])
+    ctag = _country_hashtag(name)          # e.g. "#japan"
+    first_fact = facts[0] if facts else specialty
+
+    # YouTube title: hook text in title case is punchy and keyword-rich.
+    # Python's str.title() capitalises the letter after an apostrophe ("World'S"),
+    # so we fix that back to lower after the call.
+    hook_title = re.sub(r"'([A-Z])", lambda m: "'" + m.group(1).lower(), hook.title()).rstrip(".")
+    # Reserve 8 chars for " #Shorts" suffix; hard limit 100.
+    max_hook = 91
+    if len(hook_title) > max_hook:
+        hook_title = hook_title[:max_hook].rsplit(" ", 1)[0] + "…"
+    yt_title = f"{hook_title} #Shorts"
+
+    # YouTube description: keyword-rich above the fold, fact teaser, CTA.
+    yt_desc = (
+        f"{name} 🌍 {specialty}\n\n"
+        f"Did you know? {first_fact}\n\n"
+        "Subscribe for a new country every day! 🌏\n\n"
+        f"{ctag} {hashtags.get('youtube', '')}"
+    )
+
+    # Facebook: conversational opener + engagement question to drive comments.
+    fb_cap = (
+        f"🌍 {name} — {specialty}\n\n"
+        f"Which fact surprised you the most? Drop it in the comments! 👇\n\n"
+        f"{ctag} {hashtags.get('facebook', '')}"
+    )
+
+    # TikTok: snappy hook + country tag + discovery tags.
+    tt_cap = (
+        f"{name} is truly incredible! 🌍\n\n"
+        f"{ctag} {hashtags.get('tiktok', '')}"
+    )
 
     files = {
-        "caption_meta.txt": (
-            f"{name} — {specialty}\n\n"
-            f"{hashtags.get('instagram', '')}"
-        ),
-        "caption_tiktok.txt": (
-            f"{name} — {specialty}\n"
-            f"{hashtags.get('tiktok', '')}"
-        ),
-        "caption_youtube.txt": (
-            f"{name} — {specialty}\n\n"
-            f"{hashtags.get('youtube', '')}"
-        ),
+        "caption_meta.txt": fb_cap,
+        "caption_tiktok.txt": tt_cap,
+        "caption_youtube.txt": yt_desc,
         "yt_title.txt": yt_title[:100],
     }
     for fname, content in files.items():

@@ -3171,10 +3171,10 @@
     ]
   },
   "hashtags": {
-    "instagram": "#travel #countries #culture #history #worldwonders #exploretheworld #geography #facts #reels #travelgram",
-    "facebook": "#travel #culture #history #worldwonders #geography #exploretheworld",
-    "tiktok": "#travel #countries #culture #facts #history #worldwonders #learnontiktok #fyp",
-    "youtube": "#Shorts #travel #countries #culture #history #worldwonders #geography"
+    "instagram": "#travel #worldfacts #geography #culture #history #amazingplaces #exploretheworld #countryfacts #travelgram #reels #learnontiktok #didyouknow",
+    "facebook": "#travel #worldfacts #geography #culture #history #amazingplaces #countryfacts #exploretheworld",
+    "tiktok": "#travel #learnontiktok #worldfacts #geography #countryfacts #didyouknow #fyp #tiktoktravel #facts #culture #history #amazingplaces",
+    "youtube": "#Shorts #travel #geography #worldfacts #culture #history #countryfacts #learnontiktok #amazingplaces #facts"
   },
   "video": {
     "width": 1080,
@@ -3187,7 +3187,7 @@
   },
   "openai": {
     "model": "gpt-4o-mini",
-    "narration_prompt": "You are writing a short, vivid YouTube Shorts narration about {country_name}. The video is exactly 65 seconds long when read at a natural pace (roughly 160-175 words spoken). Write ONLY the spoken narration — no stage directions, no titles. Start with a powerful hook sentence about what makes {country_name} extraordinary. Then {angle_instruction}. End with a single reflective line and a call-to-action: 'Follow for more stories from around the world.' Tone: documentary-style but warm, like a National Geographic short. Do not use bullet points or headers — pure flowing prose only. Aim for the full 160-180 words.",
+    "narration_prompt": "You are writing a short, vivid YouTube Shorts narration about {country_name}. The video is 45-70 seconds long when read at a natural pace (roughly 120-175 words spoken). Write ONLY the spoken narration — no stage directions, no titles. Start with a powerful hook sentence about what makes {country_name} extraordinary. Then {angle_instruction}. End with a single reflective line and a call-to-action: 'Follow for more stories from around the world.' Tone: documentary-style but warm, like a National Geographic short. Do not use bullet points or headers — pure flowing prose only. Aim for 130-175 words.",
     "max_tokens": 1500,
     "temperature": 0.8
   },
