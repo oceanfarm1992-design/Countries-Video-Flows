@@ -189,8 +189,8 @@ def build_video_filter(pieces, hook, cta, captions_path, duration):
     # 69% down the frame — off the subject's face (the old MarginV=144 sat dead-centre),
     # and clear of the CTA card at the very bottom.
     caption_style = (
-        "FontName=DejaVu Sans,Fontsize=18,Bold=1,PrimaryColour=&H00FFFFFF,"
-        "OutlineColour=&H00000000,BorderStyle=1,Outline=3,Shadow=1,"
+        "FontName=DejaVu Sans,Fontsize=14,Bold=1,PrimaryColour=&H00FFFFFF,"
+        "OutlineColour=&H00000000,BorderStyle=1,Outline=2,Shadow=1,"
         "Alignment=2,MarginV=90"
     )
 
