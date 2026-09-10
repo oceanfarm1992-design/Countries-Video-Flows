@@ -1,0 +1,168 @@
+name: daily-hook-short
+
+# Second, independent series on the same channels as daily-short.yml: punchier
+# "hook" narration (secret places, seasonal transformations, border quirks, myth
+# -busting, "does it better than anywhere on Earth") instead of the documentary
+# -style country narration. Offset 4h from that workflow's 00:00/08:00/16:00 UTC
+# schedule so the two series interleave: 6 videos/day total across both.
+on:
+  schedule:
+    - cron: "0 4,12,20 * * *"   # 04:00, 12:00, 20:00 UTC -> 3 videos/day, 1 per run
+  workflow_dispatch:
+    inputs:
+      country_index:
+        description: "Force a specific country index (blank = auto date+time-slot rotation)"
+        type: string
+        default: ""
+      footage_source:
+        description: "Force footage source (blank = auto: pexels -> pixabay -> animate)"
+        type: choice
+        options: ["", "pexels", "pixabay", "animate", "archive"]
+        default: ""
+
+permissions:
+  contents: write          # commit logs/history_hooks.csv and create the release asset
+
+jobs:
+  build_and_post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install system deps (ffmpeg, fonts, espeak fallback)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core espeak-ng
+
+      - name: Install python deps
+        run: pip install -r requirements.txt
+
+      # ---- content pipeline ----
+      # Which of today's 3 runs is this? 04:00 UTC -> slot 0, 12:00 -> slot 1, 20:00 -> slot 2.
+      - name: Generate hook-style script (OpenAI GPT-4o-mini)
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: |
+          IDX_ARG=""
+          if [ -n "${{ inputs.country_index }}" ]; then
+            IDX_ARG="--index ${{ inputs.country_index }}"
+          else
+            HOUR=$(date -u +%H)
+            SLOT=$(( 10#$HOUR / 8 ))
+            IDX_ARG="--slot $SLOT"
+          fi
+          python scripts/generate_hook_script.py \
+            --config config/countries.json $IDX_ARG
+
+      - name: Fetch footage (Pexels / Pixabay / animation)
+        env:
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+        run: |
+          ARG=""
+          if [ -n "${{ inputs.footage_source }}" ]; then
+            ARG="--source ${{ inputs.footage_source }}"
+          fi
+          python scripts/fetch_footage.py --config config/countries.json $ARG
+
+      - name: Generate TTS voiceover
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python scripts/generate_tts.py --config config/countries.json
+
+      - name: Generate captions
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python scripts/generate_captions.py --config config/countries.json
+
+      - name: Generate background music (ambient pad)
+        run: python scripts/generate_music.py
+
+      - name: Generate globe-zoom intro
+        continue-on-error: true
+        run: |
+          python -c "import json;d=json.load(open('build/script.json'));print(f\"--name={d['name']}\n--lat={d['lat']}\n--lon={d['lon']}\n--iso={d['iso2']}\")" > /tmp/introargs
+          NAME=$(sed -n 's/^--name=//p' /tmp/introargs)
+          LAT=$(sed -n 's/^--lat=//p' /tmp/introargs)
+          LON=$(sed -n 's/^--lon=//p' /tmp/introargs)
+          ISO=$(sed -n 's/^--iso=//p' /tmp/introargs)
+          python scripts/generate_intro.py --name "$NAME" --lat "$LAT" --lon "$LON" \
+            --iso "$ISO" --map assets/map/bluemarble.jpg --out build/intro.mp4 \
+            --config config/countries.json
+
+      - name: Assemble video
+        run: python scripts/assemble_video.py --config config/countries.json --intro build/intro.mp4
+
+      # ---- make the video publicly fetchable (Zapier / Instagram Reels needs a public URL) ----
+      # "hook-" tag prefix (vs the other workflow's "daily-") guarantees no release-tag
+      # collision even if both workflows somehow run in the same second.
+      - name: Publish video as release asset
+        id: publish_asset
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="hook-$(date -u +%Y%m%d-%H%M%S)"
+          gh release create "$TAG" build/final.mp4 \
+            --title "$TAG" --notes "Automated hook-style short (runs every 8h, 3/day)" --latest=false
+          URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/final.mp4"
+          echo "video_url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Public video URL: $URL"
+
+      # ---- posting: Facebook + TikTok via Buffer (https://buffer.com) ----
+      - name: Post to Facebook + TikTok (Buffer)
+        id: post_buffer
+        continue-on-error: true
+        env:
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+          BUFFER_ORG_ID: ${{ secrets.BUFFER_ORG_ID }}
+          BUFFER_FACEBOOK_CHANNEL_ID: ${{ secrets.BUFFER_FACEBOOK_CHANNEL_ID }}
+          BUFFER_TIKTOK_CHANNEL_ID: ${{ secrets.BUFFER_TIKTOK_CHANNEL_ID }}
+        run: |
+          python scripts/post_buffer.py \
+            --video-url "${{ steps.publish_asset.outputs.video_url }}" \
+            --script build/script.json \
+            --caption-facebook build/caption_meta.txt \
+            --caption-tiktok build/caption_tiktok.txt \
+            --title-file build/yt_title.txt
+
+      # ---- posting: YouTube Shorts via the YouTube Data API v3 directly ----
+      - name: Post to YouTube (Direct API)
+        id: post_youtube
+        continue-on-error: true
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: |
+          python scripts/post_youtube.py \
+            --video build/final.mp4 \
+            --title-file build/yt_title.txt \
+            --desc-file build/caption_youtube.txt \
+            --config config/countries.json
+
+      # ---- log results back to the repo ----
+      # Separate log file (history_hooks.csv, not history.csv) so this workflow never
+      # races the other one over the same file. The push itself still gets a short
+      # rebase-and-retry loop since both workflows now write to main independently.
+      - name: Append run to history log
+        if: always()
+        run: |
+          DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          SCRIPT_TITLE=$(python -c "import json;d=json.load(open('build/script.json'));print(d.get('name',d.get('title','unknown')))" 2>/dev/null || echo "unknown")
+          IDENT=$(python -c "import json;print(json.load(open('build/footage.json'))['identifier'])" 2>/dev/null || echo "unknown")
+          echo "${DATE},\"${SCRIPT_TITLE}\",${IDENT},${{ steps.post_buffer.outcome }}" >> logs/history_hooks.csv
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add logs/history_hooks.csv
+          git commit -m "log: hook run ${DATE}" || echo "nothing to commit"
+          for i in 1 2 3; do
+            if git push; then
+              break
+            fi
+            echo "push failed (attempt $i/3) — rebasing onto latest main and retrying"
+            git pull --rebase origin main
+          done
