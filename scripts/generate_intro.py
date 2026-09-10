@@ -110,6 +110,16 @@ def fetch_flag(iso2, dest):
     return dest
 
 
+def wrap_yaw(deg):
+    """Wrap a yaw angle into ffmpeg v360's valid [-180, 180] range. Longitude is periodic
+    (yaw = -227 and yaw = 133 point at the same spot on the globe), but v360 rejects
+    anything outside that range outright. Without this, any country whose approach sweep
+    (lon - approach_deg) crosses the antimeridian — e.g. Samoa at lon=-172.1, start_yaw=
+    -227.1 — crashes ffmpeg on frame 0, generate_intro.py exits non-zero, and (since that
+    workflow step is continue-on-error) the video silently ships with no globe intro."""
+    return ((deg + 180) % 360) - 180
+
+
 def render_globe_frames(map_path, frames_dir, n, lon, lat, size,
                         start_fov=165.0, end_fov=58.0, approach_deg=55.0):
     """Render each globe frame as a static v360 orthographic view, eased so the camera
@@ -120,7 +130,7 @@ def render_globe_frames(map_path, frames_dir, n, lon, lat, size,
     for i in range(n):
         p = i / (n - 1) if n > 1 else 1.0
         e = ease_out_cubic(p)
-        yaw = start_yaw + (lon - start_yaw) * e
+        yaw = wrap_yaw(start_yaw + (lon - start_yaw) * e)
         pitch = start_pitch + (lat - start_pitch) * e
         fov = start_fov + (end_fov - start_fov) * e
         out = os.path.join(frames_dir, f"f{i:04d}.png")

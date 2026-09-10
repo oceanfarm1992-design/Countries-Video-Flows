@@ -116,6 +116,7 @@ def _fallback_script(country: dict):
         segments.append({"text": fact + ".", "visual": base_visual})
     segments.append({
         "text": f"There is no place on Earth quite like {name}. "
+                f"If you're from {name}, comment 'I love my country' below! "
                 "Follow for more stories from around the world.",
         "visual": base_visual,
     })
@@ -123,13 +124,15 @@ def _fallback_script(country: dict):
     return narration, segments
 
 
-# Spoken intro line over the globe zoom (so the opening isn't silent). Rotated for variety.
+# Spoken intro line over the globe zoom (so the opening isn't silent). Ties the words to
+# the rotating-globe visual — the camera spins in and settles on the country — so the
+# first thing viewers hear matches what they're watching. Rotated for variety.
 INTRO_TEMPLATES = [
-    "Today, we travel to {name}.",
-    "Let's journey to {name}.",
-    "Welcome to {name}.",
-    "Our next stop: {name}.",
-    "Let's discover {name}.",
+    "As the Earth spins, the world arrives in {name}.",
+    "The globe turns, and it stops right here — {name}.",
+    "Watch the world turn... it lands on {name}.",
+    "As the planet spins, we touch down in {name}.",
+    "The Earth keeps turning, and today it brings us to {name}.",
 ]
 
 
@@ -185,11 +188,14 @@ def _gpt_script(country: dict, openai_cfg: dict, angle: str, subfocus: str, cycl
             abstract idea. Every visual should be about {country['name']} unless the
             subject is inherently generic.
         Concatenating every "text" in order must read as one smooth narration that starts
-        with a strong hook and ends with the call-to-action 'Follow for more stories from
-        around the world.' IMPORTANT: the combined narration must total between 160 and
-        185 spoken words — count them and do not go under 160; if you are short, add more
-        short beats with specific, accurate detail rather than padding. Output ONLY the
-        JSON object.
+        with a strong hook and ends with these two calls-to-action, in this order: first
+        something like "If you're from {country['name']}, comment 'I love my country'
+        below!", then "Follow for more stories from around the world." Both of these are
+        REQUIRED — do not drop the "I love my country" comment prompt even though it comes
+        before the "Follow for more" line. IMPORTANT: the combined narration must total
+        between 160 and 185 spoken words — count them and do not go under 160; if you are
+        short, add more short beats with specific, accurate detail rather than padding.
+        Output ONLY the JSON object.
     """).strip()
 
     user_message = textwrap.dedent(f"""
