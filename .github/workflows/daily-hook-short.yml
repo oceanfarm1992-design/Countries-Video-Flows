@@ -39,7 +39,11 @@ jobs:
           sudo apt-get install -y ffmpeg fonts-dejavu-core espeak-ng
 
       - name: Install python deps
-        run: pip install -r requirements.txt
+        run: |
+          # CPU-only torch first — Kokoro TTS depends on it, and the default PyPI
+          # wheel bundles CUDA and is far larger than this runner needs.
+          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
 
       # ---- content pipeline ----
       # Which of today's 3 runs is this? 04:00 UTC -> slot 0, 12:00 -> slot 1, 20:00 -> slot 2.

@@ -3192,7 +3192,9 @@
     "temperature": 0.8
   },
   "tts": {
-    "provider": "openai",
+    "provider": "kokoro",
+    "kokoro_voice": "am_fenrir",
+    "kokoro_lang": "a",
     "openai_model": "gpt-4o-mini-tts",
     "openai_voice": "marin",
     "instructions": "Narrate like a warm, engaging documentary host — natural pacing, clear enunciation, genuine curiosity and gentle enthusiasm. Not flat or robotic; speak like you're sharing something you find genuinely fascinating.",
