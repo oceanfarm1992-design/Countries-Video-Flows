@@ -8,7 +8,22 @@ numpy>=1.24.0
 # OpenAI SDK — used by scripts/generate_country_script.py to write narrations via GPT-4o-mini
 openai>=1.0.0
 
-# TTS: piper-tts ships prebuilt wheels for linux and runs fully offline (no API key).
+# TTS: StyleTTS2 (MIT license) clones the channel owner's own voice from a private
+# reference sample fetched at runtime (see VOICE_REPO_PAT in scripts/generate_tts.py
+# and both workflows) — never stored in this public repo. Primary production voice
+# for both series. Pulls in a large dependency tree (torch, transformers, gruut,
+# nltk, scikit-learn, and more) — install the CPU-only torch wheel first in CI (see
+# .github/workflows/*.yml) to avoid the much larger CUDA build.
+styletts2>=0.1.6
+
+# TTS: Kokoro-82M (open-weights neural TTS) — automatic fallback voice for both
+# video series if StyleTTS2 fails to load (e.g. the voice-reference fetch errors).
+# Fully offline once its checkpoint is cached, no per-run API cost. Voice fixed to
+# am_fenrir in config/countries.json's tts block.
+kokoro>=0.9.4
+soundfile>=0.12.1
+
+# Piper: fully-offline fallback if Kokoro fails to load. Ships prebuilt wheels for linux.
 # VERIFY: exact package name / version. On PyPI the package is "piper-tts" and the CLI entrypoint is "piper".
 # Voice model files are downloaded separately at runtime (see scripts/generate_tts.py).
 piper-tts>=1.2.0
