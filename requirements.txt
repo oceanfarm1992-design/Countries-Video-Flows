@@ -6,7 +6,7 @@ requests>=2.31.0
 numpy>=1.24.0
 
 # OpenAI SDK — used by scripts/generate_country_script.py to write narrations via GPT-4o-mini
-openai>=1.0.0
+openai>=3.8.0
 
 # TTS: StyleTTS2 (MIT license) clones the channel owner's own voice from a private
 # reference sample fetched at runtime (see VOICE_REPO_PAT in scripts/generate_tts.py
