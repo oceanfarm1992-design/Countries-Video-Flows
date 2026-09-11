@@ -99,6 +99,34 @@ HOOK_ANGLES = [
     },
 ]
 
+# "Catchy word rules" for this series only (does not touch generate_country_script.py
+# or its prompt) — a bank of proven attention-grabbing phrasing GPT is told to draw
+# the hook from, and a hard-banned list of spammy/misleading phrasing that risks a
+# "clickbait"/misleading-metadata strike on YouTube or a spam flag on TikTok. The
+# banned list isn't just a prompt suggestion — an LLM won't always follow every
+# instruction, so _gpt_script() also checks the actual output against it below; a hit
+# is treated like any other generation failure and falls back to this angle's safe
+# deterministic template instead of ever posting the flagged line.
+CATCHY_WORD_BANK = [
+    "secret", "hidden", "the real reason", "what they don't tell you",
+    "nobody talks about", "the untold story", "the truth about",
+    "here's why", "the one thing", "did you know", "revealed",
+    "no one warns you about", "here's the twist", "few people know",
+]
+
+BANNED_PHRASES = [
+    "you won't believe", "won't believe your eyes", "shocking", "gone wrong",
+    "gone sexual", "doctors hate", "one weird trick", "click here",
+    "subscribe now", "goes viral", "broke the internet", "100% guaranteed",
+    "everyone is talking about", "this will blow your mind", "you'll never guess",
+]
+
+
+def _banned_phrase_hit(*texts):
+    """Return the first banned phrase found in texts (case-insensitive), or None."""
+    joined = " ".join(texts).lower()
+    return next((p for p in BANNED_PHRASES if p in joined), None)
+
 
 # ---------------------------------------------------------------------------
 # Fallback: build a simple hook narration without GPT (used when no API key)
@@ -144,6 +172,8 @@ def _gpt_script(country: dict, openai_cfg: dict, angle: dict):
     name = country["name"]
     facts_block = "\n".join(f"- {f}" for f in country.get("facts", []))
     angle_desc = angle["desc"].format(name=name)
+    word_bank = ", ".join(f'"{w}"' for w in CATCHY_WORD_BANK)
+    banned_phrases = ", ".join(f'"{p}"' for p in BANNED_PHRASES)
 
     base_prompt = textwrap.dedent(f"""
         You are writing a short, punchy YouTube Shorts narration about {name} for a
@@ -167,6 +197,10 @@ def _gpt_script(country: dict, openai_cfg: dict, angle: dict):
         - Never generalize or stereotype the people of {name} or any other country —
           stay focused on places, history, records, and verifiable facts.
         - Never invent statistics, records, or events.
+        - Catchy word rules: favor grounded curiosity-gap phrasing like {word_bank} in
+          the hook and opening line. NEVER use spammy or misleading phrasing like
+          {banned_phrases} — these read as bot-generated clickbait and risk a
+          "misleading metadata" strike, not genuine curiosity.
 
         Tone: energetic and curious, like a great short-form creator sharing something
         genuinely surprising — not a rivalry or "we're better" tone. No bullet points or
@@ -228,6 +262,15 @@ def _gpt_script(country: dict, openai_cfg: dict, angle: dict):
     if not segments:
         raise RuntimeError("GPT returned no usable segments.")
     narration = " ".join(s["text"] for s in segments)
+
+    # Enforce the catchy word rules in code, not just in the prompt — GPT won't always
+    # follow every instruction. A banned-phrase hit is treated like any other
+    # generation failure: the caller falls back to this angle's safe deterministic
+    # template rather than ever posting the flagged line.
+    hit = _banned_phrase_hit(hook, narration)
+    if hit:
+        raise RuntimeError(f"generated text violated catchy word rules (banned phrase: {hit!r})")
+
     return hook, narration, segments
 
 
