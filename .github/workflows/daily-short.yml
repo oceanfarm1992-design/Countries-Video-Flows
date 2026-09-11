@@ -42,9 +42,12 @@ jobs:
 
       - name: Install python deps
         run: |
-          # CPU-only torch first — Kokoro TTS depends on it, and the default PyPI
-          # wheel bundles CUDA and is far larger than this runner needs.
-          pip install torch --index-url https://download.pytorch.org/whl/cpu
+          # CPU-only torch first — StyleTTS2/Kokoro depend on it, and the default
+          # PyPI wheel bundles CUDA and is far larger than this runner needs. Pinned
+          # to the exact version verified locally with StyleTTS2 (see
+          # scripts/generate_tts.py's torch.load weights_only patch) rather than
+          # floating to latest.
+          pip install torch==2.8.0+cpu torchaudio==2.8.0+cpu --index-url https://download.pytorch.org/whl/cpu
           pip install -r requirements.txt
 
       # ---- content pipeline ----
@@ -76,10 +79,10 @@ jobs:
           python scripts/fetch_footage.py --config config/countries.json $ARG
 
       - name: Generate TTS voiceover
-        # Tries OpenAI TTS first (natural voice), then Piper, then espeak-ng —
-        # all three are attempted inside one call before it gives up.
+        # Tries StyleTTS2 (cloned voice) first, then falls back through Kokoro,
+        # Piper, and espeak-ng in one call before giving up.
         env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          VOICE_REPO_PAT: ${{ secrets.VOICE_REPO_PAT }}
         run: python scripts/generate_tts.py --config config/countries.json
 
       - name: Generate captions

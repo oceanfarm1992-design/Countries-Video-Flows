@@ -3,14 +3,17 @@
 Stage 3: generate a voiceover WAV from the script text.
 
 Engines, tried in order (first available wins unless --engine forces one):
-  1. Kokoro-82M (https://huggingface.co/hexgrad/Kokoro-82M) — the production voice
-     for both series. Open-weights neural TTS, runs fully offline once its checkpoint
-     is cached, no API key or per-run cost. Voice fixed to am_fenrir (deep male) —
-     same voice verified in local testing.
-  2. Piper (https://github.com/rhasspy/piper) — fast, fully-offline neural TTS,
+  1. StyleTTS2 (MIT license) — clones the channel owner's own voice from a private
+     reference sample (fetched at runtime via VOICE_REPO_PAT, never stored in this
+     repo). Primary voice for both series when that secret is available.
+  2. Kokoro-82M (https://huggingface.co/hexgrad/Kokoro-82M) — open-weights neural
+     TTS, runs fully offline once its checkpoint is cached, no API key or per-run
+     cost. Voice fixed to am_fenrir (deep male). Fallback if StyleTTS2 fails to
+     load (e.g. VOICE_REPO_PAT not set, or the clone step errors).
+  3. Piper (https://github.com/rhasspy/piper) — fast, fully-offline neural TTS,
      no API key needed. Voice models are downloaded once from HuggingFace and
-     cached in ./voices/. Fallback if Kokoro fails to load.
-  3. espeak-ng — apt-installable on Ubuntu runners, always works, worst quality.
+     cached in ./voices/. Fallback if Kokoro also fails to load.
+  4. espeak-ng — apt-installable on Ubuntu runners, always works, worst quality.
      Last-resort so the daily pipeline never fails outright.
 
 OpenAI TTS (gpt-4o-mini-tts) is still supported via --engine openai for manual use,
@@ -21,6 +24,7 @@ Output: build/voice.wav
 Usage:
     python scripts/generate_tts.py
     python scripts/generate_tts.py --config config/countries.json
+    python scripts/generate_tts.py --engine styletts2
     python scripts/generate_tts.py --engine kokoro --voice am_fenrir
     python scripts/generate_tts.py --engine piper --voice en_US-ryan-high
     python scripts/generate_tts.py --engine espeak
@@ -42,6 +46,12 @@ except ImportError:
 
 _KOKORO_PIPELINE = None
 _KOKORO_LANG = None
+_STYLETTS2_MODEL = None
+_VOICE_REF_PATH = None
+
+VOICE_REF_CACHE = "build/.voice_reference.mp3"
+VOICE_REF_REPO = "oceanfarm1992-design/voice-reference-audio"
+VOICE_REF_FILE = "reference_voice.mp3"
 
 # HuggingFace raw file base for piper voices.
 # Path layout: <lang>/<lang_region>/<name>/<quality>/<voice>.onnx[.json]
@@ -95,6 +105,63 @@ def run_kokoro(text, out_wav, voice, lang_code="a"):
     chunks = [audio for _, _, audio in pipeline(text, voice=voice)]
     full = np.concatenate(chunks) if len(chunks) > 1 else chunks[0]
     sf.write(out_wav, full, 24000)
+
+
+# ------------------------------------------------------------------------- StyleTTS2
+def _fetch_voice_reference(cache_path=VOICE_REF_CACHE):
+    """Download the private reference voice clip at runtime via a fine-grained,
+    read-only PAT scoped to a separate private repo. Never committed anywhere —
+    the clip is personal and this repo is public."""
+    global _VOICE_REF_PATH
+    if _VOICE_REF_PATH and os.path.exists(_VOICE_REF_PATH):
+        return _VOICE_REF_PATH
+    pat = os.environ.get("VOICE_REPO_PAT", "").strip()
+    if not pat:
+        raise RuntimeError("VOICE_REPO_PAT is not set — cannot fetch the cloned-voice reference sample.")
+    url = f"https://api.github.com/repos/{VOICE_REF_REPO}/contents/{VOICE_REF_FILE}"
+    headers = {"Authorization": f"Bearer {pat}", "Accept": "application/vnd.github.raw+json"}
+    resp = requests.get(url, headers=headers, timeout=60)
+    resp.raise_for_status()
+    os.makedirs(os.path.dirname(cache_path) or ".", exist_ok=True)
+    with open(cache_path, "wb") as f:
+        f.write(resp.content)
+    _VOICE_REF_PATH = cache_path
+    return cache_path
+
+
+def _get_styletts2_model():
+    global _STYLETTS2_MODEL
+    if _STYLETTS2_MODEL is None:
+        import functools
+
+        import nltk
+        import torch
+
+        # styletts2's TextCleaner debug-prints raw phoneme text (including rare IPA
+        # characters) on any symbol outside its vocabulary — harmless on Linux CI
+        # (UTF-8 locale) but crashes on Windows consoles (cp1252). Widen stdout
+        # defensively so local runs behave the same as CI.
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
+        # styletts2's bundled checkpoint loader calls torch.load() without
+        # weights_only=False. PyTorch >=2.6 defaults weights_only=True, which
+        # rejects this (older, trusted, official StyleTTS2/LibriTTS) checkpoint
+        # format. Patch the default rather than editing the installed package.
+        torch.load = functools.partial(torch.load, weights_only=False)
+        nltk.download("punkt_tab", quiet=True)
+
+        from styletts2.tts import StyleTTS2
+
+        print("[generate_tts] loading StyleTTS2 (cloned voice) ...")
+        _STYLETTS2_MODEL = StyleTTS2()
+    return _STYLETTS2_MODEL
+
+
+def run_styletts2(text, out_wav):
+    ref_path = _fetch_voice_reference()
+    model = _get_styletts2_model()
+    print("[generate_tts] calling StyleTTS2 (cloned voice) ...")
+    model.inference(text, target_voice_path=ref_path, output_wav_file=out_wav)
 
 
 # ----------------------------------------------------------------------------- Piper
@@ -152,7 +219,9 @@ def synth(text, out, engines, openai_model, openai_voice, instructions,
     last_error = None
     for engine in engines:
         try:
-            if engine == "kokoro":
+            if engine == "styletts2":
+                run_styletts2(text, out)
+            elif engine == "kokoro":
                 run_kokoro(text, out, kokoro_voice, kokoro_lang)
             elif engine == "openai":
                 run_openai_tts(text, out, openai_model, openai_voice, instructions)
@@ -175,8 +244,8 @@ def main():
     ap.add_argument("--script", default="build/script.txt")
     ap.add_argument("--out", default="build/voice.wav")
     ap.add_argument("--config", default="config/countries.json")
-    ap.add_argument("--engine", choices=["auto", "kokoro", "openai", "piper", "espeak"], default="auto",
-                    help="auto tries Kokoro, then Piper, then espeak-ng.")
+    ap.add_argument("--engine", choices=["auto", "styletts2", "kokoro", "openai", "piper", "espeak"], default="auto",
+                    help="auto tries StyleTTS2 (cloned voice), then Kokoro, then Piper, then espeak-ng.")
     ap.add_argument("--voice", default=None,
                     help="Override the Kokoro voice name (config's tts.kokoro_voice otherwise).")
     ap.add_argument("--voices-dir", default="voices")
@@ -205,7 +274,7 @@ def main():
     openai_model = tts_cfg.get("openai_model", "gpt-4o-mini-tts")
     openai_voice = tts_cfg.get("openai_voice", "marin")
     instructions = tts_cfg.get("instructions")
-    engines = [args.engine] if args.engine != "auto" else ["kokoro", "piper", "espeak"]
+    engines = [args.engine] if args.engine != "auto" else ["styletts2", "kokoro", "piper", "espeak"]
 
     common = dict(engines=engines, openai_model=openai_model, openai_voice=openai_voice,
                   instructions=instructions, piper_voice=piper_voice, voices_dir=args.voices_dir,
