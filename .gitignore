@@ -11,6 +11,7 @@ env/
 *.local.ps1
 *.local.json
 API.txt
+.API.txt
 
 # Pipeline working output (regenerated every run)
 build/
