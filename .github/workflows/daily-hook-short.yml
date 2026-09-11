@@ -19,6 +19,10 @@ on:
         type: choice
         options: ["", "pexels", "pixabay", "animate", "archive"]
         default: ""
+      dry_run:
+        description: "Dry run: build the full video but do NOT create a release or post anywhere"
+        type: boolean
+        default: true
 
 permissions:
   contents: write          # commit logs/history_hooks.csv and create the release asset
@@ -106,6 +110,7 @@ jobs:
       # collision even if both workflows somehow run in the same second.
       - name: Publish video as release asset
         id: publish_asset
+        if: github.event_name != 'workflow_dispatch' || inputs.dry_run != true
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
@@ -119,6 +124,7 @@ jobs:
       # ---- posting: Facebook + TikTok via Buffer (https://buffer.com) ----
       - name: Post to Facebook + TikTok (Buffer)
         id: post_buffer
+        if: github.event_name != 'workflow_dispatch' || inputs.dry_run != true
         continue-on-error: true
         env:
           BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
@@ -136,6 +142,7 @@ jobs:
       # ---- posting: YouTube Shorts via the YouTube Data API v3 directly ----
       - name: Post to YouTube (Direct API)
         id: post_youtube
+        if: github.event_name != 'workflow_dispatch' || inputs.dry_run != true
         continue-on-error: true
         env:
           YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
@@ -148,12 +155,26 @@ jobs:
             --desc-file build/caption_youtube.txt \
             --config config/countries.json
 
-      # ---- log results back to the repo ----
+      # ---- dry run only: grab the assembled video + voice files for inspection ----
+      - name: Upload dry-run artifacts
+        if: always() && github.event_name == 'workflow_dispatch' && inputs.dry_run == true
+        uses: actions/upload-artifact@v4
+        with:
+          name: dry-run-output
+          path: |
+            build/final.mp4
+            build/voice.wav
+            build/intro_voice.wav
+            build/script.json
+          if-no-files-found: warn
+          retention-days: 3
+
+      # ---- log results back to the repo (skipped on dry run — nothing was posted) ----
       # Separate log file (history_hooks.csv, not history.csv) so this workflow never
       # races the other one over the same file. The push itself still gets a short
       # rebase-and-retry loop since both workflows now write to main independently.
       - name: Append run to history log
-        if: always()
+        if: always() && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
         run: |
           DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           SCRIPT_TITLE=$(python -c "import json;d=json.load(open('build/script.json'));print(d.get('name',d.get('title','unknown')))" 2>/dev/null || echo "unknown")
