@@ -38,6 +38,8 @@ try:
 except ImportError:
     pass
 
+from fact_check import verify_narration
+
 # Every time a country comes back around in the rotation (every len(countries)/3 days
 # at 3 videos/day), the narration should take a different angle instead of retelling
 # the same story — that's what made repeats feel boring. The rotation math already
@@ -345,7 +347,19 @@ def main():
               f"(cycle {cycle + 1}, angle={angle!r}, subfocus={subfocus!r}) ...")
         try:
             narration, segments = _gpt_script(country, openai_cfg, angle, subfocus, cycle)
-            source = "openai"
+            ok, issues = verify_narration(narration, country["name"], openai_cfg)
+            if not ok:
+                print(f"[generate_country_script] fact-check flagged: {issues} — regenerating once")
+                narration, segments = _gpt_script(country, openai_cfg, angle, subfocus, cycle)
+                ok, issues = verify_narration(narration, country["name"], openai_cfg)
+                if not ok:
+                    print(f"[generate_country_script] fact-check flagged again: {issues} — using fallback script")
+                    narration, segments = _fallback_script(country)
+                    source = "fallback"
+                else:
+                    source = "openai"
+            else:
+                source = "openai"
         except Exception as exc:
             print(f"[generate_country_script] OpenAI error: {exc} — using fallback script")
             narration, segments = _fallback_script(country)
