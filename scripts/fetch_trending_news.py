@@ -18,6 +18,7 @@ Usage:
 import argparse
 import datetime
 import os
+import sys
 
 import requests
 
@@ -39,6 +40,19 @@ def _is_sensitive(title, description):
     return any(word in text for word in SENSITIVE_KEYWORDS)
 
 
+def _is_mostly_non_english_script(title):
+    """NewsAPI's language=en filter isn't fully reliable — a handful of non-English
+    headlines (Japanese, Arabic, etc.) slip through. GPT is instructed to write
+    English narration from these headlines, so a title that's mostly non-Latin
+    script would just confuse it. Cheap heuristic: if most letters aren't ASCII,
+    skip it rather than trying to translate or interpret it blind."""
+    letters = [c for c in title if c.isalpha()]
+    if not letters:
+        return False
+    non_ascii = sum(1 for c in letters if ord(c) > 127)
+    return non_ascii / len(letters) > 0.3
+
+
 def fetch_trending_headlines(country_name, max_results=5, days_back=3):
     """Return a list of {"title", "description", "source", "url"} for recent, safe
     headlines mentioning `country_name`. Returns [] if none are found (a quiet news
@@ -50,7 +64,11 @@ def fetch_trending_headlines(country_name, max_results=5, days_back=3):
 
     since = (datetime.date.today() - datetime.timedelta(days=days_back)).isoformat()
     params = {
-        "q": country_name,
+        # qInTitle (not q) requires the country name IN THE HEADLINE — a plain full-text
+        # "q" search matches any article that mentions the country anywhere, including
+        # incidental namedrops (a stock index, a musician's tour date) that aren't
+        # actually about the country at all.
+        "qInTitle": country_name,
         "from": since,
         "language": "en",
         "sortBy": "publishedAt",
@@ -72,6 +90,8 @@ def fetch_trending_headlines(country_name, max_results=5, days_back=3):
             continue
         if _is_sensitive(title, description):
             continue
+        if _is_mostly_non_english_script(title):
+            continue
         seen_titles.add(title)
         results.append({
             "title": title,
@@ -85,6 +105,10 @@ def fetch_trending_headlines(country_name, max_results=5, days_back=3):
 
 
 def main():
+    # Headlines can contain arbitrary Unicode (smart quotes, non-English names) that
+    # Windows consoles (cp1252) can't print — widen stdout so this CLI helper doesn't
+    # crash on it. Harmless on Linux CI's UTF-8 locale.
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
     ap = argparse.ArgumentParser()
     ap.add_argument("--country", required=True)
     ap.add_argument("--max-results", type=int, default=5)
