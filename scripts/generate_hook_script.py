@@ -40,6 +40,7 @@ import textwrap
 from datetime import date
 
 from generate_country_script import intro_line_for, _country_hashtag
+from fact_check import verify_narration
 
 OPENAI_AVAILABLE = False
 try:
@@ -377,7 +378,19 @@ def main():
               f"(angle={angle['id']!r}) ...")
         try:
             hook, narration, segments = _gpt_script(country, openai_cfg, angle)
-            source = "openai"
+            ok, issues = verify_narration(narration, country["name"], openai_cfg)
+            if not ok:
+                print(f"[generate_hook_script] fact-check flagged: {issues} — regenerating once")
+                hook, narration, segments = _gpt_script(country, openai_cfg, angle)
+                ok, issues = verify_narration(narration, country["name"], openai_cfg)
+                if not ok:
+                    print(f"[generate_hook_script] fact-check flagged again: {issues} — using fallback script")
+                    hook, narration, segments = _fallback_script(country, angle)
+                    source = "fallback"
+                else:
+                    source = "openai"
+            else:
+                source = "openai"
         except Exception as exc:
             print(f"[generate_hook_script] OpenAI error: {exc} — using fallback script")
             hook, narration, segments = _fallback_script(country, angle)
