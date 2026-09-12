@@ -73,10 +73,19 @@ def fetch_trending_headlines(country_name, max_results=5, days_back=3):
         "language": "en",
         "sortBy": "publishedAt",
         "pageSize": 20,
-        "apiKey": api_key,
     }
-    resp = requests.get(NEWS_API_URL, params=params, timeout=30)
-    resp.raise_for_status()
+    # Pass the key as a header, NOT a query param: on an HTTP error, requests'
+    # raise_for_status() embeds the full request URL in the exception message, and the
+    # caller logs that exception to CI (public logs on a public repo). A key in the URL
+    # would leak; a key in a header never appears there. NewsAPI accepts either.
+    headers = {"X-Api-Key": api_key}
+    try:
+        resp = requests.get(NEWS_API_URL, params=params, headers=headers, timeout=30)
+        resp.raise_for_status()
+    except requests.HTTPError as exc:
+        # Belt-and-suspenders: never let an API error string carry the key onward, even
+        # if a future change reintroduces it somewhere in the request.
+        raise RuntimeError(f"NewsAPI request failed: HTTP {resp.status_code}") from None
     data = resp.json()
     if data.get("status") != "ok":
         raise RuntimeError(f"NewsAPI error: {data.get('message', 'unknown error')}")
