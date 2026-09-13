@@ -39,13 +39,14 @@ Usage:
 import argparse
 import json
 import os
-import re
 import textwrap
 from datetime import date
 
-from generate_country_script import intro_line_for, _country_hashtag, _fallback_script
+from generate_country_script import intro_line_for, _fallback_script
 from fetch_trending_news import fetch_trending_headlines
 from fact_check import verify_narration
+from captions_common import write_platform_captions
+from daily_variation import day_number_for
 
 OPENAI_AVAILABLE = False
 try:
@@ -59,7 +60,8 @@ except ImportError:
 # OpenAI narration, grounded in real fetched headlines
 # ---------------------------------------------------------------------------
 
-def _gpt_script(country: dict, openai_cfg: dict, headlines: list):
+def _gpt_script(country: dict, openai_cfg: dict, headlines: list,
+                min_words: int = 160, max_words: int = 185):
     """Return (hook, narration, segments). Unlike the other two generators, the
     narration must be grounded ONLY in the provided headlines — no outside facts,
     no embellishment, no speculation. Same segments contract as the other scripts
@@ -117,9 +119,9 @@ def _gpt_script(country: dict, openai_cfg: dict, headlines: list):
         starts with the hook and ends with these two calls-to-action, in this order:
         first something like "If you're from {name}, comment 'I love my country'
         below!", then "Follow for more stories from around the world." Both are
-        REQUIRED. IMPORTANT: the combined narration must total between 160 and 185
-        spoken words — count them and do not go under 160. Output ONLY the JSON
-        object.
+        REQUIRED. IMPORTANT: the combined narration must total between {min_words} and
+        {max_words} spoken words — count them and do not go under {min_words}. Output
+        ONLY the JSON object.
     """).strip()
 
     response = client.chat.completions.create(
@@ -147,50 +149,6 @@ def _gpt_script(country: dict, openai_cfg: dict, headlines: list):
 
 
 # ---------------------------------------------------------------------------
-# Caption / metadata helpers
-# ---------------------------------------------------------------------------
-
-def _write_platform_captions(country: dict, hook: str, config: dict, out_dir: str):
-    hashtags = config.get("hashtags", {})
-    name = country["name"]
-    ctag = _country_hashtag(name)
-
-    hook_title = re.sub(r"'([A-Z])", lambda m: "'" + m.group(1).lower(), hook.title()).rstrip(".")
-    max_hook = 91
-    if len(hook_title) > max_hook:
-        hook_title = hook_title[:max_hook].rsplit(" ", 1)[0] + "…"
-    yt_title = f"{hook_title} #Shorts"
-
-    yt_desc = (
-        f"{name} 🌍 {hook_title}\n\n"
-        "What's trending about this country right now, explained in under a minute.\n\n"
-        "Subscribe for daily trending stories from around the world! 🌏\n\n"
-        f"{ctag} {hashtags.get('youtube', '')}"
-    )
-
-    fb_cap = (
-        f"🌍 {hook_title}\n\n"
-        f"Did you catch this about {name}? Let us know below! 👇\n\n"
-        f"{ctag} {hashtags.get('facebook', '')}"
-    )
-
-    tt_cap = (
-        f"{hook_title} 📰\n\n"
-        f"{ctag} {hashtags.get('tiktok', '')}"
-    )
-
-    files = {
-        "caption_meta.txt": fb_cap,
-        "caption_tiktok.txt": tt_cap,
-        "caption_youtube.txt": yt_desc,
-        "yt_title.txt": yt_title[:100],
-    }
-    for fname, content in files.items():
-        with open(os.path.join(out_dir, fname), "w", encoding="utf-8") as fh:
-            fh.write(content.strip() + "\n")
-
-
-# ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
 
@@ -203,6 +161,12 @@ def main():
     ap.add_argument("--slot", type=int, default=None, choices=[0, 1, 2],
                     help="Which of today's 3 videos this is (0, 1, or 2). "
                          "Combined with date rotation so each slot gets a distinct country.")
+    ap.add_argument("--min-words", type=int, default=160,
+                    help="Lower bound of the spoken-word target (daily rotation varies this).")
+    ap.add_argument("--max-words", type=int, default=185,
+                    help="Upper bound of the spoken-word target.")
+    ap.add_argument("--variant-seed", type=int, default=None,
+                    help="Seed for per-day caption variation (defaults to the day number).")
     args = ap.parse_args()
 
     with open(args.config, encoding="utf-8") as fh:
@@ -248,11 +212,13 @@ def main():
         print(f"[generate_trending_script] calling OpenAI {openai_cfg.get('model', 'gpt-4o-mini')} "
               f"with {len(headlines)} headline(s) ...")
         try:
-            hook, narration, segments = _gpt_script(country, openai_cfg, headlines)
+            hook, narration, segments = _gpt_script(country, openai_cfg, headlines,
+                                                     args.min_words, args.max_words)
             ok, issues = verify_narration(narration, name, openai_cfg)
             if not ok:
                 print(f"[generate_trending_script] fact-check flagged: {issues} — regenerating once")
-                hook, narration, segments = _gpt_script(country, openai_cfg, headlines)
+                hook, narration, segments = _gpt_script(country, openai_cfg, headlines,
+                                                        args.min_words, args.max_words)
                 ok, issues = verify_narration(narration, name, openai_cfg)
                 if not ok:
                     print(f"[generate_trending_script] fact-check flagged again: {issues} — using fallback script")
@@ -307,7 +273,8 @@ def main():
     with open(os.path.join(args.out, "script.txt"), "w", encoding="utf-8") as fh:
         fh.write(narration)
 
-    _write_platform_captions(country, hook, config, args.out)
+    seed = args.variant_seed if args.variant_seed is not None else day_number_for()
+    write_platform_captions("trending", country, hook, config, args.out, seed)
 
     words = len(narration.split())
     print(

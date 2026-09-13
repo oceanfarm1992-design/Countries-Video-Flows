@@ -3,11 +3,11 @@ name: daily-trending-short
 # Third, independent series on the same channels as daily-short.yml and
 # daily-hook-short.yml: summarizes REAL, current news headlines about today's
 # country (fetched from NewsAPI.org — see scripts/fetch_trending_news.py), instead
-# of documentary facts or a curiosity hook. Offset 2h from daily-short.yml's
-# 00:00/08:00/16:00 UTC schedule so all three series interleave: 9 videos/day total.
+# of documentary facts or a curiosity hook. MANUAL ONLY — automated posting is handled
+# by daily-rotating-short.yml, which runs this series on its own day of the rotation.
 on:
-  schedule:
-    - cron: "0 2,10,18 * * *"   # 02:00, 10:00, 18:00 UTC -> 3 videos/day, 1 per run
+  # schedule removed — use daily-rotating-short.yml for automated runs (1 video/day).
+  # This workflow is kept for manual testing of the trending series only.
   workflow_dispatch:
     inputs:
       country_index:

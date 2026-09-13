@@ -3176,6 +3176,11 @@
     "tiktok": "#travel #learnontiktok #worldfacts #geography #countryfacts #didyouknow #fyp #tiktoktravel #facts #culture #history #amazingplaces",
     "youtube": "#Shorts #travel #geography #worldfacts #culture #history #countryfacts #learnontiktok #amazingplaces #facts"
   },
+  "variation": {
+    "_comment": "Per-day caption variation (see scripts/daily_variation.py + captions_common.py). TikTok posts always carry tiktok_seo_required plus exactly one rotating tag from tiktok_seo_rotating.",
+    "tiktok_seo_required": "#creatorsearchinsights",
+    "tiktok_seo_rotating": ["#learnontiktok", "#tiktoktaughtme", "#edutok", "#traveltok", "#geographytok"]
+  },
   "video": {
     "width": 1080,
     "height": 1920,

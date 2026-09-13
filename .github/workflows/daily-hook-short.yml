@@ -3,11 +3,11 @@ name: daily-hook-short
 # Second, independent series on the same channels as daily-short.yml: punchier
 # "hook" narration (secret places, seasonal transformations, border quirks, myth
 # -busting, "does it better than anywhere on Earth") instead of the documentary
-# -style country narration. Offset 4h from that workflow's 00:00/08:00/16:00 UTC
-# schedule so the two series interleave: 6 videos/day total across both.
+# -style country narration. MANUAL ONLY — automated posting is handled by
+# daily-rotating-short.yml, which runs this series on its own day of the rotation.
 on:
-  schedule:
-    - cron: "0 4,12,20 * * *"   # 04:00, 12:00, 20:00 UTC -> 3 videos/day, 1 per run
+  # schedule removed — use daily-rotating-short.yml for automated runs (1 video/day).
+  # This workflow is kept for manual testing of the hook series only.
   workflow_dispatch:
     inputs:
       country_index:

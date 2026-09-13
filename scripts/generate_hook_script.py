@@ -35,11 +35,12 @@ Usage:
 import argparse
 import json
 import os
-import re
 import textwrap
 from datetime import date
 
-from generate_country_script import intro_line_for, _country_hashtag
+from generate_country_script import intro_line_for
+from captions_common import write_platform_captions
+from daily_variation import day_number_for
 from fact_check import verify_narration
 
 OPENAI_AVAILABLE = False
@@ -162,9 +163,13 @@ def _fallback_script(country: dict, angle: dict):
 # OpenAI narration
 # ---------------------------------------------------------------------------
 
-def _gpt_script(country: dict, openai_cfg: dict, angle: dict):
+def _gpt_script(country: dict, openai_cfg: dict, angle: dict,
+                min_words: int = 160, max_words: int = 185):
     """Return (hook, narration, segments) — same segments contract as
-    generate_country_script.py's _gpt_script (each {"text", "visual"})."""
+    generate_country_script.py's _gpt_script (each {"text", "visual"}).
+
+    min_words/max_words set the spoken-length target so the daily rotation can vary
+    video duration (see daily_variation.py's WORD_BANDS)."""
     api_key = os.environ.get("OPENAI_API_KEY", "").strip()
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY is not set — cannot call GPT.")
@@ -228,10 +233,10 @@ def _gpt_script(country: dict, openai_cfg: dict, angle: dict):
         below!", then "Follow for more stories from around the world." Both are
         REQUIRED — do not drop the "I love my country" comment prompt even though it
         comes before the "Follow for more" line. IMPORTANT: the combined narration must
-        total between 160 and 185 spoken words — count them and do not go under 160; if
-        you are short, add more short beats with specific, accurate detail rather than
-        padding. Output ONLY the JSON object.
-    """.format(name=name)).strip()
+        total between {min_words} and {max_words} spoken words — count them and do not go
+        under {min_words}; if you are short, add more short beats with specific, accurate
+        detail rather than padding. Output ONLY the JSON object.
+    """.format(name=name, min_words=min_words, max_words=max_words)).strip()
 
     user_message = textwrap.dedent(f"""
         Country: {name}
@@ -275,56 +280,9 @@ def _gpt_script(country: dict, openai_cfg: dict, angle: dict):
     return hook, narration, segments
 
 
-# ---------------------------------------------------------------------------
-# Caption / metadata helpers
-# ---------------------------------------------------------------------------
-
-def _write_platform_captions(country: dict, hook: str, config: dict, out_dir: str):
-    """Same structure as generate_country_script.py's _write_platform_captions, but
-    the YouTube title comes from THIS episode's generated hook (the whole point of
-    the format) rather than the country's static curated tagline."""
-    hashtags = config.get("hashtags", {})
-    name = country["name"]
-    facts = country.get("facts", [])
-    ctag = _country_hashtag(name)
-    first_fact = facts[0] if facts else country["specialty"]
-
-    # Title-case the ALL-CAPS hook for a readable YouTube title (same apostrophe fix
-    # as generate_country_script.py: str.title() capitalises the letter after an
-    # apostrophe, e.g. "World'S" — put it back to lower).
-    hook_title = re.sub(r"'([A-Z])", lambda m: "'" + m.group(1).lower(), hook.title()).rstrip(".")
-    max_hook = 91  # reserve 8 chars for " #Shorts" suffix; hard limit 100
-    if len(hook_title) > max_hook:
-        hook_title = hook_title[:max_hook].rsplit(" ", 1)[0] + "…"
-    yt_title = f"{hook_title} #Shorts"
-
-    yt_desc = (
-        f"{name} 🌍 {hook_title}\n\n"
-        f"Did you know? {first_fact}\n\n"
-        "Subscribe for more hidden stories from around the world! 🌏\n\n"
-        f"{ctag} {hashtags.get('youtube', '')}"
-    )
-
-    fb_cap = (
-        f"🌍 {hook_title}\n\n"
-        f"Did you know this about {name}? Drop a comment below! 👇\n\n"
-        f"{ctag} {hashtags.get('facebook', '')}"
-    )
-
-    tt_cap = (
-        f"{hook_title} 👀\n\n"
-        f"{ctag} {hashtags.get('tiktok', '')}"
-    )
-
-    files = {
-        "caption_meta.txt": fb_cap,
-        "caption_tiktok.txt": tt_cap,
-        "caption_youtube.txt": yt_desc,
-        "yt_title.txt": yt_title[:100],
-    }
-    for fname, content in files.items():
-        with open(os.path.join(out_dir, fname), "w", encoding="utf-8") as fh:
-            fh.write(content.strip() + "\n")
+# Caption / metadata writing is shared via captions_common.write_platform_captions
+# (the YouTube title still comes from THIS episode's generated hook), with per-day
+# hashtag/description/tag variation applied there.
 
 
 # ---------------------------------------------------------------------------
@@ -340,6 +298,12 @@ def main():
     ap.add_argument("--slot", type=int, default=None, choices=[0, 1, 2],
                     help="Which of today's 3 videos this is (0, 1, or 2). "
                          "Combined with date rotation so each slot gets a distinct country.")
+    ap.add_argument("--min-words", type=int, default=160,
+                    help="Lower bound of the spoken-word target (daily rotation varies this).")
+    ap.add_argument("--max-words", type=int, default=185,
+                    help="Upper bound of the spoken-word target.")
+    ap.add_argument("--variant-seed", type=int, default=None,
+                    help="Seed for per-day caption variation (defaults to the day number).")
     args = ap.parse_args()
 
     with open(args.config, encoding="utf-8") as fh:
@@ -377,11 +341,13 @@ def main():
         print(f"[generate_hook_script] calling OpenAI {openai_cfg.get('model', 'gpt-4o-mini')} "
               f"(angle={angle['id']!r}) ...")
         try:
-            hook, narration, segments = _gpt_script(country, openai_cfg, angle)
+            hook, narration, segments = _gpt_script(country, openai_cfg, angle,
+                                                    args.min_words, args.max_words)
             ok, issues = verify_narration(narration, country["name"], openai_cfg)
             if not ok:
                 print(f"[generate_hook_script] fact-check flagged: {issues} — regenerating once")
-                hook, narration, segments = _gpt_script(country, openai_cfg, angle)
+                hook, narration, segments = _gpt_script(country, openai_cfg, angle,
+                                                        args.min_words, args.max_words)
                 ok, issues = verify_narration(narration, country["name"], openai_cfg)
                 if not ok:
                     print(f"[generate_hook_script] fact-check flagged again: {issues} — using fallback script")
@@ -433,7 +399,8 @@ def main():
     with open(os.path.join(args.out, "script.txt"), "w", encoding="utf-8") as fh:
         fh.write(narration)
 
-    _write_platform_captions(country, hook, config, args.out)
+    seed = args.variant_seed if args.variant_seed is not None else day_number_for()
+    write_platform_captions("hook", country, hook, config, args.out, seed)
 
     words = len(narration.split())
     print(
