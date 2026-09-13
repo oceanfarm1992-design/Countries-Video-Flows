@@ -109,13 +109,24 @@ def fetch_pexels(query, dest, want_portrait, min_height):
 
 
 # -------------------------------------------------------------------------- Pixabay
+def _pixabay_raise_clean(resp):
+    """Pixabay only accepts its key as a URL query param, so requests' own
+    raise_for_status() embeds the key-bearing URL in the exception message — and the
+    caller logs failures to stderr (public CI logs on a public repo). Re-raise HTTP
+    errors as a status-code-only message so the key never reaches the log."""
+    try:
+        resp.raise_for_status()
+    except requests.HTTPError:
+        raise RuntimeError(f"Pixabay request failed: HTTP {resp.status_code}") from None
+
+
 def fetch_pixabay(query, dest, min_height):
     key = os.environ.get("PIXABAY_API_KEY")
     if not key:
         return None
     params = {"key": key, "q": query, "per_page": 40, "safesearch": "true"}
     r = requests.get(PIXABAY_SEARCH, params=params, headers=HEADERS, timeout=60)
-    r.raise_for_status()
+    _pixabay_raise_clean(r)
     hits = r.json().get("hits", [])
     if not hits:
         return None
@@ -180,7 +191,7 @@ def fetch_pixabay_photo(query, dest, min_height):
     params = {"key": key, "q": query, "image_type": "photo", "orientation": "vertical",
               "per_page": 40, "safesearch": "true"}
     r = requests.get(PIXABAY_PHOTO_SEARCH, params=params, headers=HEADERS, timeout=60)
-    r.raise_for_status()
+    _pixabay_raise_clean(r)
     hits = r.json().get("hits", [])
     if not hits:
         return None
