@@ -1,16 +1,18 @@
 name: daily-rotating-short
 
-# Single-video-per-day pipeline. Fires at each candidate post hour; the gate step
-# checks whether this hour matches today's deterministic profile (from
-# daily_variation.py) and exits 0 early on any non-matching hour, so only ONE video
-# is actually built and posted per day. The series (country / hook / trending),
-# narration length, hashtag set, and post hour all rotate deterministically, day to
-# day, to keep the account's footprint varied and avoid bot-signal patterns.
+# Single-video-per-day pipeline. The series (country / hook / trending), narration
+# length, hashtag set, and earliest post hour all rotate deterministically per day
+# (daily_variation.py) to keep the account's footprint varied.
+#
+# GitHub's scheduler starts cron runs late (often 1-2h) and silently drops many, so
+# the gate does NOT require an exact hour match: the first run at or after today's
+# target hour posts, provided no rotating-*-<today> release exists yet. Later runs
+# that day see that release and skip.
 on:
   schedule:
-    # Fires at every candidate post hour: 8, 10, 11, 13, 15, 17 UTC.
-    # Only the hour that today's daily_variation.py profile picked will proceed.
-    - cron: "0 8,10,11,13,15,17 * * *"
+    # Hourly from 08 to 23 UTC at :17 (off the top of the hour, where GitHub drops
+    # the most runs). The late hours are catch-up retries for dropped runs.
+    - cron: "17 8-23 * * *"
   workflow_dispatch:
     inputs:
       force_run:
@@ -30,6 +32,12 @@ on:
 permissions:
   contents: write   # commit logs/history_rotating.csv and create the release asset
 
+# Serialize runs so a catch-up run can't start building while an earlier one is still
+# mid-build (before its release exists) and double-post.
+concurrency:
+  group: daily-rotating-short
+  cancel-in-progress: false
+
 jobs:
   build_and_post:
     runs-on: ubuntu-latest
@@ -40,25 +48,47 @@ jobs:
         with:
           python-version: "3.11"
 
-      # ---- hour-gate: only proceed on the day's designated post hour ----
-      - name: Check today's variation profile and gate on hour
+      # ---- gate: first run at/after today's target hour, once per UTC day ----
+      - name: Check today's variation profile and gate
         id: gate
         env:
           FORCE_RUN: ${{ inputs.force_run }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
         run: |
           # The whole decision happens in Python: a step cannot read its OWN
-          # ${{ steps.*.outputs.* }} (those are interpolated before the step runs),
-          # so the hour comparison must not be split across Python and shell.
+          # ${{ steps.*.outputs.* }} (those are interpolated before the step runs).
           python - <<'EOF'
-          import os, sys
+          import json, os, subprocess, sys
           from datetime import datetime, timezone
           sys.path.insert(0, "scripts")
           from daily_variation import profile_for, day_number_for
 
-          p = profile_for(day_number_for())
-          current_hour = datetime.now(timezone.utc).hour
+          now = datetime.now(timezone.utc)
+          p = profile_for(day_number_for(now.date()))
           force = os.environ.get("FORCE_RUN", "").lower() == "true"
-          skip = not force and current_hour != p["hour"]
+
+          # Posting creates a release tagged rotating-<series>-YYYYMMDD-HHMMSS (UTC).
+          # Fail closed: if the release list can't be read, don't risk a double post.
+          today_tag = f"-{now:%Y%m%d}-"
+          try:
+              out = subprocess.run(
+                  ["gh", "release", "list", "--limit", "100", "--json", "tagName"],
+                  check=True, capture_output=True, text=True).stdout
+              posted_today = any(r["tagName"].startswith("rotating-") and today_tag in r["tagName"]
+                                 for r in json.loads(out))
+          except Exception as exc:
+              print(f"[gate] could not read releases ({type(exc).__name__}) — treating as posted")
+              posted_today = True
+
+          if force:
+              skip, reason = False, "force_run=true"
+          elif now.hour < p["hour"]:
+              skip, reason = True, f"too early ({now:%H:%M} < {p['hour']:02d}:00)"
+          elif posted_today:
+              skip, reason = True, "already posted today"
+          else:
+              skip, reason = False, f"{now:%H:%M} >= {p['hour']:02d}:00 and nothing posted today"
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               f.write(f"skip={'true' if skip else 'false'}\n")
@@ -70,11 +100,7 @@ jobs:
 
           print(f"[gate] today's profile: series={p['series']}, "
                 f"hour={p['hour']:02d}:00 UTC, words={p['min_words']}-{p['max_words']}")
-          if skip:
-              print(f"[gate] current hour {current_hour:02d} != target {p['hour']:02d} "
-                    f"— skipping this run")
-          else:
-              print(f"[gate] proceeding (hour={current_hour:02d}, force_run={force})")
+          print(f"[gate] {'SKIP' if skip else 'PROCEED'}: {reason}")
           EOF
 
       - name: Install system deps (ffmpeg, fonts, espeak fallback)
