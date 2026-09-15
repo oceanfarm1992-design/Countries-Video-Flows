@@ -134,22 +134,29 @@ jobs:
             python scripts/generate_hook_script.py $COMMON_ARGS
           elif [ "$SERIES" = "trending" ]; then
             python scripts/generate_trending_script.py $COMMON_ARGS
+          elif [ "$SERIES" = "geography" ]; then
+            python scripts/generate_geography_script.py $COMMON_ARGS
           else
             echo "[generate] unknown series '$SERIES' — defaulting to country"
             python scripts/generate_country_script.py $COMMON_ARGS
           fi
 
-      - name: Fetch footage (Pexels / Pixabay / animation)
+      - name: Fetch footage (Pexels / Pixabay / animation / geography map)
         if: steps.gate.outputs.skip == 'false'
         env:
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
           PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
         run: |
-          ARG=""
-          if [ -n "${{ inputs.footage_source }}" ]; then
-            ARG="--source ${{ inputs.footage_source }}"
+          SERIES="${{ steps.gate.outputs.series }}"
+          if [ "$SERIES" = "geography" ]; then
+            python scripts/render_geography_map.py --config config/countries.json
+          else
+            ARG=""
+            if [ -n "${{ inputs.footage_source }}" ]; then
+              ARG="--source ${{ inputs.footage_source }}"
+            fi
+            python scripts/fetch_footage.py --config config/countries.json $ARG
           fi
-          python scripts/fetch_footage.py --config config/countries.json $ARG
 
       - name: Generate TTS voiceover
         if: steps.gate.outputs.skip == 'false'

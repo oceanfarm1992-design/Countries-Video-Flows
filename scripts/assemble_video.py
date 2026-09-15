@@ -36,6 +36,8 @@ import shutil
 import subprocess
 import sys
 
+from pipeline_common import segment_durations
+
 def _find_font(candidates):
     """First existing path from candidates, or the first candidate (let ffmpeg error
     with a clear message) if none exist. Lets this run on the Ubuntu CI runner (where
@@ -268,16 +270,6 @@ def find_segment_pieces(build_dir):
     return [(p, "photo" if p.endswith(".jpg") else "video") for p in sorted(found, key=idx)]
 
 
-def segment_durations(script, total):
-    """Split `total` seconds across the narration segments in proportion to how many
-    words each one has, so each clip is on screen for exactly as long as its words are
-    spoken."""
-    segs = script.get("segments") or []
-    words = [max(1, s.get("words", len(s.get("text", "").split()))) for s in segs]
-    tw = sum(words) or 1
-    return [total * w / tw for w in words]
-
-
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--footage", default="build/footage.mp4")
@@ -291,7 +283,7 @@ def main():
                          "precedence over --music-dir when it exists.")
     ap.add_argument("--music-dir", default="assets/music",
                     help="Folder of background-music tracks (optional; picks one by date).")
-    ap.add_argument("--music-volume", type=float, default=0.30,
+    ap.add_argument("--music-volume", type=float, default=0.15,
                     help="Background music level, 0..1 (voice stays at full).")
     ap.add_argument("--intro", default="build/intro.mp4",
                     help="Optional globe-zoom intro to crossfade in front of the montage. "

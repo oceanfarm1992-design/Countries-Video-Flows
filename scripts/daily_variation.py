@@ -21,8 +21,8 @@ from datetime import date
 # Pipeline epoch — same reference date the generators already use for rotation.
 EPOCH = date(2026, 7, 23)
 
-# The one daily video rotates through these three series, one per day.
-SERIES_ROTATION = ["country", "hook", "trending"]
+# The one daily video rotates through these four series, one per day.
+SERIES_ROTATION = ["country", "hook", "trending", "geography"]
 
 # Candidate UTC hours the daily post may fire at. The gate workflow triggers at
 # every one of these; the job only proceeds on the hour this module picks for
