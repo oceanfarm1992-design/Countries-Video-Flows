@@ -38,7 +38,7 @@ import os
 import shutil
 import subprocess
 
-from PIL import Image, ImageFilter
+from PIL import Image, ImageDraw, ImageFilter
 
 from pipeline_common import segment_durations
 
@@ -115,6 +115,33 @@ def composite_highlight(basemap_path, mask_path, tint):
     return canvas, mask
 
 
+def _lonlat_to_px(lon, lat, w, h):
+    """Equirectangular lon/lat -> pixel, matching build_geo_assets.py's mapping
+    (both the basemap and the masks are rendered in that same pixel space)."""
+    return (lon + 180.0) / 360.0 * w, (90.0 - lat) / 180.0 * h
+
+
+def composite_unhighlighted(basemap_path, script):
+    """Fallback for a missing mask asset: the plain basemap plus a synthetic
+    framing box at the country's lat/lon, so the camera still lands on the right
+    place. Nothing gets tinted — an un-highlighted map is honest, whereas
+    guessing at a shape would put a wrong highlight on screen."""
+    basemap = Image.open(basemap_path).convert("RGB")
+    lat, lon = script.get("lat"), script.get("lon")
+    if lat is None or lon is None:
+        raise SystemExit(
+            "no country mask AND no lat/lon in script.json — cannot frame the map")
+    x, y = _lonlat_to_px(float(lon), float(lat), basemap.width, basemap.height)
+    half = MIN_WINDOW_PX / 2.0
+    mask = Image.new("L", basemap.size, 0)
+    ImageDraw.Draw(mask).rectangle(
+        (max(0, x - half), max(0, y - half),
+         min(basemap.width, x + half), min(basemap.height, y + half)),
+        fill=255,
+    )
+    return basemap, mask
+
+
 # ---------------------------------------------------------------------------
 # Camera path
 # ---------------------------------------------------------------------------
@@ -123,6 +150,11 @@ OUTPUT_ASPECT = 1080 / 1920  # portrait 9:16
 MIN_WINDOW_PX = 300          # never zoom in tighter than this (basemap-pixel space)
 END_MARGIN = 1.25            # snug framing around the country at the tightest zoom
 START_MARGIN_MULT = 2.6      # how much wider the opening frame is than the end frame
+
+# Surplus tail cut onto the end of every slice (see slice_segments). Absorbs
+# frame-rounding so `-stream_loop -1` in assemble_video.py can never wrap a
+# slice back to its own start mid-segment.
+SLICE_PAD_S = 0.15
 
 
 def compute_camera_windows(mask, canvas_size):
@@ -203,9 +235,17 @@ def render_camera_path(source_png, out_mp4, duration_s, zoom_ratio, fps=30):
 
 
 def slice_segments(camera_mp4, segments, durs, out_dir):
-    """Cut the one continuous camera-path video into len(segments) sequential,
-    non-overlapping files, each starting at its own t=0 (see module docstring
-    for why this matters), burning that beat's map-label text onto its slice."""
+    """Cut the one continuous camera-path video into len(segments) sequential
+    files, each starting at its own t=0 (see module docstring for why this
+    matters), burning that beat's map-label text onto its slice.
+
+    Each slice is cut SLICE_PAD_S longer than the duration assemble_video.py
+    will ask for, but the read cursor still advances by the UNPADDED duration —
+    so the pan stays continuous across slices and the surplus tail is simply
+    trimmed away, never shown. Without that pad, a slice even a single frame
+    short of what assemble requests gets looped back to its own start by
+    `-stream_loop -1`, which reads on screen as the camera snapping backwards
+    at the end of every segment."""
     clip_paths = []
     cursor = 0.0
     for i, (seg, dur) in enumerate(zip(segments, durs)):
@@ -222,7 +262,7 @@ def slice_segments(camera_mp4, segments, durs, out_dir):
                 "x=(w-text_w)/2:y=h*0.22"
             )
         cmd = [
-            "ffmpeg", "-y", "-ss", f"{cursor:.3f}", "-t", f"{dur:.3f}",
+            "ffmpeg", "-y", "-ss", f"{cursor:.3f}", "-t", f"{dur + SLICE_PAD_S:.3f}",
             "-i", camera_mp4, "-vf", ",".join(vf_parts),
             "-c:v", "libx264", "-preset", "medium", "-crf", "20",
             "-pix_fmt", "yuv420p", "-an", out_path,
@@ -231,7 +271,7 @@ def slice_segments(camera_mp4, segments, durs, out_dir):
         if result.returncode != 0:
             raise RuntimeError(f"ffmpeg slice {i} failed:\n{result.stderr[-2000:]}")
         clip_paths.append(out_path)
-        cursor += dur
+        cursor += dur  # unpadded: keeps the camera path continuous across cuts
     return clip_paths
 
 
@@ -239,12 +279,44 @@ def slice_segments(camera_mp4, segments, durs, out_dir):
 # Driver
 # ---------------------------------------------------------------------------
 
-def estimate_duration(script, video_cfg):
+def ffprobe_duration(path):
+    out = subprocess.run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+         "-of", "default=nokey=1:noprint_wrappers=1", path],
+        capture_output=True, text=True,
+    )
+    if out.returncode != 0:
+        raise RuntimeError(f"ffprobe failed on {path}: {out.stderr}")
+    return float(out.stdout.strip())
+
+
+def resolve_duration(script, video_cfg, audio_path):
+    """Return (duration_seconds, source_label).
+
+    Prefers the REAL synthesized voice length, using the exact same formula
+    assemble_video.py uses, so the pre-sliced segment boundaries match what
+    assemble will actually request down to the millisecond. This is why the
+    workflows run this stage AFTER generate_tts.py: a word-count estimate
+    drifted ~7% from the real TTS length, and every segment's shortfall got
+    filled by looping that slice back to its own start.
+
+    Falls back to the word-count estimate only if the voice isn't there yet,
+    so the script still runs standalone or out of order."""
+    if audio_path and os.path.exists(audio_path):
+        try:
+            audio_dur = ffprobe_duration(audio_path)
+            duration = max(video_cfg["min_seconds"],
+                           min(audio_dur + 0.4, video_cfg["max_seconds"]))
+            return duration, f"voice.wav ({audio_dur:.1f}s)"
+        except Exception as exc:  # noqa: BLE001 — fall back to the estimate
+            print(f"[render_geography_map] could not probe {audio_path}: {exc}")
+
     narration = script.get("narration", "")
     words = len(narration.split()) or sum(
         s.get("words", len(s.get("text", "").split())) for s in script.get("segments", []))
     raw = words / video_cfg.get("words_per_second", 2.3)
-    return max(video_cfg["min_seconds"], min(raw, video_cfg["max_seconds"]))
+    duration = max(video_cfg["min_seconds"], min(raw, video_cfg["max_seconds"]))
+    return duration, f"word-count estimate ({words} words)"
 
 
 def main():
@@ -253,6 +325,9 @@ def main():
     ap.add_argument("--config", default="config/countries.json")
     ap.add_argument("--out", default="build")
     ap.add_argument("--assets-dir", default="assets/geo")
+    ap.add_argument("--audio", default="build/voice.wav",
+                    help="Synthesized voice track; its real length drives the segment "
+                         "slice boundaries. Falls back to a word-count estimate if absent.")
     args = ap.parse_args()
 
     with open(args.script, encoding="utf-8") as fh:
@@ -266,15 +341,22 @@ def main():
 
     basemap_path = os.path.join(args.assets_dir, "basemap_world.png")
     mask_path = os.path.join(args.assets_dir, "country_masks", f"{iso2}.png")
-    if not os.path.exists(mask_path):
-        raise SystemExit(
-            f"no mask for {iso2!r} at {mask_path} -- run scripts/build_geo_assets.py first")
 
     variant_seed = script.get("variant_seed", script.get("cycle", 0)) or 0
     tint = TINT_PALETTE[variant_seed % len(TINT_PALETTE)]
 
-    print(f"[render_geography_map] compositing {iso2} highlight (tint={tint}) ...")
-    highlight, mask = composite_highlight(basemap_path, mask_path, tint)
+    if os.path.exists(mask_path):
+        print(f"[render_geography_map] compositing {iso2} highlight (tint={tint}) ...")
+        highlight, mask = composite_highlight(basemap_path, mask_path, tint)
+    else:
+        # Losing the whole day's post over one missing asset is worse than
+        # shipping an un-highlighted map, so fall back to a plain basemap framed
+        # on the country's coordinates. Honest (nothing is mis-highlighted), just
+        # less striking. Every country in config/countries.json ships with a mask,
+        # so this should only ever fire on a genuinely broken checkout.
+        print(f"[render_geography_map] WARNING: no mask at {mask_path} — "
+              f"falling back to an un-highlighted map centered on {iso2}")
+        highlight, mask = composite_unhighlighted(basemap_path, script)
 
     start_box, end_box = compute_camera_windows(mask, highlight.size)
     zoom_ratio = (start_box[3] - start_box[1]) / (end_box[3] - end_box[1])
@@ -285,16 +367,17 @@ def main():
     source_png = os.path.join(args.out, "_geo_camera_source.png")
     crop_to_box(highlight, start_box).save(source_png)
 
-    duration_est = estimate_duration(script, cfg["video"])
-    print(f"[render_geography_map] estimated duration {duration_est:.1f}s")
+    duration, dur_source = resolve_duration(script, cfg["video"], args.audio)
+    print(f"[render_geography_map] duration {duration:.2f}s (from {dur_source})")
 
     camera_mp4 = os.path.join(args.out, "_geo_camera_full.mp4")
-    render_camera_path(source_png, camera_mp4, duration_est, zoom_ratio)
+    # Render SLICE_PAD_S extra so the final slice's surplus tail has material.
+    render_camera_path(source_png, camera_mp4, duration + SLICE_PAD_S, zoom_ratio)
 
     segments = script.get("segments") or []
     if not segments:
         raise SystemExit(f"{args.script} has no segments -- nothing to slice")
-    durs = segment_durations(script, duration_est)
+    durs = segment_durations(script, duration)
 
     print(f"[render_geography_map] slicing into {len(segments)} segment clips ...")
     clip_paths = slice_segments(camera_mp4, segments, durs, args.out)

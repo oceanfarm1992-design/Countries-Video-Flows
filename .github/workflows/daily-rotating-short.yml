@@ -141,28 +141,32 @@ jobs:
             python scripts/generate_country_script.py $COMMON_ARGS
           fi
 
-      - name: Fetch footage (Pexels / Pixabay / animation / geography map)
-        if: steps.gate.outputs.skip == 'false'
+      - name: Fetch footage (Pexels / Pixabay / animation)
+        if: steps.gate.outputs.skip == 'false' && steps.gate.outputs.series != 'geography'
         env:
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
           PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
         run: |
-          SERIES="${{ steps.gate.outputs.series }}"
-          if [ "$SERIES" = "geography" ]; then
-            python scripts/render_geography_map.py --config config/countries.json
-          else
-            ARG=""
-            if [ -n "${{ inputs.footage_source }}" ]; then
-              ARG="--source ${{ inputs.footage_source }}"
-            fi
-            python scripts/fetch_footage.py --config config/countries.json $ARG
+          ARG=""
+          if [ -n "${{ inputs.footage_source }}" ]; then
+            ARG="--source ${{ inputs.footage_source }}"
           fi
+          python scripts/fetch_footage.py --config config/countries.json $ARG
 
       - name: Generate TTS voiceover
         if: steps.gate.outputs.skip == 'false'
         env:
           VOICE_REPO_PAT: ${{ secrets.VOICE_REPO_PAT }}
         run: python scripts/generate_tts.py --config config/countries.json
+
+      # Runs AFTER the voiceover on purpose: the map is pre-sliced into one clip
+      # per narration beat, and those boundaries have to match what
+      # assemble_video.py derives from the REAL voice length. Estimating from
+      # word count drifted ~7%, and every segment's shortfall got filled by
+      # looping that slice back to its start (visible camera snap-back).
+      - name: Render geography map footage
+        if: steps.gate.outputs.skip == 'false' && steps.gate.outputs.series == 'geography'
+        run: python scripts/render_geography_map.py --config config/countries.json
 
       - name: Generate captions
         if: steps.gate.outputs.skip == 'false'

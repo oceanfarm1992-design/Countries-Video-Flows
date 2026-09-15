@@ -66,15 +66,19 @@ jobs:
           python scripts/generate_geography_script.py \
             --config config/countries.json $IDX_ARG
 
-      - name: Render geography map footage
-        run: python scripts/render_geography_map.py --config config/countries.json
-
       - name: Generate TTS voiceover
         # Tries StyleTTS2 (cloned voice) first, then falls back through Kokoro,
         # Piper, and espeak-ng in one call before giving up.
         env:
           VOICE_REPO_PAT: ${{ secrets.VOICE_REPO_PAT }}
         run: python scripts/generate_tts.py --config config/countries.json
+
+      # Runs AFTER the voiceover on purpose — see the same step in
+      # daily-rotating-short.yml: slice boundaries must come from the real voice
+      # length, not a word-count estimate, or each segment ends with the camera
+      # snapping backwards.
+      - name: Render geography map footage
+        run: python scripts/render_geography_map.py --config config/countries.json
 
       - name: Generate captions
         env:
