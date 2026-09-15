@@ -191,7 +191,12 @@ def _gpt_script(country: dict, openai_cfg: dict, angle: str, subfocus: str, cycl
             exactly that can be shown while these words are spoken. Name the specific
             subject — a named mountain, city, dish, animal, landmark, or activity — not an
             abstract idea. Every visual should be about {country['name']} unless the
-            subject is inherently generic.
+            subject is inherently generic. CRITICAL: for anything culturally specific
+            (a dance, dress, ceremony, dish, festival, tribe, or ritual), the query MUST
+            include "{country['name']}" by name — never describe it generically (e.g.
+            NOT "traditional dance", but "{country['name']} traditional dance") — footage
+            of a DIFFERENT country's culture being shown for this one is a real factual
+            error, not a stylistic issue.
         Concatenating every "text" in order must read as one smooth narration that starts
         with a strong hook and ends with these two calls-to-action, in this order: first
         something like "If you're from {country['name']}, comment 'I love my country'

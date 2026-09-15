@@ -115,6 +115,11 @@ def _gpt_script(country: dict, openai_cfg: dict, headlines: list,
                 describing ONE concrete, filmable subject that matches this beat —
                 prefer a general subject tied to {name} (a city, landmark, landscape,
                 or activity) since stock footage cannot depict a specific news event.
+                CRITICAL: for anything culturally specific (a dance, dress, ceremony,
+                dish, festival, tribe, or ritual), the query MUST include "{name}" by
+                name — never describe it generically (e.g. NOT "traditional dance",
+                but "{name} traditional dance") — footage of a DIFFERENT country's
+                culture being shown for this one is a real factual error.
         Concatenating every "text" in order must read as one smooth narration that
         starts with the hook and ends with these two calls-to-action, in this order:
         first something like "If you're from {name}, comment 'I love my country'
