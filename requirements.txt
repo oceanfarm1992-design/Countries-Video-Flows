@@ -1,5 +1,5 @@
 # Core pipeline dependencies (all pure-python or wheels that install cleanly on GitHub Actions Ubuntu)
-requests>=2.31.0
+requests>=2.34.2
 
 # Music synthesis: scripts/generate_music.py builds the upbeat backing track from
 # scratch with numpy (no audio files, no license concerns).
