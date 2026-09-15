@@ -101,6 +101,20 @@ SERIES_COPY = {
             "What do you make of this? Comment below! 👇",
         ],
     },
+    "geography": {
+        "yt_emoji": "🗺️",
+        "tt_suffix": "🗺️",
+        "subscribe_lines": [
+            "Subscribe for a new geography explainer every day! 🌏",
+            "Follow for more of the world's geography, explained. 🌏",
+            "The world's geography, one country at a time — subscribe. 🌏",
+        ],
+        "fb_questions": [
+            "Did you know this about the map? Let us know below! 👇",
+            "What's the geography like where you live? Tell us below! 👇",
+            "Which part surprised you most? Comment below! 👇",
+        ],
+    },
 }
 
 

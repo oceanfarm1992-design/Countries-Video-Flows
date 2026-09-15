@@ -1,23 +1,26 @@
 #!/usr/bin/env python3
 """
-Synthesize an upbeat, cheerful background music loop from scratch with numpy — no audio
-files, no licensing concerns.
+Synthesize an energetic, "breaking news" style background music loop from scratch
+with numpy — no audio files, no licensing concerns.
 
-The old version was a calm ambient drone (detuned sine chords + pink noise), which suited
-meditative content but felt flat under bright travel videos. This version builds an actual
-happy little track:
+The previous version was a warm, sustained-pad pop track (I-V-vi-IV, happy major
+key) — pleasant but too laid-back for the channel's pacing. This version goes for
+urgency instead:
 
-  - Chord progression: I–V–vi–IV, the classic "feel-good pop" progression, in a major key.
-  - A warm sustained pad holds each chord.
-  - A bright plucked arpeggio dances over the top — this is the catchy, attention-holding
-    part that makes people keep watching.
-  - A soft bassline on the chord roots gives it foundation.
-  - A gentle kick pulse (four-on-the-floor) plus a soft hi-hat give it light rhythm so it
-    reads as MUSIC, not ambience — without being an aggressive EDM beat.
+  - A pedal-tone bass: the bass note NEVER moves off the key root for the whole
+    track (classic tension-building technique — think newsroom sting music), while
+    a minor/diminished chord progression shifts in the register above it.
+  - Punchy short stabs (fast attack, fast decay) on every beat instead of a
+    sustained pad — reads as an alert, not a cozy background.
+  - A fast 16th-note arpeggio layered on top for continuous forward motion —
+    activity, not just volume, is what actually reads as "energetic".
+  - A driving 16th-note percussive tick (a "newsroom clock" pulse) under a harder
+    kick + bright snare backbeat, plus a kick "pickup" hit driving into each bar.
+  - Faster tempo (146 BPM) than the old track's 112.
 
-The loop is a whole number of bars so it repeats seamlessly (the assemble stage loops it
-to the video length and ducks it under the voice), so this file has NO internal fades.
-The key rotates by date for day-to-day variety.
+The loop is a whole number of bars so it repeats seamlessly (the assemble stage
+loops it to the video length and ducks it under the voice), so this file has NO
+internal fades. The pedal root rotates by date for day-to-day variety.
 
 Output: build/music.mp3
 
@@ -36,14 +39,17 @@ import wave
 import numpy as np
 
 SR = 44100
-BPM = 112  # upbeat but relaxed
+BPM = 146  # driving, urgent
 
-# Major keys to rotate through (root MIDI note), kept in a comfortable mid register.
-KEY_ROOTS = [60, 62, 64, 65, 67]  # C4, D4, E4, F4, G4
+# Pedal roots to rotate through by date (MIDI note), kept in a comfortable
+# low-mid register since the bass sits on this note for the whole track.
+KEY_ROOTS = [57, 60, 62, 64, 55]  # A3, C4, D4, E4, G3
 
-# I–V–vi–IV: (semitone offset from key root, chord quality). The happiest 4 chords in pop.
-PROGRESSION = [(0, "maj"), (7, "maj"), (9, "min"), (5, "maj")]
-TRIADS = {"maj": [0, 4, 7], "min": [0, 3, 7]}
+# Chord qualities stacked above the fixed pedal bass (offset from the pedal
+# root, quality): i-iv-VII-v(dim) -- a tension-building minor movement. The
+# BASS never moves off the pedal root; only these upper voicings shift.
+PROGRESSION = [(0, "min"), (5, "min"), (10, "maj"), (7, "dim")]
+TRIADS = {"min": [0, 3, 7], "maj": [0, 4, 7], "dim": [0, 3, 6]}
 
 
 def midi_freq(m):
@@ -61,44 +67,45 @@ def _place(buf, start, wave_arr, gain=1.0):
     buf[start:end] += wave_arr * gain
 
 
-def pluck(freq, dur, decay=0.30):
-    """Bright plucked note: a few harmonics under a fast-attack exponential decay —
-    marimba/music-box-ish, the catchy lead voice."""
+def stab(freq, dur, decay=0.14):
+    """Punchy short chord hit: fast attack, fast decay, bright harmonics —
+    reads as an alert stab, not a sustained cozy pad."""
     n = int(dur * SR)
     t = np.arange(n) / SR
     env = np.exp(-t / decay)
-    a = max(1, int(0.005 * SR))  # 5ms attack to kill the click
+    a = max(1, int(0.003 * SR))
     env[:a] *= np.linspace(0, 1, a)
     wave = (np.sin(2 * np.pi * freq * t)
-            + 0.35 * np.sin(2 * np.pi * 2 * freq * t)
-            + 0.18 * np.sin(2 * np.pi * 3 * freq * t)
-            + 0.08 * np.sin(2 * np.pi * 4 * freq * t))
+            + 0.5 * np.sin(2 * np.pi * 2 * freq * t)
+            + 0.3 * np.sin(2 * np.pi * 3 * freq * t)
+            + 0.15 * np.sin(2 * np.pi * 5 * freq * t))
     return wave * env
 
 
-def pad(freq, dur):
-    """Warm sustained tone with a soft attack/release (the harmonic bed)."""
+def arp(freq, dur, decay=0.10):
+    """Fast, bright plucked note — a driving 16th-note arpeggio layer for
+    continuous forward motion."""
     n = int(dur * SR)
     t = np.arange(n) / SR
-    wave = (0.6 * np.sin(2 * np.pi * freq * t)
-            + 0.25 * np.sin(2 * np.pi * 2 * freq * t)
-            + 0.1 * np.sin(2 * np.pi * 3 * freq * t))
-    env = np.ones(n)
-    a = int(0.12 * SR)
-    r = int(0.20 * SR)
-    if a + r < n:
-        env[:a] = np.linspace(0, 1, a)
-        env[n - r:] = np.linspace(1, 0, r)
+    env = np.exp(-t / decay)
+    a = max(1, int(0.002 * SR))
+    env[:a] *= np.linspace(0, 1, a)
+    wave = (np.sin(2 * np.pi * freq * t)
+            + 0.4 * np.sin(2 * np.pi * 2 * freq * t)
+            + 0.25 * np.sin(2 * np.pi * 3 * freq * t))
     return wave * env
 
 
-def bass(freq, dur):
+def pedal_bass(freq, dur):
+    """Held pedal tone: a driving 8th-note pulse on the SAME root note
+    throughout the track — the constant repetition is what builds tension,
+    not a sustained whole-note."""
     n = int(dur * SR)
     t = np.arange(n) / SR
-    wave = 0.8 * np.sin(2 * np.pi * freq * t) + 0.15 * np.sin(2 * np.pi * 2 * freq * t)
+    wave = 0.85 * np.sin(2 * np.pi * freq * t) + 0.2 * np.sin(2 * np.pi * 2 * freq * t)
     env = np.ones(n)
-    a = int(0.02 * SR)
-    r = int(0.05 * SR)
+    a = int(0.01 * SR)
+    r = int(0.03 * SR)
     if a + r < n:
         env[:a] = np.linspace(0, 1, a)
         env[n - r:] = np.linspace(1, 0, r)
@@ -106,20 +113,29 @@ def bass(freq, dur):
 
 
 def kick():
-    """Soft round kick: pitch drops fast, quick decay. Felt more than heard."""
-    n = int(0.20 * SR)
+    """Punchy kick — harder/more present than a soft ambient thump."""
+    n = int(0.18 * SR)
     t = np.arange(n) / SR
-    freq_env = 45 + (120 - 45) * np.exp(-t / 0.03)
+    freq_env = 50 + (150 - 50) * np.exp(-t / 0.022)
     phase = 2 * np.pi * np.cumsum(freq_env) / SR
-    return np.sin(phase) * np.exp(-t / 0.11)
+    return np.sin(phase) * np.exp(-t / 0.09)
 
 
-def hat(rng):
-    """Short soft noise tick for lift on the off-beats."""
-    n = int(0.045 * SR)
+def snare(rng):
+    """Bright filtered-noise backbeat hit — the newsroom-urgency snare."""
+    n = int(0.12 * SR)
     noise = rng.uniform(-1, 1, n)
-    noise = np.diff(noise, prepend=0.0)  # crude high-pass -> brighter
-    env = np.exp(-np.arange(n) / SR / 0.02)
+    noise = np.diff(noise, prepend=0.0)
+    tone = 0.3 * np.sin(2 * np.pi * 200 * np.arange(n) / SR)
+    env = np.exp(-np.arange(n) / SR / 0.045)
+    return (noise * 0.8 + tone) * env
+
+
+def tick(rng):
+    """Fast, dry percussive tick — the "newsroom clock" 16th-note pulse."""
+    n = int(0.025 * SR)
+    noise = rng.uniform(-1, 1, n)
+    env = np.exp(-np.arange(n) / SR / 0.005)
     return noise * env
 
 
@@ -136,26 +152,41 @@ def synth(bars, key_root, seed):
         triad = [chord_root + iv for iv in TRIADS[quality]]
         bar_start = int(round(b * bar_len * SR))
 
-        # pad: whole-bar chord
-        for m in triad:
-            _place(buf, bar_start, pad(midi_freq(m), bar_len), gain=0.11)
-        # bass: root an octave down, whole bar
-        _place(buf, bar_start, bass(midi_freq(chord_root - 12), bar_len), gain=0.22)
-
-        # arpeggio: 8 eighth-notes across the bar, up-and-over the chord tones
-        arp_midis = [triad[0], triad[1], triad[2], triad[0] + 12,
-                     triad[1], triad[2], triad[0] + 12, triad[2]]
-        eighth = beat / 2
-        for i, m in enumerate(arp_midis):
-            start = bar_start + int(round(i * eighth * SR))
-            _place(buf, start, pluck(midi_freq(m + 12), eighth * 1.6), gain=0.30)
-
-        # kick on every beat; hat on every off-beat
+        # punchy stabs on all 4 beats, accented on 1 & 3
         for beat_i in range(4):
-            k_start = bar_start + int(round(beat_i * beat * SR))
-            _place(buf, k_start, kick(), gain=0.55)
-            h_start = bar_start + int(round((beat_i + 0.5) * beat * SR))
-            _place(buf, h_start, hat(rng), gain=0.10)
+            s = bar_start + int(round(beat_i * beat * SR))
+            gain = 0.24 if beat_i in (0, 2) else 0.15
+            for m in triad:
+                _place(buf, s, stab(midi_freq(m + 12), beat * 0.9), gain=gain)
+
+        # pedal bass: driving 8th notes on the SAME root the whole track
+        eighth = beat / 2
+        for i in range(8):
+            s = bar_start + int(round(i * eighth * SR))
+            _place(buf, s, pedal_bass(midi_freq(key_root - 12), eighth * 0.95), gain=0.32)
+
+        # fast 16th-note arpeggio over the chord tones — continuous motion
+        sixteenth = beat / 4
+        arp_pattern = [0, 1, 2, 1] * 4  # bounces across the triad, 16 hits/bar
+        for i, ti in enumerate(arp_pattern):
+            s = bar_start + int(round(i * sixteenth * SR))
+            m = triad[ti] + 24
+            _place(buf, s, arp(midi_freq(m), sixteenth * 1.3), gain=0.16)
+
+        # kick on every beat + snare on 2 and 4 + a pickup kick into the next bar
+        for beat_i in range(4):
+            k = bar_start + int(round(beat_i * beat * SR))
+            _place(buf, k, kick(), gain=0.72)
+            if beat_i in (1, 3):
+                sn = bar_start + int(round(beat_i * beat * SR))
+                _place(buf, sn, snare(rng), gain=0.42)
+        pickup = bar_start + int(round(3.5 * beat * SR))
+        _place(buf, pickup, kick(), gain=0.5)
+
+        # 16th-note ticking pulse — the urgent "newsroom clock"
+        for i in range(16):
+            s = bar_start + int(round(i * sixteenth * SR))
+            _place(buf, s, tick(rng), gain=0.17)
 
     # peak-normalize with headroom (assemble ducks + fades this under the voice)
     peak = np.max(np.abs(buf)) or 1.0
@@ -191,8 +222,8 @@ def main():
     # whole number of bars, and a multiple of the 4-chord progression for a clean loop
     bars = max(4, round(args.duration / bar_len / len(PROGRESSION)) * len(PROGRESSION))
 
-    print(f"[generate_music] {bars} bars @ {BPM} BPM, key root MIDI {key_root} "
-          f"(~{bars * bar_len:.1f}s upbeat loop)")
+    print(f"[generate_music] {bars} bars @ {BPM} BPM, pedal root MIDI {key_root} "
+          f"(~{bars * bar_len:.1f}s energetic loop)")
     samples = synth(bars, key_root, seed=day)
 
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
