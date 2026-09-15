@@ -30,13 +30,53 @@ import glob
 import json
 import os
 import random
+import re
 import shutil
 import subprocess
 import sys
+import unicodedata
 
 import requests
 
 HEADERS = {"User-Agent": "yt-shorts-generator/1.0 (personal pipeline)"}
+
+# Search terms that describe a specific CULTURE rather than generic scenery — showing
+# the wrong country's dance, dress, or ceremony while the narration claims it's THIS
+# country's is a real, embarrassing factual error (this is what locals flagged: a
+# "traditional dance" segment for one African country came back footage of a
+# different African country's dance). Generic scenery (mountains, waterfalls) being
+# an unrelated stock clip is far less damaging than misattributing someone's culture,
+# so only these subjects require a verified country match before being used.
+CULTURAL_KEYWORDS = (
+    "dance", "dancer", "dancing", "dress", "costume", "attire", "clothing", "wear",
+    "ceremony", "ritual", "festival", "celebration", "wedding", "funeral",
+    "cuisine", "dish", "food", "cooking", "recipe", "drink", "beverage",
+    "tribe", "tribal", "ethnic", "folk", "indigenous",
+    "music", "musician", "instrument", "drum", "song", "singing",
+    "craft", "textile", "weaving", "pottery", "mask", "carving",
+    "religion", "temple", "shrine", "worship", "prayer", "monk", "priest",
+)
+
+
+def _is_culturally_specific(query: str) -> bool:
+    q = (query or "").lower()
+    return any(kw in q for kw in CULTURAL_KEYWORDS)
+
+
+def _normalize(text: str) -> str:
+    ascii_text = unicodedata.normalize("NFKD", text or "").encode("ascii", "ignore").decode("ascii")
+    return re.sub(r"[^a-z0-9]+", " ", ascii_text.lower()).strip()
+
+
+def _country_match(metadata_text: str, country_name: str) -> bool:
+    """Best-effort check: does the clip's own tags/URL slug mention this country by
+    name? Stock libraries rarely geo-tag content, so this can only CONFIRM a match,
+    never disprove one — it's used to gate culturally-specific subjects, not to
+    filter generic scenery."""
+    norm_country = _normalize(country_name)
+    if not norm_country:
+        return False
+    return norm_country in _normalize(metadata_text)
 
 PEXELS_SEARCH = "https://api.pexels.com/videos/search"
 PIXABAY_SEARCH = "https://pixabay.com/api/videos/"
@@ -66,12 +106,9 @@ def _rotate(seq, key=0):
 
 
 # --------------------------------------------------------------------------- Pexels
-def fetch_pexels(query, dest, want_portrait, min_height):
-    key = os.environ.get("PEXELS_API_KEY")
-    if not key:
-        return None
+def _pexels_search(key, q, want_portrait):
     params = {
-        "query": query,
+        "query": q,
         "orientation": "portrait" if want_portrait else "landscape",
         "size": "medium",
         "per_page": 40,
@@ -79,9 +116,33 @@ def fetch_pexels(query, dest, want_portrait, min_height):
     r = requests.get(PEXELS_SEARCH, params=params,
                      headers={"Authorization": key, **HEADERS}, timeout=60)
     r.raise_for_status()
-    videos = r.json().get("videos", [])
+    return r.json().get("videos", [])
+
+
+def fetch_pexels(query, dest, want_portrait, min_height, country_name=None, require_match=False):
+    key = os.environ.get("PEXELS_API_KEY")
+    if not key:
+        return None
+
+    search_query = f"{country_name} {query}".strip() if country_name else query
+    videos = _pexels_search(key, search_query, want_portrait)
+    if not videos and country_name and not require_match:
+        # Generic scenery: an unanchored retry is fine if the country-anchored
+        # search came back empty — better than dropping this source entirely.
+        videos = _pexels_search(key, query, want_portrait)
     if not videos:
         return None
+
+    # Pexels exposes almost no location metadata (no tags field) — only the
+    # auto-generated URL slug is searchable text, so verification rarely fires here.
+    verified = False
+    if country_name:
+        matched = [v for v in videos if _country_match(v.get("url", ""), country_name)]
+        if matched:
+            videos, verified = matched, True
+        elif require_match:
+            return None
+
     # pick a RANDOM clip from the results so repeated runs don't reuse the same video
     video = random.choice(videos)
 
@@ -105,6 +166,7 @@ def fetch_pexels(query, dest, want_portrait, min_height):
                        f"({video.get('url', '')})",
         "resolution": f"{best.get('width')}x{best.get('height')}",
         "license": "Pexels License (free commercial use, no attribution required)",
+        "country_verified": verified,
     }
 
 
@@ -120,16 +182,34 @@ def _pixabay_raise_clean(resp):
         raise RuntimeError(f"Pixabay request failed: HTTP {resp.status_code}") from None
 
 
-def fetch_pixabay(query, dest, min_height):
+def _pixabay_search(key, q):
+    params = {"key": key, "q": q, "per_page": 40, "safesearch": "true"}
+    r = requests.get(PIXABAY_SEARCH, params=params, headers=HEADERS, timeout=60)
+    _pixabay_raise_clean(r)
+    return r.json().get("hits", [])
+
+
+def fetch_pixabay(query, dest, min_height, country_name=None, require_match=False):
     key = os.environ.get("PIXABAY_API_KEY")
     if not key:
         return None
-    params = {"key": key, "q": query, "per_page": 40, "safesearch": "true"}
-    r = requests.get(PIXABAY_SEARCH, params=params, headers=HEADERS, timeout=60)
-    _pixabay_raise_clean(r)
-    hits = r.json().get("hits", [])
+
+    search_query = f"{country_name} {query}".strip() if country_name else query
+    hits = _pixabay_search(key, search_query)
+    if not hits and country_name and not require_match:
+        hits = _pixabay_search(key, query)
     if not hits:
         return None
+
+    # Pixabay hits carry real keyword tags — the strongest verification signal we have.
+    verified = False
+    if country_name:
+        matched = [h for h in hits if _country_match(h.get("tags", ""), country_name)]
+        if matched:
+            hits, verified = matched, True
+        elif require_match:
+            return None
+
     hit = random.choice(hits)
 
     # Pixabay gives named renditions; prefer the largest that still meets min_height.
@@ -153,22 +233,40 @@ def fetch_pixabay(query, dest, min_height):
                        f"(https://pixabay.com/videos/id-{hit.get('id')}/)",
         "resolution": f"{chosen.get('width')}x{chosen.get('height')}",
         "license": "Pixabay Content License (free use)",
+        "country_verified": verified,
     }
 
 
 # --------------------------------------------------------------------- Pexels photos
-def fetch_pexels_photo(query, dest, want_portrait, min_height):
-    key = os.environ.get("PEXELS_API_KEY")
-    if not key:
-        return None
-    params = {"query": query, "orientation": "portrait" if want_portrait else "landscape",
+def _pexels_photo_search(key, q, want_portrait):
+    params = {"query": q, "orientation": "portrait" if want_portrait else "landscape",
               "per_page": 40}
     r = requests.get(PEXELS_PHOTO_SEARCH, params=params,
                      headers={"Authorization": key, **HEADERS}, timeout=60)
     r.raise_for_status()
-    photos = r.json().get("photos", [])
+    return r.json().get("photos", [])
+
+
+def fetch_pexels_photo(query, dest, want_portrait, min_height, country_name=None, require_match=False):
+    key = os.environ.get("PEXELS_API_KEY")
+    if not key:
+        return None
+
+    search_query = f"{country_name} {query}".strip() if country_name else query
+    photos = _pexels_photo_search(key, search_query, want_portrait)
+    if not photos and country_name and not require_match:
+        photos = _pexels_photo_search(key, query, want_portrait)
     if not photos:
         return None
+
+    verified = False
+    if country_name:
+        matched = [p for p in photos if _country_match(p.get("url", ""), country_name)]
+        if matched:
+            photos, verified = matched, True
+        elif require_match:
+            return None
+
     photo = random.choice(photos)
     src = photo.get("src", {})
     url = src.get("portrait") or src.get("large2x") or src.get("original")
@@ -180,21 +278,39 @@ def fetch_pexels_photo(query, dest, want_portrait, min_height):
         "attribution": f"Pexels — {photo.get('photographer', 'unknown')}",
         "resolution": f"{photo.get('width')}x{photo.get('height')}",
         "license": "Pexels License (free commercial use, no attribution required)",
+        "country_verified": verified,
     }
 
 
 # -------------------------------------------------------------------- Pixabay photos
-def fetch_pixabay_photo(query, dest, min_height):
-    key = os.environ.get("PIXABAY_API_KEY")
-    if not key:
-        return None
-    params = {"key": key, "q": query, "image_type": "photo", "orientation": "vertical",
+def _pixabay_photo_search(key, q):
+    params = {"key": key, "q": q, "image_type": "photo", "orientation": "vertical",
               "per_page": 40, "safesearch": "true"}
     r = requests.get(PIXABAY_PHOTO_SEARCH, params=params, headers=HEADERS, timeout=60)
     _pixabay_raise_clean(r)
-    hits = r.json().get("hits", [])
+    return r.json().get("hits", [])
+
+
+def fetch_pixabay_photo(query, dest, min_height, country_name=None, require_match=False):
+    key = os.environ.get("PIXABAY_API_KEY")
+    if not key:
+        return None
+
+    search_query = f"{country_name} {query}".strip() if country_name else query
+    hits = _pixabay_photo_search(key, search_query)
+    if not hits and country_name and not require_match:
+        hits = _pixabay_photo_search(key, query)
     if not hits:
         return None
+
+    verified = False
+    if country_name:
+        matched = [h for h in hits if _country_match(h.get("tags", ""), country_name)]
+        if matched:
+            hits, verified = matched, True
+        elif require_match:
+            return None
+
     hit = random.choice(hits)
     url = hit.get("largeImageURL") or hit.get("webformatURL")
     if not url:
@@ -205,6 +321,7 @@ def fetch_pixabay_photo(query, dest, min_height):
         "attribution": f"Pixabay — {hit.get('user', 'unknown')}",
         "resolution": f"{hit.get('imageWidth')}x{hit.get('imageHeight')}",
         "license": "Pixabay Content License (free use)",
+        "country_verified": verified,
     }
 
 
@@ -335,33 +452,45 @@ def choose_query(args, cfg, script):
     return random.choice(fq) if fq else "calm nature cinematic"
 
 
-def fetch_one_piece(query, out_dir, idx, cfg, order, want_portrait, min_height, seed_str):
+def fetch_one_piece(query, out_dir, idx, cfg, order, want_portrait, min_height, seed_str,
+                    country_name=None, require_match=False, allow_animate=True):
     """Fetch one media piece (video OR photo) for a narration beat. Tries video and photo
     sources so the montage mixes both; the preference alternates by index so photos and
     videos interleave for a livelier, piece-by-piece feel. Returns (info, path) or
-    (None, None). info carries a 'type' of 'video' or 'photo'."""
+    (None, None). info carries a 'type' of 'video' or 'photo'.
+
+    When `require_match` is set (a culturally-specific query — dance, dress, cuisine,
+    ceremony, ...), archive.org is skipped entirely (its clips carry no country signal
+    at all) and only a verified-match photo/video counts. `allow_animate=False` also
+    excludes the generated-gradient fallback, so the caller gets None instead of a
+    premature animation and can retry with a safer, non-cultural query first."""
     video_sources = [s for s in order if s in ("pexels", "pixabay", "archive")]
     photo_sources = ["pexels_photo", "pixabay_photo"]
+    if require_match:
+        # archive.org clips carry no country signal at all (pre-curated, day-rotated
+        # collections) — never eligible to stand in for a specific culture's practice.
+        video_sources = [s for s in video_sources if s != "archive"]
     # alternate which medium we try first, so the final montage interleaves video + photo
+    tail = ["animate"] if allow_animate else []
     if idx % 2 == 1:
-        cascade = photo_sources + video_sources + ["animate"]
+        cascade = photo_sources + video_sources + tail
     else:
-        cascade = video_sources + photo_sources + ["animate"]
+        cascade = video_sources + photo_sources + tail
 
     for source in cascade:
         is_photo = source.endswith("_photo")
         dest = os.path.join(out_dir, f"footage_clip{idx}." + ("jpg" if is_photo else "mp4"))
         try:
             if source == "pexels":
-                info = fetch_pexels(query, dest, want_portrait, min_height)
+                info = fetch_pexels(query, dest, want_portrait, min_height, country_name, require_match)
             elif source == "pixabay":
-                info = fetch_pixabay(query, dest, min_height)
+                info = fetch_pixabay(query, dest, min_height, country_name, require_match)
             elif source == "archive":
                 info = fetch_archive(query, dest, cfg)
             elif source == "pexels_photo":
-                info = fetch_pexels_photo(query, dest, want_portrait, min_height)
+                info = fetch_pexels_photo(query, dest, want_portrait, min_height, country_name, require_match)
             elif source == "pixabay_photo":
-                info = fetch_pixabay_photo(query, dest, min_height)
+                info = fetch_pixabay_photo(query, dest, min_height, country_name, require_match)
             elif source == "animate":
                 info = fetch_animate(query, dest, cfg, seed_str)
             else:
@@ -431,13 +560,24 @@ def main():
     last_good = None  # (path, type) to reuse if a segment finds nothing at all
     for i, query in enumerate(queries):
         seed_str = f"{country_name or query}-{i}"
-        # the segment's own query first, then the country base query as a safety net
+        require_match = bool(country_name) and _is_culturally_specific(query)
+        # the segment's own query first, then the country base query as a safety net.
+        # For a cultural query, don't let this first attempt fall to the animated
+        # gradient yet — try real generic country scenery (the base query) before
+        # giving up on real footage entirely.
         info, path = fetch_one_piece(query, args.out, i, cfg, order, want_portrait,
-                                     min_height, seed_str)
+                                     min_height, seed_str, country_name, require_match,
+                                     allow_animate=not require_match)
         if not info and query != base_query:
-            print(f"[fetch_footage] segment {i}: {query!r} empty, retrying base query")
+            print(f"[fetch_footage] segment {i}: {query!r} "
+                  f"{'no verified-country match' if require_match else 'empty'}, "
+                  f"retrying base query")
+            # The base query (e.g. "Kenya landscape cinematic") is generic scenery,
+            # not a cultural claim, even when the segment's own query was — never
+            # require a match on this retry, or a cultural segment with no verified
+            # hit would skip straight past a perfectly good generic fallback clip.
             info, path = fetch_one_piece(base_query, args.out, i, cfg, order, want_portrait,
-                                         min_height, seed_str)
+                                         min_height, seed_str, country_name, require_match=False)
         if info:
             info["query"] = query
             info["path"] = os.path.basename(path)
