@@ -38,7 +38,6 @@ Usage:
 import argparse
 import json
 import os
-import sys
 
 from PIL import Image, ImageDraw, ImageFilter
 import PIL.ImageChops as ImageChops
