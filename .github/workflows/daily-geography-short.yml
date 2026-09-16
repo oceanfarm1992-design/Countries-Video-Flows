@@ -78,6 +78,9 @@ jobs:
       # length, not a word-count estimate, or each segment ends with the camera
       # snapping backwards.
       - name: Render geography map footage
+        env:
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
         run: python scripts/render_geography_map.py --config config/countries.json
 
       - name: Generate captions
