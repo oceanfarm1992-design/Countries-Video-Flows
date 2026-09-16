@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
 """
-Shared deterministic per-day "variation profile" for the single-video-per-day
+Shared deterministic per-day "variation profile" for the two-videos-per-day
 rotation. Given a day number (days since the pipeline epoch), it decides — the
-same way on every machine, with no stored state — which series runs today, at
-which hour, how long the narration should be, and which hashtag/tag variant to
-use.
+same way on every machine, with no stored state — which two series run today
+(slots A and B), at which hours, how long each narration should be, and which
+hashtag/tag variant to use.
 
 Why this exists: posting the same length, same hashtags, same description, at
 the same minute, every single day is itself a strong "automated/bot" signal to
@@ -12,7 +12,7 @@ TikTok and other platforms. Rotating these deterministically per day keeps the
 account's footprint varied while staying fully unattended and reproducible.
 
 The rotation is intentionally deterministic (a hash of the day number), NOT
-random, so a re-run of the same day picks the same slot/series and never
+random, so a re-run of the same day picks the same slots/series and never
 double-posts or drifts.
 """
 import hashlib
@@ -21,12 +21,19 @@ from datetime import date
 # Pipeline epoch — same reference date the generators already use for rotation.
 EPOCH = date(2026, 7, 23)
 
-# The one daily video rotates through these four series, one per day.
-SERIES_ROTATION = ["country", "hook", "trending", "geography"]
+# Each day posts TWO of the four series (slot A and slot B), from a 4-day table
+# where every series appears exactly twice and never pairs with the same partner
+# twice in a row — so which two series post together isn't itself a fixed pattern.
+DAILY_PAIRS = {
+    0: ["country", "hook"],
+    1: ["trending", "geography"],
+    2: ["hook", "trending"],
+    3: ["geography", "country"],
+}
 
-# Candidate UTC hours the daily post may fire at. The gate workflow triggers at
-# every one of these; the job only proceeds on the hour this module picks for
-# today, so the post time varies day to day instead of being a fixed minute.
+# Candidate UTC hours either slot's post may fire at. The gate workflow triggers
+# at every one of these; the job only proceeds on an hour this module picked for
+# one of today's slots, so post times vary day to day instead of being fixed.
 CANDIDATE_HOURS = [8, 10, 11, 13, 15, 17]
 
 # Narration length bands (min_words, max_words). A different band per day means a
@@ -51,26 +58,32 @@ def day_number_for(today=None):
     return ((today or date.today()) - EPOCH).days
 
 
-def profile_for(day_number):
-    """Return today's deterministic variation profile."""
-    series = SERIES_ROTATION[day_number % len(SERIES_ROTATION)]
-    hour = CANDIDATE_HOURS[_seed(day_number, "hour") % len(CANDIDATE_HOURS)]
-    word_band = WORD_BANDS[_seed(day_number, "words") % len(WORD_BANDS)]
-    return {
-        "day_number": day_number,
-        "series": series,
-        "hour": hour,
-        "min_words": word_band[0],
-        "max_words": word_band[1],
-        # index used by captions_common to pick hashtag/description/tag variants
-        "variant_seed": day_number,
-    }
+def profiles_for(day_number):
+    """Return today's two deterministic slot profiles (A and B). Each slot's
+    hour, word band, and hashtag/caption variant are seeded independently (by
+    day number + slot letter) so the two same-day videos don't end up twins."""
+    series_pair = DAILY_PAIRS[day_number % len(DAILY_PAIRS)]
+    profiles = []
+    for slot, series in zip("AB", series_pair):
+        hour = CANDIDATE_HOURS[_seed(day_number, f"hour{slot}") % len(CANDIDATE_HOURS)]
+        word_band = WORD_BANDS[_seed(day_number, f"words{slot}") % len(WORD_BANDS)]
+        profiles.append({
+            "day_number": day_number,
+            "slot": slot,
+            "series": series,
+            "hour": hour,
+            "min_words": word_band[0],
+            "max_words": word_band[1],
+            # index used by captions_common to pick hashtag/description/tag variants
+            "variant_seed": _seed(day_number, f"variant{slot}") % 1_000_000,
+        })
+    return profiles
 
 
 if __name__ == "__main__":
     # Quick visibility: print the next 9 days' rotation for sanity-checking.
     base = day_number_for()
     for d in range(base, base + 9):
-        p = profile_for(d)
-        print(f"day {d}: series={p['series']:8} hour={p['hour']:02d}:00 UTC "
-              f"words={p['min_words']}-{p['max_words']}")
+        for p in profiles_for(d):
+            print(f"day {d} slot {p['slot']}: series={p['series']:9} hour={p['hour']:02d}:00 UTC "
+                  f"words={p['min_words']}-{p['max_words']}")

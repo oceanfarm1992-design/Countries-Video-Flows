@@ -1,13 +1,16 @@
 name: daily-rotating-short
 
-# Single-video-per-day pipeline. The series (country / hook / trending), narration
-# length, hashtag set, and earliest post hour all rotate deterministically per day
-# (daily_variation.py) to keep the account's footprint varied.
+# Two-videos-per-day pipeline. Each day posts two of the four series (slot A and
+# slot B, see daily_variation.py's DAILY_PAIRS) — over any 4-day window every
+# series posts exactly twice. Each slot's narration length, hashtag set, and
+# target post hour rotate deterministically and independently to keep the
+# account's footprint varied.
 #
-# GitHub's scheduler starts cron runs late (often 1-2h) and silently drops many, so
-# the gate does NOT require an exact hour match: the first run at or after today's
-# target hour posts, provided no rotating-*-<today> release exists yet. Later runs
-# that day see that release and skip.
+# GitHub's scheduler starts cron runs late (often 1-2h) and silently drops many,
+# so the gate does NOT require an exact hour match: on each hourly tick, whichever
+# of today's two slots is due (now >= its target hour) and hasn't posted yet
+# (no rotating-<series>-<today> release) runs. Once both slots have posted, later
+# runs that day skip.
 on:
   schedule:
     # Hourly from 08 to 23 UTC at :17 (off the top of the hour, where GitHub drops
@@ -48,7 +51,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      # ---- gate: first run at/after today's target hour, once per UTC day ----
+      # ---- gate: run whichever of today's two slots is due and unposted ----
       - name: Check today's variation profile and gate
         id: gate
         env:
@@ -62,10 +65,10 @@ jobs:
           import json, os, subprocess, sys
           from datetime import datetime, timezone
           sys.path.insert(0, "scripts")
-          from daily_variation import profile_for, day_number_for
+          from daily_variation import profiles_for, day_number_for
 
           now = datetime.now(timezone.utc)
-          p = profile_for(day_number_for(now.date()))
+          slots = profiles_for(day_number_for(now.date()))
           force = os.environ.get("FORCE_RUN", "").lower() == "true"
 
           # Posting creates a release tagged rotating-<series>-YYYYMMDD-HHMMSS (UTC).
@@ -75,32 +78,53 @@ jobs:
               out = subprocess.run(
                   ["gh", "release", "list", "--limit", "100", "--json", "tagName"],
                   check=True, capture_output=True, text=True).stdout
-              posted_today = any(r["tagName"].startswith("rotating-") and today_tag in r["tagName"]
-                                 for r in json.loads(out))
+              tags_today = [r["tagName"] for r in json.loads(out)
+                            if r["tagName"].startswith("rotating-") and today_tag in r["tagName"]]
+              read_ok = True
           except Exception as exc:
-              print(f"[gate] could not read releases ({type(exc).__name__}) — treating as posted")
-              posted_today = True
+              print(f"[gate] could not read releases ({type(exc).__name__})")
+              tags_today = []
+              read_ok = False
+
+          def already_posted(series):
+              return any(t.startswith(f"rotating-{series}-") for t in tags_today)
 
           if force:
-              skip, reason = False, "force_run=true"
-          elif now.hour < p["hour"]:
-              skip, reason = True, f"too early ({now:%H:%M} < {p['hour']:02d}:00)"
-          elif posted_today:
-              skip, reason = True, "already posted today"
+              # Manual override: run whichever of today's slots hasn't posted yet
+              # (or slot A if the release list couldn't be read / both look posted).
+              remaining = [s for s in slots if read_ok and not already_posted(s["series"])]
+              pick, skip, reason = (remaining[0] if remaining else slots[0]), False, "force_run=true"
+          elif not read_ok:
+              pick, skip, reason = None, True, "could not read releases — failing closed"
           else:
-              skip, reason = False, f"{now:%H:%M} >= {p['hour']:02d}:00 and nothing posted today"
+              due = [s for s in slots if now.hour >= s["hour"] and not already_posted(s["series"])]
+              if due:
+                  pick = min(due, key=lambda s: s["hour"])
+                  skip, reason = False, f"slot {pick['slot']} due and not yet posted"
+              else:
+                  pending = [s for s in slots if not already_posted(s["series"])]
+                  pick = None
+                  if pending:
+                      next_hour = min(s["hour"] for s in pending)
+                      skip, reason = True, f"too early (now {now:%H:%M}, next due {next_hour:02d}:00)"
+                  else:
+                      skip, reason = True, "both of today's slots already posted"
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               f.write(f"skip={'true' if skip else 'false'}\n")
-              f.write(f"series={p['series']}\n")
-              f.write(f"target_hour={p['hour']}\n")
-              f.write(f"min_words={p['min_words']}\n")
-              f.write(f"max_words={p['max_words']}\n")
-              f.write(f"variant_seed={p['variant_seed']}\n")
+              if pick:
+                  f.write(f"series={pick['series']}\n")
+                  f.write(f"target_hour={pick['hour']}\n")
+                  f.write(f"min_words={pick['min_words']}\n")
+                  f.write(f"max_words={pick['max_words']}\n")
+                  f.write(f"variant_seed={pick['variant_seed']}\n")
 
-          print(f"[gate] today's profile: series={p['series']}, "
-                f"hour={p['hour']:02d}:00 UTC, words={p['min_words']}-{p['max_words']}")
-          print(f"[gate] {'SKIP' if skip else 'PROCEED'}: {reason}")
+          slot_desc = ", ".join(f"{s['slot']}={s['series']}@{s['hour']:02d}:00" for s in slots)
+          print(f"[gate] today's slots: {slot_desc}")
+          if skip:
+              print(f"[gate] SKIP: {reason}")
+          else:
+              print(f"[gate] PROCEED slot {pick['slot']} ({pick['series']}): {reason}")
           EOF
 
       - name: Install system deps (ffmpeg, fonts, espeak fallback)
@@ -208,7 +232,7 @@ jobs:
           SERIES="${{ steps.gate.outputs.series }}"
           TAG="rotating-${SERIES}-$(date -u +%Y%m%d-%H%M%S)"
           gh release create "$TAG" build/final.mp4 \
-            --title "$TAG" --notes "Automated rotating short (1/day, series=$SERIES)" --latest=false
+            --title "$TAG" --notes "Automated rotating short (2/day, series=$SERIES)" --latest=false
           URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/final.mp4"
           echo "video_url=$URL" >> "$GITHUB_OUTPUT"
           echo "Public video URL: $URL"
