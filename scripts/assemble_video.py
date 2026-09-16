@@ -408,10 +408,21 @@ def prepend_intro(intro, montage, out, xfade, intro_voice=None):
         f"[iv][mv]xfade=transition=fade:duration={xfade}:offset={voffset:.3f}[v]"
     )
     if intro_voice:
-        # intro VO starts ~0.3s in (over the globe), montage audio delayed to the intro end
+        # intro VO starts ~0.3s in (over the globe). The montage's audio (voice +
+        # music) must wait until that line actually finishes speaking -- NOT
+        # until `voffset` (a video-crossfade timing constant with no relation to
+        # how long "Watch the world turn, it lands on X" happens to take for
+        # this country's name). Anchoring to voffset left an audible dead-air
+        # gap whenever the spoken line finished early (measured: ~700ms of
+        # silence on a real render, right where voffset fell after the intro
+        # line had already ended) -- or would instead talk over/cut off the
+        # line's tail on a country whose name makes it run long. Probing the
+        # actual rendered clip's duration fixes both directions at once.
+        iv_dur = ffprobe_duration(intro_voice)
+        voice_delay_ms = 300 + int(iv_dur * 1000) + 150  # small breath after the line ends
         afc = (
             f"[2:a]adelay=300|300,loudnorm=I=-16:TP=-1.5:LRA=11[iva];"
-            f"[1:a]adelay={delay_ms}|{delay_ms}[mva];"
+            f"[1:a]adelay={voice_delay_ms}|{voice_delay_ms}[mva];"
             f"[iva][mva]amix=inputs=2:duration=longest:normalize=0[a]"
         )
     else:
