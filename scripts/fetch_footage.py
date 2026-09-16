@@ -105,6 +105,36 @@ def _rotate(seq, key=0):
     return seq[(day + key) % len(seq)]
 
 
+# random.choice picks from the top N by relevance, not the full ~40-result
+# page. Measured against real queries: relevance degrades hard down the list
+# (up to 80% of a full page can fail to even mention the query's subject --
+# "Peru Machu Picchu ruins" returned "historic French village" in its top 12),
+# so a uniform-random pick across the whole page let a totally unrelated clip
+# win about as often as a relevant one.
+RESULT_POOL_SIZE = 8
+
+
+def _is_flag_asset(text):
+    """A clip whose own tags/slug are dominated by 'flag' is a flag graphic,
+    not real footage of the place -- fine as an absolute last resort, never as
+    the everyday result. A country with thin stock coverage (e.g. its only
+    tagged asset being a flag-waving clip) should fall through to a different
+    source, or ultimately the generated-animation fallback, rather than the
+    flag winning most of a video's segments (observed: 6 of 13 sampled frames
+    in a real posted Eswatini video)."""
+    return bool(re.search(r"\bflags?\b", (text or "").lower()))
+
+
+def _curate_pool(items, get_text):
+    """Narrow a relevance-ordered result list to a safe pool for random.choice:
+    drop flag-only assets, then keep only the top RESULT_POOL_SIZE. A source
+    whose only match for this query is a flag asset gets [] here, which the
+    caller treats as "found nothing" -- letting fetch_one_piece's source
+    cascade continue instead of settling for the flag."""
+    non_flag = [it for it in items if not _is_flag_asset(get_text(it))]
+    return non_flag[:RESULT_POOL_SIZE]
+
+
 # --------------------------------------------------------------------------- Pexels
 def _pexels_search(key, q, want_portrait):
     params = {
@@ -143,8 +173,13 @@ def fetch_pexels(query, dest, want_portrait, min_height, country_name=None, requ
         elif require_match:
             return None
 
-    # pick a RANDOM clip from the results so repeated runs don't reuse the same video
-    video = random.choice(videos)
+    # pick a RANDOM clip from a curated pool (top-N, flag assets excluded) so
+    # repeated runs don't reuse the same video, without the pick landing on
+    # something irrelevant or a repeated flag graphic
+    pool = _curate_pool(videos, lambda v: v.get("url", ""))
+    if not pool:
+        return None
+    video = random.choice(pool)
 
     # pick the highest-resolution portrait-ish .mp4 file for this video
     files = [f for f in video.get("video_files", [])
@@ -210,7 +245,10 @@ def fetch_pixabay(query, dest, min_height, country_name=None, require_match=Fals
         elif require_match:
             return None
 
-    hit = random.choice(hits)
+    pool = _curate_pool(hits, lambda h: h.get("tags", ""))
+    if not pool:
+        return None
+    hit = random.choice(pool)
 
     # Pixabay gives named renditions; prefer the largest that still meets min_height.
     renditions = hit.get("videos", {})
@@ -234,6 +272,11 @@ def fetch_pixabay(query, dest, min_height, country_name=None, require_match=Fals
         "resolution": f"{chosen.get('width')}x{chosen.get('height')}",
         "license": "Pixabay Content License (free use)",
         "country_verified": verified,
+        # Pixabay's real keyword tags -- the strongest subject signal any source
+        # here exposes. Passed through so callers can check WHAT a clip depicts,
+        # not just which country it's from (see render_geography_map.py's
+        # _depicts_feature). Other consumers ignore the extra key.
+        "tags": hit.get("tags", ""),
     }
 
 
@@ -267,7 +310,10 @@ def fetch_pexels_photo(query, dest, want_portrait, min_height, country_name=None
         elif require_match:
             return None
 
-    photo = random.choice(photos)
+    pool = _curate_pool(photos, lambda p: p.get("url", ""))
+    if not pool:
+        return None
+    photo = random.choice(pool)
     src = photo.get("src", {})
     url = src.get("portrait") or src.get("large2x") or src.get("original")
     if not url:
@@ -311,7 +357,10 @@ def fetch_pixabay_photo(query, dest, min_height, country_name=None, require_matc
         elif require_match:
             return None
 
-    hit = random.choice(hits)
+    pool = _curate_pool(hits, lambda h: h.get("tags", ""))
+    if not pool:
+        return None
+    hit = random.choice(pool)
     url = hit.get("largeImageURL") or hit.get("webformatURL")
     if not url:
         return None

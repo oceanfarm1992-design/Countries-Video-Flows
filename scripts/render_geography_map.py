@@ -19,7 +19,12 @@ reproduces perfect continuity for free. See the plan doc for the full writeup.
 
 segments[].visual is repurposed here (same key, same schema) to hold the
 on-screen map label text for that beat (e.g. "Himalayas") instead of a stock
-search query, since no stock search happens for this series.
+search query. For up to MAX_CUTAWAYS segments whose label names a concrete
+filmable feature (a river, sea, mountain range, forest, ...), it IS also used
+as a stock search query: fetch_footage.py's own search/verification machinery
+fetches a brief real clip of that feature, shown in place of the map for that
+beat before returning to the map -- the "reality check" texture the reference
+channels use, capped so the map stays the series' dominant visual identity.
 
 Requires: Pillow (composite/crop), ffmpeg (zoompan camera path + slicing).
 
@@ -35,11 +40,13 @@ import argparse
 import json
 import math
 import os
+import re
 import shutil
 import subprocess
 
 from PIL import Image, ImageDraw, ImageFilter
 
+from fetch_footage import fetch_pexels, fetch_pixabay
 from pipeline_common import segment_durations
 
 # ---------------------------------------------------------------------------
@@ -234,10 +241,17 @@ def render_camera_path(source_png, out_mp4, duration_s, zoom_ratio, fps=30):
         raise RuntimeError(f"ffmpeg camera-path render failed:\n{result.stderr[-2000:]}")
 
 
-def slice_segments(camera_mp4, segments, durs, out_dir):
-    """Cut the one continuous camera-path video into len(segments) sequential
-    files, each starting at its own t=0 (see module docstring for why this
-    matters), burning that beat's map-label text onto its slice.
+def slice_segments(camera_mp4, segments, durs, indices, out_dir):
+    """Cut the one continuous camera-path video into sequential files, one per
+    index in `indices` (in order), each starting at its own t=0 (see module
+    docstring for why this matters), burning that beat's map-label text onto
+    its slice.
+
+    `indices` is the subset of segment positions actually rendered onto this
+    camera path -- segments handled instead by a real-footage cutaway
+    (fetch_cutaway_clips) are excluded, and the cursor only advances for
+    indices in this list, so the pan stays continuous across the map segments
+    even though their positions in the final clip list aren't contiguous.
 
     Each slice is cut SLICE_PAD_S longer than the duration assemble_video.py
     will ask for, but the read cursor still advances by the UNPADDED duration —
@@ -245,10 +259,13 @@ def slice_segments(camera_mp4, segments, durs, out_dir):
     trimmed away, never shown. Without that pad, a slice even a single frame
     short of what assemble requests gets looped back to its own start by
     `-stream_loop -1`, which reads on screen as the camera snapping backwards
-    at the end of every segment."""
-    clip_paths = []
+    at the end of every segment.
+
+    Returns {index: path}."""
+    clip_paths = {}
     cursor = 0.0
-    for i, (seg, dur) in enumerate(zip(segments, durs)):
+    for i in indices:
+        seg, dur = segments[i], durs[i]
         label = (seg.get("visual") or "").strip()
         out_path = os.path.join(out_dir, f"footage_clip{i}.mp4")
         vf_parts = ["setpts=PTS-STARTPTS"]
@@ -270,9 +287,176 @@ def slice_segments(camera_mp4, segments, durs, out_dir):
         result = subprocess.run(cmd, capture_output=True, text=True)
         if result.returncode != 0:
             raise RuntimeError(f"ffmpeg slice {i} failed:\n{result.stderr[-2000:]}")
-        clip_paths.append(out_path)
+        clip_paths[i] = out_path
         cursor += dur  # unpadded: keeps the camera path continuous across cuts
     return clip_paths
+
+
+# ---------------------------------------------------------------------------
+# Footage cutaways -- real stock clips for named physical features
+# ---------------------------------------------------------------------------
+
+# A pure map for the whole runtime reads as static once the zoom settles. When
+# a beat names a concrete, filmable feature (a specific river, sea, mountain
+# range, forest, ...) rather than the country in general, briefly cutting to
+# real footage of it -- then returning to the map -- is the "reality check"
+# texture the reference channels use. Capped at MAX_CUTAWAYS so the map stays
+# the series' dominant visual identity rather than becoming a stock-footage
+# montage with map interludes.
+FEATURE_KEYWORDS = (
+    "river", "sea", "ocean", "mount", "mountain", "mountains", "range", "alps",
+    "forest", "jungle", "rainforest", "desert", "valley", "peninsula",
+    "coast", "coastline", "bay", "gulf", "lake", "waterfall", "glacier",
+    "volcano", "plain", "plains", "plateau", "delta", "canyon", "cape",
+    "island", "islands", "strait", "fjord", "cliff", "cliffs", "wetland",
+    "swamp", "marsh", "savanna", "savannah", "tundra", "steppe", "dune",
+    "dunes", "reef", "lagoon",
+)
+MAX_CUTAWAYS = 3
+
+
+def _is_filmable_feature(visual, country_name):
+    """A segment's map-label is worth cutting away to real footage for if it
+    names a concrete physical feature rather than the country itself (the safe
+    default for general beats) or some other non-geographic label."""
+    visual = (visual or "").strip()
+    if not visual or visual.lower() == (country_name or "").strip().lower():
+        return False
+    v = visual.lower()
+    return any(kw in v for kw in FEATURE_KEYWORDS)
+
+
+# Category hints appended to a cutaway's search query, keyed by the feature
+# word that matched. Bare feature names drift badly on stock search -- "Japan
+# Sea" came back a Tokyo shopping street, which is exactly the
+# narration-doesn't-match-footage problem this whole series was built to
+# avoid. The hint pins the search to the right KIND of subject.
+FEATURE_QUERY_HINTS = (
+    (("sea", "ocean", "bay", "gulf", "strait", "lagoon", "reef"), "coast water aerial"),
+    (("river", "delta", "waterfall"), "water flowing nature"),
+    (("mount", "mountain", "mountains", "range", "alps", "volcano", "cliff", "cliffs"),
+     "landscape nature"),
+    (("forest", "jungle", "rainforest"), "trees nature"),
+    (("desert", "dune", "dunes"), "sand landscape"),
+    (("lake",), "water landscape"),
+    (("island", "islands", "peninsula", "cape", "fjord", "coast", "coastline"),
+     "coast aerial landscape"),
+    (("glacier", "tundra"), "ice landscape"),
+    (("valley", "canyon", "plateau", "plain", "plains", "steppe",
+      "savanna", "savannah", "swamp", "marsh", "wetland"), "landscape nature"),
+)
+
+
+def _matched_feature_words(visual):
+    """The FEATURE_KEYWORDS actually present in this label, longest first (so
+    'mountains' is preferred over its own 'mount' prefix when verifying)."""
+    v = (visual or "").lower()
+    return sorted((kw for kw in FEATURE_KEYWORDS if kw in v), key=len, reverse=True)
+
+
+def _cutaway_query(visual, country_name):
+    """Build the stock-search query for a feature label.
+
+    Drops a redundant country prefix -- "Japan" + "Japan Sea" searched as
+    "Japan Japan Sea", which is what let generic Japan city footage win over
+    anything actually maritime -- and appends a category hint so the search
+    lands on the right kind of subject."""
+    label = (visual or "").strip()
+    hint = ""
+    for words, h in FEATURE_QUERY_HINTS:
+        if any(w in label.lower() for w in words):
+            hint = h
+            break
+    country = (country_name or "").strip()
+    if country and country.lower() in label.lower():
+        # the label already carries the geographic anchor
+        return f"{label} {hint}".strip(), None
+    return f"{label} {hint}".strip(), (country or None)
+
+
+def _depicts_feature(info, visual):
+    """Does the clip's own metadata mention the feature it's standing in for?
+
+    Country verification alone is NOT enough -- a Tokyo street clip passes
+    "is this Japan?" while being a category error under narration about a
+    sea. Pexels videos expose a descriptive URL slug and Pixabay exposes real
+    keyword tags, both carried through in the returned attribution/source_url,
+    so require the feature word to appear in one of them. Anything that can't
+    be confirmed is rejected in favour of staying on the map, which is always
+    correct."""
+    # Only the RESULT's own metadata -- never the query we sent, which would
+    # match itself and make this check vacuous.
+    haystack = " ".join(str(info.get(k, "")) for k in
+                        ("tags", "attribution", "source_url")).lower()
+    haystack = re.sub(r"[^a-z0-9]+", " ", haystack)
+    # Whole-word (plus simple plural) so "season" can't satisfy "sea".
+    # Erring strict is right here: a false rejection costs one map segment,
+    # a false acceptance costs the credibility this series exists to protect.
+    return any(re.search(rf"\b{re.escape(w)}s?\b", haystack)
+               for w in _matched_feature_words(visual))
+
+
+def fetch_cutaway_clips(segments, country_name, cfg, out_dir):
+    """Fetch real stock VIDEO for up to MAX_CUTAWAYS segments whose map-label
+    names a filmable feature, reusing fetch_footage.py's own search functions.
+
+    Video sources only, deliberately: Pexels videos carry a descriptive URL
+    slug and Pixabay carries keyword tags, so both can be checked against the
+    feature being claimed (_depicts_feature). Pexels PHOTOS expose neither, so
+    a wrong subject there is unverifiable -- and an unverifiable cutaway is
+    worse than no cutaway, since the map is always a correct visual. archive
+    and animate are excluded for the same reason (no subject signal / not a
+    real place).
+
+    Returns {index: info_dict} for segments that found footage that actually
+    depicts the named feature; info_dict carries "path" (basename in out_dir).
+    Every OTHER index -- attempted-and-rejected included -- stays a map
+    segment, which is the caller's job to handle."""
+    fcfg = cfg.get("footage", {})
+    want_portrait = fcfg.get("orientation", "portrait") == "portrait"
+    min_height = fcfg.get("min_height", 720)
+
+    candidates = [i for i, seg in enumerate(segments)
+                  if _is_filmable_feature(seg.get("visual"), country_name)][:MAX_CUTAWAYS]
+
+    found = {}
+    for i in candidates:
+        visual = segments[i]["visual"].strip()
+        query, anchor = _cutaway_query(visual, country_name)
+        dest = os.path.join(out_dir, f"footage_clip{i}.mp4")
+        info = None
+        for source in ("pexels", "pixabay"):
+            try:
+                if source == "pexels":
+                    info = fetch_pexels(query, dest, want_portrait, min_height, anchor)
+                else:
+                    info = fetch_pixabay(query, dest, min_height, anchor)
+            except Exception as exc:  # noqa: BLE001 -- try the next source
+                print(f"[render_geography_map] {source} cutaway {visual!r} failed: {exc}")
+                info = None
+            if info and os.path.exists(dest) and os.path.getsize(dest) > 0:
+                if _depicts_feature(info, visual):
+                    break
+                print(f"[render_geography_map] cutaway {visual!r}: {source} result "
+                      f"doesn't depict the feature -- rejected")
+            info = None
+        if info:
+            info = dict(info)
+            info["type"] = "video"
+            info["query"] = visual
+            info["path"] = os.path.basename(dest)
+            found[i] = info
+            verified = " (country-verified)" if info.get("country_verified") else ""
+            print(f"[render_geography_map] cutaway: segment {i} ({visual!r}) -> "
+                  f"{info['source']}{verified}")
+        else:
+            # nothing trustworthy found -- stays a map segment; make sure a
+            # rejected download doesn't linger where a map slice will be written
+            if os.path.exists(dest):
+                os.remove(dest)
+            print(f"[render_geography_map] cutaway: segment {i} ({visual!r}) -> "
+                  f"no verifiable footage, staying on the map")
+    return found
 
 
 # ---------------------------------------------------------------------------
@@ -370,30 +554,42 @@ def main():
     duration, dur_source = resolve_duration(script, cfg["video"], args.audio)
     print(f"[render_geography_map] duration {duration:.2f}s (from {dur_source})")
 
-    camera_mp4 = os.path.join(args.out, "_geo_camera_full.mp4")
-    # Render SLICE_PAD_S extra so the final slice's surplus tail has material.
-    render_camera_path(source_png, camera_mp4, duration + SLICE_PAD_S, zoom_ratio)
-
     segments = script.get("segments") or []
     if not segments:
         raise SystemExit(f"{args.script} has no segments -- nothing to slice")
     durs = segment_durations(script, duration)
 
-    print(f"[render_geography_map] slicing into {len(segments)} segment clips ...")
-    clip_paths = slice_segments(camera_mp4, segments, durs, args.out)
+    country_name = script.get("name", "")
+    cutaways = fetch_cutaway_clips(segments, country_name, cfg, args.out)
+    map_indices = [i for i in range(len(segments)) if i not in cutaways]
+
+    clip_paths = {}
+    camera_mp4 = os.path.join(args.out, "_geo_camera_full.mp4")
+    if map_indices:
+        # Camera path only needs to span the MAP segments' own combined
+        # duration -- cutaway segments show real footage instead, so the pan
+        # doesn't need to "cover" that time within the rendered map video.
+        map_duration = sum(durs[i] for i in map_indices)
+        render_camera_path(source_png, camera_mp4, map_duration + SLICE_PAD_S, zoom_ratio)
+        print(f"[render_geography_map] slicing {len(map_indices)} map segment(s)"
+              f"{f', {len(cutaways)} cutaway(s) to real footage' if cutaways else ''} ...")
+        clip_paths = slice_segments(camera_mp4, segments, durs, map_indices, args.out)
 
     clips = []
-    for i, path in enumerate(clip_paths):
-        clips.append({
-            "source": "geography_map",
-            "query": segments[i].get("visual", ""),
-            "source_url": "",
-            "attribution": "Rendered map (Natural Earth boundaries, public domain)",
-            "resolution": "1080x1920",
-            "license": "Generated content -- original render",
-            "type": "video",
-            "path": os.path.basename(path),
-        })
+    for i in range(len(segments)):
+        if i in cutaways:
+            clips.append(cutaways[i])
+        else:
+            clips.append({
+                "source": "geography_map",
+                "query": segments[i].get("visual", ""),
+                "source_url": "",
+                "attribution": "Rendered map (Natural Earth boundaries, public domain)",
+                "resolution": "1080x1920",
+                "license": "Generated content -- original render",
+                "type": "video",
+                "path": os.path.basename(clip_paths[i]),
+            })
     manifest = {
         "clip_count": len(clips),
         "clips": clips,

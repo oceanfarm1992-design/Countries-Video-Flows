@@ -166,6 +166,9 @@ jobs:
       # looping that slice back to its start (visible camera snap-back).
       - name: Render geography map footage
         if: steps.gate.outputs.skip == 'false' && steps.gate.outputs.series == 'geography'
+        env:
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
         run: python scripts/render_geography_map.py --config config/countries.json
 
       - name: Generate captions
