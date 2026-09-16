@@ -32,6 +32,7 @@ Usage:
 import argparse
 import json
 import os
+import re
 import subprocess
 import sys
 
@@ -63,6 +64,28 @@ VOICE_PATHS = {
 }
 
 HEADERS = {"User-Agent": "yt-shorts-generator/1.0"}
+
+# StyleTTS2's phonemizer (gruut) mis-parses these specific country names as
+# compound words and stamps TWO primary stresses into one word (e.g. Myanmar ->
+# /mjˈɑnmˈɑɹ/ instead of one stressed syllable) -- audibly a broken mid-word
+# pause/"double emphasis", not a natural pronunciation. Confirmed by scanning
+# all 195 country names in config/countries.json through gruut directly and
+# checking for 2+ primary-stress markers within a single (non-hyphenated) word;
+# these 4 were the only hits. Applied ONLY to the TTS input text -- captions,
+# titles, and hooks keep the correctly-spelled country name; only what the
+# speech engine hears changes. Word-boundary-matched, case-sensitive.
+PRONUNCIATION_FIXUPS = {
+    "Myanmar": "Myanmahr",
+    "Luxembourg": "Luxemborg",
+    "Taiwan": "Tiwan",
+    "Kiribati": "Kiribas",
+}
+
+
+def apply_pronunciation_fixups(text):
+    for wrong, fixed in PRONUNCIATION_FIXUPS.items():
+        text = re.sub(rf"\b{re.escape(wrong)}\b", fixed, text)
+    return text
 
 
 # --------------------------------------------------------------------------- OpenAI
@@ -281,7 +304,7 @@ def main():
                   kokoro_voice=kokoro_voice, kokoro_lang=kokoro_lang)
 
     # main narration
-    synth(text, args.out, **common)
+    synth(apply_pronunciation_fixups(text), args.out, **common)
 
     # intro announcement (best-effort; a failure here shouldn't break the run)
     if args.intro_json and os.path.exists(args.intro_json):
@@ -292,7 +315,7 @@ def main():
             intro_line = ""
         if intro_line:
             try:
-                synth(intro_line, args.intro_out, **common)
+                synth(apply_pronunciation_fixups(intro_line), args.intro_out, **common)
             except SystemExit as exc:
                 print(f"[generate_tts] intro line TTS failed: {exc}", file=sys.stderr)
 
