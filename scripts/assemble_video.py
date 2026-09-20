@@ -125,6 +125,30 @@ def ffprobe_duration(path):
     return float(out.stdout.strip())
 
 
+def speech_end_time(path, full_duration, noise_db=-35, min_silence=0.2, eof_tolerance=0.15):
+    """Where the actual spoken audio in `path` ends, ignoring any trailing silence
+    the TTS engine padded the file with.
+
+    Short lines (e.g. the intro announcement) occasionally come back from the TTS
+    engines with several extra seconds of trailing silence baked into the wav —
+    the file's own duration then overstates how long the line actually takes to
+    say, which cascades into a dead-air gap wherever that duration drives a delay
+    (see prepend_intro). Detect it instead of trusting ffprobe_duration: if the
+    LAST silent stretch ffmpeg finds runs all the way to end-of-file, the line's
+    real speech ends where that stretch starts; otherwise (no trailing silence,
+    or the last gap is merely a mid-sentence pause) trust the full file length."""
+    proc = subprocess.run(
+        ["ffmpeg", "-i", path, "-af", f"silencedetect=noise={noise_db}dB:d={min_silence}",
+         "-f", "null", "-"],
+        capture_output=True, text=True,
+    )
+    starts = [float(m) for m in re.findall(r"silence_start:\s*([\d.]+)", proc.stderr)]
+    ends = [float(m) for m in re.findall(r"silence_end:\s*([\d.]+)", proc.stderr)]
+    if starts and ends and abs(ends[-1] - full_duration) <= eof_tolerance:
+        return starts[-1]
+    return full_duration
+
+
 def drawtext_escape(text):
     """Escape characters special to ffmpeg’s drawtext text= option.
 
@@ -300,7 +324,13 @@ def main():
     hook = script.get("hook", "STAY STRONG")
     cta = cfg.get("cta_text", "Follow for daily wisdom")
 
-    audio_dur = ffprobe_duration(args.audio)
+    # speech_end_time guards against the same TTS trailing-silence padding fixed in
+    # prepend_intro() below: if it ever hit the main narration (not just the short
+    # intro line), the raw file duration would overstate the voice length, inflating
+    # `duration` below and — since segment_durations() divides that total across every
+    # segment proportionally to word count — stretching every clip's on-screen time
+    # out of step with the words actually being spoken, not just at the start.
+    audio_dur = speech_end_time(args.audio, ffprobe_duration(args.audio))
     # Footage should track the voice exactly, so the total is the voice length (+ a small
     # tail so the last word/CTA has room to breathe), clamped to the configured bounds.
     duration = max(cfg["min_seconds"], min(audio_dur + 0.4, cfg["max_seconds"]))
@@ -418,7 +448,15 @@ def prepend_intro(intro, montage, out, xfade, intro_voice=None):
         # line had already ended) -- or would instead talk over/cut off the
         # line's tail on a country whose name makes it run long. Probing the
         # actual rendered clip's duration fixes both directions at once.
-        iv_dur = ffprobe_duration(intro_voice)
+        #
+        # Measured on real renders: intro lines (short, ~5-10 words) sometimes
+        # come back from the TTS engine with 3+ seconds of trailing silence
+        # baked into the wav. ffprobe_duration() would then report the file's
+        # full padded length as "how long the line takes to say", pushing the
+        # main narration's start out by that much extra dead air. Use the
+        # detected speech end instead, which ignores that padding.
+        raw_iv_dur = ffprobe_duration(intro_voice)
+        iv_dur = speech_end_time(intro_voice, raw_iv_dur)
         voice_delay_ms = 300 + int(iv_dur * 1000) + 150  # small breath after the line ends
         afc = (
             f"[2:a]adelay=300|300,loudnorm=I=-16:TP=-1.5:LRA=11[iva];"
