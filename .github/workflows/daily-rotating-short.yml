@@ -160,13 +160,15 @@ jobs:
             python scripts/generate_trending_script.py $COMMON_ARGS
           elif [ "$SERIES" = "geography" ]; then
             python scripts/generate_geography_script.py $COMMON_ARGS
+          elif [ "$SERIES" = "worlddata" ]; then
+            python scripts/generate_worlddata_script.py $COMMON_ARGS
           else
             echo "[generate] unknown series '$SERIES' — defaulting to country"
             python scripts/generate_country_script.py $COMMON_ARGS
           fi
 
       - name: Fetch footage (Pexels / Pixabay / animation)
-        if: steps.gate.outputs.skip == 'false' && steps.gate.outputs.series != 'geography'
+        if: steps.gate.outputs.skip == 'false' && steps.gate.outputs.series != 'geography' && steps.gate.outputs.series != 'worlddata'
         env:
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
           PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
@@ -194,6 +196,12 @@ jobs:
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
           PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
         run: python scripts/render_geography_map.py --config config/countries.json
+
+      # Same "after TTS" ordering requirement as geography's render step above —
+      # segment slice boundaries must match the real voice length.
+      - name: Render world data graphics
+        if: steps.gate.outputs.skip == 'false' && steps.gate.outputs.series == 'worlddata'
+        run: python scripts/render_worlddata_graphics.py --config config/countries.json
 
       - name: Generate captions
         if: steps.gate.outputs.skip == 'false'

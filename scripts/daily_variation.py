@@ -21,14 +21,17 @@ from datetime import date
 # Pipeline epoch — same reference date the generators already use for rotation.
 EPOCH = date(2026, 7, 23)
 
-# Each day posts TWO of the four series (slot A and slot B), from a 4-day table
+# Each day posts TWO of the five series (slot A and slot B), from a 5-day table
 # where every series appears exactly twice and never pairs with the same partner
 # twice in a row — so which two series post together isn't itself a fixed pattern.
+# This is a clean 5-cycle: country -> hook -> trending -> geography -> worlddata
+# -> back to country, each series pairing with its two neighbors in the cycle.
 DAILY_PAIRS = {
     0: ["country", "hook"],
-    1: ["trending", "geography"],
-    2: ["hook", "trending"],
-    3: ["geography", "country"],
+    1: ["hook", "trending"],
+    2: ["trending", "geography"],
+    3: ["geography", "worlddata"],
+    4: ["worlddata", "country"],
 }
 
 # Candidate UTC hours either slot's post may fire at. The gate workflow triggers
