@@ -36,7 +36,7 @@ import shutil
 import subprocess
 import sys
 
-from pipeline_common import segment_durations
+from pipeline_common import INTRO_XFADE_SECONDS, ffprobe_duration, segment_durations, speech_end_time
 
 def _find_font(candidates):
     """First existing path from candidates, or the first candidate (let ffmpeg error
@@ -114,41 +114,6 @@ def build_audio_filter(has_music, duration, music_vol, voice_idx=1, music_idx=2)
     )
 
 
-def ffprobe_duration(path):
-    out = subprocess.run(
-        ["ffprobe", "-v", "error", "-show_entries", "format=duration",
-         "-of", "default=nokey=1:noprint_wrappers=1", path],
-        capture_output=True, text=True,
-    )
-    if out.returncode != 0:
-        raise SystemExit(f"ffprobe failed on {path}: {out.stderr}")
-    return float(out.stdout.strip())
-
-
-def speech_end_time(path, full_duration, noise_db=-35, min_silence=0.2, eof_tolerance=0.15):
-    """Where the actual spoken audio in `path` ends, ignoring any trailing silence
-    the TTS engine padded the file with.
-
-    Short lines (e.g. the intro announcement) occasionally come back from the TTS
-    engines with several extra seconds of trailing silence baked into the wav —
-    the file's own duration then overstates how long the line actually takes to
-    say, which cascades into a dead-air gap wherever that duration drives a delay
-    (see prepend_intro). Detect it instead of trusting ffprobe_duration: if the
-    LAST silent stretch ffmpeg finds runs all the way to end-of-file, the line's
-    real speech ends where that stretch starts; otherwise (no trailing silence,
-    or the last gap is merely a mid-sentence pause) trust the full file length."""
-    proc = subprocess.run(
-        ["ffmpeg", "-i", path, "-af", f"silencedetect=noise={noise_db}dB:d={min_silence}",
-         "-f", "null", "-"],
-        capture_output=True, text=True,
-    )
-    starts = [float(m) for m in re.findall(r"silence_start:\s*([\d.]+)", proc.stderr)]
-    ends = [float(m) for m in re.findall(r"silence_end:\s*([\d.]+)", proc.stderr)]
-    if starts and ends and abs(ends[-1] - full_duration) <= eof_tolerance:
-        return starts[-1]
-    return full_duration
-
-
 def drawtext_escape(text):
     """Escape characters special to ffmpeg’s drawtext text= option.
 
@@ -166,10 +131,13 @@ def drawtext_escape(text):
 def wrap_drawtext(text, max_chars=30):
     """Wrap `text` at word boundaries so it fits within the frame width.
 
-    Returns a drawtext-safe string where each line is individually escaped and lines
-    are separated by \\n (the two characters backslash-n), which ffmpeg drawtext
-    interprets as a newline. Escaping each line separately ensures the backslash from
-    drawtext_escape is not later confused with the \\n line-break marker."""
+    Returns a drawtext-safe string where each line is individually escaped and
+    lines are joined with an actual newline character (not the two-character
+    "\\n" escape — confirmed on a real render that ffmpeg's filtergraph parser
+    silently drops the backslash and leaves a bare "n" instead of breaking the
+    line, e.g. "...TALEnOF CONTRASTS" instead of two lines). Escaping each line
+    separately, before joining, keeps the backslash from drawtext_escape from
+    ever being adjacent to the newline byte."""
     words = text.split()
     lines, current, count = [], [], 0
     for w in words:
@@ -182,7 +150,7 @@ def wrap_drawtext(text, max_chars=30):
             count += space + len(w)
     if current:
         lines.append(" ".join(current))
-    return r"\n".join(drawtext_escape(line) for line in lines)
+    return "\n".join(drawtext_escape(line) for line in lines)
 
 
 def fontfile_escape(path):
@@ -312,8 +280,11 @@ def main():
     ap.add_argument("--intro", default="build/intro.mp4",
                     help="Optional globe-zoom intro to crossfade in front of the montage. "
                          "Ignored if the file doesn't exist.")
-    ap.add_argument("--intro-xfade", type=float, default=0.8,
-                    help="Crossfade duration (s) between the intro and the montage.")
+    ap.add_argument("--intro-xfade", type=float, default=INTRO_XFADE_SECONDS,
+                    help="Crossfade duration (s) between the intro and the montage. "
+                         "Must match generate_intro.py's own assumption (same shared "
+                         "constant) or the video crossfade and the audio handoff drift "
+                         "out of sync with each other.")
     args = ap.parse_args()
 
     with open(args.script, encoding="utf-8") as f:
@@ -467,7 +438,10 @@ def prepend_intro(intro, montage, out, xfade, intro_voice=None):
         # entirely: pad both branches to the SAME explicit length up front with
         # apad, so amix is mixing two already-equal-length streams and never has
         # to infer or guess a duration for either one.
-        total_dur = max(0.3 + raw_iv_dur, voice_delay_ms / 1000 + montage_dur) + 0.1
+        video_end = voffset + montage_dur
+        audio_end = voice_delay_ms / 1000 + montage_dur
+        iva_end = 0.3 + raw_iv_dur
+        total_dur = max(video_end, audio_end, iva_end) + 0.1
         afc = (
             f"[2:a]adelay=300|300,loudnorm=I=-16:TP=-1.5:LRA=11,"
             f"apad=whole_dur={total_dur:.3f}[iva];"
