@@ -36,7 +36,7 @@ import shutil
 import subprocess
 import sys
 
-from pipeline_common import segment_durations
+from pipeline_common import INTRO_XFADE_SECONDS, ffprobe_duration, segment_durations, speech_end_time
 
 def _find_font(candidates):
     """First existing path from candidates, or the first candidate (let ffmpeg error
@@ -114,17 +114,6 @@ def build_audio_filter(has_music, duration, music_vol, voice_idx=1, music_idx=2)
     )
 
 
-def ffprobe_duration(path):
-    out = subprocess.run(
-        ["ffprobe", "-v", "error", "-show_entries", "format=duration",
-         "-of", "default=nokey=1:noprint_wrappers=1", path],
-        capture_output=True, text=True,
-    )
-    if out.returncode != 0:
-        raise SystemExit(f"ffprobe failed on {path}: {out.stderr}")
-    return float(out.stdout.strip())
-
-
 def drawtext_escape(text):
     """Escape characters special to ffmpeg’s drawtext text= option.
 
@@ -142,10 +131,13 @@ def drawtext_escape(text):
 def wrap_drawtext(text, max_chars=30):
     """Wrap `text` at word boundaries so it fits within the frame width.
 
-    Returns a drawtext-safe string where each line is individually escaped and lines
-    are separated by \\n (the two characters backslash-n), which ffmpeg drawtext
-    interprets as a newline. Escaping each line separately ensures the backslash from
-    drawtext_escape is not later confused with the \\n line-break marker."""
+    Returns a drawtext-safe string where each line is individually escaped and
+    lines are joined with an actual newline character (not the two-character
+    "\\n" escape — confirmed on a real render that ffmpeg's filtergraph parser
+    silently drops the backslash and leaves a bare "n" instead of breaking the
+    line, e.g. "...TALEnOF CONTRASTS" instead of two lines). Escaping each line
+    separately, before joining, keeps the backslash from drawtext_escape from
+    ever being adjacent to the newline byte."""
     words = text.split()
     lines, current, count = [], [], 0
     for w in words:
@@ -158,7 +150,7 @@ def wrap_drawtext(text, max_chars=30):
             count += space + len(w)
     if current:
         lines.append(" ".join(current))
-    return r"\n".join(drawtext_escape(line) for line in lines)
+    return "\n".join(drawtext_escape(line) for line in lines)
 
 
 def fontfile_escape(path):
@@ -288,8 +280,11 @@ def main():
     ap.add_argument("--intro", default="build/intro.mp4",
                     help="Optional globe-zoom intro to crossfade in front of the montage. "
                          "Ignored if the file doesn't exist.")
-    ap.add_argument("--intro-xfade", type=float, default=0.8,
-                    help="Crossfade duration (s) between the intro and the montage.")
+    ap.add_argument("--intro-xfade", type=float, default=INTRO_XFADE_SECONDS,
+                    help="Crossfade duration (s) between the intro and the montage. "
+                         "Must match generate_intro.py's own assumption (same shared "
+                         "constant) or the video crossfade and the audio handoff drift "
+                         "out of sync with each other.")
     args = ap.parse_args()
 
     with open(args.script, encoding="utf-8") as f:
@@ -300,7 +295,13 @@ def main():
     hook = script.get("hook", "STAY STRONG")
     cta = cfg.get("cta_text", "Follow for daily wisdom")
 
-    audio_dur = ffprobe_duration(args.audio)
+    # speech_end_time guards against the same TTS trailing-silence padding fixed in
+    # prepend_intro() below: if it ever hit the main narration (not just the short
+    # intro line), the raw file duration would overstate the voice length, inflating
+    # `duration` below and — since segment_durations() divides that total across every
+    # segment proportionally to word count — stretching every clip's on-screen time
+    # out of step with the words actually being spoken, not just at the start.
+    audio_dur = speech_end_time(args.audio, ffprobe_duration(args.audio))
     # Footage should track the voice exactly, so the total is the voice length (+ a small
     # tail so the last word/CTA has room to breathe), clamped to the configured bounds.
     duration = max(cfg["min_seconds"], min(audio_dur + 0.4, cfg["max_seconds"]))
@@ -391,6 +392,7 @@ def prepend_intro(intro, montage, out, xfade, intro_voice=None):
     main voice starts once the intro finishes; if an intro voiceover is given ("Today we
     travel to X"), it plays over the globe so the opening isn't silent."""
     intro_dur = ffprobe_duration(intro)
+    montage_dur = ffprobe_duration(montage)
     voffset = max(0.0, intro_dur - xfade)     # when the video crossfade begins
     # Align voice with the moment the montage video starts showing (= voffset),
     # NOT with intro_dur. Using intro_dur caused the captions (burned into the
@@ -418,19 +420,43 @@ def prepend_intro(intro, montage, out, xfade, intro_voice=None):
         # line had already ended) -- or would instead talk over/cut off the
         # line's tail on a country whose name makes it run long. Probing the
         # actual rendered clip's duration fixes both directions at once.
-        iv_dur = ffprobe_duration(intro_voice)
+        #
+        # Measured on real renders: intro lines (short, ~5-10 words) sometimes
+        # come back from the TTS engine with 3+ seconds of trailing silence
+        # baked into the wav. ffprobe_duration() would then report the file's
+        # full padded length as "how long the line takes to say", pushing the
+        # main narration's start out by that much extra dead air. Use the
+        # detected speech end instead, which ignores that padding.
+        raw_iv_dur = ffprobe_duration(intro_voice)
+        iv_dur = speech_end_time(intro_voice, raw_iv_dur)
         voice_delay_ms = 300 + int(iv_dur * 1000) + 150  # small breath after the line ends
+        # amix's duration=longest infers each input's length from when it actually
+        # runs dry, and pads/drops out with its own (version-dependent) transition
+        # logic -- observed on the CI runner's ffmpeg (6.1.1) to cut [iva] off
+        # early instead of letting it play to raw_iv_dur, an amix behavior this
+        # codebase's local dev ffmpeg (9.0) did not reproduce. Sidestep that
+        # entirely: pad both branches to the SAME explicit length up front with
+        # apad, so amix is mixing two already-equal-length streams and never has
+        # to infer or guess a duration for either one.
+        video_end = voffset + montage_dur
+        audio_end = voice_delay_ms / 1000 + montage_dur
+        iva_end = 0.3 + raw_iv_dur
+        total_dur = max(video_end, audio_end, iva_end) + 0.1
         afc = (
-            f"[2:a]adelay=300|300,loudnorm=I=-16:TP=-1.5:LRA=11[iva];"
-            f"[1:a]adelay={voice_delay_ms}|{voice_delay_ms}[mva];"
+            f"[2:a]adelay=300|300,loudnorm=I=-16:TP=-1.5:LRA=11,"
+            f"apad=whole_dur={total_dur:.3f}[iva];"
+            f"[1:a]adelay={voice_delay_ms}|{voice_delay_ms},"
+            f"apad=whole_dur={total_dur:.3f}[mva];"
             f"[iva][mva]amix=inputs=2:duration=longest:normalize=0[a]"
         )
     else:
-        afc = f"[1:a]adelay={delay_ms}|{delay_ms}[a]"
+        total_dur = delay_ms / 1000 + montage_dur
+        afc = f"[1:a]adelay={delay_ms}|{delay_ms},apad=whole_dur={total_dur:.3f}[a]"
 
     cmd = [
         "ffmpeg", "-y", *inputs,
         "-filter_complex", vfc + ";" + afc, "-map", "[v]", "-map", "[a]",
+        "-t", f"{total_dur:.3f}",
         "-c:v", "libx264", "-preset", "medium", "-crf", "20",
         "-pix_fmt", "yuv420p", "-r", "30",
         "-c:a", "aac", "-b:a", "128k", "-ar", "44100",
