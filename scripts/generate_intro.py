@@ -31,7 +31,14 @@ import sys
 
 import requests
 
+from pipeline_common import INTRO_XFADE_SECONDS, ffprobe_duration, speech_end_time
+
 HEADERS = {"User-Agent": "yt-shorts-generator/1.0"}
+
+# Floor so a very short intro line (e.g. a one-syllable country name) still gets
+# a legible globe rotation before the pin/flag drop-in and the crossfade — see
+# pin_show below, which assumes at least ~1.2s of runway before it appears.
+MIN_INTRO_SECONDS = 1.8
 
 
 def _find_font(candidates):
@@ -83,7 +90,10 @@ def _name_fontsize(name):
 
 def wrap_drawtext(text, max_chars):
     """Word-wrap `text` and return a drawtext-safe string.
-    Lines are joined with \\n (backslash-n), which ffmpeg drawtext renders as a newline."""
+    Lines are joined with an actual newline character — confirmed on a real render
+    that the two-character "\\n" escape gets its backslash silently dropped by
+    ffmpeg's filtergraph parser, leaving a bare "n" instead of a line break (see
+    the same fix and evidence in assemble_video.py's wrap_drawtext)."""
     words = text.split()
     lines, current, count = [], [], 0
     for w in words:
@@ -96,7 +106,7 @@ def wrap_drawtext(text, max_chars):
             count += space + len(w)
     if current:
         lines.append(" ".join(current))
-    return r"\n".join(drawtext_escape(line) for line in lines)
+    return "\n".join(drawtext_escape(line) for line in lines)
 
 
 def fetch_flag(iso2, dest):
@@ -153,7 +163,21 @@ def main():
     ap.add_argument("--flag", default=None, help="Local flag png (skips fetch).")
     ap.add_argument("--map", default="assets/map/bluemarble.jpg")
     ap.add_argument("--out", default="build/intro.mp4")
-    ap.add_argument("--duration", type=float, default=3.0)
+    ap.add_argument("--duration", type=float, default=3.0,
+                    help="Used only when --intro-voice doesn't exist. Otherwise the "
+                         "globe's length is derived from the intro voiceover's actual "
+                         "speech duration (see below) so the video crossfade lines up "
+                         "with when assemble_video.py starts the main narration.")
+    ap.add_argument("--intro-voice", default="build/intro_voice.wav",
+                    help="The rendered intro voiceover (generate_tts.py's --intro-out). "
+                         "When present, --duration is overridden to intro_speech_length + "
+                         "0.45s + --xfade, matching assemble_video.py's prepend_intro() "
+                         "voice_delay_ms exactly (0.3s lead-in + speech + 0.15s breath) so "
+                         "the two scripts' independently-computed timings can't diverge.")
+    ap.add_argument("--xfade", type=float, default=INTRO_XFADE_SECONDS,
+                    help="Must match assemble_video.py's --intro-xfade (same shared "
+                         "constant by default) — used here only to size the video so its "
+                         "crossfade point lands on the real speech-end time.")
     ap.add_argument("--fps", type=int, default=24)
     ap.add_argument("--config", default="config/countries.json")
     args = ap.parse_args()
@@ -162,6 +186,17 @@ def main():
         print(f"[generate_intro] map texture missing: {args.map} — skipping intro.",
               file=sys.stderr)
         sys.exit(0)  # optional stage; don't break the pipeline
+
+    if args.intro_voice and os.path.exists(args.intro_voice):
+        raw_iv_dur = ffprobe_duration(args.intro_voice)
+        iv_dur = speech_end_time(args.intro_voice, raw_iv_dur)
+        # Must equal assemble_video.py's voice_delay_ms/1000 minus xfade, since
+        # voffset = duration - xfade is what actually drives the video crossfade
+        # there. 0.3s lead-in + speech + 0.15s breath, same as voice_delay_ms.
+        args.duration = max(MIN_INTRO_SECONDS, iv_dur + 0.3 + 0.15 + args.xfade)
+        print(f"[generate_intro] intro voice speech ends at {iv_dur:.2f}s "
+              f"(raw file {raw_iv_dur:.2f}s) -> sizing globe intro to "
+              f"{args.duration:.2f}s so video and audio handoff align")
 
     width, height = 1080, 1920
     if os.path.exists(args.config):
