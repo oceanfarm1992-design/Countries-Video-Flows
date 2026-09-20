@@ -115,6 +115,20 @@ SERIES_COPY = {
             "Which part surprised you most? Comment below! 👇",
         ],
     },
+    "worlddata": {
+        "yt_emoji": "🚩",
+        "tt_suffix": "📊",
+        "subscribe_lines": [
+            "Subscribe for more flags and stats from around the world! 🌏",
+            "Follow for the numbers behind every country. 🌏",
+            "A new flag or stat every day — subscribe. 🌏",
+        ],
+        "fb_questions": [
+            "Did you know this stat? Let us know below! 👇",
+            "What does your flag mean? Tell us below! 👇",
+            "Guess this one right? Comment below! 👇",
+        ],
+    },
 }
 
 
