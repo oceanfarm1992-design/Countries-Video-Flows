@@ -421,6 +421,7 @@ def prepend_intro(intro, montage, out, xfade, intro_voice=None):
     main voice starts once the intro finishes; if an intro voiceover is given ("Today we
     travel to X"), it plays over the globe so the opening isn't silent."""
     intro_dur = ffprobe_duration(intro)
+    montage_dur = ffprobe_duration(montage)
     voffset = max(0.0, intro_dur - xfade)     # when the video crossfade begins
     # Align voice with the moment the montage video starts showing (= voffset),
     # NOT with intro_dur. Using intro_dur caused the captions (burned into the
@@ -458,17 +459,30 @@ def prepend_intro(intro, montage, out, xfade, intro_voice=None):
         raw_iv_dur = ffprobe_duration(intro_voice)
         iv_dur = speech_end_time(intro_voice, raw_iv_dur)
         voice_delay_ms = 300 + int(iv_dur * 1000) + 150  # small breath after the line ends
+        # amix's duration=longest infers each input's length from when it actually
+        # runs dry, and pads/drops out with its own (version-dependent) transition
+        # logic -- observed on the CI runner's ffmpeg (6.1.1) to cut [iva] off
+        # early instead of letting it play to raw_iv_dur, an amix behavior this
+        # codebase's local dev ffmpeg (9.0) did not reproduce. Sidestep that
+        # entirely: pad both branches to the SAME explicit length up front with
+        # apad, so amix is mixing two already-equal-length streams and never has
+        # to infer or guess a duration for either one.
+        total_dur = max(0.3 + raw_iv_dur, voice_delay_ms / 1000 + montage_dur) + 0.1
         afc = (
-            f"[2:a]adelay=300|300,loudnorm=I=-16:TP=-1.5:LRA=11[iva];"
-            f"[1:a]adelay={voice_delay_ms}|{voice_delay_ms}[mva];"
+            f"[2:a]adelay=300|300,loudnorm=I=-16:TP=-1.5:LRA=11,"
+            f"apad=whole_dur={total_dur:.3f}[iva];"
+            f"[1:a]adelay={voice_delay_ms}|{voice_delay_ms},"
+            f"apad=whole_dur={total_dur:.3f}[mva];"
             f"[iva][mva]amix=inputs=2:duration=longest:normalize=0[a]"
         )
     else:
-        afc = f"[1:a]adelay={delay_ms}|{delay_ms}[a]"
+        total_dur = delay_ms / 1000 + montage_dur
+        afc = f"[1:a]adelay={delay_ms}|{delay_ms},apad=whole_dur={total_dur:.3f}[a]"
 
     cmd = [
         "ffmpeg", "-y", *inputs,
         "-filter_complex", vfc + ";" + afc, "-map", "[v]", "-map", "[a]",
+        "-t", f"{total_dur:.3f}",
         "-c:v", "libx264", "-preset", "medium", "-crf", "20",
         "-pix_fmt", "yuv420p", "-r", "30",
         "-c:a", "aac", "-b:a", "128k", "-ar", "44100",
