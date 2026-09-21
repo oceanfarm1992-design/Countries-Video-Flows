@@ -180,11 +180,74 @@ def _get_styletts2_model():
     return _STYLETTS2_MODEL
 
 
+# StyleTTS2's text encoder is a BERT-style transformer with a hard 512-token
+# phoneme-sequence limit. A single long call can exceed that well before its
+# raw character count looks dangerous -- currency/percentage figures ("$1,362",
+# "94.7%") expand to far more phonemes than their character count suggests
+# (observed: a 55-word, ~350-character comparison-series narration -- dense
+# with those figures -- phonemized to 651 tokens and crashed with a tensor
+# size mismatch, silently falling back to the Kokoro voice instead of the
+# cloned one). Chunking below keeps every single call comfortably under the
+# limit for ANY narration style, not just number-heavy ones.
+MAX_CHARS_PER_STYLETTS2_CALL = 220
+
+
+def _split_for_styletts2(text):
+    """Split `text` into chunks safe for one StyleTTS2 call each, preferring
+    sentence boundaries (natural pause points); falls back to splitting an
+    unusually long single sentence on its clause commas."""
+    sentences = re.split(r"(?<=[.!?])\s+", text.strip())
+    chunks = []
+    for sent in sentences:
+        if not sent:
+            continue
+        if len(sent) <= MAX_CHARS_PER_STYLETTS2_CALL:
+            chunks.append(sent)
+            continue
+        parts = sent.split(", ")
+        current = ""
+        for i, part in enumerate(parts):
+            piece = part if i == 0 else ", " + part
+            if current and len(current) + len(piece) > MAX_CHARS_PER_STYLETTS2_CALL:
+                chunks.append(current)
+                current = part
+            else:
+                current += piece
+        if current:
+            chunks.append(current)
+    return chunks or [text]
+
+
 def run_styletts2(text, out_wav):
     ref_path = _fetch_voice_reference()
     model = _get_styletts2_model()
-    print("[generate_tts] calling StyleTTS2 (cloned voice) ...")
-    model.inference(text, target_voice_path=ref_path, output_wav_file=out_wav)
+    chunks = _split_for_styletts2(text)
+    print(f"[generate_tts] calling StyleTTS2 (cloned voice) -- {len(chunks)} chunk(s) ...")
+
+    if len(chunks) == 1:
+        model.inference(chunks[0], target_voice_path=ref_path, output_wav_file=out_wav)
+        return
+
+    import numpy as np
+    import soundfile as sf
+
+    tmp_dir = os.path.dirname(out_wav) or "."
+    pieces, sr = [], None
+    for i, chunk in enumerate(chunks):
+        tmp_wav = os.path.join(tmp_dir, f".styletts2_chunk{i}.wav")
+        model.inference(chunk, target_voice_path=ref_path, output_wav_file=tmp_wav)
+        audio, file_sr = sf.read(tmp_wav)
+        sr = sr or file_sr
+        pieces.append(audio)
+        os.remove(tmp_wav)
+
+    # A short gap between chunks -- they were split at sentence/clause
+    # boundaries, so this reads as a natural pause rather than a splice.
+    gap = np.zeros(int(0.25 * sr), dtype=pieces[0].dtype)
+    combined = pieces[0]
+    for p in pieces[1:]:
+        combined = np.concatenate([combined, gap, p])
+    sf.write(out_wav, combined, sr)
 
 
 # ----------------------------------------------------------------------------- Piper
