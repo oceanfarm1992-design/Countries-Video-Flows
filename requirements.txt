@@ -34,7 +34,7 @@ PyNaCl>=1.6.2
 # Geography series: scripts/build_geo_assets.py (offline, one-time) and
 # scripts/render_geography_map.py (runtime) composite the country highlight onto
 # the map with Pillow -- no geopandas/shapely/GDAL needed (see the plan doc for why).
-Pillow>=10.0.0
+Pillow>=12.3.0
 
 # YouTube upload via google's official client libraries.
 google-auth>=2.58.0
