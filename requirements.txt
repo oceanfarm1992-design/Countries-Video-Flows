@@ -21,7 +21,11 @@ styletts2>=0.1.6
 # Fully offline once its checkpoint is cached, no per-run API cost. Voice fixed to
 # am_fenrir in config/countries.json's tts block.
 kokoro>=0.9.4
-soundfile>=0.14.0
+# Capped below 0.13 — styletts2==0.1.6 pins soundfile<0.13.0,>=0.12.1, and a
+# Dependabot bump to >=0.14.0 (2026-09-21) made `pip install -r requirements.txt`
+# fail outright (ResolutionImpossible) for every workflow, since nothing satisfies
+# both constraints at once. Kokoro doesn't need anything newer than 0.12.x.
+soundfile>=0.12.1,<0.13.0
 
 # Piper: fully-offline fallback if Kokoro fails to load. Ships prebuilt wheels for linux.
 # VERIFY: exact package name / version. On PyPI the package is "piper-tts" and the CLI entrypoint is "piper".
