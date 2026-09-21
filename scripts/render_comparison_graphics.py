@@ -29,7 +29,6 @@ from PIL import Image, ImageDraw, ImageFont
 
 from generate_intro import fetch_flag
 from fetch_country_stats import format_value
-from pipeline_common import segment_durations
 from render_geography_map import resolve_duration
 
 CANVAS = (1080, 1920)
@@ -93,6 +92,13 @@ def _rounded_rect(draw, box, radius, fill):
 
 
 def _paste_flag(canvas, flag_path, center_x, top, box_w, box_h):
+    if flag_path is None:
+        # flag fetch failed even after retry -- draw a plain placeholder
+        # panel instead of crashing the render (see main()'s try/except).
+        d = ImageDraw.Draw(canvas)
+        box = (center_x - box_w / 2, top, center_x + box_w / 2, top + box_h)
+        d.rounded_rectangle(box, radius=8, fill=(40, 44, 62))
+        return
     flag = Image.open(flag_path).convert("RGB")
     scale = min(box_w / flag.width, box_h / flag.height)
     w, h = max(1, int(flag.width * scale)), max(1, int(flag.height * scale))
@@ -121,6 +127,19 @@ def _paste_flag(canvas, flag_path, center_x, top, box_w, box_h):
 # footer/tally (the only content below that line) below CTA_ZONE_BOTTOM.
 CAPTION_ZONE_TOP = 1130
 CTA_ZONE_BOTTOM = 1700
+
+# A THIRD constraint the above didn't account for: assemble_video.py's Ken
+# Burns zoompan progressively crops the frame edges over each clip's
+# duration -- at the default zoom cap (1.25), up to ~192px off the top AND
+# bottom of this 1920px-tall PNG by the end of a clip (verified by replaying
+# the exact filter and tracking marker positions). That silently pushed both
+# the footer (y=1860, 60px from the bottom edge) and the outro win-tally
+# (y=1740) out of frame for most of every video's runtime, DESPITE both
+# already being below CTA_ZONE_BOTTOM. Rather than guess a position that
+# survives an unknown zoom, this series requests a much gentler zoom cap via
+# footage.json's "zoom_max" (see assemble_video.py's build_video_filter) --
+# ZOOM_MAX below MUST match what's written into the manifest in main().
+ZOOM_MAX = 1.04
 
 
 def render_header(canvas, country_a, country_b, flag_a_path, flag_b_path):
@@ -189,9 +208,16 @@ def render_table(canvas, rows, highlight_label):
 
 
 def render_footer(canvas, country_a, country_b, rows, mode):
-    """Everything here must stay below CTA_ZONE_BOTTOM -- the only safe strip
-    left once the caption band (throughout) and the CTA end-card (final 4s)
-    are both accounted for."""
+    """Everything here must stay below CTA_ZONE_BOTTOM (clear of the CTA
+    end-card) AND have its bottom edge above y=1883 -- the Ken Burns crop
+    boundary at ZOOM_MAX=1.04 (verified: crops ~37px off the top and bottom
+    of this 1920px-tall PNG once the zoom settles, ~1.5s into each clip).
+    The footer at the old y=1860 still had its own text bottom edge land
+    past that line -- 60px from the canvas edge looks like enough margin
+    reading the number alone, but isn't once the actual crop transform is
+    accounted for. Verified by frame-extracting the real assembled .mp4 and
+    measuring where footer text pixels actually land, same method that
+    caught the original (uncapped-zoom) version of this bug."""
     draw = ImageDraw.Draw(canvas)
     w, h = canvas.size
     if mode == "outro":
@@ -203,13 +229,13 @@ def render_footer(canvas, country_a, country_b, rows, mode):
             leader = country_a["name"] if wins_a > wins_b else country_b["name"]
             summary = f"{leader.upper()} LEADS {max(wins_a, wins_b)}-{min(wins_a, wins_b)}"
         font = _fit_text(draw, summary, True, 40, 22, w - 120)
-        _draw_centered(draw, w / 2, 1740, summary, font, ACCENT)
+        _draw_centered(draw, w / 2, 1720, summary, font, ACCENT)
 
     year_set = sorted({r["year_a"] for r in rows} | {r["year_b"] for r in rows})
     years = year_set[0] if len(year_set) == 1 else f"{year_set[0]}-{year_set[-1]}"
     footer = f"Source: World Bank ({years})"
     footer_font = _font(False, 20)
-    _draw_centered(draw, w / 2, 1860, footer, footer_font, (90, 96, 116))
+    _draw_centered(draw, w / 2, 1820, footer, footer_font, (90, 96, 116))
 
 
 def compose_frame(country_a, country_b, flag_a_path, flag_b_path, rows, highlight_label, mode):
@@ -245,14 +271,25 @@ def main():
 
     duration, dur_source = resolve_duration(script, video_cfg, args.audio)
     print(f"[render_comparison_graphics] duration {duration:.2f}s (from {dur_source})")
-    durs = segment_durations(script, duration)
 
     os.makedirs(args.out, exist_ok=True)
     flag_a_path = os.path.join(args.out, f"_cmp_flag_{country_a['iso2'].lower()}.png")
     flag_b_path = os.path.join(args.out, f"_cmp_flag_{country_b['iso2'].lower()}.png")
     print(f"[render_comparison_graphics] fetching flags for {country_a['iso2']} / {country_b['iso2']} ...")
-    fetch_flag(country_a["iso2"], flag_a_path)
-    fetch_flag(country_b["iso2"], flag_b_path)
+    # fetch_flag() retries transient failures internally (see generate_intro.py) --
+    # this only guards the exhausted-retry case so one flag hiccup can't abort
+    # the whole render (every other network call in this pipeline degrades the
+    # same way rather than aborting outright).
+    try:
+        fetch_flag(country_a["iso2"], flag_a_path)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[render_comparison_graphics] flag fetch for {country_a['iso2']} failed ({exc})")
+        flag_a_path = None
+    try:
+        fetch_flag(country_b["iso2"], flag_b_path)
+    except Exception as exc:  # noqa: BLE001
+        print(f"[render_comparison_graphics] flag fetch for {country_b['iso2']} failed ({exc})")
+        flag_b_path = None
 
     clips = []
     for i, seg in enumerate(segments):
@@ -274,10 +311,13 @@ def main():
             "resolution": f"{CANVAS[0]}x{CANVAS[1]}",
             "license": "Generated content -- original render",
             "type": "photo",
+            "zoom_max": ZOOM_MAX,
             "path": os.path.basename(out_path),
         })
 
     for tmp in (flag_a_path, flag_b_path):
+        if not tmp:
+            continue  # flag fetch failed -- nothing was written
         try:
             os.remove(tmp)
         except OSError:

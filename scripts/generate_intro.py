@@ -28,6 +28,7 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 
 import requests
 
@@ -109,15 +110,30 @@ def wrap_drawtext(text, max_chars):
     return "\n".join(drawtext_escape(line) for line in lines)
 
 
-def fetch_flag(iso2, dest):
-    """Download the country's flag png from flagcdn (free, no key)."""
+def fetch_flag(iso2, dest, attempts=2):
+    """Download the country's flag png from flagcdn (free, no key).
+
+    Retries once on failure (a brief 5xx/timeout blip) before raising -- every
+    other network call in this pipeline is retried or has a fallback
+    (fetch_country_stats, fetch_rankings_stats); this was the one unguarded
+    call, and callers that render several flags per video (comparison: 2,
+    rankings: up to 8) had a correspondingly larger chance of a single
+    transient failure aborting the whole render step."""
     url = f"https://flagcdn.com/w1280/{iso2.lower()}.png"
-    with requests.get(url, headers=HEADERS, stream=True, timeout=60) as r:
-        r.raise_for_status()
-        with open(dest, "wb") as f:
-            for chunk in r.iter_content(1 << 20):
-                f.write(chunk)
-    return dest
+    last_exc = None
+    for attempt in range(attempts):
+        try:
+            with requests.get(url, headers=HEADERS, stream=True, timeout=60) as r:
+                r.raise_for_status()
+                with open(dest, "wb") as f:
+                    for chunk in r.iter_content(1 << 20):
+                        f.write(chunk)
+            return dest
+        except Exception as exc:  # noqa: BLE001 -- network call, many transient failure modes
+            last_exc = exc
+            if attempt + 1 < attempts:
+                time.sleep(1.5)
+    raise last_exc
 
 
 def wrap_yaw(deg):

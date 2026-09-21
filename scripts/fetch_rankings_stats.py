@@ -18,11 +18,25 @@ facts[]):
 Both paths are unified behind get_ranked(), so generate_rankings_script.py
 doesn't need to know which kind of metric it's looking at.
 
-Caching (live metrics only): successful bulk fetches are written to
-config/rankings_stats_cache.json keyed by indicator code, same resilience-cache
-philosophy as fetch_country_stats.py -- a fresh call is attempted every run
-(these figures get revised), and only a failed live call after retries falls
-back to the cached value.
+Caching (live metrics only): a fresh call is attempted every run once
+CACHE_FRESH_HOURS has elapsed since the last one (these figures get revised);
+before that, the same-run/same-day cache hit is reused without a network call.
+Only a failed live call falls back to the cached value, and only if that
+cached value isn't itself older than CACHE_MAX_AGE_DAYS -- an outage lasting
+that long should surface as "too few countries" (and rotate to the next
+metric) rather than silently keep posting an arbitrarily stale snapshot.
+
+Ranking uses standard competition ranking (1, 2, 2, 4): when the source
+publishes a genuine tie, this never invents a distinction the source doesn't
+make. Each returned row carries "rank" (which may repeat) and "tied" (True if
+another row in the same list shares its value).
+
+Vintage: live metrics take each country's own most recent reading, which can
+span years across countries. Mixing a 2025 figure with a 2008 one and ranking
+them as if contemporaneous would misrepresent the source, so candidates older
+than MAX_AGE_YEARS relative to the newest year actually available for that
+indicator are dropped before ranking -- same principle as fetch_country_stats
+never inventing a number, applied to vintage instead of value.
 
 Usage:
     python scripts/fetch_rankings_stats.py gdp_per_capita
@@ -39,6 +53,8 @@ WB_BASE = "https://api.worldbank.org/v2/country/all/indicator"
 DATE_RANGE = "2005:2026"
 CACHE_PATH = "config/rankings_stats_cache.json"
 CACHE_FRESH_HOURS = 12
+CACHE_MAX_AGE_DAYS = 30  # a stale-fallback ceiling -- beyond this, treat as no data at all
+MAX_AGE_YEARS = 3        # live rows older than (newest_year - this) are dropped before ranking
 REQUEST_TIMEOUT = 30
 PER_PAGE = 20000  # comfortably covers every country x every year in DATE_RANGE
 
@@ -78,13 +94,16 @@ def _save_cache(cache):
     os.replace(tmp, CACHE_PATH)
 
 
-def _fetch_indicator_bulk_live(code):
+def _fetch_indicator_bulk_live(code, known_iso2=None):
     """One HTTP call covering every country's most recent reading for `code`.
     Returns {iso2: (value, year)}. For a real country row, the World Bank API's
     country.id field IS the real ISO 3166-1 alpha-2 code (verified against
-    known countries) -- regional aggregates ("Africa Eastern and Southern"
-    etc.) use distinct non-ISO codes, so filtering to iso2s already in
-    config/countries.json (done by the caller) naturally excludes them."""
+    known countries) -- but several World Bank REGIONAL AGGREGATES also use
+    two-letter codes ("EU", "ZG", "1A" is 2 chars too, etc.), so a bare
+    len(iso2) == 2 check does NOT exclude them on its own. `known_iso2`, when
+    given, is the authoritative filter (this pipeline's own config/
+    countries.json) -- passed in so aggregates are dropped at fetch time
+    rather than carried into the cache and discarded on every read."""
     url = f"{WB_BASE}/{code}?format=json&per_page={PER_PAGE}&date={DATE_RANGE}"
     req = urllib.request.Request(url, headers=HEADERS)
     with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as resp:
@@ -99,6 +118,8 @@ def _fetch_indicator_bulk_live(code):
         iso2 = (row.get("country") or {}).get("id", "")
         if len(iso2) != 2:
             continue
+        if known_iso2 is not None and iso2 not in known_iso2:
+            continue
         year = int(row["date"])
         current = latest.get(iso2)
         if current is None or year > current[1]:
@@ -106,7 +127,7 @@ def _fetch_indicator_bulk_live(code):
     return latest
 
 
-def _get_live_values(wb_indicator, use_cache=True):
+def _get_live_values(wb_indicator, known_iso2=None, use_cache=True):
     """Return {iso2: {"value", "year"}} for one live indicator, resilience-
     cached the same way fetch_country_stats.py caches per-country lookups."""
     cache = _load_cache() if use_cache else {}
@@ -120,16 +141,26 @@ def _get_live_values(wb_indicator, use_cache=True):
     values = None
     for attempt in range(2):  # one retry -- the WB API occasionally times out
         try:
-            values = _fetch_indicator_bulk_live(wb_indicator)
+            values = _fetch_indicator_bulk_live(wb_indicator, known_iso2=known_iso2)
             last_exc = None
             break
         except (urllib.error.URLError, TimeoutError, ValueError, OSError) as exc:
             last_exc = exc
 
     if last_exc is not None:
+        if not entry:
+            print(f"[fetch_rankings_stats] {wb_indicator} live bulk fetch failed ({last_exc}) -- "
+                  f"no cached value, giving up")
+            return {}
+        cache_age_days = (now - entry.get("fetched_at", 0)) / 86400
+        if cache_age_days > CACHE_MAX_AGE_DAYS:
+            print(f"[fetch_rankings_stats] {wb_indicator} live bulk fetch failed ({last_exc}) -- "
+                  f"cached value is {cache_age_days:.0f} days old (> {CACHE_MAX_AGE_DAYS}), "
+                  f"treating as no data rather than posting a stale snapshot")
+            return {}
         print(f"[fetch_rankings_stats] {wb_indicator} live bulk fetch failed ({last_exc}) -- "
-              f"{'using stale cache' if entry else 'no cached value, giving up'}")
-        return entry["values"] if entry else {}
+              f"using {cache_age_days:.0f}-day-old cached value")
+        return entry["values"]
 
     out = {iso2: {"value": v, "year": y} for iso2, (v, y) in values.items()}
     if use_cache:
@@ -147,6 +178,29 @@ def _load_static(static_key, path=STATIC_CONFIG_PATH):
     return static_cfg[static_key]
 
 
+def _assign_competition_ranks(rows):
+    """Standard competition ranking (1, 2, 2, 4): rows must already be sorted
+    best-first. A row's rank only advances past a tie when its value actually
+    differs from the previous row's -- so a genuine published tie is shown as
+    a tie, never split into two invented, arbitrarily-ordered ranks. Also sets
+    "tied": True on every row that shares its value with at least one other
+    row in `rows` (mutates and returns the same list)."""
+    rank = 0
+    prev_value = object()  # sentinel that can't equal any real value
+    for i, row in enumerate(rows):
+        if row["value"] != prev_value:
+            rank = i + 1
+        row["rank"] = rank
+        prev_value = row["value"]
+
+    counts = {}
+    for row in rows:
+        counts[row["value"]] = counts.get(row["value"], 0) + 1
+    for row in rows:
+        row["tied"] = counts[row["value"]] > 1
+    return rows
+
+
 def get_ranked(metric_id, countries, top_n=None, metrics_cfg=None):
     """Return this metric's ranked country list, best-first (respecting the
     metric's sort_direction -- most static metrics and all live ones are
@@ -157,33 +211,53 @@ def get_ranked(metric_id, countries, top_n=None, metrics_cfg=None):
     World Bank bulk response down to real countries this pipeline knows about.
 
     Returns a list of dicts: {iso2, country_name, value, year_or_edition,
-    source_label}, length capped at top_n (or the metric registry's top_n)."""
+    source_label, rank, tied}, length capped at top_n (or the metric
+    registry's top_n). "rank" uses competition ranking so ties are never
+    invented into a false ordering -- see _assign_competition_ranks. If the
+    tie at the very last displayed spot extends past top_n (more countries
+    share that value than are actually shown), the last row also carries
+    "more_tied_beyond": <count> -- displaying only top_n of a wider tie
+    without saying so would itself misrepresent the tie's true size (e.g.
+    passport_index has 12 countries tied at 185; showing 3 of them as "tied"
+    with each other is true but silently hides that 9 more share the exact
+    same value)."""
     metrics_cfg = metrics_cfg or load_metrics()
     metric = _metric_by_id(metrics_cfg, metric_id)
     top_n = top_n or metrics_cfg.get("top_n", 8)
     by_iso2 = {c["iso2"]: c for c in countries}
 
-    ranked = []
+    candidates = []
     if metric["source_type"] == "live":
-        values = _get_live_values(metric["wb_indicator"])
+        values = _get_live_values(metric["wb_indicator"], known_iso2=set(by_iso2))
         for iso2, v in values.items():
             country = by_iso2.get(iso2)
             if not country:
                 continue
-            ranked.append({
+            candidates.append({
                 "iso2": iso2,
                 "country_name": country["name"],
                 "value": v["value"],
-                "year_or_edition": str(v["year"]),
+                "year": v["year"],
                 "source_label": metric.get("source_label", "World Bank"),
             })
+        if candidates:
+            newest_year = max(c["year"] for c in candidates)
+            cutoff = newest_year - MAX_AGE_YEARS
+            before = len(candidates)
+            candidates = [c for c in candidates if c["year"] >= cutoff]
+            dropped = before - len(candidates)
+            if dropped:
+                print(f"[fetch_rankings_stats] {metric_id}: dropped {dropped} countries with "
+                      f"readings older than {cutoff} (newest available year is {newest_year})")
+        for c in candidates:
+            c["year_or_edition"] = str(c["year"])
     else:
         static_block = _load_static(metric["static_key"])
         for entry in static_block["entries"]:
             iso2 = entry["iso2"]
             if iso2 not in by_iso2:
                 continue  # config/countries.json changed since curation -- skip rather than guess
-            ranked.append({
+            candidates.append({
                 "iso2": iso2,
                 "country_name": entry["country_name"],
                 "value": entry["value"],
@@ -192,8 +266,29 @@ def get_ranked(metric_id, countries, top_n=None, metrics_cfg=None):
             })
 
     reverse = metric["sort_direction"] == "desc"
-    ranked.sort(key=lambda r: r["value"], reverse=reverse)
-    return ranked[:top_n]
+    candidates.sort(key=lambda r: r["value"], reverse=reverse)
+    top = candidates[:top_n]
+    ranked = _assign_competition_ranks(top)
+
+    if ranked and len(candidates) > len(ranked):
+        boundary_value = ranked[-1]["value"]
+        if candidates[len(ranked)]["value"] == boundary_value:  # the tie extends past the cutoff
+            total_at_value = sum(1 for c in candidates if c["value"] == boundary_value)
+            shown_at_value = sum(1 for r in ranked if r["value"] == boundary_value)
+            ranked[-1]["more_tied_beyond"] = total_at_value - shown_at_value
+
+    return ranked
+
+
+def year_range_label(ranked):
+    """A short 'as of' string for the footer/narration, e.g. "2024" or
+    "2021-2024" -- None if no row carries a year (all static metrics use a
+    single named edition already folded into source_label instead)."""
+    years = {r["year"] for r in ranked if "year" in r}
+    if not years:
+        return None
+    lo, hi = min(years), max(years)
+    return str(lo) if lo == hi else f"{lo}-{hi}"
 
 
 def format_value(unit, value):
@@ -215,6 +310,8 @@ def format_value(unit, value):
     if unit == "km2":
         return f"{value:,.0f} km²"
     if unit == "count":
+        if value >= 1_000_000_000:
+            return f"{value / 1_000_000_000:.2f}B"
         if value >= 1_000_000:
             return f"{value / 1_000_000:.1f}M"
         if value >= 1_000:
@@ -250,7 +347,9 @@ if __name__ == "__main__":
     metrics_cfg = load_metrics()
     metric = _metric_by_id(metrics_cfg, args.metric_id)
     rows = get_ranked(args.metric_id, countries, top_n=args.top, metrics_cfg=metrics_cfg)
-    print(f"\n{metric['label']} ({metric['source_type']}):")
-    for i, r in enumerate(rows, 1):
-        print(f"  {i:2}. {r['country_name']:28} {format_value(metric['unit'], r['value']):>14}  "
-              f"({r['year_or_edition']})")
+    years = year_range_label(rows)
+    print(f"\n{metric['label']} ({metric['source_type']}, as of {years or 'see edition'}):")
+    for r in rows:
+        tie_mark = "=" if r["tied"] else " "
+        print(f"  #{r['rank']:<2}{tie_mark} {r['country_name']:28} "
+              f"{format_value(metric['unit'], r['value']):>14}  ({r['year_or_edition']})")

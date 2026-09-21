@@ -4,14 +4,31 @@ Shared helper: a second, independent OpenAI call that reviews a generated narrat
 for factual accuracy before it's used, so a single hallucinated GPT-4o-mini call
 doesn't ship straight to a public, unattended channel.
 
-Used by both generate_country_script.py and generate_hook_script.py. The caller
-decides what to do on failure (their fallback path differs) — this module only
-answers the yes/no question "does this narration contain a likely-false claim?".
+Used by generate_country_script.py, generate_hook_script.py, and the two
+numeric series (generate_comparison_script.py, generate_rankings_script.py).
+The caller decides what to do on failure (their fallback path differs) — this
+module only answers the yes/no question "does this narration contain a
+likely-false claim?".
 
 Deliberately narrow: it only flags claims the checker is confident are FALSE or
 fabricated (wrong number, invented event, wrong country), not stylistic looseness
 or things it's merely unsure about — otherwise almost any narration would get
 flagged and the checker would defeat the point of using GPT at all.
+
+Two review modes:
+  - No `reference`: general-knowledge review (country/hook series) — the
+    checker judges claims against what it already knows.
+  - With `reference`: grounded review (comparison/rankings) — the checker is
+    given the EXACT rows the narration is supposed to cite and told to check
+    against THOSE, not its own memory. This matters for anything the model's
+    training data won't have precisely right (a specific year's GDP figure,
+    an exact index score) — judging a live pipeline's current numbers against
+    a language model's approximate recollection of "typical" values produces
+    false positives on entirely correct data, discarding real GPT narration
+    and silently falling back to the template every time. Confirmed live:
+    the rankings series' first production run had two correct World Bank FDI
+    figures (from the same day's actual fetch) rejected as "incorrect" by an
+    ungrounded check.
 
 If the check call itself fails (network error, no API key), that is NOT treated
 as a failed check — it returns (True, []) so a checker outage never blocks the
@@ -29,29 +46,81 @@ except ImportError:
     pass
 
 
-def verify_narration(narration: str, country_name: str, openai_cfg: dict):
-    """Return (passed: bool, issues: list[str])."""
+def _reference_block(reference):
+    """Render `reference` (a list of row dicts from fetch_rankings_stats.get_ranked
+    or fetch_country_stats.get_stats-shaped rows) as plain text lines the
+    checker can compare claims against. Tolerant of either shape rather than
+    coupling this module to one series' exact schema."""
+    lines = []
+    for row in reference:
+        if "country_name" in row:  # rankings' ranked rows
+            tie = " (tied)" if row.get("tied") else ""
+            lines.append(f"- {row['country_name']}: rank {row.get('rank', '?')}{tie}, "
+                         f"value {row.get('value')} ({row.get('year_or_edition', 'n/a')})")
+        else:  # generic {label, value, year, ...} rows
+            lines.append(f"- {row}")
+    return "\n".join(lines)
+
+
+def verify_narration(narration: str, country_name: str, openai_cfg: dict, reference=None):
+    """Return (passed: bool, issues: list[str]).
+
+    `reference`, when given, is the exact list of real data rows the
+    narration is meant to cite (see _reference_block) — the checker is told
+    to validate numeric claims against THIS, not its own training-data
+    recollection, since the latter produces false positives on correct but
+    unfamiliar-to-the-model figures (see module docstring)."""
     api_key = os.environ.get("OPENAI_API_KEY", "").strip()
     if not (OPENAI_AVAILABLE and api_key):
         return True, []
 
-    system_prompt = textwrap.dedent(f"""
-        You are a careful fact-checker reviewing a short spoken video narration about
-        {country_name} for factual accuracy before it is published. You are NOT
-        reviewing style, tone, grammar, or phrasing — only whether the CLAIMS made
-        are true.
+    if reference:
+        system_prompt = textwrap.dedent(f"""
+            You are a careful fact-checker reviewing a short spoken video narration
+            about {country_name} for factual accuracy before it is published. You are
+            NOT reviewing style, tone, grammar, or phrasing — only whether the CLAIMS
+            made are true.
 
-        Flag a claim only if you are confident it is FALSE, fabricated, or describes
-        a statistic, record, date, or event that does not exist or is materially
-        wrong (wrong country, wrong number, an invented "fact"). Do NOT flag a claim
-        just because it is imprecise, a reasonable simplification, or something you
-        are merely unsure about — only flag things you have good reason to believe
-        are actually wrong.
+            You are given the EXACT source data the narration is supposed to cite
+            below. This is the ground truth for this review — it may include figures
+            that look surprising or differ from what you'd expect from general
+            knowledge; that is expected and NOT an error, since these come from a
+            live data fetch more current or more precise than your training data.
 
-        Respond with ONLY a JSON object:
-          {{"verdict": "pass" or "fail", "issues": ["<claim>: <why it's wrong>", ...]}}
-        "issues" must be empty if verdict is "pass".
-    """).strip()
+            Flag a claim ONLY if it contradicts a number, rank, tie, or country name
+            that IS present in the source data below (e.g. it states a different
+            value, attributes a figure to the wrong country, states a rank order
+            that isn't in the data, or claims a tie that isn't marked as one — or
+            vice versa). Do NOT flag a claim because the number seems unusual,
+            because it differs from what you'd expect from general knowledge, or
+            because you are merely unsure — your own general knowledge is NOT the
+            standard here, the source data below is.
+
+            SOURCE DATA (the only standard for this review):
+            {_reference_block(reference)}
+
+            Respond with ONLY a JSON object:
+              {{"verdict": "pass" or "fail", "issues": ["<claim>: <why it contradicts the source data above>", ...]}}
+            "issues" must be empty if verdict is "pass".
+        """).strip()
+    else:
+        system_prompt = textwrap.dedent(f"""
+            You are a careful fact-checker reviewing a short spoken video narration about
+            {country_name} for factual accuracy before it is published. You are NOT
+            reviewing style, tone, grammar, or phrasing — only whether the CLAIMS made
+            are true.
+
+            Flag a claim only if you are confident it is FALSE, fabricated, or describes
+            a statistic, record, date, or event that does not exist or is materially
+            wrong (wrong country, wrong number, an invented "fact"). Do NOT flag a claim
+            just because it is imprecise, a reasonable simplification, or something you
+            are merely unsure about — only flag things you have good reason to believe
+            are actually wrong.
+
+            Respond with ONLY a JSON object:
+              {{"verdict": "pass" or "fail", "issues": ["<claim>: <why it's wrong>", ...]}}
+            "issues" must be empty if verdict is "pass".
+        """).strip()
 
     try:
         client = OpenAI(api_key=api_key)

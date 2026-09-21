@@ -66,6 +66,13 @@ ROW_PRIORITY = ["gdp_per_capita", "income", "literacy", "population", "life_expe
 MAX_ROWS = 4
 MIN_ROWS = 3
 
+# A stat is only comparable if both countries' readings are roughly
+# contemporaneous -- the World Bank doesn't publish every indicator for every
+# country in the same year, so without this a "current" comparison could
+# silently pit e.g. one country's 2024 figure against the other's 2011 one.
+# Same threshold fetch_rankings_stats.py uses for the same reason.
+MAX_YEAR_GAP = 3
+
 # Some entities in the country list aren't tracked by the World Bank at all
 # (e.g. Taiwan) -- how many scheduled pairs to try skipping forward past
 # before giving up (see the fallback loop in main()). Comfortably more than
@@ -138,6 +145,8 @@ def build_rows(stats_a, stats_b):
     for key in ROW_PRIORITY:
         if key in stats_a and key in stats_b:
             a, b = stats_a[key], stats_b[key]
+            if abs(a["year"] - b["year"]) > MAX_YEAR_GAP:
+                continue  # too far apart in vintage to present as a fair comparison
             rows.append({
                 "key": key,
                 "label": a["label"],
@@ -374,11 +383,11 @@ def main():
         print(f"[generate_comparison_script] calling OpenAI {openai_cfg.get('model', 'gpt-4o-mini')} ...")
         try:
             hook, narration, segments = _gpt_script(name_a, name_b, rows, openai_cfg, min_words, max_words)
-            ok, issues = verify_narration(narration, f"{name_a} and {name_b}", openai_cfg)
+            ok, issues = verify_narration(narration, f"{name_a} and {name_b}", openai_cfg, reference=rows)
             if not ok:
                 print(f"[generate_comparison_script] fact-check flagged: {issues} -- regenerating once")
                 hook, narration, segments = _gpt_script(name_a, name_b, rows, openai_cfg, min_words, max_words)
-                ok, issues = verify_narration(narration, f"{name_a} and {name_b}", openai_cfg)
+                ok, issues = verify_narration(narration, f"{name_a} and {name_b}", openai_cfg, reference=rows)
                 if not ok:
                     print(f"[generate_comparison_script] fact-check flagged again: {issues} -- using fallback script")
                     hook, narration, segments = _fallback_script(name_a, name_b, rows)

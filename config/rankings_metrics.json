@@ -1,5 +1,5 @@
 {
-  "_comment": "Metric registry for the 'rankings' series: one Top-N countdown video per metric (NOT one video per chapter -- confirmed with the user). 11 live metrics are fetched fresh each run via scripts/fetch_rankings_stats.py (World Bank public API, bulk country=all calls). 8 static metrics have no free live API and are read from config/rankings_static.json (curated real snapshots, refreshed manually -- see that file's _comment for the refresh cadence). 'chapter' is informational only (groups metrics for readability); it does NOT define video boundaries. Rotation order below is the fixed round-robin sequence scripts/generate_rankings_script.py walks through, day by day -- reordering this list changes which metric posts on which day, so treat it as append-only once the series is live (add new metrics at the end).",
+  "_comment": "Metric registry for the 'rankings' series: one Top-N countdown video per metric (NOT one video per chapter -- confirmed with the user). Live metrics are fetched fresh each run via scripts/fetch_rankings_stats.py (World Bank public API, bulk country=all calls, entries older than MAX_AGE_YEARS relative to the freshest available year are dropped before ranking). Static metrics have no free live API and are read from config/rankings_static.json (curated real snapshots, refreshed manually -- see that file's _comment for the refresh cadence). 'chapter' is informational only (groups metrics for readability); it does NOT define video boundaries. 'display_label' (when present) is what's shown/spoken as the ranking's name -- distinct from 'label' (the raw index name used to look up units/formatting) for metrics whose raw name reads backwards as a title (e.g. a 'Corruption Perceptions Index' countdown with the cleanest country at #1 reads as 'most corrupt' if titled literally). 'note' (when present) is spoken in the narration's opening line in addition to being printed in the footer, since a viewer skimming past the first couple seconds (or not reading on-screen text at all) should still get the caveat -- audio reaches more of the audience than any on-screen text does. 'tone' (when present) overrides the default 'energetic countdown' framing sent to GPT. Rotation order below is the fixed round-robin sequence scripts/generate_rankings_script.py walks through, day by day -- reordering this list changes which metric posts on which day, so treat it as append-only once the series is live (add new metrics at the end). literacy_rate was removed 2026-09-21: even with the age filter, its top ranks are structurally unstable (most countries near-universal literacy stop measuring it at all, so the field is whichever handful of countries still bother to survey -- see project memory for the fuller reasoning).",
   "words_per_second": 2.3,
   "min_entries": 7,
   "top_n": 8,
@@ -95,6 +95,8 @@
       "id": "corruption_index",
       "chapter": "Governance & Political Freedom",
       "label": "Corruption Perceptions Index",
+      "display_label": "Least Corrupt Countries",
+      "note": "on the Corruption Perceptions Index, a HIGHER score means LESS corrupt",
       "unit": "score_0_100",
       "source_type": "static",
       "static_key": "corruption_index",
@@ -124,6 +126,8 @@
       "id": "co2_per_capita",
       "chapter": "Geography, Population & Environment",
       "label": "CO2 Emissions per Capita",
+      "display_label": "Highest CO2 Emissions per Person",
+      "tone": "neutral",
       "unit": "tonnes",
       "source_type": "live",
       "wb_indicator": "EN.GHG.CO2.PC.CE.AR5",
@@ -150,16 +154,6 @@
       "sort_direction": "desc"
     },
     {
-      "id": "literacy_rate",
-      "chapter": "Innovation, Technology & Education",
-      "label": "Literacy Rate",
-      "unit": "pct",
-      "source_type": "live",
-      "wb_indicator": "SE.ADT.LITR.ZS",
-      "sort_direction": "desc",
-      "source_label": "World Bank"
-    },
-    {
       "id": "pisa_science",
       "chapter": "Innovation, Technology & Education",
       "label": "PISA Science Score",
@@ -172,6 +166,9 @@
       "id": "military_strength",
       "chapter": "Geopolitics & Defense",
       "label": "Military Strength",
+      "display_label": "Strongest Militaries",
+      "note": "these are Global Firepower PowerIndex scores, where a LOWER number means a STRONGER military",
+      "tone": "neutral",
       "unit": "powerindex",
       "source_type": "static",
       "static_key": "military_strength",

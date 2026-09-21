@@ -160,6 +160,9 @@ def fontfile_escape(path):
     return path.replace("\\", "/").replace(":", "\\:")
 
 
+DEFAULT_ZOOM_MAX = 1.25
+
+
 def build_video_filter(pieces, hook, cta, captions_path, duration):
     """Build the video filtergraph for a montage of per-segment pieces (videos AND photos).
 
@@ -168,7 +171,15 @@ def build_video_filter(pieces, hook, cta, captions_path, duration):
     feels alive rather than static. All are concatenated so the imagery changes in step
     with the narration. Hook card, lower-third captions and the end CTA are burned on top.
 
-    `pieces` is a list of {"type": "video"|"photo", "dur": seconds} in input order."""
+    `pieces` is a list of {"type": "video"|"photo", "dur": seconds, "zoom_max": float}
+    in input order. "zoom_max" (photo pieces only) caps how far the Ken Burns push-in
+    zooms by the end of the clip; defaults to DEFAULT_ZOOM_MAX. A series whose own PNG
+    graphics carry text near the frame edges (e.g. rankings' leaderboard, comparison's
+    table) can pass a lower cap so that text never gets pushed out of frame by the zoom
+    -- confirmed by measurement that DEFAULT_ZOOM_MAX crops up to ~192px off the top and
+    bottom of a 1920px-tall source image by the end of a clip, which silently took the
+    on-screen source-attribution footer (and, in comparison's case, the outro summary
+    line) out of frame for most of every video before this was added."""
     # Wrap at ~28 chars so a 50-char hook fits on 2 lines at fontsize=48 within 1080px.
     # Wrap CTA at ~38 chars; "Follow for more stories from around the world" is 45 chars.
     hook_e = wrap_drawtext(hook, 28)
@@ -194,11 +205,12 @@ def build_video_filter(pieces, hook, cta, captions_path, duration):
         d = p["dur"]
         if p["type"] == "photo":
             frames = max(2, int(round(d * 30)))
+            zoom_max = p.get("zoom_max", DEFAULT_ZOOM_MAX)
             # pre-scale to 1.5x for zoom headroom, then a slow push-in Ken Burns
             parts.append(
                 f"[{i}:v]scale=1620:2880:force_original_aspect_ratio=increase,"
                 f"crop=1620:2880,setsar=1,"
-                f"zoompan=z='min(zoom+0.0009,1.25)':d={frames}:fps=30:"
+                f"zoompan=z='min(zoom+0.0009,{zoom_max})':d={frames}:fps=30:"
                 f"x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1080x1920,"
                 f"trim=duration={d:.3f},setpts=PTS-STARTPTS,format=yuv420p[c{i}]"
             )
@@ -233,10 +245,11 @@ def build_video_filter(pieces, hook, cta, captions_path, duration):
 
 
 def find_segment_pieces(build_dir):
-    """Return the per-segment media pieces as [(path, type), ...] in order.
+    """Return the per-segment media pieces as [(path, type, zoom_max), ...] in order.
 
-    Prefers build/footage.json (which records each piece's type: video or photo); falls
-    back to globbing footage_clip*.mp4/.jpg if the manifest is missing."""
+    Prefers build/footage.json (which records each piece's type: video or photo, and
+    optionally zoom_max -- see build_video_filter's docstring); falls back to globbing
+    footage_clip*.mp4/.jpg if the manifest is missing (zoom_max then always defaults)."""
     manifest = os.path.join(build_dir, "footage.json")
     if os.path.exists(manifest):
         try:
@@ -246,7 +259,8 @@ def find_segment_pieces(build_dir):
             for c in clips:
                 p = c.get("path")
                 if p:
-                    pieces.append((os.path.join(build_dir, p), c.get("type", "video")))
+                    pieces.append((os.path.join(build_dir, p), c.get("type", "video"),
+                                   c.get("zoom_max")))
             if pieces:
                 return pieces
         except Exception:  # noqa: BLE001 — fall back to globbing
@@ -259,7 +273,8 @@ def find_segment_pieces(build_dir):
         m = re.search(r"footage_clip(\d+)\.", path)
         return int(m.group(1)) if m else 0
 
-    return [(p, "photo" if p.endswith(".jpg") else "video") for p in sorted(found, key=idx)]
+    return [(p, "photo" if p.endswith(".jpg") else "video", None)
+            for p in sorted(found, key=idx)]
 
 
 def main():
@@ -331,14 +346,19 @@ def main():
         # map piece i to beat i; if fewer pieces than beats (some failed), cycle through
         # what we have so every beat still gets a visual
         piece_inputs = [found_pieces[i % len(found_pieces)] for i in range(len(durs))]
-        pieces = [{"type": t, "dur": durs[i]} for i, (_, t) in enumerate(piece_inputs)]
+        pieces = []
+        for i, (_, t, zoom_max) in enumerate(piece_inputs):
+            piece = {"type": t, "dur": durs[i]}
+            if zoom_max is not None:
+                piece["zoom_max"] = zoom_max
+            pieces.append(piece)
         n_photo = sum(1 for p in pieces if p["type"] == "photo")
         print(f"[assemble_video] {len(pieces)} synced pieces "
               f"({len(pieces) - n_photo} video, {n_photo} photo)")
     else:
         # legacy single-clip path
         durs = [duration]
-        piece_inputs = [(args.footage, "video")]
+        piece_inputs = [(args.footage, "video", None)]
         pieces = [{"type": "video", "dur": duration}]
         print("[assemble_video] no per-segment pieces — single looped footage")
 
@@ -355,7 +375,7 @@ def main():
     montage_out = (os.path.splitext(args.out)[0] + ".montage.mp4") if use_intro else args.out
 
     cmd = ["ffmpeg", "-y"]
-    for path, ptype in piece_inputs:
+    for path, ptype, _zoom_max in piece_inputs:
         if ptype == "photo":
             cmd += ["-loop", "1", "-i", path]          # still image, framed by zoompan
         else:
