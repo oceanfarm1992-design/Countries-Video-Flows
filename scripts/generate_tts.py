@@ -5,7 +5,7 @@ Stage 3: generate a voiceover WAV from the script text.
 Engines, tried in order (first available wins unless --engine forces one):
   1. StyleTTS2 (MIT license) — clones the channel owner's own voice from a private
      reference sample (fetched at runtime via VOICE_REPO_PAT, never stored in this
-     repo). Primary voice for both series when that secret is available.
+     repo). Primary voice across every series when that secret is available.
   2. Kokoro-82M (https://huggingface.co/hexgrad/Kokoro-82M) — open-weights neural
      TTS, runs fully offline once its checkpoint is cached, no API key or per-run
      cost. Voice fixed to am_fenrir (deep male). Fallback if StyleTTS2 fails to

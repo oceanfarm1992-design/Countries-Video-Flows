@@ -1,0 +1,253 @@
+name: daily-rankings-short
+
+# 7th series, independent of both the 5-day single-country rotation in
+# daily-rotating-short.yml and the comparison series: a Top-N countdown of
+# real country rankings for ONE statistical metric per video (GDP, HDI,
+# Democracy Index, Corruption Perceptions Index, ...) -- see
+# config/rankings_metrics.json for the full ~19-metric registry and
+# scripts/generate_rankings_script.py / scripts/render_rankings_graphics.py.
+# One video per day, walking a fixed rotation through the metric registry.
+# Own dedicated schedule, posting to the same channels, additive to the
+# other series' posting volume.
+#
+# Same "don't require an exact hour match" gate design as the other per-
+# series workflows (GitHub's scheduler starts cron runs late and silently
+# drops many): each hourly tick runs today's slot if it's due and not yet
+# posted. Runs at :37 (offset from rotating's :17, worlddata-style
+# workflows' top-of-hour triggers, and comparison's :53) to spread runner
+# load.
+on:
+  schedule:
+    - cron: "37 8-23 * * *"
+  workflow_dispatch:
+    inputs:
+      force_run:
+        description: "Skip the hour-gate check and run regardless of the current hour"
+        type: boolean
+        default: false
+      dry_run:
+        description: "Dry run: build the full video but do NOT create a release or post anywhere"
+        type: boolean
+        default: true
+      metric_id:
+        description: "Force a metric id (blank = auto date rotation, see config/rankings_metrics.json)"
+        type: string
+        default: ""
+
+permissions:
+  contents: write   # commit logs/history_rankings.csv, config/rankings_stats_cache.json, and create the release asset
+
+# Serialize runs so a catch-up run can't start building while an earlier one is
+# still mid-build (before its release exists) and double-post.
+concurrency:
+  group: daily-rankings-short
+  cancel-in-progress: false
+
+jobs:
+  build_and_post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      # ---- gate: run today's single rankings slot if it's due and unposted ----
+      - name: Check today's slot schedule and gate
+        id: gate
+        env:
+          FORCE_RUN: ${{ inputs.force_run }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          python - <<'EOF'
+          import hashlib, json, os, subprocess, sys
+          from datetime import date, datetime, timezone
+
+          EPOCH = date(2026, 7, 23)
+          CANDIDATE_HOURS = [10, 13, 16, 19, 22]
+
+          def seed(day_number, salt):
+              h = hashlib.sha256(f"rankings:{day_number}:{salt}".encode("utf-8")).hexdigest()
+              return int(h[:8], 16)
+
+          now = datetime.now(timezone.utc)
+          day_number = (now.date() - EPOCH).days
+          force = os.environ.get("FORCE_RUN", "").lower() == "true"
+
+          hour = CANDIDATE_HOURS[seed(day_number, "hour") % len(CANDIDATE_HOURS)]
+
+          today_tag = f"-{now:%Y%m%d}-"
+          try:
+              out = subprocess.run(
+                  ["gh", "release", "list", "--limit", "100", "--json", "tagName"],
+                  check=True, capture_output=True, text=True).stdout
+              tags_today = [r["tagName"] for r in json.loads(out)
+                            if r["tagName"].startswith("rankings-") and today_tag in r["tagName"]]
+              read_ok = True
+          except Exception as exc:
+              print(f"[gate] could not read releases ({type(exc).__name__})")
+              tags_today = []
+              read_ok = False
+
+          already_posted = len(tags_today) > 0
+
+          if force:
+              skip, reason = False, "force_run=true"
+          elif not read_ok:
+              skip, reason = True, "could not read releases -- failing closed"
+          elif already_posted:
+              skip, reason = True, "today's rankings video already posted"
+          elif now.hour < hour:
+              skip, reason = True, f"too early (now {now:%H:%M}, due {hour:02d}:00)"
+          else:
+              skip, reason = False, f"due ({now:%H:%M} >= {hour:02d}:00)"
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"skip={'true' if skip else 'false'}\n")
+
+          print(f"[gate] today's rankings slot: {hour:02d}:00 ({'posted' if already_posted else 'not yet posted'})")
+          if skip:
+              print(f"[gate] SKIP: {reason}")
+          else:
+              print(f"[gate] PROCEED: {reason}")
+          EOF
+
+      - name: Install system deps (ffmpeg, fonts, espeak fallback)
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core espeak-ng
+
+      - name: Install python deps
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          pip install torch==2.8.0+cpu torchaudio==2.8.0+cpu --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+
+      # ---- content pipeline ----
+      - name: Generate rankings script (one metric, real World Bank + curated index data)
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # Routed through env instead of interpolated directly into the run:
+          # script -- a raw ${{ inputs.metric_id }} substitution happens
+          # BEFORE bash ever parses this block (GitHub Actions templates the
+          # text first), so an untrusted/malicious string here could inject
+          # arbitrary shell commands that run with this job's secrets. A
+          # genuine shell variable expansion treats the value as inert data.
+          METRIC_ID: ${{ inputs.metric_id }}
+        run: |
+          METRIC_ARGS=""
+          if [ -n "$METRIC_ID" ]; then
+            METRIC_ARGS="--metric-id $METRIC_ID"
+          fi
+          python scripts/generate_rankings_script.py \
+            --config config/countries.json --video-config config/rankings_video.json $METRIC_ARGS
+
+      - name: Generate TTS voiceover
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          VOICE_REPO_PAT: ${{ secrets.VOICE_REPO_PAT }}
+        run: python scripts/generate_tts.py --config config/countries.json
+
+      # Runs AFTER the voiceover on purpose -- same reason as comparison's
+      # render step: slice/frame timing must come from the real voice length,
+      # not a word-count estimate.
+      - name: Render rankings leaderboard graphics
+        if: steps.gate.outputs.skip == 'false'
+        run: python scripts/render_rankings_graphics.py --video-config config/rankings_video.json
+
+      - name: Generate captions
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python scripts/generate_captions.py --config config/countries.json
+
+      - name: Generate background music (energetic)
+        if: steps.gate.outputs.skip == 'false'
+        run: python scripts/generate_music.py
+
+      # No globe-zoom intro for this series -- same reasoning as comparison:
+      # the leaderboard itself opens the video (see the "intro" mode in
+      # render_rankings_graphics.py).
+      - name: Assemble video
+        if: steps.gate.outputs.skip == 'false'
+        run: python scripts/assemble_video.py --config config/rankings_video.json
+
+      # ---- publish ----
+      - name: Publish video as release asset
+        id: publish_asset
+        if: steps.gate.outputs.skip == 'false' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="rankings-$(date -u +%Y%m%d-%H%M%S)"
+          gh release create "$TAG" build/final.mp4 \
+            --title "$TAG" --notes "Automated country-rankings countdown short (1/day)" --latest=false
+          URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/final.mp4"
+          echo "video_url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Public video URL: $URL"
+
+      - name: Post to Facebook + TikTok (Buffer)
+        id: post_buffer
+        if: steps.gate.outputs.skip == 'false' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        continue-on-error: true
+        env:
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+          BUFFER_ORG_ID: ${{ secrets.BUFFER_ORG_ID }}
+          BUFFER_FACEBOOK_CHANNEL_ID: ${{ secrets.BUFFER_FACEBOOK_CHANNEL_ID }}
+          BUFFER_TIKTOK_CHANNEL_ID: ${{ secrets.BUFFER_TIKTOK_CHANNEL_ID }}
+        run: |
+          python scripts/post_buffer.py \
+            --video-url "${{ steps.publish_asset.outputs.video_url }}" \
+            --script build/script.json \
+            --caption-facebook build/caption_meta.txt \
+            --caption-tiktok build/caption_tiktok.txt \
+            --title-file build/yt_title.txt
+
+      - name: Post to YouTube (Direct API)
+        id: post_youtube
+        if: steps.gate.outputs.skip == 'false' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        continue-on-error: true
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: |
+          python scripts/post_youtube.py \
+            --video build/final.mp4 \
+            --title-file build/yt_title.txt \
+            --desc-file build/caption_youtube.txt \
+            --config config/countries.json
+
+      # ---- dry run only: grab the assembled video + voice files for inspection ----
+      - name: Upload dry-run artifacts
+        if: always() && steps.gate.outputs.skip == 'false' && github.event_name == 'workflow_dispatch' && inputs.dry_run == true
+        uses: actions/upload-artifact@v7
+        with:
+          name: dry-run-rankings-output
+          path: |
+            build/final.mp4
+            build/voice.wav
+            build/script.json
+            build/footage_clip*.png
+          if-no-files-found: warn
+          retention-days: 3
+
+      # ---- log results ----
+      - name: Append run to history log
+        if: always() && steps.gate.outputs.skip == 'false' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        run: |
+          DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          SCRIPT_TITLE=$(python -c "import json;d=json.load(open('build/script.json'));print(d.get('name','unknown'))" 2>/dev/null || echo "unknown")
+          IDENT=$(python -c "import json;print(json.load(open('build/footage.json'))['identifier'])" 2>/dev/null || echo "unknown")
+          echo "${DATE},\"${SCRIPT_TITLE}\",${IDENT},${{ steps.post_buffer.outcome }}" >> logs/history_rankings.csv
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add logs/history_rankings.csv config/rankings_stats_cache.json
+          git commit -m "log: rankings run ${DATE} (${IDENT})" || echo "nothing to commit"
+          for i in 1 2 3; do
+            git pull --rebase && git push && break || sleep $((i * 5))
+          done

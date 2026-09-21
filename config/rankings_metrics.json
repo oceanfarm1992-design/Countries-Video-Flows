@@ -1,0 +1,191 @@
+{
+  "_comment": "Metric registry for the 'rankings' series: one Top-N countdown video per metric (NOT one video per chapter -- confirmed with the user). 11 live metrics are fetched fresh each run via scripts/fetch_rankings_stats.py (World Bank public API, bulk country=all calls). 8 static metrics have no free live API and are read from config/rankings_static.json (curated real snapshots, refreshed manually -- see that file's _comment for the refresh cadence). 'chapter' is informational only (groups metrics for readability); it does NOT define video boundaries. Rotation order below is the fixed round-robin sequence scripts/generate_rankings_script.py walks through, day by day -- reordering this list changes which metric posts on which day, so treat it as append-only once the series is live (add new metrics at the end).",
+  "words_per_second": 2.3,
+  "min_entries": 7,
+  "top_n": 8,
+  "metrics": [
+    {
+      "id": "gdp_nominal",
+      "chapter": "Economy & Wealth",
+      "label": "GDP (Nominal)",
+      "unit": "usd_big",
+      "source_type": "live",
+      "wb_indicator": "NY.GDP.MKTP.CD",
+      "sort_direction": "desc",
+      "source_label": "World Bank"
+    },
+    {
+      "id": "gdp_ppp",
+      "chapter": "Economy & Wealth",
+      "label": "GDP (PPP)",
+      "unit": "usd_big",
+      "source_type": "live",
+      "wb_indicator": "NY.GDP.MKTP.PP.CD",
+      "sort_direction": "desc",
+      "source_label": "World Bank"
+    },
+    {
+      "id": "gdp_per_capita",
+      "chapter": "Economy & Wealth",
+      "label": "GDP per Capita",
+      "unit": "usd",
+      "source_type": "live",
+      "wb_indicator": "NY.GDP.PCAP.CD",
+      "sort_direction": "desc",
+      "source_label": "World Bank"
+    },
+    {
+      "id": "fdi_inflows",
+      "chapter": "Economy & Wealth",
+      "label": "Foreign Direct Investment Inflows",
+      "unit": "usd_big",
+      "source_type": "live",
+      "wb_indicator": "BX.KLT.DINV.CD.WD",
+      "sort_direction": "desc",
+      "source_label": "World Bank"
+    },
+    {
+      "id": "life_expectancy",
+      "chapter": "Quality of Life & Human Development",
+      "label": "Life Expectancy",
+      "unit": "years",
+      "source_type": "live",
+      "wb_indicator": "SP.DYN.LE00.IN",
+      "sort_direction": "desc",
+      "source_label": "World Bank"
+    },
+    {
+      "id": "health_expenditure",
+      "chapter": "Quality of Life & Human Development",
+      "label": "Health Expenditure per Capita",
+      "unit": "usd",
+      "source_type": "live",
+      "wb_indicator": "SH.XPD.CHEX.PC.CD",
+      "sort_direction": "desc",
+      "source_label": "World Bank"
+    },
+    {
+      "id": "hdi",
+      "chapter": "Quality of Life & Human Development",
+      "label": "Human Development Index",
+      "unit": "index_3dp",
+      "source_type": "static",
+      "static_key": "hdi",
+      "sort_direction": "desc"
+    },
+    {
+      "id": "world_happiness",
+      "chapter": "Quality of Life & Human Development",
+      "label": "World Happiness Score",
+      "unit": "score_3dp",
+      "source_type": "static",
+      "static_key": "world_happiness",
+      "sort_direction": "desc"
+    },
+    {
+      "id": "democracy_index",
+      "chapter": "Governance & Political Freedom",
+      "label": "Democracy Index",
+      "unit": "score_2dp",
+      "source_type": "static",
+      "static_key": "democracy_index",
+      "sort_direction": "desc"
+    },
+    {
+      "id": "corruption_index",
+      "chapter": "Governance & Political Freedom",
+      "label": "Corruption Perceptions Index",
+      "unit": "score_0_100",
+      "source_type": "static",
+      "static_key": "corruption_index",
+      "sort_direction": "desc"
+    },
+    {
+      "id": "land_area",
+      "chapter": "Geography, Population & Environment",
+      "label": "Land Area",
+      "unit": "km2",
+      "source_type": "live",
+      "wb_indicator": "AG.LND.TOTL.K2",
+      "sort_direction": "desc",
+      "source_label": "World Bank"
+    },
+    {
+      "id": "population",
+      "chapter": "Geography, Population & Environment",
+      "label": "Population",
+      "unit": "count",
+      "source_type": "live",
+      "wb_indicator": "SP.POP.TOTL",
+      "sort_direction": "desc",
+      "source_label": "World Bank"
+    },
+    {
+      "id": "co2_per_capita",
+      "chapter": "Geography, Population & Environment",
+      "label": "CO2 Emissions per Capita",
+      "unit": "tonnes",
+      "source_type": "live",
+      "wb_indicator": "EN.GHG.CO2.PC.CE.AR5",
+      "sort_direction": "desc",
+      "source_label": "World Bank"
+    },
+    {
+      "id": "renewable_energy",
+      "chapter": "Geography, Population & Environment",
+      "label": "Renewable Energy Share",
+      "unit": "pct",
+      "source_type": "live",
+      "wb_indicator": "EG.FEC.RNEW.ZS",
+      "sort_direction": "desc",
+      "source_label": "World Bank"
+    },
+    {
+      "id": "global_innovation_index",
+      "chapter": "Innovation, Technology & Education",
+      "label": "Global Innovation Index",
+      "unit": "score_1dp",
+      "source_type": "static",
+      "static_key": "global_innovation_index",
+      "sort_direction": "desc"
+    },
+    {
+      "id": "literacy_rate",
+      "chapter": "Innovation, Technology & Education",
+      "label": "Literacy Rate",
+      "unit": "pct",
+      "source_type": "live",
+      "wb_indicator": "SE.ADT.LITR.ZS",
+      "sort_direction": "desc",
+      "source_label": "World Bank"
+    },
+    {
+      "id": "pisa_science",
+      "chapter": "Innovation, Technology & Education",
+      "label": "PISA Science Score",
+      "unit": "score_int",
+      "source_type": "static",
+      "static_key": "pisa_science",
+      "sort_direction": "desc"
+    },
+    {
+      "id": "military_strength",
+      "chapter": "Geopolitics & Defense",
+      "label": "Military Strength",
+      "unit": "powerindex",
+      "source_type": "static",
+      "static_key": "military_strength",
+      "sort_direction": "asc",
+      "attribution_note": "Global Firepower's PowerIndex -- LOWER score is stronger"
+    },
+    {
+      "id": "passport_index",
+      "chapter": "Geopolitics & Defense",
+      "label": "Henley Passport Index",
+      "unit": "count",
+      "source_type": "static",
+      "static_key": "passport_index",
+      "sort_direction": "desc"
+    }
+  ]
+}

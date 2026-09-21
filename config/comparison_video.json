@@ -1,0 +1,12 @@
+{
+  "_comment": "Video bounds for the comparison series only -- kept separate from config/countries.json's global \"video\" block (45-80s) so this series' own target doesn't get clamped up to the other series' minimum, and so it doesn't affect them either. Passed as --video-config to generate_comparison_script.py / render_comparison_graphics.py and as --config to assemble_video.py for this series' runs only. Widened from an initial 30-40s: at that cap, natural-paced narration for 4 stat rows either got cut off mid-sentence or had to be read unnaturally fast to fit -- 35-60s gives the voice room to breathe at a normal pace, right at YouTube Shorts' 60s ceiling.",
+  "video": {
+    "width": 1080,
+    "height": 1920,
+    "words_per_second": 2.3,
+    "min_seconds": 35,
+    "max_seconds": 60,
+    "cta_text": "Which country surprised you? Comment below! Follow for more comparisons",
+    "font_hint": "DejaVuSans (preinstalled on GitHub Ubuntu runners)"
+  }
+}

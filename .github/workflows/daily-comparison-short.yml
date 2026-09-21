@@ -1,0 +1,269 @@
+name: daily-comparison-short
+
+# 6th series, independent of the 5-day single-country rotation in daily-
+# rotating-short.yml: two countries side by side, compared across real World
+# Bank statistics (GDP per capita, income, literacy, population, life
+# expectancy) in an on-screen table -- see scripts/generate_comparison_script.py
+# and scripts/render_comparison_graphics.py. Own dedicated 2-videos/day
+# schedule, posting to the same channels, additive to the rotating series'
+# 2/day.
+#
+# Same "don't require an exact hour match" gate design as daily-rotating-
+# short.yml (GitHub's scheduler starts cron runs late and silently drops
+# many): each hourly tick runs today's earliest still-due, not-yet-posted
+# slot. Runs at :53 (offset from rotating's :17 and worlddata-style workflows'
+# top-of-hour triggers) to spread runner load.
+on:
+  schedule:
+    - cron: "53 8-23 * * *"
+  workflow_dispatch:
+    inputs:
+      force_run:
+        description: "Skip the hour-gate check and run regardless of the current hour"
+        type: boolean
+        default: false
+      dry_run:
+        description: "Dry run: build the full video but do NOT create a release or post anywhere"
+        type: boolean
+        default: true
+      index_a:
+        description: "Force country A's index (blank = auto date+slot rotation)"
+        type: string
+        default: ""
+      index_b:
+        description: "Force country B's index (blank = auto date+slot rotation)"
+        type: string
+        default: ""
+
+permissions:
+  contents: write   # commit logs/history_comparison.csv, config/country_stats_cache.json, and create the release asset
+
+# Serialize runs so a catch-up run can't start building while an earlier one is
+# still mid-build (before its release exists) and double-post.
+concurrency:
+  group: daily-comparison-short
+  cancel-in-progress: false
+
+jobs:
+  build_and_post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      # ---- gate: run whichever of today's two comparison slots is due and unposted ----
+      - name: Check today's slot schedule and gate
+        id: gate
+        env:
+          FORCE_RUN: ${{ inputs.force_run }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          python - <<'EOF'
+          import hashlib, json, os, subprocess, sys
+          from datetime import date, datetime, timezone
+
+          EPOCH = date(2026, 7, 23)
+          CANDIDATE_HOURS = [9, 12, 14, 16, 18, 21]
+
+          def seed(day_number, salt):
+              h = hashlib.sha256(f"comparison:{day_number}:{salt}".encode("utf-8")).hexdigest()
+              return int(h[:8], 16)
+
+          now = datetime.now(timezone.utc)
+          day_number = (now.date() - EPOCH).days
+          force = os.environ.get("FORCE_RUN", "").lower() == "true"
+
+          hour_a = CANDIDATE_HOURS[seed(day_number, "hourA") % len(CANDIDATE_HOURS)]
+          remaining = [h for h in CANDIDATE_HOURS if h != hour_a]
+          hour_b = remaining[seed(day_number, "hourB") % len(remaining)]
+          slots = sorted([{"slot": "A", "hour": hour_a}, {"slot": "B", "hour": hour_b}],
+                          key=lambda s: s["hour"])
+
+          today_tag = f"-{now:%Y%m%d}-"
+          try:
+              out = subprocess.run(
+                  ["gh", "release", "list", "--limit", "100", "--json", "tagName"],
+                  check=True, capture_output=True, text=True).stdout
+              tags_today = [r["tagName"] for r in json.loads(out)
+                            if r["tagName"].startswith("comparison-") and today_tag in r["tagName"]]
+              read_ok = True
+          except Exception as exc:
+              print(f"[gate] could not read releases ({type(exc).__name__})")
+              tags_today = []
+              read_ok = False
+
+          posted_count = len(tags_today)
+
+          if force:
+              pick, skip, reason = (slots[posted_count] if posted_count < len(slots) else slots[0]), False, "force_run=true"
+          elif not read_ok:
+              pick, skip, reason = None, True, "could not read releases -- failing closed"
+          else:
+              due = [s for s in slots if now.hour >= s["hour"]]
+              todo = due[posted_count:]
+              if todo:
+                  pick = todo[0]
+                  skip, reason = False, f"slot {pick['slot']} due ({posted_count} posted today already)"
+              elif posted_count >= len(slots):
+                  pick, skip, reason = None, True, "both of today's slots already posted"
+              else:
+                  next_hour = slots[posted_count]["hour"]
+                  pick, skip, reason = None, True, f"too early (now {now:%H:%M}, next due {next_hour:02d}:00)"
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"skip={'true' if skip else 'false'}\n")
+              if pick:
+                  f.write(f"slot={0 if pick['slot'] == 'A' else 1}\n")
+
+          slot_desc = ", ".join(f"{s['slot']}@{s['hour']:02d}:00" for s in slots)
+          print(f"[gate] today's comparison slots: {slot_desc} ({posted_count} posted so far)")
+          if skip:
+              print(f"[gate] SKIP: {reason}")
+          else:
+              print(f"[gate] PROCEED slot {pick['slot']}: {reason}")
+          EOF
+
+      - name: Install system deps (ffmpeg, fonts, espeak fallback)
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core espeak-ng
+
+      - name: Install python deps
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          pip install torch==2.8.0+cpu torchaudio==2.8.0+cpu --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+
+      # ---- content pipeline ----
+      - name: Generate comparison script (2 countries, real World Bank stats)
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          # Routed through env instead of interpolated directly into the run:
+          # script -- a raw ${{ inputs.index_a/b }} substitution happens
+          # BEFORE bash ever parses this block (GitHub Actions templates the
+          # text first), so an untrusted/malicious string here could inject
+          # arbitrary shell commands that run with this job's secrets. A
+          # genuine shell variable expansion treats the value as inert data.
+          INDEX_A: ${{ inputs.index_a }}
+          INDEX_B: ${{ inputs.index_b }}
+        run: |
+          IDX_ARGS=""
+          if [ -n "$INDEX_A" ] && [ -n "$INDEX_B" ]; then
+            IDX_ARGS="--index-a $INDEX_A --index-b $INDEX_B"
+          fi
+          python scripts/generate_comparison_script.py \
+            --config config/countries.json --video-config config/comparison_video.json \
+            --slot "${{ steps.gate.outputs.slot }}" $IDX_ARGS
+
+      - name: Generate TTS voiceover
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          VOICE_REPO_PAT: ${{ secrets.VOICE_REPO_PAT }}
+        run: python scripts/generate_tts.py --config config/countries.json
+
+      # Runs AFTER the voiceover on purpose -- same reason as geography/
+      # worlddata's render step: slice/frame timing must come from the real
+      # voice length, not a word-count estimate.
+      - name: Render comparison table graphics
+        if: steps.gate.outputs.skip == 'false'
+        run: python scripts/render_comparison_graphics.py --video-config config/comparison_video.json
+
+      - name: Generate captions
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python scripts/generate_captions.py --config config/countries.json
+
+      - name: Generate background music (energetic)
+        if: steps.gate.outputs.skip == 'false'
+        run: python scripts/generate_music.py
+
+      # No globe-zoom intro for this series -- two countries don't fit a
+      # single-location globe push-in, and the 30-40s runtime is tight enough
+      # already; the table itself opens the video (see the "intro" mode in
+      # render_comparison_graphics.py).
+      - name: Assemble video
+        if: steps.gate.outputs.skip == 'false'
+        run: python scripts/assemble_video.py --config config/comparison_video.json
+
+      # ---- publish ----
+      - name: Publish video as release asset
+        id: publish_asset
+        if: steps.gate.outputs.skip == 'false' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="comparison-$(date -u +%Y%m%d-%H%M%S)"
+          gh release create "$TAG" build/final.mp4 \
+            --title "$TAG" --notes "Automated country-comparison short (2/day)" --latest=false
+          URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/final.mp4"
+          echo "video_url=$URL" >> "$GITHUB_OUTPUT"
+          echo "Public video URL: $URL"
+
+      - name: Post to Facebook + TikTok (Buffer)
+        id: post_buffer
+        if: steps.gate.outputs.skip == 'false' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        continue-on-error: true
+        env:
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+          BUFFER_ORG_ID: ${{ secrets.BUFFER_ORG_ID }}
+          BUFFER_FACEBOOK_CHANNEL_ID: ${{ secrets.BUFFER_FACEBOOK_CHANNEL_ID }}
+          BUFFER_TIKTOK_CHANNEL_ID: ${{ secrets.BUFFER_TIKTOK_CHANNEL_ID }}
+        run: |
+          python scripts/post_buffer.py \
+            --video-url "${{ steps.publish_asset.outputs.video_url }}" \
+            --script build/script.json \
+            --caption-facebook build/caption_meta.txt \
+            --caption-tiktok build/caption_tiktok.txt \
+            --title-file build/yt_title.txt
+
+      - name: Post to YouTube (Direct API)
+        id: post_youtube
+        if: steps.gate.outputs.skip == 'false' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        continue-on-error: true
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: |
+          python scripts/post_youtube.py \
+            --video build/final.mp4 \
+            --title-file build/yt_title.txt \
+            --desc-file build/caption_youtube.txt \
+            --config config/countries.json
+
+      # ---- dry run only: grab the assembled video + voice files for inspection ----
+      - name: Upload dry-run artifacts
+        if: always() && steps.gate.outputs.skip == 'false' && github.event_name == 'workflow_dispatch' && inputs.dry_run == true
+        uses: actions/upload-artifact@v7
+        with:
+          name: dry-run-comparison-output
+          path: |
+            build/final.mp4
+            build/voice.wav
+            build/script.json
+            build/footage_clip*.png
+          if-no-files-found: warn
+          retention-days: 3
+
+      # ---- log results ----
+      - name: Append run to history log
+        if: always() && steps.gate.outputs.skip == 'false' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        run: |
+          DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          SCRIPT_TITLE=$(python -c "import json;d=json.load(open('build/script.json'));print(d.get('name','unknown'))" 2>/dev/null || echo "unknown")
+          IDENT=$(python -c "import json;print(json.load(open('build/footage.json'))['identifier'])" 2>/dev/null || echo "unknown")
+          echo "${DATE},\"${SCRIPT_TITLE}\",${IDENT},${{ steps.post_buffer.outcome }}" >> logs/history_comparison.csv
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add logs/history_comparison.csv config/country_stats_cache.json
+          git commit -m "log: comparison run ${DATE} (${IDENT})" || echo "nothing to commit"
+          for i in 1 2 3; do
+            git pull --rebase && git push && break || sleep $((i * 5))
+          done

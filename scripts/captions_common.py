@@ -129,6 +129,34 @@ SERIES_COPY = {
             "Guess this one right? Comment below! 👇",
         ],
     },
+    "comparison": {
+        "yt_emoji": "⚔️",
+        "tt_suffix": "⚔️",
+        "subscribe_lines": [
+            "Subscribe for a new country comparison every day! 🌏",
+            "Follow for more head-to-head country stats. 🌏",
+            "Two countries, one comparison, every day — subscribe. 🌏",
+        ],
+        "fb_questions": [
+            "Which country surprised you more? Let us know below! 👇",
+            "Did the numbers match what you expected? Comment below! 👇",
+            "Who do you think wins overall? Tell us below! 👇",
+        ],
+    },
+    "rankings": {
+        "yt_emoji": "🏆",
+        "tt_suffix": "🏆",
+        "subscribe_lines": [
+            "Subscribe for a new country ranking every day! 🌏",
+            "Follow for more world rankings, countdown style. 🌏",
+            "A new top countries list every day — subscribe. 🌏",
+        ],
+        "fb_questions": [
+            "Where does your country rank? Let us know below! 👇",
+            "Any surprises in this list? Comment below! 👇",
+            "Did your country make the cut? Tell us below! 👇",
+        ],
+    },
 }
 
 
