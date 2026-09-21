@@ -30,7 +30,7 @@ soundfile>=0.12.1,<0.13.0
 # Piper: fully-offline fallback if Kokoro fails to load. Ships prebuilt wheels for linux.
 # VERIFY: exact package name / version. On PyPI the package is "piper-tts" and the CLI entrypoint is "piper".
 # Voice model files are downloaded separately at runtime (see scripts/generate_tts.py).
-piper-tts>=1.2.0
+piper-tts>=1.8.0
 
 # GitHub secret encryption (write-back scripts) uses libsodium sealed boxes.
 PyNaCl>=1.6.2
