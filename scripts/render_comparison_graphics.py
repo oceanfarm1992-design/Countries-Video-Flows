@@ -106,36 +106,50 @@ def _paste_flag(canvas, flag_path, center_x, top, box_w, box_h):
     canvas.paste(flag, (x, y))
 
 
+
+# assemble_video.py burns two more layers on top of every frame that this
+# module has no control over: a hook title card (first 4s, semi-transparent
+# box) and, throughout the WHOLE video, lower-third captions from the SRT
+# (measured empirically on a real rendered frame: captions occupy roughly
+# y=1130-1340 in this 1920px canvas -- MarginV=90 in libass's 288-unit canvas
+# scales to ~600px up from the bottom). A CTA end-card (also boxed) covers
+# roughly y=1554-1690 for the final 4 seconds. A first version of this table
+# spanned the whole canvas and got its own row text overlapped/blotted out by
+# both -- verified by frame-extracting the actual assembled .mp4, not just
+# these pre-assembly PNGs (static PNGs alone don't show either overlay).
+# Fix: keep all table rows entirely above CAPTION_ZONE_TOP, and keep the
+# footer/tally (the only content below that line) below CTA_ZONE_BOTTOM.
+CAPTION_ZONE_TOP = 1130
+CTA_ZONE_BOTTOM = 1700
+
+
 def render_header(canvas, country_a, country_b, flag_a_path, flag_b_path):
     draw = ImageDraw.Draw(canvas)
     w, h = canvas.size
 
-    draw.text((w / 2 - _text_w(draw, "COUNTRY COMPARISON", _font(True, 26)) / 2, 70),
-               "COUNTRY COMPARISON", font=_font(True, 26), fill=TEXT_DIM)
-
-    flag_box_w, flag_box_h = 380, 320
-    _paste_flag(canvas, flag_a_path, w * 0.27, 140, flag_box_w, flag_box_h)
-    _paste_flag(canvas, flag_b_path, w * 0.73, 140, flag_box_w, flag_box_h)
+    flag_box_w, flag_box_h = 340, 220
+    _paste_flag(canvas, flag_a_path, w * 0.27, 60, flag_box_w, flag_box_h)
+    _paste_flag(canvas, flag_b_path, w * 0.73, 60, flag_box_w, flag_box_h)
 
     # VS badge
-    cx, cy, r = w / 2, 300, 62
+    cx, cy, r = w / 2, 170, 50
     draw.ellipse((cx - r, cy - r, cx + r, cy + r), fill=ACCENT)
-    vs_font = _font(True, 44)
+    vs_font = _font(True, 36)
     vs_w = _text_w(draw, "VS", vs_font)
-    draw.text((cx - vs_w / 2, cy - 30), "VS", font=vs_font, fill=(20, 16, 6))
+    draw.text((cx - vs_w / 2, cy - 24), "VS", font=vs_font, fill=(20, 16, 6))
 
-    name_font_a = _fit_text(draw, country_a["name"], True, 44, 26, flag_box_w + 40)
-    name_font_b = _fit_text(draw, country_b["name"], True, 44, 26, flag_box_w + 40)
-    _draw_centered(draw, w * 0.27, 508, country_a["name"], name_font_a, TEXT_WHITE)
-    _draw_centered(draw, w * 0.73, 508, country_b["name"], name_font_b, TEXT_WHITE)
+    name_font_a = _fit_text(draw, country_a["name"], True, 38, 22, flag_box_w + 40)
+    name_font_b = _fit_text(draw, country_b["name"], True, 38, 22, flag_box_w + 40)
+    _draw_centered(draw, w * 0.27, 300, country_a["name"], name_font_a, TEXT_WHITE)
+    _draw_centered(draw, w * 0.73, 300, country_b["name"], name_font_b, TEXT_WHITE)
 
-    draw.line((60, 600, w - 60, 600), fill=(50, 56, 78), width=2)
+    draw.line((60, 358, w - 60, 358), fill=(50, 56, 78), width=2)
 
 
 def render_table(canvas, rows, highlight_label):
     draw = ImageDraw.Draw(canvas)
     w, h = canvas.size
-    top, bottom = 630, 1660
+    top, bottom = 380, CAPTION_ZONE_TOP - 20  # stay clear of the caption band entirely
     n = len(rows)
     row_h = (bottom - top) / n
 
@@ -143,38 +157,41 @@ def render_table(canvas, rows, highlight_label):
         ry0 = top + i * row_h
         ry1 = ry0 + row_h
         is_hl = row["label"] == highlight_label
-        pad = 10
+        pad = 7
         box = (50, ry0 + pad, w - 50, ry1 - pad)
-        _rounded_rect(draw, box, 18, PANEL_HIGHLIGHT if is_hl else PANEL_COLOR)
+        _rounded_rect(draw, box, 14, PANEL_HIGHLIGHT if is_hl else PANEL_COLOR)
 
-        label_font = _font(True, 30 if is_hl else 22)
-        value_font_a = _font(True, 52 if is_hl else 36)
-        value_font_b = _font(True, 52 if is_hl else 36)
+        label_font = _font(True, 22 if is_hl else 16)
+        value_font_a = _font(True, 38 if is_hl else 26)
+        value_font_b = _font(True, 38 if is_hl else 26)
         label_color = TEXT_WHITE if is_hl else TEXT_LABEL_DIM
         value_color = TEXT_WHITE if is_hl else TEXT_DIM
 
         mid_y = (box[1] + box[3]) / 2
-        _draw_centered(draw, w / 2, mid_y - label_font.size / 2 - (34 if is_hl else 20),
+        _draw_centered(draw, w / 2, mid_y - label_font.size / 2 - (26 if is_hl else 16),
                        row["label"].upper(), label_font, label_color)
 
         val_a = format_value(row["unit"], row["value_a"])
         val_b = format_value(row["unit"], row["value_b"])
         va_w = _text_w(draw, val_a, value_font_a)
         vb_w = _text_w(draw, val_b, value_font_b)
-        vy = mid_y + (2 if is_hl else 4)
+        vy = mid_y + (0 if is_hl else 2)
         draw.text((w * 0.27 - va_w / 2, vy), val_a, font=value_font_a, fill=value_color)
         draw.text((w * 0.73 - vb_w / 2, vy), val_b, font=value_font_b, fill=value_color)
 
         if row["comparable"]:
             winner_x = w * 0.27 if row["value_a"] > row["value_b"] else w * 0.73
-            arrow_font = _font(True, 34 if is_hl else 24)
+            arrow_font = _font(True, 26 if is_hl else 18)
             arrow_color = ACCENT if is_hl else (170, 140, 60)
             arrow_w = _text_w(draw, "\u25b2", arrow_font)
-            draw.text((winner_x - arrow_w / 2, vy - arrow_font.size - 4), "\u25b2",
+            draw.text((winner_x - arrow_w / 2, vy - arrow_font.size - 2), "\u25b2",
                        font=arrow_font, fill=arrow_color)
 
 
 def render_footer(canvas, country_a, country_b, rows, mode):
+    """Everything here must stay below CTA_ZONE_BOTTOM -- the only safe strip
+    left once the caption band (throughout) and the CTA end-card (final 4s)
+    are both accounted for."""
     draw = ImageDraw.Draw(canvas)
     w, h = canvas.size
     if mode == "outro":
@@ -186,7 +203,7 @@ def render_footer(canvas, country_a, country_b, rows, mode):
             leader = country_a["name"] if wins_a > wins_b else country_b["name"]
             summary = f"{leader.upper()} LEADS {max(wins_a, wins_b)}-{min(wins_a, wins_b)}"
         font = _fit_text(draw, summary, True, 40, 22, w - 120)
-        _draw_centered(draw, w / 2, 1700, summary, font, ACCENT)
+        _draw_centered(draw, w / 2, 1740, summary, font, ACCENT)
 
     year_set = sorted({r["year_a"] for r in rows} | {r["year_b"] for r in rows})
     years = year_set[0] if len(year_set) == 1 else f"{year_set[0]}-{year_set[-1]}"
