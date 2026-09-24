@@ -3120,6 +3120,22 @@
       "iso2": "ZW",
       "lat": -19.0154,
       "lon": 29.1549
+    },
+    {
+      "id": "estonia",
+      "name": "Estonia",
+      "specialty": "The digital nation of e-Residency, online voting, and medieval Tallinn",
+      "hook_text": "THE NATION THAT WENT DIGITAL FIRST",
+      "footage_query": "Estonia Tallinn medieval old town Baltic coast forest bog cinematic",
+      "facts": [
+        "Estonia became the first country to offer e-Residency in 2014 — anyone in the world can apply for a digital ID and run an EU company online",
+        "In 2005 Estonia became the first country to allow internet voting in a nationwide election",
+        "Skype's original software was built by Estonian engineers in Tallinn",
+        "Tallinn's medieval Old Town is a UNESCO World Heritage Site — one of the best-preserved medieval cities in Northern Europe"
+      ],
+      "iso2": "EE",
+      "lat": 58.5953,
+      "lon": 25.0136
     }
   ],
   "footage": {

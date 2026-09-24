@@ -76,6 +76,8 @@ Output of a local build lands in `build/` (`build/final.mp4`).
 - `config/rankings_static.json` is curated by hand. Re-pull the published indices yearly;
   runs log a warning once `_last_refreshed` is over 400 days old.
 - `config/rankings_metrics.json` and `config/countries.json` drive date-based rotations,
-  so only append to them. Inserting or reordering shifts every series' schedule.
+  so only append to them. Appending still moves the hook and geography offsets by one and
+  reshuffles the comparison pairs (the schedules depend on the list length); inserting or
+  reordering shifts every series much more.
 - `scripts/build_geo_assets.py` regenerates the geography map masks offline whenever a
   country is added.
