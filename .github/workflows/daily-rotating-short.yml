@@ -13,9 +13,10 @@ name: daily-rotating-short
 # runs that day skip.
 on:
   schedule:
-    # Hourly from 08 to 23 UTC at :17 (off the top of the hour, where GitHub drops
-    # the most runs). The late hours are catch-up retries for dropped runs.
-    - cron: "17 8-23 * * *"
+    # Hourly, all 24 hours, at :17 (off the top of the hour, where GitHub drops
+    # the most runs). Extra ticks are catch-up retries for dropped runs; the
+    # gate itself enforces target hours, a cross-series gap and a nightly blackout.
+    - cron: "17 * * * *"
   workflow_dispatch:
     inputs:
       force_run:
@@ -109,6 +110,12 @@ jobs:
                       skip, reason = True, f"too early (now {now:%H:%M}, next due {next_hour:02d}:00)"
                   else:
                       skip, reason = True, "both of today's slots already posted"
+
+          if not force and not skip:
+              from post_gate import spacing_block
+              wait = spacing_block(now)
+              if wait:
+                  pick, skip, reason = None, True, wait
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               f.write(f"skip={'true' if skip else 'false'}\n")

@@ -15,7 +15,7 @@ name: daily-comparison-short
 # top-of-hour triggers) to spread runner load.
 on:
   schedule:
-    - cron: "53 8-23 * * *"
+    - cron: "53 * * * *"
   workflow_dispatch:
     inputs:
       force_run:
@@ -64,10 +64,12 @@ jobs:
         run: |
           python - <<'EOF'
           import hashlib, json, os, subprocess, sys
+          sys.path.insert(0, "scripts")
           from datetime import date, datetime, timezone
 
           EPOCH = date(2026, 7, 23)
-          CANDIDATE_HOURS = [9, 12, 14, 16, 18, 21]
+          LANE_A = [1, 2, 3]     # 05:00-07:59 Dubai
+          LANE_B = [10, 11, 12]  # 14:00-16:59 Dubai
 
           def seed(day_number, salt):
               h = hashlib.sha256(f"comparison:{day_number}:{salt}".encode("utf-8")).hexdigest()
@@ -77,9 +79,8 @@ jobs:
           day_number = (now.date() - EPOCH).days
           force = os.environ.get("FORCE_RUN", "").lower() == "true"
 
-          hour_a = CANDIDATE_HOURS[seed(day_number, "hourA") % len(CANDIDATE_HOURS)]
-          remaining = [h for h in CANDIDATE_HOURS if h != hour_a]
-          hour_b = remaining[seed(day_number, "hourB") % len(remaining)]
+          hour_a = LANE_A[seed(day_number, "hourA") % len(LANE_A)]
+          hour_b = LANE_B[seed(day_number, "hourB") % len(LANE_B)]
           slots = sorted([{"slot": "A", "hour": hour_a}, {"slot": "B", "hour": hour_b}],
                           key=lambda s: s["hour"])
 
@@ -113,6 +114,12 @@ jobs:
               else:
                   next_hour = slots[posted_count]["hour"]
                   pick, skip, reason = None, True, f"too early (now {now:%H:%M}, next due {next_hour:02d}:00)"
+
+          if not force and not skip:
+              from post_gate import spacing_block
+              wait = spacing_block(now)
+              if wait:
+                  pick, skip, reason = None, True, wait
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               f.write(f"skip={'true' if skip else 'false'}\n")

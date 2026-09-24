@@ -37,7 +37,9 @@ DAILY_PAIRS = {
 # Candidate UTC hours either slot's post may fire at. The gate workflow triggers
 # at every one of these; the job only proceeds on an hour this module picked for
 # one of today's slots, so post times vary day to day instead of being fixed.
-CANDIDATE_HOURS = [8, 10, 11, 13, 15, 17]
+# Per-slot lanes (UTC) so the two rotating posts never cluster: A lands
+# 01:00-03:59 Dubai, B lands 18:00-21:59 Dubai.
+SLOT_HOURS = {"A": [21, 22, 23], "B": [14, 15, 16, 17]}
 
 # Narration length bands (min_words, max_words). A different band per day means a
 # different video duration — another varied signal. Kept within the config's
@@ -68,7 +70,8 @@ def profiles_for(day_number):
     series_pair = DAILY_PAIRS[day_number % len(DAILY_PAIRS)]
     profiles = []
     for slot, series in zip("AB", series_pair):
-        hour = CANDIDATE_HOURS[_seed(day_number, f"hour{slot}") % len(CANDIDATE_HOURS)]
+        lane = SLOT_HOURS[slot]
+        hour = lane[_seed(day_number, f"hour{slot}") % len(lane)]
         word_band = WORD_BANDS[_seed(day_number, f"words{slot}") % len(WORD_BANDS)]
         profiles.append({
             "day_number": day_number,

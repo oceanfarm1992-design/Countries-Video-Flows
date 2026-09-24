@@ -18,7 +18,7 @@ name: daily-rankings-short
 # load.
 on:
   schedule:
-    - cron: "37 8-23 * * *"
+    - cron: "37 * * * *"
   workflow_dispatch:
     inputs:
       force_run:
@@ -63,10 +63,11 @@ jobs:
         run: |
           python - <<'EOF'
           import hashlib, json, os, subprocess, sys
+          sys.path.insert(0, "scripts")
           from datetime import date, datetime, timezone
 
           EPOCH = date(2026, 7, 23)
-          CANDIDATE_HOURS = [10, 13, 16, 19, 22]
+          CANDIDATE_HOURS = [6, 7, 8]  # 10:00-12:59 Dubai
 
           def seed(day_number, salt):
               h = hashlib.sha256(f"rankings:{day_number}:{salt}".encode("utf-8")).hexdigest()
@@ -103,6 +104,12 @@ jobs:
               skip, reason = True, f"too early (now {now:%H:%M}, due {hour:02d}:00)"
           else:
               skip, reason = False, f"due ({now:%H:%M} >= {hour:02d}:00)"
+
+          if not force and not skip:
+              from post_gate import spacing_block
+              wait = spacing_block(now)
+              if wait:
+                  skip, reason = True, wait
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               f.write(f"skip={'true' if skip else 'false'}\n")
