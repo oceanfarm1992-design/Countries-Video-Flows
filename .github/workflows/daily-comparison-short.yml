@@ -36,6 +36,7 @@ on:
         default: ""
 
 permissions:
+  actions: read     # post_gate checks for other video workflows mid-build
   contents: write   # commit logs/history_comparison.csv, config/country_stats_cache.json, and create the release asset
 
 # Serialize runs so a catch-up run can't start building while an earlier one is
@@ -68,8 +69,8 @@ jobs:
           from datetime import date, datetime, timezone
 
           EPOCH = date(2026, 7, 23)
-          LANE_A = [1, 2, 3]     # 05:00-07:59 Dubai
-          LANE_B = [10, 11, 12]  # 14:00-16:59 Dubai
+          LANE_A = [0, 1, 2]  # 04:00-06:59 Dubai
+          LANE_B = [8, 9]     # 12:00-13:59 Dubai
 
           def seed(day_number, salt):
               h = hashlib.sha256(f"comparison:{day_number}:{salt}".encode("utf-8")).hexdigest()

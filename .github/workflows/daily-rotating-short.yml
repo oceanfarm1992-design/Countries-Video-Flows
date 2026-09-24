@@ -34,6 +34,7 @@ on:
         default: ""
 
 permissions:
+  actions: read     # post_gate checks for other video workflows mid-build
   contents: write   # commit logs/history_rotating.csv and create the release asset
 
 # Serialize runs so a catch-up run can't start building while an earlier one is still

@@ -34,12 +34,11 @@ DAILY_PAIRS = {
     4: ["worlddata", "country"],
 }
 
-# Candidate UTC hours either slot's post may fire at. The gate workflow triggers
-# at every one of these; the job only proceeds on an hour this module picked for
-# one of today's slots, so post times vary day to day instead of being fixed.
-# Per-slot lanes (UTC) so the two rotating posts never cluster: A lands
-# 01:00-03:59 Dubai, B lands 18:00-21:59 Dubai.
-SLOT_HOURS = {"A": [21, 22, 23], "B": [14, 15, 16, 17]}
+# Per-slot target-hour lanes (UTC), picked per day so post times vary. A lands
+# 15:00-17:59 Dubai, B 19:00-21:59 Dubai. Lanes stay well before UTC midnight:
+# GitHub often starts late ticks after 00:00 UTC, when "today" rolls over and an
+# unposted slot is lost.
+SLOT_HOURS = {"A": [11, 12, 13], "B": [15, 16, 17]}
 
 # Narration length bands (min_words, max_words). A different band per day means a
 # different video duration — another varied signal. Kept within the config's

@@ -35,6 +35,7 @@ on:
         default: ""
 
 permissions:
+  actions: read     # post_gate checks for other video workflows mid-build
   contents: write   # commit logs/history_rankings.csv, config/rankings_stats_cache.json, and create the release asset
 
 # Serialize runs so a catch-up run can't start building while an earlier one is
@@ -67,7 +68,7 @@ jobs:
           from datetime import date, datetime, timezone
 
           EPOCH = date(2026, 7, 23)
-          CANDIDATE_HOURS = [6, 7, 8]  # 10:00-12:59 Dubai
+          CANDIDATE_HOURS = [4, 5, 6]  # 08:00-10:59 Dubai
 
           def seed(day_number, salt):
               h = hashlib.sha256(f"rankings:{day_number}:{salt}".encode("utf-8")).hexdigest()
