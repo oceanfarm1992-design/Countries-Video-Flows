@@ -1,131 +1,81 @@
-# yt-shorts-generator
+# Countries Video Flows
 
-A **zero-cost, fully automated daily pipeline** that builds one ~30-50s vertical (9:16)
-motivational short from **public-domain sources** and posts it to **Instagram Reels,
-Facebook, and YouTube Shorts**. Everything runs on the **GitHub Actions free
-tier** — no paid infrastructure, no YouTube ripping.
+A fully automated pipeline that builds vertical (9:16) country-themed Shorts and posts
+them to **YouTube**, **Facebook** and **TikTok** every day. Everything runs on GitHub
+Actions. Narration uses the channel owner's cloned voice (StyleTTS2).
 
-Posting is handed off to **Zapier via a shared Google Sheet** rather than calling each
-platform's API with tokens directly. The pipeline appends one row per video to a Google
-Sheet; a free Zapier "New Spreadsheet Row" trigger (one Zap per platform) picks it up and
-posts using Zapier's own already-verified connections. This sidesteps the token churn that
-kept breaking direct posting (Meta long-lived token re-exchange, TikTok's rotating refresh
-token, YouTube OAuth verification). **TikTok is not posted** — its app isn't audited and
-there's no free Zapier TikTok posting integration.
+## Series
 
-## How it works
+| Workflow | Series | Posts/day |
+|---|---|---|
+| `daily-rotating-short.yml` | Rotates 5 single-country series: `country`, `hook`, `trending`, `geography`, `worlddata` (2 per day, pairs set by `scripts/daily_variation.py`) | 2 |
+| `daily-comparison-short.yml` | Country vs country, real World Bank stats | 2 |
+| `daily-rankings-short.yml` | Top-8 countdown of one metric (live World Bank data + curated indices in `config/rankings_static.json`) | 1 |
+| `ci.yml` | Installs pinned deps and runs `tests/`; gates Dependabot auto-merge | - |
 
-Each day a GitHub Actions cron job runs these stages in order:
+## Schedule
 
-| Stage | Script | What it does |
-|-------|--------|--------------|
-| 1 | `fetch_script_text.py` | Picks a public-domain excerpt (Marcus Aurelius / Emerson / Seneca) from `config/sources.json`, rotating by date. Wraps it with a short spoken intro + reflective outro so the narration runs ~40s (not an abrupt ~20s). Also writes per-platform caption files. |
-| 2 | `fetch_footage.py` | Fetches a **theme-matched, HD** B-roll clip. Tries **Pexels → Pixabay**, searching by the quote's `footage_query` so the footage is relevant. If no suitable clip is found, falls back to `generate_animation.py` — a **generated cinematic gradient** (always on-tone, never random). archive.org NASA footage is still available but off by default. |
-| 3 | `generate_tts.py` | Generates the voiceover with **Piper TTS** (offline, no API key), default voice `en_US-amy-medium` (natural). Falls back to `espeak-ng` if Piper fails. |
-| 4 | `generate_captions.py` | Builds a burned-in `.srt` from the known script text + measured audio duration (no transcription needed). |
-| 5a | `generate_music.py` | Synthesizes a soft **ambient music pad** with ffmpeg (`build/music.mp3`) — no assets needed. Skipped in favour of real tracks if you drop any in `assets/music/`. |
-| 5b | `assemble_video.py` | ffmpeg: crop/pad footage to 1080x1920, burn in **centre-screen** captions + a hook title card + end-card CTA; **denoise + loudness-normalize** the voice, and mix the **background music** under it. |
-| 6 | `post_sheet.py` | Appends one row (`title \| description \| hashtags \| caption \| video_url \| category`) to the shared Google Sheet. Zapier posts to Instagram / Facebook / YouTube from there. |
-| 7 | workflow step | Appends a row to `logs/history.csv` and commits it back. |
+Each video workflow ticks hourly, but GitHub drops or delays many scheduled runs, so the
+gate step posts a slot once its target hour has passed and it isn't posted yet. Each slot
+has its own target-hour lane (Dubai time): comparison A 04-07, rankings 08-11,
+comparison B 12-14, rotating A 15-18, rotating B 19-22. `scripts/post_gate.py` also
+requires at least 100 minutes between any two posts, waits while another video workflow
+is mid-build, and blocks posting from 23:50 to 01:00 Dubai.
 
-The workflow is `.github/workflows/daily-short.yml`. It runs **daily at 14:00 UTC**
-(`build_and_post`) and is also runnable on demand via **workflow_dispatch**. There is no
-longer a token-refresh job — posting auth lives in Zapier, not in this repo.
+## Pipeline
 
-> The direct-API posters (`post_meta.py`, `post_tiktok.py`, `post_youtube.py`,
-> `refresh_meta_token.py`) are kept in `scripts/` for reference but are **no longer wired
-> into the workflow**. Re-wire `post_tiktok.py` once the TikTok app passes audit.
+1. `generate_*_script.py`: narration and on-screen beats. GPT-4o-mini writes it,
+   `fact_check.py` reviews it (against the real data for comparison/rankings), and a
+   template built only from fetched numbers is used if the check fails.
+2. `fetch_footage.py` (Pexels, then Pixabay, then generated animation) or a series
+   renderer (`render_geography_map.py`, `render_worlddata_graphics.py`,
+   `render_comparison_graphics.py`, `render_rankings_graphics.py`).
+3. `generate_tts.py`: StyleTTS2 cloned voice, falling back to Kokoro, then Piper.
+4. `generate_captions.py`, `generate_music.py`, `generate_intro.py`, `assemble_video.py`.
+5. The video is uploaded as a GitHub Release asset (its public URL is what Buffer posts
+   from, so the repo must stay public), then `post_buffer.py` (Facebook + TikTok) and
+   `post_youtube.py`. If any platform fails, the run is marked failed.
+6. A row is appended to `logs/history_<series>.csv`:
+   date, title, identifier, Buffer outcome, YouTube outcome.
 
-### One-time setup (no Google Cloud needed)
+Numbers are never invented: every figure comes from a live fetch or a curated snapshot
+with a named source. Ties use competition ranking, and stale live data is dropped.
 
-After this ~15-minute setup the pipeline is **fully autonomous** — no tokens to refresh,
-nothing to touch daily.
+## Required secrets
 
-1. Create a Google Sheet with a header row: `title | description | hashtags | caption | video_url | category`.
-2. **Deploy the sheet web app (no Cloud project, no key file):** in that sheet, open
-   **Extensions → Apps Script**, paste `scripts/sheet_webhook.gs`, then
-   **Deploy → New deployment → Web app** (Execute as: *Me*, Who has access: *Anyone*).
-   Copy the resulting `…/exec` URL into the `SHEET_WEBHOOK_URL` secret. Optionally set a
-   random token in both the script and the `SHEET_WEBHOOK_TOKEN` secret.
-3. In Zapier, create one Zap per platform: trigger **Google Sheets → New Spreadsheet Row**
-   on this sheet; action **Instagram / Facebook / YouTube → post video**, mapping the
-   `video_url` and `caption` columns. Zapier's free tier (~100 tasks/month) covers a
-   once-daily post to three platforms (~90/month).
+| Secret | Used for |
+|---|---|
+| `OPENAI_API_KEY` | Narration, fact-check, captions |
+| `VOICE_REPO_PAT` | Fetching the private voice reference sample |
+| `BUFFER_API_KEY`, `BUFFER_ORG_ID`, `BUFFER_FACEBOOK_CHANNEL_ID`, `BUFFER_TIKTOK_CHANNEL_ID` | Facebook + TikTok posting |
+| `YOUTUBE_CLIENT_ID`, `YOUTUBE_CLIENT_SECRET`, `YOUTUBE_REFRESH_TOKEN` | YouTube upload |
+| `PEXELS_API_KEY`, `PIXABAY_API_KEY` | Stock footage (optional) |
+| `NEWS_API_KEY` | Headlines for the trending series |
 
-## Content sourcing
+## Manual runs
 
-- **Text:** Project Gutenberg public-domain excerpts, curated in `config/sources.json`.
-- **Video:** theme-matched HD stock from **Pexels** or **Pixabay** (free licenses, free
-  commercial use), searched by each quote's `footage_query`. When no suitable stock clip
-  is found, `generate_animation.py` renders an on-tone **animated gradient** background
-  (ffmpeg, no assets/network) instead of dropping in a random/irrelevant clip — this is
-  the guaranteed fallback and never fails. archive.org **NASA** public-domain footage is
-  still available (`--source archive`, or add `"archive"` back to `footage.source_order`)
-  but is off by default. The `prelinger` collection was removed (off-tone, low-res).
-- **Voice:** Piper TTS — open-source, offline, CI-friendly.
-- **No copyrighted material is downloaded or reused.** (Pexels/Pixabay clips are free-to-
-  use under their own licenses; NASA footage is public domain.)
+Every workflow has `workflow_dispatch`. `dry_run` defaults to **true** (builds the video
+and uploads it as an artifact, posts nothing). `force_run` skips the hour gate. The
+rotating workflow also accepts `series` and `country_index`; comparison accepts
+`index_a`/`index_b`; rankings accepts `metric_id`.
 
-## Required GitHub Secrets
-
-Create these under **Settings → Secrets and variables → Actions**:
-
-| Secret | Used by | Purpose |
-|--------|---------|---------|
-| `SHEET_WEBHOOK_URL` | `post_sheet.py` | Apps Script web app URL (…/exec) that appends the row to the sheet. See `scripts/sheet_webhook.gs`. No Google Cloud needed. |
-| `SHEET_WEBHOOK_TOKEN` | `post_sheet.py` | *Optional.* Shared secret; must match the token in `sheet_webhook.gs` so only your pipeline can write. |
-| `PEXELS_API_KEY` | `fetch_footage.py` | *Optional.* Free key from https://www.pexels.com/api/ for HD theme-matched footage (tried first). |
-| `PIXABAY_API_KEY` | `fetch_footage.py` | *Optional.* Free key from https://pixabay.com/api/docs/ (tried second). |
-
-Footage degrades gracefully: with **no** stock key set, `fetch_footage.py` falls back to
-free archive.org NASA footage automatically. Set at least one stock key for the best
-quality + relevance.
-
-`GITHUB_TOKEN` (built-in) is used to create the release asset and commit the log — no
-setup needed. The old per-platform token secrets (`META_*`, `TIKTOK_*`, `YOUTUBE_*`,
-`GH_PAT`) are **no longer used** and can be deleted once you've confirmed the Zapier path
-works.
-
-## Posting notes
-
-- **Public video URL still required.** Zapier's Instagram/Facebook/YouTube actions post
-  from the `video_url` column, so the workflow still uploads `final.mp4` as a GitHub
-  **Release asset** and writes that public URL into the sheet row. **This only works if
-  the repo is PUBLIC**; for a private repo, host the mp4 elsewhere and set the URL there.
-- **No tokens in the repo.** All platform authentication now lives inside the Zaps
-  (Zapier's own connections), which is why the token-refresh job and all `META_*` /
-  `TIKTOK_*` / `YOUTUBE_*` secrets are gone.
-- **TikTok** is not posted — its app isn't audited and Zapier has no free TikTok
-  content-posting integration. `scripts/post_tiktok.py` is retained for when that changes.
-
-## Running / debugging locally
-
-Every stage is independently runnable. Typical local dry-run:
+## Local development
 
 ```bash
-pip install -r requirements.txt
-sudo apt-get install -y ffmpeg fonts-dejavu-core espeak-ng
-
-python scripts/fetch_script_text.py
-python scripts/fetch_footage.py          # PEXELS_API_KEY/PIXABAY_API_KEY optional; falls back to a generated animation
-# python scripts/fetch_footage.py --source animate   # force the generated gradient background
-python scripts/generate_tts.py          # or: --fallback espeak
-python scripts/generate_captions.py
-python scripts/generate_music.py       # ambient pad -> build/music.mp3 (or drop tracks in assets/music/)
-python scripts/assemble_video.py
-# -> build/final.mp4
+pip install torch==2.8.0+cpu torchaudio==2.8.0+cpu --index-url https://download.pytorch.org/whl/cpu
+pip install -r requirements.txt pytest
+python -m pytest tests          # offline smoke tests
+python scripts/fetch_rankings_stats.py hdi --top 8
+python scripts/daily_variation.py   # upcoming rotating slots
 ```
 
-Posting now goes through `post_sheet.py` → Apps Script web app → Google Sheet → Zapier;
-set `SHEET_WEBHOOK_URL` to test it. The old direct-API posters are unwired (see note above).
+Output of a local build lands in `build/` (`build/final.mp4`).
 
-## Limitations / things to verify
+## Maintenance
 
-- **Repo must be public** for the release-asset public-URL (which Zapier posts from) to work.
-- **TikTok is not posted** — its app isn't audited and Zapier has no free TikTok posting
-  integration. `scripts/post_tiktok.py` is retained for when that changes.
-- CLI flags / paths marked with `# VERIFY:` comments (Piper CLI flags such as
-  `--length_scale`/`--sentence_silence`, ffmpeg font paths) should be confirmed against the
-  versions actually installed on the runner.
-- The pipeline is intentionally simple (one JSON config, no framework) — it's a personal
-  hobby pipeline, not enterprise software.
+- `config/rankings_static.json` is curated by hand. Re-pull the published indices yearly;
+  runs log a warning once `_last_refreshed` is over 400 days old.
+- `config/rankings_metrics.json` and `config/countries.json` drive date-based rotations,
+  so only append to them. Inserting or reordering shifts every series' schedule.
+- `scripts/build_geo_assets.py` regenerates the geography map masks offline whenever a
+  country is added.

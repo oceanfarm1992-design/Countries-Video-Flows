@@ -99,7 +99,7 @@ def main():
     required = ["YOUTUBE_CLIENT_ID", "YOUTUBE_CLIENT_SECRET", "YOUTUBE_REFRESH_TOKEN"]
     missing = [k for k in required if not os.environ.get(k, "").strip()]
     if missing:
-        print(f"[post_youtube] {', '.join(missing)} not set — skipping YouTube upload.")
+        print(f"::warning::[post_youtube] {', '.join(missing)} not set — skipping YouTube upload.")
         return  # optional platform: don't fail the whole run over it
 
     if args.title is not None:

@@ -54,6 +54,7 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
+          cache: pip
 
       # ---- gate: run whichever of today's two comparison slots is due and unposted ----
       - name: Check today's slot schedule and gate
@@ -267,7 +268,7 @@ jobs:
           DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           SCRIPT_TITLE=$(python -c "import json;d=json.load(open('build/script.json'));print(d.get('name','unknown'))" 2>/dev/null || echo "unknown")
           IDENT=$(python -c "import json;print(json.load(open('build/footage.json'))['identifier'])" 2>/dev/null || echo "unknown")
-          echo "${DATE},\"${SCRIPT_TITLE}\",${IDENT},${{ steps.post_buffer.outcome }}" >> logs/history_comparison.csv
+          echo "${DATE},\"${SCRIPT_TITLE}\",${IDENT},${{ steps.post_buffer.outcome }},${{ steps.post_youtube.outcome }}" >> logs/history_comparison.csv
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add logs/history_comparison.csv config/country_stats_cache.json
@@ -275,3 +276,9 @@ jobs:
           for i in 1 2 3; do
             git pull --rebase && git push && break || sleep $((i * 5))
           done
+
+      - name: Fail the run if any platform post failed
+        if: always() && steps.gate.outputs.skip == 'false' && (steps.post_buffer.outcome == 'failure' || steps.post_youtube.outcome == 'failure')
+        run: |
+          echo "::error::Posting failed -- Facebook/TikTok (Buffer): ${{ steps.post_buffer.outcome }}, YouTube: ${{ steps.post_youtube.outcome }}"
+          exit 1

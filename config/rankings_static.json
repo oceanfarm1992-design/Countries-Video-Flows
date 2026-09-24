@@ -1,5 +1,6 @@
 {
   "_comment": "Curated snapshots for the 'rankings' series' metrics that have NO free live API (see config/rankings_metrics.json for the full ~19-metric registry, live + static). Every value below was read directly from the cited source on 2026-09-21 -- never estimated or invented, matching this project's standing rule (see fetch_country_stats.py). Ordered highest-first within each metric except military_strength, where Global Firepower's PowerIndex is LOWER-is-stronger (see rankings_metrics.json's sort_direction for that metric). REFRESH OWNER: whoever maintains this repo -- re-pull each metric when its source publishes a new edition (HDI/WHR/GII/PISA: annual or less; Democracy Index/CPI/Henley: annual; Global Firepower: annual). Countries not present in config/countries.json (e.g. Hong Kong -- a territory, not a UN member state) are deliberately omitted rather than guessed at. Estonia is missing from every metric below because it is currently absent from config/countries.json itself (a pre-existing gap in that shared list, unrelated to this series -- flagged separately, not fixed here).",
+  "_last_refreshed": "2026-09-21",
   "hdi": {
     "label": "Human Development Index",
     "source": "UN Human Development Report",

@@ -107,7 +107,7 @@ def main():
 
     token = os.environ.get("BUFFER_API_KEY", "").strip()
     if not token:
-        print("[post_buffer] BUFFER_API_KEY not set — skipping Buffer posting.",
+        print("::warning::[post_buffer] BUFFER_API_KEY not set — skipping Buffer posting.",
               file=sys.stderr)
         sys.exit(0)  # optional platform: don't fail the whole run
 

@@ -32,6 +32,15 @@ on:
         type: choice
         options: ["", "pexels", "pixabay", "animate", "archive"]
         default: ""
+      series:
+        description: "Force a series (applies with force_run; blank = today's profile)"
+        type: choice
+        options: ["", "country", "hook", "trending", "geography", "worlddata"]
+        default: ""
+      country_index:
+        description: "Force a country index, 0-based into config/countries.json (blank = auto)"
+        type: string
+        default: ""
 
 permissions:
   actions: read     # post_gate checks for other video workflows mid-build
@@ -52,12 +61,14 @@ jobs:
       - uses: actions/setup-python@v7
         with:
           python-version: "3.11"
+          cache: pip
 
       # ---- gate: run whichever of today's two slots is due and unposted ----
       - name: Check today's variation profile and gate
         id: gate
         env:
           FORCE_RUN: ${{ inputs.force_run }}
+          SERIES_OVERRIDE: ${{ inputs.series }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
         run: |
@@ -96,6 +107,8 @@ jobs:
               # (or slot A if the release list couldn't be read / both look posted).
               remaining = [s for s in slots if read_ok and not already_posted(s["series"])]
               pick, skip, reason = (remaining[0] if remaining else slots[0]), False, "force_run=true"
+              if os.environ.get("SERIES_OVERRIDE"):
+                  pick = dict(pick, series=os.environ["SERIES_OVERRIDE"])
           elif not read_ok:
               pick, skip, reason = None, True, "could not read releases — failing closed"
           else:
@@ -153,12 +166,17 @@ jobs:
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
+          COUNTRY_INDEX: ${{ inputs.country_index }}
         run: |
           SERIES="${{ steps.gate.outputs.series }}"
           MIN_WORDS="${{ steps.gate.outputs.min_words }}"
           MAX_WORDS="${{ steps.gate.outputs.max_words }}"
           VARIANT_SEED="${{ steps.gate.outputs.variant_seed }}"
           COMMON_ARGS="--config config/countries.json --min-words $MIN_WORDS --max-words $MAX_WORDS --variant-seed $VARIANT_SEED"
+          if [ -n "$COUNTRY_INDEX" ]; then
+            case "$COUNTRY_INDEX" in *[!0-9]*) echo "country_index must be a number"; exit 1;; esac
+            COMMON_ARGS="$COMMON_ARGS --index $COUNTRY_INDEX"
+          fi
           echo "[generate] series=$SERIES min_words=$MIN_WORDS max_words=$MAX_WORDS"
           if   [ "$SERIES" = "country" ];  then
             python scripts/generate_country_script.py $COMMON_ARGS
@@ -180,10 +198,11 @@ jobs:
         env:
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
           PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+          FOOTAGE_SOURCE: ${{ inputs.footage_source }}
         run: |
           ARG=""
-          if [ -n "${{ inputs.footage_source }}" ]; then
-            ARG="--source ${{ inputs.footage_source }}"
+          if [ -n "$FOOTAGE_SOURCE" ]; then
+            ARG="--source $FOOTAGE_SOURCE"
           fi
           python scripts/fetch_footage.py --config config/countries.json $ARG
 
@@ -307,7 +326,7 @@ jobs:
           SERIES="${{ steps.gate.outputs.series }}"
           SCRIPT_TITLE=$(python -c "import json;d=json.load(open('build/script.json'));print(d.get('name',d.get('title','unknown')))" 2>/dev/null || echo "unknown")
           IDENT=$(python -c "import json;print(json.load(open('build/footage.json'))['identifier'])" 2>/dev/null || echo "unknown")
-          echo "${DATE},${SERIES},\"${SCRIPT_TITLE}\",${IDENT},${{ steps.post_buffer.outcome }}" >> logs/history_rotating.csv
+          echo "${DATE},${SERIES},\"${SCRIPT_TITLE}\",${IDENT},${{ steps.post_buffer.outcome }},${{ steps.post_youtube.outcome }}" >> logs/history_rotating.csv
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add logs/history_rotating.csv
@@ -315,3 +334,9 @@ jobs:
           for i in 1 2 3; do
             git pull --rebase && git push && break || sleep $((i * 5))
           done
+
+      - name: Fail the run if any platform post failed
+        if: always() && steps.gate.outputs.skip == 'false' && (steps.post_buffer.outcome == 'failure' || steps.post_youtube.outcome == 'failure')
+        run: |
+          echo "::error::Posting failed -- Facebook/TikTok (Buffer): ${{ steps.post_buffer.outcome }}, YouTube: ${{ steps.post_youtube.outcome }}"
+          exit 1

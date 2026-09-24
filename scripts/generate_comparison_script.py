@@ -211,17 +211,23 @@ def _fallback_script(name_a, name_b, rows):
 # OpenAI narration -- STRICTLY limited to the supplied numbers
 # ---------------------------------------------------------------------------
 
+def reference_lines(name_a, name_b, rows):
+    """Display-formatted rows, identical to what GPT is given, so the fact-check
+    compares like with like (raw floats made it flag ordinary rounding)."""
+    return [
+        f"{r['label']}: {name_a}={format_value(r['unit'], r['value_a'])} "
+        f"({r['year_a']}), {name_b}={format_value(r['unit'], r['value_b'])} ({r['year_b']})"
+        for r in rows
+    ]
+
+
 def _gpt_script(name_a, name_b, rows, openai_cfg, min_words, max_words):
     api_key = os.environ.get("OPENAI_API_KEY", "").strip()
     if not api_key:
         raise RuntimeError("OPENAI_API_KEY is not set -- cannot call GPT.")
 
     client = OpenAI(api_key=api_key)
-    rows_block = "\n".join(
-        f"- {r['label']}: {name_a}={format_value(r['unit'], r['value_a'])} "
-        f"({r['year_a']}), {name_b}={format_value(r['unit'], r['value_b'])} ({r['year_b']})"
-        for r in rows
-    )
+    rows_block = "\n".join(f"- {line}" for line in reference_lines(name_a, name_b, rows))
 
     system_prompt = textwrap.dedent(f"""
         You are writing a short YouTube Shorts narration comparing {name_a} and
@@ -383,11 +389,13 @@ def main():
         print(f"[generate_comparison_script] calling OpenAI {openai_cfg.get('model', 'gpt-4o-mini')} ...")
         try:
             hook, narration, segments = _gpt_script(name_a, name_b, rows, openai_cfg, min_words, max_words)
-            ok, issues = verify_narration(narration, f"{name_a} and {name_b}", openai_cfg, reference=rows)
+            ok, issues = verify_narration(narration, f"{name_a} and {name_b}", openai_cfg,
+                                          reference=reference_lines(name_a, name_b, rows))
             if not ok:
                 print(f"[generate_comparison_script] fact-check flagged: {issues} -- regenerating once")
                 hook, narration, segments = _gpt_script(name_a, name_b, rows, openai_cfg, min_words, max_words)
-                ok, issues = verify_narration(narration, f"{name_a} and {name_b}", openai_cfg, reference=rows)
+                ok, issues = verify_narration(narration, f"{name_a} and {name_b}", openai_cfg,
+                                          reference=reference_lines(name_a, name_b, rows))
                 if not ok:
                     print(f"[generate_comparison_script] fact-check flagged again: {issues} -- using fallback script")
                     hook, narration, segments = _fallback_script(name_a, name_b, rows)

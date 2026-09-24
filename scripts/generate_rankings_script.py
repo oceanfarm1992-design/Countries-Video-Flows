@@ -157,6 +157,18 @@ def _fallback_script(metric, ranked):
 # OpenAI narration -- STRICTLY limited to the supplied ranked numbers
 # ---------------------------------------------------------------------------
 
+def reference_lines(metric, ranked):
+    """Display-formatted rows for the fact-check, matching what GPT is given
+    (raw floats made it flag ordinary rounding)."""
+    return [
+        f"{row['country_name']}: rank {row['rank']}{' (tied)' if row['tied'] else ''}, "
+        f"{format_value(metric['unit'], row['value'])} ({row['year_or_edition']})"
+        + (f"; {row['more_tied_beyond']} more countries share this value outside the top list"
+           if row.get("more_tied_beyond") else "")
+        for row in ranked
+    ]
+
+
 def _gpt_script(metric, ranked, openai_cfg, min_words, max_words):
     api_key = os.environ.get("OPENAI_API_KEY", "").strip()
     if not api_key:
@@ -384,11 +396,13 @@ def main():
         print(f"[generate_rankings_script] calling OpenAI {openai_cfg.get('model', 'gpt-4o-mini')} ...")
         try:
             hook, narration, segments = _gpt_script(metric, ranked, openai_cfg, min_words, max_words)
-            ok, issues = verify_narration(narration, metric["label"], openai_cfg, reference=ranked)
+            ok, issues = verify_narration(narration, metric["label"], openai_cfg,
+                                          reference=reference_lines(metric, ranked))
             if not ok:
                 print(f"[generate_rankings_script] fact-check flagged: {issues} -- regenerating once")
                 hook, narration, segments = _gpt_script(metric, ranked, openai_cfg, min_words, max_words)
-                ok, issues = verify_narration(narration, metric["label"], openai_cfg, reference=ranked)
+                ok, issues = verify_narration(narration, metric["label"], openai_cfg,
+                                          reference=reference_lines(metric, ranked))
                 if not ok:
                     print(f"[generate_rankings_script] fact-check flagged again: {issues} -- using fallback script")
                     hook, narration, segments = _fallback_script(metric, ranked)

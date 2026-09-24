@@ -48,6 +48,7 @@ import os
 import time
 import urllib.error
 import urllib.request
+from datetime import date, datetime, timezone
 
 WB_BASE = "https://api.worldbank.org/v2/country/all/indicator"
 DATE_RANGE = "2005:2026"
@@ -62,6 +63,8 @@ HEADERS = {"User-Agent": "yt-shorts-generator/1.0"}
 
 METRICS_CONFIG_PATH = "config/rankings_metrics.json"
 STATIC_CONFIG_PATH = "config/rankings_static.json"
+# Most source indices publish yearly; past this, the snapshot is likely a year behind.
+STATIC_MAX_AGE_DAYS = 400
 
 
 def load_metrics(path=METRICS_CONFIG_PATH):
@@ -175,6 +178,13 @@ def _get_live_values(wb_indicator, known_iso2=None, use_cache=True):
 def _load_static(static_key, path=STATIC_CONFIG_PATH):
     with open(path, encoding="utf-8") as fh:
         static_cfg = json.load(fh)
+    refreshed = static_cfg.get("_last_refreshed")
+    if refreshed:
+        age_days = (datetime.now(timezone.utc).date() - date.fromisoformat(refreshed)).days
+        if age_days > STATIC_MAX_AGE_DAYS:
+            # ::warning:: shows as an annotation on the GitHub Actions run page.
+            print(f"::warning::{path} was last refreshed {refreshed} ({age_days} days ago) -- "
+                  f"re-pull the published indices before they go stale.")
     return static_cfg[static_key]
 
 

@@ -47,26 +47,14 @@ except ImportError:
 
 
 def _reference_block(reference):
-    """Render `reference` (a list of row dicts from fetch_rankings_stats.get_ranked
-    or fetch_country_stats.get_stats-shaped rows) as plain text lines the
-    checker can compare claims against. Tolerant of either shape rather than
-    coupling this module to one series' exact schema."""
-    lines = []
-    for row in reference:
-        if "country_name" in row:  # rankings' ranked rows
-            tie = " (tied)" if row.get("tied") else ""
-            lines.append(f"- {row['country_name']}: rank {row.get('rank', '?')}{tie}, "
-                         f"value {row.get('value')} ({row.get('year_or_edition', 'n/a')})")
-        else:  # generic {label, value, year, ...} rows
-            lines.append(f"- {row}")
-    return "\n".join(lines)
+    return "\n".join(f"- {line}" for line in reference)
 
 
 def verify_narration(narration: str, country_name: str, openai_cfg: dict, reference=None):
     """Return (passed: bool, issues: list[str]).
 
-    `reference`, when given, is the exact list of real data rows the
-    narration is meant to cite (see _reference_block) — the checker is told
+    `reference`, when given, is the list of display-formatted source lines
+    the narration is meant to cite (the same values GPT was given) — the checker is told
     to validate numeric claims against THIS, not its own training-data
     recollection, since the latter produces false positives on correct but
     unfamiliar-to-the-model figures (see module docstring)."""
@@ -95,6 +83,10 @@ def verify_narration(narration: str, country_name: str, openai_cfg: dict, refere
             because it differs from what you'd expect from general knowledge, or
             because you are merely unsure — your own general knowledge is NOT the
             standard here, the source data below is.
+
+            Rounding and abbreviation are CORRECT, not errors: "$57,223" or "$57.2K"
+            for $57,222.71, "84 years" for 84.1 yrs, "1.4 billion" for 1.41B, "about a
+            third" for 33.6%. Flag a number only if it is still wrong after rounding.
 
             SOURCE DATA (the only standard for this review):
             {_reference_block(reference)}

@@ -1,12 +1,16 @@
+# Exact pins (the versions CI was running on 2026-09-23). Open ranges let any new
+# upstream release reach production on the next run; Dependabot now proposes bumps
+# as PRs that must pass the install + test check in .github/workflows/ci.yml.
+
 # Core pipeline dependencies (all pure-python or wheels that install cleanly on GitHub Actions Ubuntu)
-requests>=2.34.2
+requests==2.34.2
 
 # Music synthesis: scripts/generate_music.py builds the upbeat backing track from
 # scratch with numpy (no audio files, no license concerns).
-numpy>=1.24.0
+numpy==1.26.4
 
 # OpenAI SDK — used by scripts/generate_country_script.py to write narrations via GPT-4o-mini
-openai>=3.15.0
+openai==3.19.0
 
 # TTS: StyleTTS2 (MIT license) clones the channel owner's own voice from a private
 # reference sample fetched at runtime (see VOICE_REPO_PAT in scripts/generate_tts.py
@@ -14,33 +18,30 @@ openai>=3.15.0
 # for both series. Pulls in a large dependency tree (torch, transformers, gruut,
 # nltk, scikit-learn, and more) — install the CPU-only torch wheel first in CI (see
 # .github/workflows/*.yml) to avoid the much larger CUDA build.
-styletts2>=0.1.6
+styletts2==0.1.6
 
 # TTS: Kokoro-82M (open-weights neural TTS) — automatic fallback voice for both
 # video series if StyleTTS2 fails to load (e.g. the voice-reference fetch errors).
 # Fully offline once its checkpoint is cached, no per-run API cost. Voice fixed to
 # am_fenrir in config/countries.json's tts block.
-kokoro>=0.9.4
+kokoro==0.9.4
 # Capped below 0.13 — styletts2==0.1.6 pins soundfile<0.13.0,>=0.12.1, and a
 # Dependabot bump to >=0.14.0 (2026-09-21) made `pip install -r requirements.txt`
 # fail outright (ResolutionImpossible) for every workflow, since nothing satisfies
 # both constraints at once. Kokoro doesn't need anything newer than 0.12.x.
-soundfile>=0.12.1,<0.13.0
+soundfile==0.12.1
 
 # Piper: fully-offline fallback if Kokoro fails to load. Ships prebuilt wheels for linux.
 # VERIFY: exact package name / version. On PyPI the package is "piper-tts" and the CLI entrypoint is "piper".
 # Voice model files are downloaded separately at runtime (see scripts/generate_tts.py).
-piper-tts>=1.8.0
-
-# GitHub secret encryption (write-back scripts) uses libsodium sealed boxes.
-PyNaCl>=1.6.2
+piper-tts==1.8.0
 
 # Geography series: scripts/build_geo_assets.py (offline, one-time) and
 # scripts/render_geography_map.py (runtime) composite the country highlight onto
 # the map with Pillow -- no geopandas/shapely/GDAL needed (see the plan doc for why).
-Pillow>=10.0.0
+Pillow==12.3.0
 
 # YouTube upload via google's official client libraries.
-google-auth>=2.58.0
-google-auth-oauthlib>=1.4.1
-google-api-python-client>=2.200.0
+google-auth==2.58.0
+google-auth-oauthlib==1.4.1
+google-api-python-client==2.200.0
