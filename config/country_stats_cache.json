@@ -1045,27 +1045,27 @@
     "year": 2024
   },
   "CZ:gdp_per_capita": {
-    "fetched_at": 1789980649.1158369,
+    "fetched_at": 1790866685.896061,
     "value": 31827.7552539413,
     "year": 2024
   },
   "CZ:income": {
-    "fetched_at": 1789980649.1158369,
+    "fetched_at": 1790866685.896061,
     "value": 29570.0,
     "year": 2024
   },
   "CZ:life_expectancy": {
-    "fetched_at": 1789980649.1158369,
+    "fetched_at": 1790866685.896061,
     "value": 79.9780487804878,
     "year": 2024
   },
   "CZ:literacy": {
-    "fetched_at": 1789980649.1158369,
+    "fetched_at": 1790866685.896061,
     "value": null,
     "year": null
   },
   "CZ:population": {
-    "fetched_at": 1789980649.1158369,
+    "fetched_at": 1790866685.896061,
     "value": 10905028.0,
     "year": 2024
   },
@@ -3750,27 +3750,27 @@
     "year": 2024
   },
   "SC:gdp_per_capita": {
-    "fetched_at": 1789983511.0873544,
+    "fetched_at": 1790866684.5721912,
     "value": 18364.5259678223,
     "year": 2024
   },
   "SC:income": {
-    "fetched_at": 1789983511.0873544,
+    "fetched_at": 1790866684.5721912,
     "value": 17700.0,
     "year": 2024
   },
   "SC:life_expectancy": {
-    "fetched_at": 1789983511.0873544,
+    "fetched_at": 1790866684.5721912,
     "value": 76.2951219512195,
     "year": 2024
   },
   "SC:literacy": {
-    "fetched_at": 1789983511.0873544,
+    "fetched_at": 1790866684.5721912,
     "value": 93.9499969482422,
     "year": 2010
   },
   "SC:population": {
-    "fetched_at": 1789983511.0873544,
+    "fetched_at": 1790866684.5721912,
     "value": 121354.0,
     "year": 2024
   },
