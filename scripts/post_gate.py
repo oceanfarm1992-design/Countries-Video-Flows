@@ -27,8 +27,11 @@ def _other_build_running():
     would let two workflows that pass their gates close together both post."""
     own_id = os.environ.get("GITHUB_RUN_ID", "")
     runs = _gh_json(["run", "list", "--status", "in_progress", "--limit", "20",
-                     "--json", "databaseId,workflowName"])
+                     "--json", "databaseId,workflowName,event"])
+    # Manual runs are skipped: they're nearly always dry runs that never post,
+    # and counting them made a scheduled post wait out a test build.
     return any(r["workflowName"] in VIDEO_WORKFLOWS and str(r["databaseId"]) != own_id
+               and r.get("event") != "workflow_dispatch"
                for r in runs)
 
 
