@@ -91,6 +91,9 @@ jobs:
               skip, reason = True, "today's long-form video already posted"
           elif now.hour < hour:
               skip, reason = True, f"too early (now {now:%H:%M}, due {hour:02d}:00)"
+          elif now.hour >= 19:
+              # a ~40-min build started later would publish inside the 23:50-01:00 Dubai quiet hours
+              skip, reason = True, "too late to finish before quiet hours -- next long-form day"
           else:
               skip, reason = False, f"due ({now:%H:%M} >= {hour:02d}:00)"
 
