@@ -1,16 +1,16 @@
 name: daily-rotating-short
 
-# Two-videos-per-day pipeline. Each day posts two of the four series (slot A and
-# slot B, see daily_variation.py's DAILY_PAIRS) — over any 4-day window every
-# series posts exactly twice. Each slot's narration length, hashtag set, and
-# target post hour rotate deterministically and independently to keep the
-# account's footprint varied.
+# One-video-per-day pipeline. Each day posts one of the five series (see
+# daily_variation.py's SERIES_CYCLE) — over any 5-day window every series posts
+# exactly once. (Reduced 2026-10-03 from 2/day to cut OpenAI/posting volume.)
+# The day's narration length, hashtag set, and target post hour rotate
+# deterministically to keep the account's footprint varied.
 #
 # GitHub's scheduler starts cron runs late (often 1-2h) and silently drops many,
-# so the gate does NOT require an exact hour match: on each hourly tick, whichever
-# of today's two slots is due (now >= its target hour) and hasn't posted yet
-# (no rotating-<series>-<today> release) runs. Once both slots have posted, later
-# runs that day skip.
+# so the gate does NOT require an exact hour match: on each hourly tick, if
+# today's slot is due (now >= its target hour) and hasn't posted yet (no
+# rotating-<series>-<today> release) it runs. Once it has posted, later runs
+# that day skip.
 on:
   schedule:
     # Hourly, all 24 hours, at :17 (off the top of the hour, where GitHub drops
@@ -63,7 +63,7 @@ jobs:
           python-version: "3.11"
           cache: pip
 
-      # ---- gate: run whichever of today's two slots is due and unposted ----
+      # ---- gate: run today's single slot if it's due and unposted ----
       - name: Check today's variation profile and gate
         id: gate
         env:
@@ -123,7 +123,7 @@ jobs:
                       next_hour = min(s["hour"] for s in pending)
                       skip, reason = True, f"too early (now {now:%H:%M}, next due {next_hour:02d}:00)"
                   else:
-                      skip, reason = True, "both of today's slots already posted"
+                      skip, reason = True, "today's slot already posted"
 
           if not force and not skip:
               from post_gate import spacing_block
@@ -267,7 +267,7 @@ jobs:
           SERIES="${{ steps.gate.outputs.series }}"
           TAG="rotating-${SERIES}-$(date -u +%Y%m%d-%H%M%S)"
           gh release create "$TAG" build/final.mp4 \
-            --title "$TAG" --notes "Automated rotating short (2/day, series=$SERIES)" --latest=false
+            --title "$TAG" --notes "Automated rotating short (1/day, series=$SERIES)" --latest=false
           URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/final.mp4"
           echo "video_url=$URL" >> "$GITHUB_OUTPUT"
           echo "Public video URL: $URL"

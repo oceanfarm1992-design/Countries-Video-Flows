@@ -91,6 +91,20 @@ def test_post_gate_blackout_window():
 def test_rotating_lanes_stay_clear_of_utc_midnight():
     for day in range(0, 400):
         slots = daily_variation.profiles_for(day)
-        hours = sorted(s["hour"] for s in slots)
-        assert hours[-1] <= 17
-        assert hours[1] - hours[0] >= 2
+        assert len(slots) == 1
+        assert slots[0]["hour"] <= 17
+
+
+def test_rotating_series_cycle_covers_every_series_once_per_5_days():
+    series_seen = {daily_variation.profiles_for(d)[0]["series"] for d in range(0, 5)}
+    assert series_seen == {"country", "hook", "trending", "geography", "worlddata"}
+
+
+def test_comparison_pair_schedule_advances_one_position_per_day():
+    import generate_comparison_script as comparison
+    countries = _countries()
+    seen = set()
+    for day in range(0, 50):
+        pair = comparison.pick_pair_at(countries, day)
+        seen.add(tuple(sorted(pair)))
+    assert len(seen) == 50  # no position revisited within 50 days -> not skipping every other pair

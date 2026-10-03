@@ -4,9 +4,9 @@ Stage 1 (comparison variant): a 6th series, alongside country/hook/trending/
 geography/worlddata, on the same channels -- but unlike those (one country per
 video), this one picks TWO countries and narrates a side-by-side "X vs Y"
 comparison across a small table of real statistics (GDP per capita, income,
-literacy, population, life expectancy). Own dedicated 2-videos/day schedule
-(.github/workflows/daily-comparison-short.yml), not part of the 5-day single-
-country rotation in daily_variation.py.
+literacy, population, life expectancy). Own dedicated 1-video/day schedule
+(.github/workflows/daily-comparison-short.yml; reduced 2026-10-03 from 2/day),
+not part of the 5-day single-country rotation in daily_variation.py.
 
 Numbers are NEVER invented: they come from scripts/fetch_country_stats.py
 (World Bank public API, cached), the same "cite only supplied numbers" rule
@@ -130,11 +130,13 @@ def pick_pair_at(countries, global_index):
 
 
 def pick_pair(countries, day_number, slot):
-    """This day+slot's country pair, drawn in fixed order from the full round-
-    robin schedule so every country eventually faces every other country
-    exactly once per full cycle (~18,915 pairs for 195 countries -- roughly 26
-    years at 2 videos/day -- before it repeats)."""
-    return pick_pair_at(countries, day_number * 2 + slot)
+    """This day's country pair, drawn in fixed order from the full round-robin
+    schedule so every country eventually faces every other country exactly
+    once per full cycle (~19,110 pairs for 196 countries -- roughly 52 years
+    at 1 video/day -- before it repeats). `slot` is kept for compatibility
+    with --slot but is always 0 now that there's one video/day; a nonzero
+    value would skip schedule positions and never revisit them."""
+    return pick_pair_at(countries, day_number + slot)
 
 
 def build_rows(stats_a, stats_b):
@@ -320,7 +322,8 @@ def main():
     ap.add_argument("--index-a", type=int, default=None, help="Force country A's index (0-based).")
     ap.add_argument("--index-b", type=int, default=None, help="Force country B's index (0-based).")
     ap.add_argument("--slot", type=int, default=0, choices=[0, 1],
-                    help="Which of today's 2 comparison videos this is.")
+                    help="Which of today's comparison videos this is (always 0 now there's 1/day; "
+                         "non-default values are not re-visited by the schedule-advance logic).")
     ap.add_argument("--min-words", type=int, default=None,
                     help="Defaults to video-config's min_seconds * words_per_second.")
     ap.add_argument("--max-words", type=int, default=None,
@@ -360,7 +363,10 @@ def main():
         # data-sparse pair, walk forward through the schedule -- deterministic
         # per day+slot (same failure, same fallback, every time), so this
         # never silently invents data, it just skips to the next real pair.
-        base_index = day_number * 2 + args.slot
+        # Was `day_number * 2 + args.slot` back when 2 videos/day advanced the
+        # schedule by 2 positions/day; at 1/day that multiplier would only ever
+        # land on even positions, permanently skipping every odd pair.
+        base_index = day_number + args.slot
         rows = None
         for attempt in range(MAX_PAIR_ATTEMPTS):
             idx_a, idx_b = pick_pair_at(countries, base_index + attempt)

@@ -8,19 +8,21 @@ Actions. Narration uses the channel owner's cloned voice (StyleTTS2).
 
 | Workflow | Series | Posts/day |
 |---|---|---|
-| `daily-rotating-short.yml` | Rotates 5 single-country series: `country`, `hook`, `trending`, `geography`, `worlddata` (2 per day, pairs set by `scripts/daily_variation.py`) | 2 |
-| `daily-comparison-short.yml` | Country vs country, real World Bank stats | 2 |
+| `daily-rotating-short.yml` | Rotates 5 single-country series: `country`, `hook`, `trending`, `geography`, `worlddata` (1 per day, cycled by `scripts/daily_variation.py`, each series once every 5 days) | 1 |
+| `daily-comparison-short.yml` | Country vs country, real World Bank stats | 1 |
 | `daily-rankings-short.yml` | Top-8 countdown of one metric (live World Bank data + curated indices in `config/rankings_static.json`) | 1 |
 | `ci.yml` | Installs pinned deps and runs `tests/`; gates Dependabot auto-merge | - |
+
+Reduced 2026-10-03 from 5 videos/day (rotating + comparison at 2/day each) to 3/day.
 
 ## Schedule
 
 Each video workflow ticks hourly, but GitHub drops or delays many scheduled runs, so the
 gate step posts a slot once its target hour has passed and it isn't posted yet. Each slot
-has its own target-hour lane (Dubai time): comparison A 04-07, rankings 08-11,
-comparison B 12-14, rotating A 15-18, rotating B 19-22. `scripts/post_gate.py` also
-requires at least 100 minutes between any two posts, waits while another video workflow
-is mid-build, and blocks posting from 23:50 to 01:00 Dubai.
+has its own target-hour lane (Dubai time): comparison 04-07, rankings 08-11, rotating
+15-18. `scripts/post_gate.py` also requires at least 100 minutes between any two posts,
+waits while another video workflow is mid-build, and blocks posting from 23:50 to 01:00
+Dubai.
 
 ## Pipeline
 

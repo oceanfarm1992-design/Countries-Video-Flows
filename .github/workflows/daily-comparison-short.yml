@@ -4,14 +4,13 @@ name: daily-comparison-short
 # rotating-short.yml: two countries side by side, compared across real World
 # Bank statistics (GDP per capita, income, literacy, population, life
 # expectancy) in an on-screen table -- see scripts/generate_comparison_script.py
-# and scripts/render_comparison_graphics.py. Own dedicated 2-videos/day
-# schedule, posting to the same channels, additive to the rotating series'
-# 2/day.
+# and scripts/render_comparison_graphics.py. Own dedicated 1-video/day
+# schedule (reduced 2026-10-03 from 2/day), posting to the same channels.
 #
 # Same "don't require an exact hour match" gate design as daily-rotating-
 # short.yml (GitHub's scheduler starts cron runs late and silently drops
-# many): each hourly tick runs today's earliest still-due, not-yet-posted
-# slot. Runs at :53 (offset from rotating's :17 and worlddata-style workflows'
+# many): each hourly tick runs today's slot if it's due and not yet posted.
+# Runs at :53 (offset from rotating's :17 and worlddata-style workflows'
 # top-of-hour triggers) to spread runner load.
 on:
   schedule:
@@ -56,7 +55,7 @@ jobs:
           python-version: "3.11"
           cache: pip
 
-      # ---- gate: run whichever of today's two comparison slots is due and unposted ----
+      # ---- gate: run today's single comparison slot if it's due and unposted ----
       - name: Check today's slot schedule and gate
         id: gate
         env:
@@ -71,7 +70,6 @@ jobs:
 
           EPOCH = date(2026, 7, 23)
           LANE_A = [0, 1, 2]  # 04:00-06:59 Dubai
-          LANE_B = [8, 9]     # 12:00-13:59 Dubai
 
           def seed(day_number, salt):
               h = hashlib.sha256(f"comparison:{day_number}:{salt}".encode("utf-8")).hexdigest()
@@ -82,9 +80,7 @@ jobs:
           force = os.environ.get("FORCE_RUN", "").lower() == "true"
 
           hour_a = LANE_A[seed(day_number, "hourA") % len(LANE_A)]
-          hour_b = LANE_B[seed(day_number, "hourB") % len(LANE_B)]
-          slots = sorted([{"slot": "A", "hour": hour_a}, {"slot": "B", "hour": hour_b}],
-                          key=lambda s: s["hour"])
+          slots = [{"slot": "A", "hour": hour_a}]
 
           today_tag = f"-{now:%Y%m%d}-"
           try:
@@ -112,7 +108,7 @@ jobs:
                   pick = todo[0]
                   skip, reason = False, f"slot {pick['slot']} due ({posted_count} posted today already)"
               elif posted_count >= len(slots):
-                  pick, skip, reason = None, True, "both of today's slots already posted"
+                  pick, skip, reason = None, True, "today's slot already posted"
               else:
                   next_hour = slots[posted_count]["hour"]
                   pick, skip, reason = None, True, f"too early (now {now:%H:%M}, next due {next_hour:02d}:00)"
@@ -210,7 +206,7 @@ jobs:
         run: |
           TAG="comparison-$(date -u +%Y%m%d-%H%M%S)"
           gh release create "$TAG" build/final.mp4 \
-            --title "$TAG" --notes "Automated country-comparison short (2/day)" --latest=false
+            --title "$TAG" --notes "Automated country-comparison short (1/day)" --latest=false
           URL="https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/final.mp4"
           echo "video_url=$URL" >> "$GITHUB_OUTPUT"
           echo "Public video URL: $URL"
