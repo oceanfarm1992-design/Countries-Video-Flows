@@ -110,11 +110,14 @@ def country_slide(record, row, revealed, flag_path):
             d.rounded_rectangle((LIST[0] + 14, y - 4, LIST[2] - 14, y + row_h - 4), 8, fill=PANEL_HIGHLIGHT)
         font = _font(current, 24)
         d.text((LIST[0] + 30, y), f"#{r['rank']}", font=font, fill=ACCENT if current else TEXT_DIM)
-        name = _fit_text(d, r["country"], current, 24, 16, 230)
+        value_w = _text_w(d, r["value"], font)
+        name = _fit_text(d, r["country"], current, 24, 14, LIST[2] - 30 - value_w - 20 - (LIST[0] + 110))
         d.text((LIST[0] + 110, y), r["country"], font=name, fill=TEXT_WHITE)
-        d.text((LIST[2] - 30 - _text_w(d, r["value"], font), y), r["value"], font=font, fill=TEXT_WHITE)
+        d.text((LIST[2] - 30 - value_w, y), r["value"], font=font, fill=TEXT_WHITE)
     footer = f"Source: {record['source_label']} data, as of {record['as_of']}"
-    d.text((CARD[0], H - 62), footer, font=_font(False, 24), fill=TEXT_DIM)
+    foot_font = _font(False, 24)
+    _panel(img, (CARD[0], H - 72, CARD[0] + _text_w(d, footer, foot_font) + 40, H - 28), CARD_FILL, radius=14)
+    ImageDraw.Draw(img).text((CARD[0] + 20, H - 66), footer, font=foot_font, fill=TEXT_DIM)
     return img
 
 
@@ -124,8 +127,9 @@ def title_slide(record, kind, flags):
     rows = record["rows"]
     if kind == "intro":
         _draw_centered(d, W / 2, 250, f"TOP {len(rows)}", _font(True, 150), ACCENT)
-        title_font = _fit_text(d, record["slide_title"].upper(), True, 72, 40, W - 200)
-        _draw_centered(d, W / 2, 460, record["slide_title"].upper(), title_font, TEXT_WHITE)
+        subtitle = record["slide_title"].upper().replace(f"TOP {len(rows)} ", "", 1)
+        title_font = _fit_text(d, subtitle, True, 72, 40, W - 200)
+        _draw_centered(d, W / 2, 460, subtitle, title_font, TEXT_WHITE)
         _draw_centered(d, W / 2, 580, f"Every country explained | {record['source_label']} data, "
                                        f"as of {record['as_of']}", _font(False, 34), TEXT_DIM)
         return img

@@ -85,6 +85,7 @@ PRONUNCIATION_FIXUPS = {
 # Display-style number formats (from format_value) that the voice would otherwise
 # read letter by letter: "1.41B" -> "one point four one B".
 SPOKEN_UNITS = [
+    (r"(\d)T\b", r"\1 trillion"),
     (r"(\d)B\b", r"\1 billion"),
     (r"(\d)M\b", r"\1 million"),
     (r"(\d)K\b", r"\1 thousand"),

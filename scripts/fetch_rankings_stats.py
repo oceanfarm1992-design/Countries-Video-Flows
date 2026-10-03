@@ -324,6 +324,8 @@ def format_value(unit, value):
     vocabulary mirrors fetch_country_stats.py's format_value where they
     overlap (usd, pct, years, count) plus the rankings-specific units."""
     if unit in ("usd", "usd_big"):
+        if unit == "usd_big" and value >= 1_000_000_000_000:
+            return f"${value / 1_000_000_000_000:,.2f}T"
         if unit == "usd_big" and value >= 1_000_000_000:
             return f"${value / 1_000_000_000:,.1f}B"
         if value >= 1000:

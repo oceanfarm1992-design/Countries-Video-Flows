@@ -179,10 +179,10 @@ def test_longform_past_ranks_and_trend_facts_use_real_readings():
               {"iso2": "BB", "country_name": "B", "rank": 2, "tied": False, "value": 150.0, "year_or_edition": "2025"}]
     rows = longform.build_rows(metric, ranked, series)
     facts = " | ".join(rows[0]["facts"])
-    assert "up 100% since 2015, when it stood at $100.00" in facts
+    assert "up 100% over the past decade" in facts
     assert "best reading in that span was $300.00 in 2020" in facts
-    assert "ranked number 1 in 2015" in facts and "ahead of B, number 2" in facts
-    assert any(f.startswith("ranked number 1 in 2015") and "down 1 place" in f for f in rows[1]["facts"])
+    assert "ranked number 1 ten years earlier, in 2015, unchanged since then" in facts
+    assert any(f.startswith("ranked number 1 ten years earlier") and "down 1 place" in f for f in rows[1]["facts"])
 
 
 def test_spoken_units_expand_display_formats():
@@ -201,3 +201,11 @@ def test_longform_a_only_uses_world_bank_metrics(monkeypatch):
         pass
     live = {m["id"] for m in load_metrics()["metrics"] if m["source_type"] == "live"}
     assert seen and set(seen) <= live
+
+
+def test_longform_length_estimate_counts_digits():
+    import generate_longform_rankings as longform
+    plain = longform.estimate_seconds([{"text": "word " * 100}])
+    numeric = longform.estimate_seconds([{"text": "$30,769.7 " * 100}])
+    assert numeric > plain * 4
+    assert format_value("usd_big", 30_769_700_000_000) == "$30.77T"

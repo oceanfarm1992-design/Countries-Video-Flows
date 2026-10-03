@@ -48,8 +48,11 @@ def render_segment(out, overlay, background, dur):
         inputs = ["-f", "lavfi", "-i", f"color=c=0x101828:s={W}x{H}:r={FPS}",
                   "-loop", "1", "-framerate", str(FPS), "-i", overlay]
         graph = f"[0:v][1:v]overlay=0:0:format=auto,{fade}[v]"
+    # Capped bitrate: footage is a darkened backdrop, and the uncapped first dry run
+    # came out at 557 MB for 18 minutes.
     _run(["ffmpeg", "-y", *inputs, "-filter_complex", graph, "-map", "[v]", "-t", f"{dur:.3f}",
-          "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "21", "-r", str(FPS), out])
+          "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "23",
+          "-maxrate", "2500k", "-bufsize", "5000k", "-r", str(FPS), out])
 
 
 def build_voice(segments, out):

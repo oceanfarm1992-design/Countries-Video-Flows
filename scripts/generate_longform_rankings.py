@@ -21,6 +21,7 @@ import argparse
 import csv
 import json
 import os
+import re
 import textwrap
 from datetime import date, datetime, timedelta
 
@@ -38,8 +39,12 @@ except ImportError:
 TOP_N = 20
 MIN_ENTRIES = 15
 TREND_YEARS = 10
-# ~8.5 min at the cloned voice's ~2.3-2.5 words/s; YouTube mid-roll ads need 8:00+.
-MIN_TOTAL_WORDS = 1250
+# Measured on the cloned voice (2026-10-03 dry run, 22 segments, max error 4.7 s):
+# ~0.40 s per plain word and ~0.81 s per DIGIT -- numbers are read out in full, so
+# word counts badly underestimate number-heavy narration. Aim past 8:00 with margin.
+SECONDS_PER_WORD = 0.40
+SECONDS_PER_DIGIT = 0.81
+MIN_EST_SECONDS = 540
 LONG_HISTORY = "logs/history_longform.csv"
 SHORTS_HISTORY = "logs/history_rankings.csv"
 SHORTS_RECENT_DAYS = 7
@@ -95,17 +100,18 @@ def pick_metric(metrics_cfg, countries, forced=None):
 
 
 def _change_text(unit, start, end):
-    (y0, v0), (_, v1) = start, end
+    (y0, v0), (y1, v1) = start, end
+    when = "over the past decade" if y1 - y0 == TREND_YEARS else f"since {y0}"
     if unit in POINT_UNITS:
         delta = v1 - v0
         word = "points" if unit == "pct" else "years"
         direction = "up" if delta > 0 else "down"
-        return f"{direction} {abs(delta):.1f} {word} since {y0}, when it stood at {format_value(unit, v0)}"
+        return f"{direction} {abs(delta):.1f} {word} {when}"
     if v0 == 0:
         return None
     pct = (v1 - v0) / abs(v0) * 100
     direction = "up" if pct > 0 else "down"
-    return f"{direction} {abs(pct):.0f}% since {y0}, when it stood at {format_value(unit, v0)}"
+    return f"{direction} {abs(pct):.0f}% {when}"
 
 
 def past_ranks(metric, series, year):
@@ -145,20 +151,17 @@ def build_rows(metric, ranked, series):
                 if change:
                     facts.append(change)
                 best = (max if metric["sort_direction"] == "desc" else min)(window, key=lambda p: p[1])
-                if best[0] != latest_year and abs(best[1] - window[-1][1]) > abs(window[-1][1]) * 0.02:
+                if best[0] != latest_year and abs(best[1] - window[-1][1]) > abs(window[-1][1]) * 0.10:
                     facts.append(f"its best reading in that span was {format_value(unit, best[1])} in {best[0]}")
         if r["iso2"] in then_ranks:
             moved = then_ranks[r["iso2"]] - r["rank"]
             places = "place" if abs(moved) == 1 else "places"
             move = (f"up {moved} {places}" if moved > 0 else f"down {-moved} {places}" if moved < 0
                     else "unchanged")
-            facts.append(f"ranked number {then_ranks[r['iso2']]} in {ref_year} among all countries with data, "
+            facts.append(f"ranked number {then_ranks[r['iso2']]} ten years earlier, in {ref_year}, "
                          f"{move} since then")
         if i > 0 and unit in RATIO_UNITS and leader["value"] > 0 and metric["sort_direction"] == "desc":
             facts.append(f"{r['value'] / leader['value'] * 100:.0f}% of {leader['country_name']}'s figure")
-        if i + 1 < len(ranked) and ranked[i + 1]["value"] != r["value"]:
-            nxt = ranked[i + 1]
-            facts.append(f"ahead of {nxt['country_name']}, number {nxt['rank']}, at {format_value(unit, nxt['value'])}")
         rows.append({
             "iso2": r["iso2"], "country": r["country_name"], "rank": r["rank"], "tied": r["tied"],
             "value": format_value(unit, r["value"]), "raw_value": r["value"],
@@ -210,10 +213,12 @@ def _fallback_script(metric, rows, source_label, as_of):
         f"published data. Let's get started.")}]
     openers = ["At number {rank}", "Number {rank} on our list", "Coming in at number {rank}",
                "Next up, at number {rank}", "Holding number {rank}"]
+    usual_year = max(set(r["year"] for r in rows), key=lambda y: sum(r["year"] == y for r in rows))
     for i, r in enumerate(reversed(rows)):
         rank_txt = f"{r['rank']}, tied," if r["tied"] else str(r["rank"])
+        year_note = f", based on its {r['year']} figure" if r["year"] != usual_year else ""
         parts = [f"{openers[i % len(openers)].format(rank=rank_txt)} is {r['country']}, "
-                 f"with a {label} of {r['value']}, according to the {r['year']} figures."]
+                 f"with a {label} of {r['value']}{year_note}."]
         parts += [_fact_sentence(f, r["country"]) for f in r["facts"]]
         if r["tied"]:
             parts.append(f"{r['country']} shares this exact figure with at least one other country on the list.")
@@ -269,10 +274,20 @@ def _gpt_script(metric, rows, source_label, as_of, openai_cfg):
     expected = ["intro"] + [r["iso2"] for r in reversed(rows)] + ["outro"]
     if [s["visual"] for s in segments] != expected or not all(s["text"] for s in segments):
         raise RuntimeError("GPT segments don't match the expected countdown order")
-    words = sum(len(s["text"].split()) for s in segments)
-    if words < MIN_TOTAL_WORDS:
-        raise RuntimeError(f"GPT narration too short ({words} words < {MIN_TOTAL_WORDS})")
+    est = estimate_seconds(segments)
+    if est < MIN_EST_SECONDS:
+        raise RuntimeError(f"GPT narration too short (~{est / 60:.1f} min < {MIN_EST_SECONDS / 60:.0f} min)")
     return segments
+
+
+def estimate_seconds(segments):
+    total = 0.0
+    for s in segments:
+        tokens = s["text"].split()
+        plain = sum(1 for t in tokens if not re.search(r"\d", t))
+        digits = sum(len(re.sub(r"\D", "", t)) for t in tokens)
+        total += plain * SECONDS_PER_WORD + digits * SECONDS_PER_DIGIT + 0.45
+    return total
 
 
 def attach_chapters(segments, rows):
@@ -325,7 +340,7 @@ def main():
     if segments is None:
         segments = _fallback_script(metric, rows, source_label, as_of)
     segments = attach_chapters(segments, rows)
-    words = sum(len(s["text"].split()) for s in segments)
+    est = estimate_seconds(segments)
 
     name = title_name(metric)
     head = (f"Top {len(rows)} {name}" if "display_label" in metric
@@ -349,8 +364,8 @@ def main():
         json.dump(record, fh, ensure_ascii=False, indent=2)
     with open(os.path.join(args.out, "caption_facebook.txt"), "w", encoding="utf-8") as fh:
         fh.write(f"{title}\n\n{description_head}\n\n#countries #ranking #geography #worldfacts")
-    print(f"[longform_rankings] {metric['id']}: {len(rows)} countries, {words} words "
-          f"(~{words / 2.4 / 60:.1f} min), source={source}")
+    print(f"[longform_rankings] {metric['id']}: {len(rows)} countries, ~{est / 60:.1f} min "
+          f"estimated, source={source}")
 
 
 if __name__ == "__main__":
