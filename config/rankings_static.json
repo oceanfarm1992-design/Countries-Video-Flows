@@ -1,6 +1,6 @@
 {
   "_comment": "Curated snapshots for the 'rankings' series' metrics that have NO free live API (see config/rankings_metrics.json for the full ~19-metric registry, live + static). Every value below was read directly from the cited source on 2026-09-21 -- never estimated or invented, matching this project's standing rule (see fetch_country_stats.py). Ordered highest-first within each metric except military_strength, where Global Firepower's PowerIndex is LOWER-is-stronger (see rankings_metrics.json's sort_direction for that metric). REFRESH OWNER: whoever maintains this repo -- re-pull each metric when its source publishes a new edition (HDI/WHR/GII/PISA: annual or less; Democracy Index/CPI/Henley: annual; Global Firepower: annual). Countries not present in config/countries.json (e.g. Hong Kong -- a territory, not a UN member state) are deliberately omitted rather than guessed at. Monthly, .github/workflows/refresh-rankings-data.yml re-reads the source pages (all except Global Firepower) and opens an issue with any proposed changes for review -- nothing here changes without a merged pull request.",
-  "_last_refreshed": "2026-09-21",
+  "_last_refreshed": "2026-10-03",
   "hdi": {
     "label": "Human Development Index",
     "source": "UN Human Development Report",
@@ -26,7 +26,8 @@
       {"iso2": "LI", "country_name": "Liechtenstein", "value": 0.938},
       {"iso2": "NZ", "country_name": "New Zealand", "value": 0.938},
       {"iso2": "US", "country_name": "United States", "value": 0.938},
-      {"iso2": "KR", "country_name": "South Korea", "value": 0.937}
+      {"iso2": "KR", "country_name": "South Korea", "value": 0.937},
+      {"iso2": "SI", "country_name": "Slovenia", "value": 0.931}
     ]
   },
   "world_happiness": {
@@ -55,7 +56,8 @@
       {"iso2": "DE", "country_name": "Germany", "value": 6.882},
       {"iso2": "SI", "country_name": "Slovenia", "value": 6.868},
       {"iso2": "AT", "country_name": "Austria", "value": 6.845},
-      {"iso2": "CZ", "country_name": "Czechia", "value": 6.821}
+      {"iso2": "CZ", "country_name": "Czechia", "value": 6.821},
+      {"iso2": "AE", "country_name": "United Arab Emirates", "value": 6.821}
     ]
   },
   "democracy_index": {
@@ -106,67 +108,75 @@
       {"iso2": "DE", "country_name": "Germany", "value": 77},
       {"iso2": "IS", "country_name": "Iceland", "value": 77},
       {"iso2": "AU", "country_name": "Australia", "value": 76},
+      {"iso2": "EE", "country_name": "Estonia", "value": 76},
       {"iso2": "IE", "country_name": "Ireland", "value": 76},
       {"iso2": "CA", "country_name": "Canada", "value": 75},
       {"iso2": "UY", "country_name": "Uruguay", "value": 73},
       {"iso2": "BT", "country_name": "Bhutan", "value": 71},
       {"iso2": "JP", "country_name": "Japan", "value": 71},
-      {"iso2": "GB", "country_name": "United Kingdom", "value": 70}
+      {"iso2": "GB", "country_name": "United Kingdom", "value": 70},
+      {"iso2": "AT", "country_name": "Austria", "value": 69},
+      {"iso2": "BE", "country_name": "Belgium", "value": 69},
+      {"iso2": "AE", "country_name": "United Arab Emirates", "value": 69}
     ]
   },
   "global_innovation_index": {
     "label": "Global Innovation Index",
     "source": "World Intellectual Property Organization (WIPO)",
-    "edition": "2025 edition",
+    "edition": "2026 edition",
     "source_url": "https://en.wikipedia.org/wiki/Global_Innovation_Index",
     "unit": "score_1dp",
     "entries": [
-      {"iso2": "CH", "country_name": "Switzerland", "value": 66.0},
-      {"iso2": "SE", "country_name": "Sweden", "value": 62.6},
-      {"iso2": "US", "country_name": "United States", "value": 61.7},
-      {"iso2": "KR", "country_name": "South Korea", "value": 60.0},
-      {"iso2": "SG", "country_name": "Singapore", "value": 59.9},
-      {"iso2": "GB", "country_name": "United Kingdom", "value": 59.1},
-      {"iso2": "FI", "country_name": "Finland", "value": 57.7},
-      {"iso2": "NL", "country_name": "Netherlands", "value": 57.0},
-      {"iso2": "DK", "country_name": "Denmark", "value": 56.9},
-      {"iso2": "CN", "country_name": "China", "value": 56.6},
-      {"iso2": "DE", "country_name": "Germany", "value": 55.5},
-      {"iso2": "JP", "country_name": "Japan", "value": 53.6},
-      {"iso2": "FR", "country_name": "France", "value": 53.4},
-      {"iso2": "IL", "country_name": "Israel", "value": 52.3},
+      {"iso2": "CH", "country_name": "Switzerland", "value": 66.7},
+      {"iso2": "SE", "country_name": "Sweden", "value": 63.2},
+      {"iso2": "US", "country_name": "United States", "value": 62.3},
+      {"iso2": "KR", "country_name": "South Korea", "value": 61.4},
+      {"iso2": "SG", "country_name": "Singapore", "value": 61.0},
+      {"iso2": "GB", "country_name": "United Kingdom", "value": 59.6},
+      {"iso2": "NL", "country_name": "Netherlands", "value": 58.4},
+      {"iso2": "FI", "country_name": "Finland", "value": 57.9},
+      {"iso2": "DK", "country_name": "Denmark", "value": 57.7},
+      {"iso2": "CN", "country_name": "China", "value": 57.0},
+      {"iso2": "DE", "country_name": "Germany", "value": 56.8},
+      {"iso2": "JP", "country_name": "Japan", "value": 54.1},
+      {"iso2": "FR", "country_name": "France", "value": 54.0},
+      {"iso2": "IL", "country_name": "Israel", "value": 52.2},
       {"iso2": "CA", "country_name": "Canada", "value": 51.1},
-      {"iso2": "IE", "country_name": "Ireland", "value": 50.4},
-      {"iso2": "AT", "country_name": "Austria", "value": 50.1},
-      {"iso2": "NO", "country_name": "Norway", "value": 49.2}
+      {"iso2": "EE", "country_name": "Estonia", "value": 50.4},
+      {"iso2": "AT", "country_name": "Austria", "value": 50.2},
+      {"iso2": "IE", "country_name": "Ireland", "value": 50.1},
+      {"iso2": "AU", "country_name": "Australia", "value": 49.6},
+      {"iso2": "NO", "country_name": "Norway", "value": 48.5},
+      {"iso2": "BE", "country_name": "Belgium", "value": 48.5}
     ]
   },
   "pisa_science": {
     "label": "PISA Science Score",
     "source": "OECD PISA",
-    "edition": "2025 cycle (science-focus assessment)",
+    "edition": "2022 assessment",
     "source_url": "https://en.wikipedia.org/wiki/Programme_for_International_Student_Assessment",
     "unit": "score_int",
     "entries": [
-      {"iso2": "SG", "country_name": "Singapore", "value": 560},
-      {"iso2": "TW", "country_name": "Taiwan", "value": 540},
-      {"iso2": "JP", "country_name": "Japan", "value": 538},
-      {"iso2": "KR", "country_name": "South Korea", "value": 526},
-      {"iso2": "GB", "country_name": "United Kingdom", "value": 511},
-      {"iso2": "CA", "country_name": "Canada", "value": 510},
-      {"iso2": "AU", "country_name": "Australia", "value": 509},
-      {"iso2": "NZ", "country_name": "New Zealand", "value": 509},
-      {"iso2": "FI", "country_name": "Finland", "value": 504},
-      {"iso2": "US", "country_name": "United States", "value": 502},
-      {"iso2": "CH", "country_name": "Switzerland", "value": 501},
-      {"iso2": "IE", "country_name": "Ireland", "value": 500},
-      {"iso2": "AT", "country_name": "Austria", "value": 497},
-      {"iso2": "PL", "country_name": "Poland", "value": 495},
-      {"iso2": "TR", "country_name": "Turkey", "value": 494},
-      {"iso2": "BE", "country_name": "Belgium", "value": 490},
-      {"iso2": "CZ", "country_name": "Czechia", "value": 490},
-      {"iso2": "LT", "country_name": "Lithuania", "value": 488},
-      {"iso2": "DE", "country_name": "Germany", "value": 486}
+      {"iso2": "SG", "country_name": "Singapore", "value": 561},
+      {"iso2": "JP", "country_name": "Japan", "value": 547},
+      {"iso2": "TW", "country_name": "Taiwan", "value": 537},
+      {"iso2": "KR", "country_name": "South Korea", "value": 528},
+      {"iso2": "EE", "country_name": "Estonia", "value": 526},
+      {"iso2": "CA", "country_name": "Canada", "value": 515},
+      {"iso2": "FI", "country_name": "Finland", "value": 511},
+      {"iso2": "AU", "country_name": "Australia", "value": 507},
+      {"iso2": "IE", "country_name": "Ireland", "value": 504},
+      {"iso2": "NZ", "country_name": "New Zealand", "value": 504},
+      {"iso2": "CH", "country_name": "Switzerland", "value": 503},
+      {"iso2": "SI", "country_name": "Slovenia", "value": 500},
+      {"iso2": "GB", "country_name": "United Kingdom", "value": 500},
+      {"iso2": "PL", "country_name": "Poland", "value": 499},
+      {"iso2": "US", "country_name": "United States", "value": 499},
+      {"iso2": "CZ", "country_name": "Czechia", "value": 498},
+      {"iso2": "DK", "country_name": "Denmark", "value": 494},
+      {"iso2": "LV", "country_name": "Latvia", "value": 494},
+      {"iso2": "SE", "country_name": "Sweden", "value": 494},
+      {"iso2": "DE", "country_name": "Germany", "value": 492}
     ]
   },
   "military_strength": {
