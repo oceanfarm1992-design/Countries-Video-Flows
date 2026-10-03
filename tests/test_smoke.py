@@ -120,3 +120,42 @@ def test_comparison_aired_pairs_reads_history(tmp_path):
     aired = comparison.aired_pairs(str(log))
     assert aired == {frozenset({"KR", "CL"})}
     assert frozenset({"CL", "KR"}) in aired
+
+
+def test_refresh_parser_expands_tied_rowspans():
+    import refresh_rankings_static as refresh
+    html = ("<table><tr><th>Rank</th><th>Country</th><th>HDI value</th></tr>"
+            "<tr><td>1</td><td>Iceland</td><td>0.972</td></tr>"
+            "<tr><td rowspan='2'>2</td><td>Norway</td><td rowspan='2'>0.970<sup>[a]</sup></td></tr>"
+            "<tr><td>Switzerland</td></tr></table>")
+    parser = refresh._TableParser()
+    parser.feed(html)
+    grid = refresh._grid(parser.tables[0]["rows"])
+    assert grid[0] == (["Rank", "Country", "HDI value"], True)
+    assert [row for row, _ in grid[1:]] == [["1", "Iceland", "0.972"], ["2", "Norway", "0.970"],
+                                            ["2", "Switzerland", "0.970"]]
+
+
+def test_refresh_name_matching_and_boundary_ties():
+    import refresh_rankings_static as refresh
+    assert refresh._norm("Czech Republic") == refresh._norm("Czechia")
+    assert refresh._norm("Côte d'Ivoire") == refresh._norm("Ivory Coast")
+    rows = [{"iso2": f"C{i}", "country_name": str(i), "raw": str(100 - i)} for i in range(refresh.TOP_N)]
+    rows.append({"iso2": "TIE", "country_name": "tie", "raw": rows[-1]["raw"]})
+    rows.append({"iso2": "OUT", "country_name": "out", "raw": "1"})
+    top = refresh.top_entries(rows)
+    assert [r["iso2"] for r in top][-1] == "TIE" and "OUT" not in {r["iso2"] for r in top}
+
+
+def test_refresh_update_touches_only_one_block():
+    import refresh_rankings_static as refresh
+    with open("config/rankings_static.json", encoding="utf-8", newline="") as fh:
+        original = fh.read()
+    new_entries = [{"iso2": "IS", "country_name": "Iceland", "raw": "0.980"}]
+    updated = refresh.apply_update(original, "hdi", "2026 edition", new_entries)
+    data = json.loads(updated)
+    assert data["hdi"]["edition"] == "2026 edition"
+    assert data["hdi"]["entries"] == [{"iso2": "IS", "country_name": "Iceland", "value": 0.98}]
+    assert '"value": 0.980}' in updated
+    before, after = original.split('"world_happiness"', 1)[1], updated.split('"world_happiness"', 1)[1]
+    assert before == after

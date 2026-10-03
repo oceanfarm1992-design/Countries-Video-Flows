@@ -1,0 +1,61 @@
+name: refresh-rankings-data
+
+# Monthly: re-reads the source pages of the curated rankings indices
+# (config/rankings_static.json) and, if any number changed or a parser broke,
+# pushes the proposal to a branch and opens an issue for review. It never edits
+# main itself, so no new number reaches a video until a person merges it.
+# Actions can't open pull requests in this repo (repo setting), so the issue
+# carries a one-click link to open one.
+on:
+  schedule:
+    - cron: "23 6 1 * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write   # push the proposal branch
+  issues: write     # open the review issue
+
+concurrency:
+  group: refresh-rankings-data
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      - name: Install requests (same pin as requirements.txt)
+        run: pip install "$(grep -E '^requests==' requirements.txt)"
+
+      - name: Propose updates from the source pages
+        id: refresh
+        run: python scripts/refresh_rankings_static.py --report build/refresh_report.md
+
+      - name: Push proposal branch and open review issue
+        if: steps.refresh.outputs.changed == 'true' || steps.refresh.outputs.failed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CHANGED: ${{ steps.refresh.outputs.changed }}
+        run: |
+          DAY=$(date -u +%Y-%m-%d)
+          BODY=build/refresh_report.md
+          if [ "$CHANGED" = "true" ]; then
+            BRANCH="data-refresh/$DAY"
+            git config user.name "github-actions[bot]"
+            git config user.email "github-actions[bot]@users.noreply.github.com"
+            git checkout -b "$BRANCH"
+            git add config/rankings_static.json
+            git commit -m "data: proposed rankings index refresh $DAY"
+            git push -f origin "$BRANCH"
+            {
+              echo
+              echo "---"
+              echo "**After checking the numbers, open the pull request:** https://github.com/${GITHUB_REPOSITORY}/compare/main...${BRANCH}?expand=1"
+            } >> "$BODY"
+          fi
+          gh issue create --title "Rankings data refresh $DAY" --body-file "$BODY"
