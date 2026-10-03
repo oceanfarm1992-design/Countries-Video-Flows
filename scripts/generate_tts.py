@@ -82,9 +82,24 @@ PRONUNCIATION_FIXUPS = {
 }
 
 
+# Display-style number formats (from format_value) that the voice would otherwise
+# read letter by letter: "1.41B" -> "one point four one B".
+SPOKEN_UNITS = [
+    (r"(\d)B\b", r"\1 billion"),
+    (r"(\d)M\b", r"\1 million"),
+    (r"(\d)K\b", r"\1 thousand"),
+    (r"\byrs\b", "years"),
+    (r"km²", "square kilometres"),
+    (r"(\d) t\b", r"\1 tonnes"),
+    (r"#(\d+)", r"number \1"),
+]
+
+
 def apply_pronunciation_fixups(text):
     for wrong, fixed in PRONUNCIATION_FIXUPS.items():
         text = re.sub(rf"\b{re.escape(wrong)}\b", fixed, text)
+    for pattern, spoken in SPOKEN_UNITS:
+        text = re.sub(pattern, spoken, text)
     return text
 
 

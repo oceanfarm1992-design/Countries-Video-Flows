@@ -103,7 +103,12 @@ def main():
     ap.add_argument("--caption-facebook", default="build/caption_meta.txt")
     ap.add_argument("--caption-tiktok", default="build/caption_tiktok.txt")
     ap.add_argument("--title-file", default="build/yt_title.txt")
+    ap.add_argument("--platforms", default="facebook,tiktok",
+                    help="Comma-separated subset to post to (long-form posts Facebook only).")
+    ap.add_argument("--facebook-type", default="reel", choices=["reel", "post"],
+                    help="'reel' for vertical Shorts; 'post' for a regular (long, 16:9) video.")
     args = ap.parse_args()
+    platforms = {p.strip() for p in args.platforms.split(",") if p.strip()}
 
     token = os.environ.get("BUFFER_API_KEY", "").strip()
     if not token:
@@ -111,8 +116,8 @@ def main():
               file=sys.stderr)
         sys.exit(0)  # optional platform: don't fail the whole run
 
-    fb_id = os.environ.get("BUFFER_FACEBOOK_CHANNEL_ID", "").strip()
-    tt_id = os.environ.get("BUFFER_TIKTOK_CHANNEL_ID", "").strip()
+    fb_id = os.environ.get("BUFFER_FACEBOOK_CHANNEL_ID", "").strip() if "facebook" in platforms else ""
+    tt_id = os.environ.get("BUFFER_TIKTOK_CHANNEL_ID", "").strip() if "tiktok" in platforms else ""
     if not (fb_id or tt_id):
         print("[post_buffer] no BUFFER_FACEBOOK_CHANNEL_ID / BUFFER_TIKTOK_CHANNEL_ID "
               "set — nothing to post.", file=sys.stderr)
@@ -130,7 +135,7 @@ def main():
     if fb_id:
         caption = read_text(args.caption_facebook) or f"{name} — {script.get('specialty','')}"
         ok, info = create_post(token, fb_id, caption, args.video_url,
-                               {"facebook": {"type": "reel"}})
+                               {"facebook": {"type": args.facebook_type}})
         print(f"[post_buffer] facebook: {'posted ' + info if ok else 'FAILED ' + info}")
         failures += 0 if ok else 1
 

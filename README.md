@@ -12,6 +12,7 @@ Actions. Narration uses the channel owner's cloned voice (StyleTTS2).
 | `daily-comparison-short.yml` | Country vs country, real World Bank stats | 1 |
 | `daily-rankings-short.yml` | Top-8 countdown of one metric (live World Bank data + curated indices in `config/rankings_static.json`) | 1 |
 | `ci.yml` | Installs pinned deps and runs `tests/`; gates Dependabot auto-merge | - |
+| `longform-video.yml` | 8+ min 16:9 video every 2 days on YouTube + Facebook, rotating A (top-20 ranking explained), B (bar-chart race), D (weekly recap). Only A is built so far; B/D days fall back to A | 1 every 2 days |
 
 Reduced 2026-10-03 from 5 videos/day (rotating + comparison at 2/day each) to 3/day.
 
@@ -23,6 +24,18 @@ has its own target-hour lane (Dubai time): comparison 04-07, rankings 08-11, rot
 15-18. `scripts/post_gate.py` also requires at least 100 minutes between any two posts,
 waits while another video workflow is mid-build, and blocks posting from 23:50 to 01:00
 Dubai.
+
+## Long-form (format A)
+
+`generate_longform_rankings.py` picks a World Bank metric (only those have the yearly
+history a 10-minute video needs), skips any metric a Short covered in the past week, and
+builds the narration only from real numbers: value, rank, ties, the decade change, the
+rank ten years earlier, and the peak year. GPT phrases it; a strict fact-check rejects
+any claim the data doesn't support, and a data-only template is the fallback.
+`longform_tts.py` voices each segment with one locked engine, so timings and chapters
+are exact. `render_longform_rankings.py` draws 16:9 cards over each country's footage,
+and `assemble_long_video.py` builds the video, writes chapter timestamps and refuses
+anything under 8:00.
 
 ## Pipeline
 

@@ -1,0 +1,228 @@
+name: longform-video
+
+# One 8+ minute 16:9 video every 2 days (YouTube + Facebook), rotating formats
+# A (top-20 ranking explained) -> B (bar-chart race) -> D (weekly recap). Only A is
+# built so far; until B and D exist, their days fall back to A.
+#
+# Same gate design as the Shorts workflows: hourly ticks, posts once the target hour
+# (19:00-21:59 Dubai) has passed and nothing posted today, respecting the shared
+# post_gate spacing. A build takes ~45-60 min (cloned voice for ~10 min of audio).
+on:
+  schedule:
+    - cron: "41 * * * *"
+  workflow_dispatch:
+    inputs:
+      force_run:
+        description: "Skip the gate (posting day, hour, spacing)"
+        type: boolean
+        default: false
+      dry_run:
+        description: "Dry run: build the full video but do NOT create a release or post anywhere"
+        type: boolean
+        default: true
+      metric_id:
+        description: "Format A: force a metric id (blank = rotation; World Bank metrics only)"
+        type: string
+        default: ""
+
+permissions:
+  actions: read     # post_gate checks for other video workflows mid-build
+  contents: write   # commit logs/history_longform.csv and create the release asset
+
+concurrency:
+  group: longform-video
+  cancel-in-progress: false
+
+jobs:
+  build_and_post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Check posting day, format and gate
+        id: gate
+        env:
+          FORCE_RUN: ${{ inputs.force_run }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          python - <<'EOF'
+          import hashlib, json, os, subprocess, sys
+          sys.path.insert(0, "scripts")
+          from datetime import date, datetime, timezone
+
+          EPOCH = date(2026, 7, 23)
+          LANE = [15, 16, 17]          # 19:00-21:59 Dubai
+          FORMATS = ["A", "B", "D"]
+          BUILT = {"A"}
+
+          now = datetime.now(timezone.utc)
+          day_number = (now.date() - EPOCH).days
+          force = os.environ.get("FORCE_RUN", "").lower() == "true"
+          seed = int(hashlib.sha256(f"longform:{day_number}:hour".encode()).hexdigest()[:8], 16)
+          hour = LANE[seed % len(LANE)]
+          planned = FORMATS[(day_number // 2) % len(FORMATS)]
+          fmt = planned if planned in BUILT else "A"
+
+          today_tag = f"-{now:%Y%m%d}-"
+          try:
+              out = subprocess.run(["gh", "release", "list", "--limit", "100", "--json", "tagName"],
+                                   check=True, capture_output=True, text=True).stdout
+              posted = any(r["tagName"].startswith("longform-") and today_tag in r["tagName"]
+                           for r in json.loads(out))
+              read_ok = True
+          except Exception as exc:
+              print(f"[gate] could not read releases ({type(exc).__name__})")
+              posted, read_ok = False, False
+
+          if force:
+              skip, reason = False, "force_run=true"
+          elif day_number % 2:
+              skip, reason = True, "not a long-form day (every 2 days)"
+          elif not read_ok:
+              skip, reason = True, "could not read releases -- failing closed"
+          elif posted:
+              skip, reason = True, "today's long-form video already posted"
+          elif now.hour < hour:
+              skip, reason = True, f"too early (now {now:%H:%M}, due {hour:02d}:00)"
+          else:
+              skip, reason = False, f"due ({now:%H:%M} >= {hour:02d}:00)"
+
+          if not force and not skip:
+              from post_gate import spacing_block
+              wait = spacing_block(now)
+              if wait:
+                  skip, reason = True, wait
+
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"skip={'true' if skip else 'false'}\nformat={fmt}\n")
+          print(f"[gate] day {day_number}: format {planned}" + (f" (not built yet -> {fmt})" if fmt != planned else "")
+                + f", target {hour:02d}:00 UTC")
+          print(f"[gate] {'SKIP' if skip else 'PROCEED'}: {reason}")
+          EOF
+
+      - name: Install system deps (ffmpeg, fonts, espeak fallback)
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core espeak-ng
+
+      - name: Install python deps
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          pip install torch==2.8.0+cpu torchaudio==2.8.0+cpu --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+
+      - name: "Format A: generate the top-20 script"
+        if: steps.gate.outputs.skip == 'false' && steps.gate.outputs.format == 'A'
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          METRIC_ID: ${{ inputs.metric_id }}
+        run: |
+          ARGS=""
+          if [ -n "$METRIC_ID" ]; then ARGS="--metric-id $METRIC_ID"; fi
+          python scripts/generate_longform_rankings.py --out build/long $ARGS
+
+      - name: "Format A: render slides, footage and thumbnail"
+        if: steps.gate.outputs.skip == 'false' && steps.gate.outputs.format == 'A'
+        env:
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+        run: python scripts/render_longform_rankings.py --script build/long/script.json --out build/long
+
+      - name: Voiceover (one engine for every segment)
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          VOICE_REPO_PAT: ${{ secrets.VOICE_REPO_PAT }}
+        run: python scripts/longform_tts.py --script build/long/script.json --out-dir build/long
+
+      - name: Background music bed
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          DUR=$(python -c "import json;print(int(sum(s['dur'] for s in json.load(open('build/long/timings.json'))['segments'])) + 5)")
+          python scripts/generate_music.py --out build/long/music.mp3 --duration "$DUR"
+
+      - name: Assemble the long video
+        if: steps.gate.outputs.skip == 'false'
+        run: python scripts/assemble_long_video.py --dir build/long --music build/long/music.mp3
+
+      - name: Publish video as release asset
+        id: publish_asset
+        if: steps.gate.outputs.skip == 'false' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FORMAT: ${{ steps.gate.outputs.format }}
+        run: |
+          TAG="longform-${FORMAT}-$(date -u +%Y%m%d-%H%M%S)"
+          gh release create "$TAG" build/long/final.mp4 \
+            --title "$TAG" --notes "Automated long-form video (format $FORMAT, every 2 days)" --latest=false
+          echo "video_url=https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/final.mp4" >> "$GITHUB_OUTPUT"
+
+      - name: Post to Facebook (Buffer, regular video)
+        id: post_buffer
+        if: steps.gate.outputs.skip == 'false' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        continue-on-error: true
+        env:
+          BUFFER_API_KEY: ${{ secrets.BUFFER_API_KEY }}
+          BUFFER_ORG_ID: ${{ secrets.BUFFER_ORG_ID }}
+          BUFFER_FACEBOOK_CHANNEL_ID: ${{ secrets.BUFFER_FACEBOOK_CHANNEL_ID }}
+          VIDEO_URL: ${{ steps.publish_asset.outputs.video_url }}
+        run: |
+          python scripts/post_buffer.py --video-url "$VIDEO_URL" --script build/long/script.json \
+            --caption-facebook build/long/caption_facebook.txt --title-file build/long/title.txt \
+            --platforms facebook --facebook-type post
+
+      - name: Post to YouTube (regular video, chapters, thumbnail)
+        id: post_youtube
+        if: steps.gate.outputs.skip == 'false' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        continue-on-error: true
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.YOUTUBE_REFRESH_TOKEN }}
+        run: |
+          python scripts/post_youtube.py --video build/long/final.mp4 --title-file build/long/title.txt \
+            --desc-file build/long/description.txt --thumbnail build/long/thumbnail.jpg \
+            --config config/countries.json --long-form
+
+      - name: Upload dry-run artifacts
+        if: always() && steps.gate.outputs.skip == 'false' && github.event_name == 'workflow_dispatch' && inputs.dry_run == true
+        uses: actions/upload-artifact@v7
+        with:
+          name: dry-run-longform-output
+          path: |
+            build/long/final.mp4
+            build/long/thumbnail.jpg
+            build/long/description.txt
+            build/long/title.txt
+            build/long/script.json
+          if-no-files-found: warn
+          retention-days: 3
+
+      - name: Append run to history log
+        if: always() && steps.gate.outputs.skip == 'false' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        env:
+          FORMAT: ${{ steps.gate.outputs.format }}
+        run: |
+          DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          TITLE=$(python -c "import json;print(json.load(open('build/long/script.json'))['title'].replace('\"',''))" 2>/dev/null || echo "unknown")
+          IDENT=$(python -c "import json;print(json.load(open('build/long/script.json'))['identifier'])" 2>/dev/null || echo "unknown")
+          echo "${DATE},${FORMAT},\"${TITLE}\",${IDENT},${{ steps.post_buffer.outcome }},${{ steps.post_youtube.outcome }}" >> logs/history_longform.csv
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add logs/history_longform.csv
+          git commit -m "log: longform run ${DATE} (${FORMAT} ${IDENT})" || echo "nothing to commit"
+          for i in 1 2 3; do
+            git pull --rebase && git push && break || sleep $((i * 5))
+          done
+
+      - name: Fail the run if any platform post failed
+        if: always() && steps.gate.outputs.skip == 'false' && (steps.post_buffer.outcome == 'failure' || steps.post_youtube.outcome == 'failure')
+        run: |
+          echo "::error::Posting failed -- Facebook (Buffer): ${{ steps.post_buffer.outcome }}, YouTube: ${{ steps.post_youtube.outcome }}"
+          exit 1

@@ -87,6 +87,17 @@ def upload(video_path, title, description, tags):
     return response
 
 
+def set_thumbnail(video_id, path):
+    """Custom thumbnails need a phone-verified channel. If YouTube refuses, the video
+    is already live with an auto-picked frame -- warn, don't fail the run."""
+    try:
+        build_service().thumbnails().set(videoId=video_id, media_body=MediaFileUpload(path)).execute()
+        print("[post_youtube] custom thumbnail set")
+    except Exception as exc:  # noqa: BLE001 -- the upload itself already succeeded
+        print(f"::warning::[post_youtube] thumbnail not set ({type(exc).__name__}: {str(exc)[:200]}). "
+              "Verify the channel at https://www.youtube.com/verify to enable custom thumbnails.")
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--video", default="build/final.mp4")
@@ -94,6 +105,9 @@ def main():
     ap.add_argument("--title-file", default="build/yt_title.txt")
     ap.add_argument("--desc-file", default="build/caption_youtube.txt")
     ap.add_argument("--config", default="config/countries.json")
+    ap.add_argument("--thumbnail", default=None, help="Optional custom thumbnail image")
+    ap.add_argument("--long-form", action="store_true",
+                    help="Regular 16:9 upload: no Shorts tag in the tags or fallbacks")
     args = ap.parse_args()
 
     required = ["YOUTUBE_CLIENT_ID", "YOUTUBE_CLIENT_SECRET", "YOUTUBE_REFRESH_TOKEN"]
@@ -125,8 +139,13 @@ def main():
         parsed = [h.lstrip("#") for h in yt_hashtags.split() if h.startswith("#")]
         if parsed:
             tags = parsed
+    if args.long_form:
+        tags = [t for t in tags if t.lower() != "shorts"] + ["ranking", "world facts", "data"]
+        title = title.replace("#Shorts", "").strip()
 
-    upload(args.video, title, description, tags)
+    response = upload(args.video, title, description, tags)
+    if args.thumbnail and os.path.exists(args.thumbnail):
+        set_thumbnail(response["id"], args.thumbnail)
 
 
 if __name__ == "__main__":

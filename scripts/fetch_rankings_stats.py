@@ -107,27 +107,45 @@ def _fetch_indicator_bulk_live(code, known_iso2=None):
     given, is the authoritative filter (this pipeline's own config/
     countries.json) -- passed in so aggregates are dropped at fetch time
     rather than carried into the cache and discarded on every read."""
+    latest = {}  # iso2 -> (value, year)
+    for iso2, year, value in _fetch_bulk_rows(code, known_iso2):
+        current = latest.get(iso2)
+        if current is None or year > current[1]:
+            latest[iso2] = (value, year)
+    return latest
+
+
+def _fetch_bulk_rows(code, known_iso2=None):
+    """Every (iso2, year, value) reading for `code` across DATE_RANGE, one HTTP call."""
     url = f"{WB_BASE}/{code}?format=json&per_page={PER_PAGE}&date={DATE_RANGE}"
     req = urllib.request.Request(url, headers=HEADERS)
     with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as resp:
         payload = json.load(resp)
     if not isinstance(payload, list) or len(payload) < 2 or not payload[1]:
-        return {}
-
-    latest = {}  # iso2 -> (value, year)
+        return []
+    rows = []
     for row in payload[1]:
         if row.get("value") is None:
             continue
         iso2 = (row.get("country") or {}).get("id", "")
-        if len(iso2) != 2:
+        if len(iso2) != 2 or (known_iso2 is not None and iso2 not in known_iso2):
             continue
-        if known_iso2 is not None and iso2 not in known_iso2:
-            continue
-        year = int(row["date"])
-        current = latest.get(iso2)
-        if current is None or year > current[1]:
-            latest[iso2] = (float(row["value"]), year)
-    return latest
+        rows.append((iso2, int(row["date"]), float(row["value"])))
+    return rows
+
+
+def get_series(metric_id, iso2s, metrics_cfg=None):
+    """Real yearly readings for a live metric: {iso2: [(year, value), ...]} oldest
+    first, for the given countries (pass every country to rank past years).
+    Static metrics have no history here -> {}."""
+    metrics_cfg = metrics_cfg or load_metrics()
+    metric = _metric_by_id(metrics_cfg, metric_id)
+    if metric["source_type"] != "live":
+        return {}
+    series = {}
+    for iso2, year, value in _fetch_bulk_rows(metric["wb_indicator"], set(iso2s)):
+        series.setdefault(iso2, []).append((year, value))
+    return {iso2: sorted(points) for iso2, points in series.items()}
 
 
 def _get_live_values(wb_indicator, known_iso2=None, use_cache=True):

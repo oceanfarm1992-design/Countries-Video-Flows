@@ -159,3 +159,45 @@ def test_refresh_update_touches_only_one_block():
     assert '"value": 0.980}' in updated
     before, after = original.split('"world_happiness"', 1)[1], updated.split('"world_happiness"', 1)[1]
     assert before == after
+
+
+def test_longform_chapters_follow_real_segment_timings():
+    import assemble_long_video as assemble
+    segs = [{"chapter": "Intro"}, {"chapter": "#2 B"}, {"chapter": "#1 A"}]
+    timings = [{"dur": 45.2}, {"dur": 30.0}, {"dur": 3600.0}]
+    assert assemble.chapter_lines(segs, timings) == ["00:00 Intro", "00:45 #2 B", "01:15 #1 A"]
+
+
+def test_longform_past_ranks_and_trend_facts_use_real_readings():
+    import generate_longform_rankings as longform
+    metric = {"unit": "usd", "sort_direction": "desc"}
+    series = {"AA": [(2015, 100.0), (2020, 300.0), (2025, 200.0)],
+              "BB": [(2015, 100.0), (2025, 150.0)],
+              "CC": [(2015, 50.0), (2025, 100.0)]}
+    assert longform.past_ranks(metric, series, 2015) == {"AA": 1, "BB": 1, "CC": 3}
+    ranked = [{"iso2": "AA", "country_name": "A", "rank": 1, "tied": False, "value": 200.0, "year_or_edition": "2025"},
+              {"iso2": "BB", "country_name": "B", "rank": 2, "tied": False, "value": 150.0, "year_or_edition": "2025"}]
+    rows = longform.build_rows(metric, ranked, series)
+    facts = " | ".join(rows[0]["facts"])
+    assert "up 100% since 2015, when it stood at $100.00" in facts
+    assert "best reading in that span was $300.00 in 2020" in facts
+    assert "ranked number 1 in 2015" in facts and "ahead of B, number 2" in facts
+    assert any(f.startswith("ranked number 1 in 2015") and "down 1 place" in f for f in rows[1]["facts"])
+
+
+def test_spoken_units_expand_display_formats():
+    from generate_tts import apply_pronunciation_fixups as speak
+    assert speak("a population of 1.41B, up from 71.6M") == "a population of 1.41 billion, up from 71.6 million"
+    assert speak("82.8 yrs at #7, 12.3 t") == "82.8 years at number 7, 12.3 tonnes"
+
+
+def test_longform_a_only_uses_world_bank_metrics(monkeypatch):
+    import generate_longform_rankings as longform
+    seen = []
+    monkeypatch.setattr(longform, "get_ranked", lambda mid, *a, **k: seen.append(mid) or [])
+    try:
+        longform.pick_metric(load_metrics(), _countries())
+    except SystemExit:
+        pass
+    live = {m["id"] for m in load_metrics()["metrics"] if m["source_type"] == "live"}
+    assert seen and set(seen) <= live

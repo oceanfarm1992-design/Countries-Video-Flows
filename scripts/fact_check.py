@@ -50,14 +50,28 @@ def _reference_block(reference):
     return "\n".join(f"- {line}" for line in reference)
 
 
-def verify_narration(narration: str, country_name: str, openai_cfg: dict, reference=None):
+_STRICT_RULE = """
+            ALSO flag any number, date, rank, record, or specific factual claim about a
+            country (its history, geography, economy, policies or events) that is NOT
+            stated in, or directly calculable from, the source data below -- even if it
+            sounds plausible or true. General interpretive language ("a steep climb",
+            "a close race", "a remarkable lead") is fine and must not be flagged.
+"""
+
+
+def verify_narration(narration: str, country_name: str, openai_cfg: dict, reference=None,
+                     strict=False):
     """Return (passed: bool, issues: list[str]).
 
     `reference`, when given, is the list of display-formatted source lines
     the narration is meant to cite (the same values GPT was given) — the checker is told
     to validate numeric claims against THIS, not its own training-data
     recollection, since the latter produces false positives on correct but
-    unfamiliar-to-the-model figures (see module docstring)."""
+    unfamiliar-to-the-model figures (see module docstring).
+
+    `strict` (with `reference`) also flags claims the data doesn't SUPPORT, not just
+    ones that contradict it: long-form narration has room to pad with invented
+    context, which a contradiction-only check lets through."""
     api_key = os.environ.get("OPENAI_API_KEY", "").strip()
     if not (OPENAI_AVAILABLE and api_key):
         return True, []
@@ -87,7 +101,7 @@ def verify_narration(narration: str, country_name: str, openai_cfg: dict, refere
             Rounding and abbreviation are CORRECT, not errors: "$57,223" or "$57.2K"
             for $57,222.71, "84 years" for 84.1 yrs, "1.4 billion" for 1.41B, "about a
             third" for 33.6%. Flag a number only if it is still wrong after rounding.
-
+            {_STRICT_RULE if strict else ""}
             SOURCE DATA (the only standard for this review):
             {_reference_block(reference)}
 

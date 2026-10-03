@@ -14,7 +14,8 @@ MIN_GAP_MINUTES = 100
 # Blackout 23:50-01:00 Dubai (UTC+4) == 19:50-21:00 UTC.
 BLACKOUT_START = (19, 50)
 BLACKOUT_END = (21, 0)
-VIDEO_WORKFLOWS = {"daily-rotating-short", "daily-comparison-short", "daily-rankings-short"}
+VIDEO_WORKFLOWS = {"daily-rotating-short", "daily-comparison-short", "daily-rankings-short",
+                   "longform-video"}
 
 
 def _gh_json(args):

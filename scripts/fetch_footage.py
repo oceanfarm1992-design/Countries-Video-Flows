@@ -148,7 +148,8 @@ def _pexels_search(key, q, want_portrait):
     return r.json().get("videos", [])
 
 
-def fetch_pexels(query, dest, want_portrait, min_height, country_name=None, require_match=False):
+def fetch_pexels(query, dest, want_portrait, min_height, country_name=None, require_match=False,
+                 max_height=None):
     key = os.environ.get("PEXELS_API_KEY")
     if not key:
         return None
@@ -189,6 +190,8 @@ def fetch_pexels(query, dest, want_portrait, min_height, country_name=None, requ
         portrait = [f for f in files if (f.get("height") or 0) >= (f.get("width") or 0)]
         files = portrait or files
     files = [f for f in files if (f.get("height") or 0) >= min_height] or files
+    if max_height:  # long-form fetches ~20 clips; 4K renditions are ~100 MB each
+        files = [f for f in files if (f.get("height") or 0) <= max_height] or files
     best = max(files, key=lambda f: (f.get("height") or 0) * (f.get("width") or 0))
 
     _download(best["link"], dest)
