@@ -38,6 +38,7 @@ Usage:
     python scripts/generate_comparison_script.py --index-a 12 --index-b 88
 """
 import argparse
+import csv
 import hashlib
 import json
 import os
@@ -78,6 +79,23 @@ MAX_YEAR_GAP = 3
 # before giving up (see the fallback loop in main()). Comfortably more than
 # the handful of data-sparse entities expected in any 195-country list.
 MAX_PAIR_ATTEMPTS = 20
+# Hard ceiling on schedule positions walked past (already-aired pairs don't
+# count as attempts, so this bounds the loop if the log ever covers a long run).
+MAX_SCHEDULE_SCAN = 5000
+HISTORY_LOG = "logs/history_comparison.csv"
+
+
+def aired_pairs(path=HISTORY_LOG):
+    """ISO2 pairs (order-insensitive) that reached at least one platform,
+    read from the committed history log."""
+    aired = set()
+    if not os.path.exists(path):
+        return aired
+    with open(path, encoding="utf-8", newline="") as fh:
+        for row in csv.reader(fh):
+            if len(row) >= 4 and "_" in row[2] and "success" in row[3:]:
+                aired.add(frozenset(row[2].split("_")))
+    return aired
 
 
 def _seed(day_number, salt):
@@ -127,16 +145,6 @@ def pick_pair_at(countries, global_index):
     if _seed(global_index, "side") % 2 == 1:
         idx_a, idx_b = idx_b, idx_a
     return idx_a, idx_b
-
-
-def pick_pair(countries, day_number, slot):
-    """This day's country pair, drawn in fixed order from the full round-robin
-    schedule so every country eventually faces every other country exactly
-    once per full cycle (~19,110 pairs for 196 countries -- roughly 52 years
-    at 1 video/day -- before it repeats). `slot` is kept for compatibility
-    with --slot but is always 0 now that there's one video/day; a nonzero
-    value would skip schedule positions and never revisit them."""
-    return pick_pair_at(countries, day_number + slot)
 
 
 def build_rows(stats_a, stats_b):
@@ -363,30 +371,37 @@ def main():
         # data-sparse pair, walk forward through the schedule -- deterministic
         # per day+slot (same failure, same fallback, every time), so this
         # never silently invents data, it just skips to the next real pair.
-        # Was `day_number * 2 + args.slot` back when 2 videos/day advanced the
-        # schedule by 2 positions/day; at 1/day that multiplier would only ever
-        # land on even positions, permanently skipping every odd pair.
+        # Pairs already posted are skipped: a data-sparse pair makes the walk
+        # borrow the NEXT position, which the next run would otherwise post
+        # again (South Korea vs Chile aired twice on 2026-09-27 this way).
         base_index = day_number + args.slot
+        aired = aired_pairs()
         rows = None
-        for attempt in range(MAX_PAIR_ATTEMPTS):
-            idx_a, idx_b = pick_pair_at(countries, base_index + attempt)
+        position = base_index
+        attempt = 0
+        while attempt < MAX_PAIR_ATTEMPTS and position < base_index + MAX_SCHEDULE_SCAN:
+            idx_a, idx_b = pick_pair_at(countries, position)
+            position += 1
             country_a, country_b = countries[idx_a], countries[idx_b]
+            if frozenset((country_a["iso2"], country_b["iso2"])) in aired:
+                continue
+            attempt += 1
             name_a, name_b = country_a["name"], country_b["name"]
             print(f"[generate_comparison_script] fetching stats for {name_a} and {name_b} ...")
             stats_a, stats_b = get_stats(country_a["iso2"]), get_stats(country_b["iso2"])
             candidate_rows = build_rows(stats_a, stats_b)
             if len(candidate_rows) >= MIN_ROWS:
                 rows = candidate_rows
-                if attempt:
-                    print(f"[generate_comparison_script] skipped {attempt} data-sparse pair(s) "
+                if attempt > 1:
+                    print(f"[generate_comparison_script] skipped {attempt - 1} data-sparse pair(s) "
                           f"before landing on {name_a} vs {name_b}")
                 break
             print(f"[generate_comparison_script] only {len(candidate_rows)} comparable metric(s) "
                   f"for {name_a} vs {name_b} -- trying the next scheduled pair")
         if rows is None:
             raise SystemExit(
-                f"Could not find a pair with >= {MIN_ROWS} comparable metrics in "
-                f"{MAX_PAIR_ATTEMPTS} attempts starting from schedule position {base_index}.")
+                f"Could not find an unaired pair with >= {MIN_ROWS} comparable metrics in "
+                f"{attempt} attempts starting from schedule position {base_index}.")
 
     openai_cfg = config.get("openai", {})
     api_key = os.environ.get("OPENAI_API_KEY", "").strip()

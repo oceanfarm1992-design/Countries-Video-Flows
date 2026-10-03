@@ -53,7 +53,14 @@ jobs:
         if: |
           steps.meta.outputs.update-type == 'version-update:semver-patch' ||
           steps.meta.outputs.update-type == 'version-update:semver-minor'
-        run: gh pr merge --squash "$PR_URL"
+        # Dependabot opens several PRs at once; when two pass together, the second
+        # merge fails with "Base branch was modified" and nothing retries it.
+        run: |
+          for i in 1 2 3 4; do
+            gh pr merge --squash "$PR_URL" && exit 0
+            sleep $((i * 15))
+          done
+          exit 1
         env:
           PR_URL: ${{ github.event.pull_request.html_url }}
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

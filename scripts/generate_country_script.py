@@ -36,7 +36,7 @@ except ImportError:
     pass
 
 from fact_check import verify_narration
-from captions_common import write_platform_captions, _country_hashtag
+from captions_common import write_platform_captions
 from daily_variation import day_number_for
 
 # Every time a country comes back around in the rotation (every len(countries)/3 days

@@ -108,3 +108,15 @@ def test_comparison_pair_schedule_advances_one_position_per_day():
         pair = comparison.pick_pair_at(countries, day)
         seen.add(tuple(sorted(pair)))
     assert len(seen) == 50  # no position revisited within 50 days -> not skipping every other pair
+
+
+def test_comparison_aired_pairs_reads_history(tmp_path):
+    log = tmp_path / "history.csv"
+    log.write_text(
+        '2026-09-27T05:58:35Z,"South Korea vs Chile",KR_CL,success,success\n'
+        '2026-09-28T05:58:35Z,"Chad vs Peru",TD_PE,failure,failure\n'
+        '2026-09-21T10:53:08Z,"unknown",unknown,skipped\n',
+        encoding="utf-8")
+    aired = comparison.aired_pairs(str(log))
+    assert aired == {frozenset({"KR", "CL"})}
+    assert frozenset({"CL", "KR"}) in aired
