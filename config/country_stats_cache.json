@@ -1820,12 +1820,12 @@
     "year": 2024
   },
   "HU:gdp_per_capita": {
-    "fetched_at": 1789981234.3237307,
+    "fetched_at": 1791031677.9481413,
     "value": 23305.4482514359,
     "year": 2024
   },
   "HU:income": {
-    "fetched_at": 1789981234.3237307,
+    "fetched_at": 1791031677.9481413,
     "value": 20800.0,
     "year": 2024
   },
@@ -3130,7 +3130,7 @@
     "year": 2024
   },
   "NE:life_expectancy": {
-    "fetched_at": 1789982816.7711,
+    "fetched_at": 1791031791.1075258,
     "value": 61.433,
     "year": 2024
   },
@@ -3140,7 +3140,7 @@
     "year": 2022
   },
   "NE:population": {
-    "fetched_at": 1789982816.7711,
+    "fetched_at": 1791031791.1075258,
     "value": 27032412.0,
     "year": 2024
   },
