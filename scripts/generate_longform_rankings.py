@@ -345,9 +345,9 @@ def main():
     name = title_name(metric)
     head = (f"Top {len(rows)} {name}" if "display_label" in metric
             else f"Top {len(rows)} Countries by {metric['label']}")
-    title = f"{head} ({as_of}) | Full Ranking Explained"
+    title = f"{head}, {as_of} | Full Ranking Explained"
     if len(title) > 100:
-        title = f"{head} ({as_of})"[:100]
+        title = f"{head}, {as_of}"[:100]
     description_head = (
         f"Every country in the top {len(rows)} for {spoken_label(metric['label'])}, counted down from "
         f"#{len(rows)} to #1, with exact figures, gaps between neighbours and, where the data allows, "
