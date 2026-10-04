@@ -1,19 +1,23 @@
 name: longform-video
 
-# One 8+ minute 16:9 video every 2 days (YouTube + Facebook), rotating formats
+# One 8+ minute 16:9 video roughly every 2 days (YouTube + Facebook), rotating formats
 # A (top-20 ranking explained) -> B (bar-chart race) -> D (weekly recap). Only A is
-# built so far; until B and D exist, their days fall back to A.
+# built so far; until B and D exist, their turns fall back to A.
 #
-# Same gate design as the Shorts workflows: hourly ticks, posts once the target hour
-# (19:00-21:59 Dubai) has passed and nothing posted today, respecting the shared
-# post_gate spacing. A build takes ~45-60 min (cloned voice for ~10 min of audio).
+# Due whenever 40+ hours have passed since the last long-form post, from the day's
+# target hour (11:00-13:59 Dubai) until 23:00 Dubai. Not fixed even days: GitHub drops
+# most scheduled ticks, and on 2026-10-03 the only tick inside a narrow evening window
+# was blocked by the spacing rule, so nothing posted and the slot wasn't retried. Now a
+# missed day carries over, and two ticks per hour double the chances of a surviving run.
+# A build takes ~40 min (cloned voice for ~10 min of audio).
 on:
   schedule:
+    - cron: "11 * * * *"
     - cron: "41 * * * *"
   workflow_dispatch:
     inputs:
       force_run:
-        description: "Skip the gate (posting day, hour, spacing)"
+        description: "Skip the gate (40h rule, hour window, spacing)"
         type: boolean
         default: false
       dry_run:
@@ -53,12 +57,14 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           python - <<'EOF'
-          import hashlib, json, os, subprocess, sys
+          import csv, hashlib, json, os, subprocess, sys
           sys.path.insert(0, "scripts")
           from datetime import date, datetime, timezone
 
           EPOCH = date(2026, 7, 23)
-          LANE = [15, 16, 17]          # 19:00-21:59 Dubai
+          LANE = [7, 8, 9]             # target start, 11:00-13:59 Dubai
+          LAST_START_HOUR = 19         # a ~40-min build started later lands in the 23:50 Dubai quiet hours
+          MIN_HOURS_BETWEEN = 40
           FORMATS = ["A", "B", "D"]
           BUILT = {"A"}
 
@@ -67,33 +73,36 @@ jobs:
           force = os.environ.get("FORCE_RUN", "").lower() == "true"
           seed = int(hashlib.sha256(f"longform:{day_number}:hour".encode()).hexdigest()[:8], 16)
           hour = LANE[seed % len(LANE)]
-          planned = FORMATS[(day_number // 2) % len(FORMATS)]
+
+          # Rotate by posts actually made, so a missed day never skips a format.
+          made = 0
+          if os.path.exists("logs/history_longform.csv"):
+              with open("logs/history_longform.csv", encoding="utf-8", newline="") as fh:
+                  made = sum(1 for row in csv.reader(fh) if len(row) >= 6 and "success" in row[4:])
+          planned = FORMATS[made % len(FORMATS)]
           fmt = planned if planned in BUILT else "A"
 
-          today_tag = f"-{now:%Y%m%d}-"
           try:
-              out = subprocess.run(["gh", "release", "list", "--limit", "100", "--json", "tagName"],
+              out = subprocess.run(["gh", "release", "list", "--limit", "100", "--json", "tagName,publishedAt"],
                                    check=True, capture_output=True, text=True).stdout
-              posted = any(r["tagName"].startswith("longform-") and today_tag in r["tagName"]
-                           for r in json.loads(out))
+              stamps = [datetime.fromisoformat(r["publishedAt"].replace("Z", "+00:00"))
+                        for r in json.loads(out) if r["tagName"].startswith("longform-") and r.get("publishedAt")]
+              since = (now - max(stamps)).total_seconds() / 3600 if stamps else None
               read_ok = True
           except Exception as exc:
               print(f"[gate] could not read releases ({type(exc).__name__})")
-              posted, read_ok = False, False
+              since, read_ok = None, False
 
           if force:
               skip, reason = False, "force_run=true"
-          elif day_number % 2:
-              skip, reason = True, "not a long-form day (every 2 days)"
           elif not read_ok:
               skip, reason = True, "could not read releases -- failing closed"
-          elif posted:
-              skip, reason = True, "today's long-form video already posted"
+          elif since is not None and since < MIN_HOURS_BETWEEN:
+              skip, reason = True, f"last long-form post was {since:.0f}h ago (< {MIN_HOURS_BETWEEN}h)"
           elif now.hour < hour:
               skip, reason = True, f"too early (now {now:%H:%M}, due {hour:02d}:00)"
-          elif now.hour >= 19:
-              # a ~40-min build started later would publish inside the 23:50-01:00 Dubai quiet hours
-              skip, reason = True, "too late to finish before quiet hours -- next long-form day"
+          elif now.hour >= LAST_START_HOUR:
+              skip, reason = True, "too late to finish before quiet hours -- retries tomorrow"
           else:
               skip, reason = False, f"due ({now:%H:%M} >= {hour:02d}:00)"
 
@@ -105,8 +114,8 @@ jobs:
 
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               f.write(f"skip={'true' if skip else 'false'}\nformat={fmt}\n")
-          print(f"[gate] day {day_number}: format {planned}" + (f" (not built yet -> {fmt})" if fmt != planned else "")
-                + f", target {hour:02d}:00 UTC")
+          print(f"[gate] long-form #{made + 1}: format {planned}" + (f" (not built yet -> {fmt})" if fmt != planned else "")
+                + f", target {hour:02d}:00 UTC, last post " + (f"{since:.0f}h ago" if since is not None else "never"))
           print(f"[gate] {'SKIP' if skip else 'PROCEED'}: {reason}")
           EOF
 
