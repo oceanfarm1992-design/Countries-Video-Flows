@@ -1920,27 +1920,27 @@
     "year": 2024
   },
   "IN:gdp_per_capita": {
-    "fetched_at": 1789976373.8909307,
+    "fetched_at": 1791241097.9660084,
     "value": 2591.9916607122,
     "year": 2024
   },
   "IN:income": {
-    "fetched_at": 1789976373.8909307,
+    "fetched_at": 1791241097.9660084,
     "value": 2550.0,
     "year": 2024
   },
   "IN:life_expectancy": {
-    "fetched_at": 1789976373.8909307,
+    "fetched_at": 1791241097.9660084,
     "value": 72.235,
     "year": 2024
   },
   "IN:literacy": {
-    "fetched_at": 1789976373.8909307,
+    "fetched_at": 1791241097.9660084,
     "value": 78.1625330351403,
     "year": 2024
   },
   "IN:population": {
-    "fetched_at": 1789976373.8909307,
+    "fetched_at": 1791241097.9660084,
     "value": 1450935791.0,
     "year": 2024
   },
@@ -3295,27 +3295,27 @@
     "year": 2024
   },
   "NZ:gdp_per_capita": {
-    "fetched_at": 1789976551.7115264,
+    "fetched_at": 1791241100.567293,
     "value": 49432.3626396797,
     "year": 2024
   },
   "NZ:income": {
-    "fetched_at": 1789976551.7115264,
+    "fetched_at": 1791241100.567293,
     "value": 47070.0,
     "year": 2024
   },
   "NZ:life_expectancy": {
-    "fetched_at": 1789976551.7115264,
+    "fetched_at": 1791241100.567293,
     "value": 82.009756097561,
     "year": 2024
   },
   "NZ:literacy": {
-    "fetched_at": 1789976551.7115264,
+    "fetched_at": 1791241100.567293,
     "value": null,
     "year": null
   },
   "NZ:population": {
-    "fetched_at": 1789976551.7115264,
+    "fetched_at": 1791241100.567293,
     "value": 5290000.0,
     "year": 2024
   },
