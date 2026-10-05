@@ -43,5 +43,5 @@ Pillow==12.3.0
 
 # YouTube upload via google's official client libraries.
 google-auth==2.59.1
-google-auth-oauthlib==1.4.1
+google-auth-oauthlib==1.5.0
 google-api-python-client==2.201.0
