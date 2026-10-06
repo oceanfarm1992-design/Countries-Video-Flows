@@ -209,3 +209,16 @@ def test_longform_length_estimate_counts_digits():
     numeric = longform.estimate_seconds([{"text": "$30,769.7 " * 100}])
     assert numeric > plain * 4
     assert format_value("usd_big", 30_769_700_000_000) == "$30.77T"
+
+
+def test_strict_fact_check_fails_closed_when_checker_breaks(monkeypatch):
+    class Broken:
+        def __init__(self, **_):
+            raise RuntimeError("network down")
+    monkeypatch.setenv("OPENAI_API_KEY", "test")
+    monkeypatch.setattr(fact_check, "OPENAI_AVAILABLE", True)
+    monkeypatch.setattr(fact_check, "OpenAI", Broken, raising=False)
+    ok, issues = fact_check.verify_narration("text", "X", {}, reference=["a"], strict=True)
+    assert ok is False and issues
+    ok, _ = fact_check.verify_narration("text", "X", {}, reference=["a"])
+    assert ok is True

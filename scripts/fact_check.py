@@ -136,7 +136,9 @@ def verify_narration(narration: str, country_name: str, openai_cfg: dict, refere
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": narration},
             ],
-            max_tokens=400,
+            # A long narration with several issues overran 400 tokens and came back as
+            # truncated JSON; strict (long-form) reviews get room to answer in full.
+            max_tokens=1500 if strict else 400,
             temperature=0,
             response_format={"type": "json_object"},
         )
@@ -145,5 +147,11 @@ def verify_narration(narration: str, country_name: str, openai_cfg: dict, refere
         issues = [str(i) for i in (data.get("issues") or [])]
         return verdict != "fail", issues
     except Exception as exc:  # noqa: BLE001 — a checker outage should never block the pipeline
+        if strict:
+            # Long narration has room to invent; an unchecked one must not ship. The
+            # caller falls back to its data-only template instead.
+            print(f"[fact_check] verification call failed ({type(exc).__name__}: {exc}) — "
+                  f"strict review, treating as FAIL")
+            return False, [f"fact-check unavailable ({type(exc).__name__})"]
         print(f"[fact_check] verification call failed ({type(exc).__name__}: {exc}) — treating as pass")
         return True, []

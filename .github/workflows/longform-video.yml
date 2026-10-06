@@ -216,6 +216,18 @@ jobs:
           if-no-files-found: warn
           retention-days: 3
 
+      - name: Keep the script and description for audit
+        if: always() && steps.gate.outputs.skip == 'false' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        uses: actions/upload-artifact@v7
+        with:
+          name: longform-record
+          path: |
+            build/long/script.json
+            build/long/description.txt
+            build/long/title.txt
+          if-no-files-found: warn
+          retention-days: 90
+
       - name: Append run to history log
         if: always() && steps.gate.outputs.skip == 'false' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
         env:
@@ -227,10 +239,12 @@ jobs:
           echo "${DATE},${FORMAT},\"${TITLE}\",${IDENT},${{ steps.post_buffer.outcome }},${{ steps.post_youtube.outcome }}" >> logs/history_longform.csv
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add logs/history_longform.csv
+          # the build refreshes this tracked cache; leaving it unstaged blocked the pull
+          # below and the 2026-10-04 log row never reached main
+          git add logs/history_longform.csv config/rankings_stats_cache.json
           git commit -m "log: longform run ${DATE} (${FORMAT} ${IDENT})" || echo "nothing to commit"
           for i in 1 2 3; do
-            git pull --rebase && git push && break || sleep $((i * 5))
+            git pull --rebase --autostash && git push && break || sleep $((i * 5))
           done
 
       - name: Fail the run if any platform post failed
