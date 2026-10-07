@@ -1970,27 +1970,27 @@
     "year": 2024
   },
   "IR:gdp_per_capita": {
-    "fetched_at": 1789981329.1900392,
+    "fetched_at": 1791338377.3202312,
     "value": 5190.16959024821,
     "year": 2024
   },
   "IR:income": {
-    "fetched_at": 1789981329.1900392,
+    "fetched_at": 1791338377.3202312,
     "value": 5130.0,
     "year": 2024
   },
   "IR:life_expectancy": {
-    "fetched_at": 1789981329.1900392,
+    "fetched_at": 1791338377.3202312,
     "value": 77.854,
     "year": 2024
   },
   "IR:literacy": {
-    "fetched_at": 1789981329.1900392,
+    "fetched_at": 1791338377.3202312,
     "value": 88.9168161136597,
     "year": 2023
   },
   "IR:population": {
-    "fetched_at": 1789981329.1900392,
+    "fetched_at": 1791338377.3202312,
     "value": 91567738.0,
     "year": 2024
   },
@@ -3245,27 +3245,27 @@
     "year": 2024
   },
   "NP:gdp_per_capita": {
-    "fetched_at": 1789982705.2760828,
+    "fetched_at": 1791338380.1275017,
     "value": 1460.28237984149,
     "year": 2024
   },
   "NP:income": {
-    "fetched_at": 1789982705.2760828,
+    "fetched_at": 1791338380.1275017,
     "value": 1480.0,
     "year": 2024
   },
   "NP:life_expectancy": {
-    "fetched_at": 1789982705.2760828,
+    "fetched_at": 1791338380.1275017,
     "value": 70.636,
     "year": 2024
   },
   "NP:literacy": {
-    "fetched_at": 1789982705.2760828,
+    "fetched_at": 1791338380.1275017,
     "value": 68.7099990844727,
     "year": 2019
   },
   "NP:population": {
-    "fetched_at": 1789983109.2932746,
+    "fetched_at": 1791338380.1275017,
     "value": 29651054.0,
     "year": 2024
   },
