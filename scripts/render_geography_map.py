@@ -47,7 +47,7 @@ import subprocess
 from PIL import Image, ImageDraw, ImageFilter
 
 from fetch_footage import fetch_pexels, fetch_pixabay
-from pipeline_common import segment_durations
+from pipeline_common import segment_durations, speech_end_time
 
 # ---------------------------------------------------------------------------
 # Font/text helpers -- copied from assemble_video.py rather than imported, to
@@ -488,7 +488,10 @@ def resolve_duration(script, video_cfg, audio_path):
     so the script still runs standalone or out of order."""
     if audio_path and os.path.exists(audio_path):
         try:
-            audio_dur = ffprobe_duration(audio_path)
+            # speech_end_time, exactly as assemble_video.py measures it: the raw file
+            # length includes any trailing TTS silence, which stretched every rendered
+            # clip's timeline out of step with the narration.
+            audio_dur = speech_end_time(audio_path, ffprobe_duration(audio_path))
             duration = max(video_cfg["min_seconds"],
                            min(audio_dur + 0.4, video_cfg["max_seconds"]))
             return duration, f"voice.wav ({audio_dur:.1f}s)"

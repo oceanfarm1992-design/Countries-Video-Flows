@@ -292,6 +292,9 @@ def main():
                     help="Folder of background-music tracks (optional; picks one by date).")
     ap.add_argument("--music-volume", type=float, default=0.15,
                     help="Background music level, 0..1 (voice stays at full).")
+    ap.add_argument("--sfx", default=None,
+                    help="Optional sound-effects track (whooshes, pops) aligned to the montage "
+                         "timeline, mixed at full level on top of voice + music.")
     ap.add_argument("--intro", default="build/intro.mp4",
                     help="Optional globe-zoom intro to crossfade in front of the montage. "
                          "Ignored if the file doesn't exist.")
@@ -367,6 +370,13 @@ def main():
     music_idx = voice_idx + 1
     audio_fc = build_audio_filter(bool(music_path), duration, args.music_volume,
                                   voice_idx, music_idx)
+    use_sfx = bool(args.sfx) and os.path.exists(args.sfx)
+    if use_sfx:
+        sfx_idx = music_idx + 1 if music_path else music_idx
+        assert audio_fc.endswith("[aout]")
+        audio_fc = (audio_fc[:-len("[aout]")] + "[amain];"
+                    f"[{sfx_idx}:a]aresample=44100,volume=0.9[sfx];"
+                    "[amain][sfx]amix=inputs=2:duration=first:normalize=0[aout]")
     filter_complex = video_fc + ";" + audio_fc
 
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
@@ -383,6 +393,8 @@ def main():
     cmd += ["-i", args.audio]                            # voice (input voice_idx)
     if music_path:
         cmd += ["-stream_loop", "-1", "-i", music_path]  # music (input music_idx)
+    if use_sfx:
+        cmd += ["-i", args.sfx]                          # sound effects (after music)
     cmd += [
         "-filter_complex", filter_complex,
         "-map", "[vout]", "-map", "[aout]",

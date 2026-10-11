@@ -164,9 +164,11 @@ jobs:
       # Runs AFTER the voiceover on purpose -- same reason as comparison's
       # render step: slice/frame timing must come from the real voice length,
       # not a word-count estimate.
-      - name: Render rankings leaderboard graphics
+      # Motion graphics: tilted 3D-style map, camera flights, rising countries,
+      # animated stat cards with count-ups, plus a sound-effects track (sfx.wav).
+      - name: Render rankings motion graphics
         if: steps.gate.outputs.skip == 'false'
-        run: python scripts/render_rankings_graphics.py --video-config config/rankings_video.json
+        run: python scripts/render_rankings_motion.py --video-config config/rankings_video.json
 
       - name: Generate captions
         if: steps.gate.outputs.skip == 'false'
@@ -183,7 +185,7 @@ jobs:
       # render_rankings_graphics.py).
       - name: Assemble video
         if: steps.gate.outputs.skip == 'false'
-        run: python scripts/assemble_video.py --config config/rankings_video.json
+        run: python scripts/assemble_video.py --config config/rankings_video.json --sfx build/sfx.wav
 
       # ---- publish ----
       - name: Publish video as release asset
@@ -241,7 +243,8 @@ jobs:
             build/final.mp4
             build/voice.wav
             build/script.json
-            build/footage_clip*.png
+            build/footage_clip*.mp4
+            build/sfx.wav
           if-no-files-found: warn
           retention-days: 3
 

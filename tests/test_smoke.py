@@ -222,3 +222,28 @@ def test_strict_fact_check_fails_closed_when_checker_breaks(monkeypatch):
     assert ok is False and issues
     ok, _ = fact_check.verify_narration("text", "X", {}, reference=["a"])
     assert ok is True
+
+
+def test_motion_easing_and_sfx_track(tmp_path):
+    import wave
+    import motion_kit as mk
+    assert mk.ease_io(0) == 0 and abs(mk.ease_io(1) - 1) < 1e-9 and mk.ease_out(0.5) > 0.5
+    assert mk.phase(5, 4, 2) == 0.5 and mk.phase(1, 4, 2) == 0
+    path = tmp_path / "sfx.wav"
+    mk.write_sfx_track(str(path), 3.0, [(0.5, mk.sfx_pop()), (1.0, mk.sfx_whoosh())])
+    with wave.open(str(path)) as w:
+        assert w.getframerate() == 44100 and w.getnframes() == int(5.0 * 44100)
+
+
+def test_motion_rankings_row_frame_renders_and_flight_rises():
+    import motion_kit as mk
+    import render_rankings_motion as rm
+    a, b = (1000.0, 1000.0, 900.0), (7000.0, 1500.0, 900.0)
+    assert mk.MapCamera.fly(a, b, 0.5)[2] > 900 * 2  # long trips zoom out mid-flight
+    row = {"iso2": "BR", "country": "Brazil", "rank": 8, "tied": False, "value": 4.99e12, "value_text": "$4.99T"}
+    payload = {"row": row, "prev_shot": (4000.0, 1500.0, 6400.0), "flag": None, "unit": "usd_big", "bar": 0.12,
+               "label": "GDP (PPP)", "chips": [{"iso2": "BR", "rank": 8, "revealed": True}],
+               "revealed_before": []}
+    frame = rm.make_scene("row", payload)(3.5)
+    assert frame.size == (1080, 1920)
+    assert frame.getpixel((540, 300))[:3] != frame.getpixel((540, 1900))[:3]  # card drawn over the map
