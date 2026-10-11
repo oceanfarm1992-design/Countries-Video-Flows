@@ -229,7 +229,11 @@ jobs:
       # segment slice boundaries must match the real voice length.
       - name: Render world data graphics
         if: steps.gate.outputs.skip == 'false' && steps.gate.outputs.series == 'worlddata'
-        run: python scripts/render_worlddata_graphics.py --config config/countries.json
+        # waving-flag motion for the "flags" sub-type; the map renderer covers "stats"
+        # and any motion failure
+        run: |
+          python scripts/render_worlddata_motion.py --config config/countries.json \
+            || python scripts/render_worlddata_graphics.py --config config/countries.json
 
       - name: Generate captions
         if: steps.gate.outputs.skip == 'false'

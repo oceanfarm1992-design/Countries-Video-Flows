@@ -308,3 +308,17 @@ def test_transition_sfx_hits_every_cut(tmp_path):
                     "--audio", str(tmp_path / "missing.wav"), "--out", str(out)], check=True)
     with wave.open(str(out)) as w:
         assert w.getnframes() > 0
+
+
+def test_waving_flag_keeps_transparency_and_fits_box(tmp_path):
+    from PIL import Image
+    import render_worlddata_motion as rw
+    tall = Image.new("RGBA", (300, 600), (0, 0, 0, 0))
+    tall.paste((220, 20, 60, 255), (0, 0, 150, 600))   # left half opaque, right half transparent
+    path = tmp_path / "tall.png"
+    tall.save(path)
+    flag = rw.WavingFlag(str(path))
+    assert flag.w <= rw.FLAG_MAX[0] and flag.h <= rw.FLAG_MAX[1]
+    frame = flag.frame(1.0)
+    assert frame.getpixel((int(flag.w * 0.9), flag.pad + flag.h // 2))[3] == 0   # transparent stays transparent
+    assert frame.getpixel((5, flag.pad + flag.h // 2))[3] == 255
