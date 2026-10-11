@@ -2020,27 +2020,27 @@
     "year": 2024
   },
   "IT:gdp_per_capita": {
-    "fetched_at": 1789981371.1488628,
+    "fetched_at": 1791685175.851751,
     "value": 40429.6224047352,
     "year": 2024
   },
   "IT:income": {
-    "fetched_at": 1789981371.1488628,
+    "fetched_at": 1791685175.851751,
     "value": 38640.0,
     "year": 2024
   },
   "IT:life_expectancy": {
-    "fetched_at": 1789981371.1488628,
+    "fetched_at": 1791685175.851751,
     "value": 83.9512195121951,
     "year": 2024
   },
   "IT:literacy": {
-    "fetched_at": 1789981371.1488628,
+    "fetched_at": 1791685175.851751,
     "value": 99.3499984741211,
     "year": 2019
   },
   "IT:population": {
-    "fetched_at": 1789981371.1488628,
+    "fetched_at": 1791685175.851751,
     "value": 58952704.0,
     "year": 2024
   },
@@ -3070,27 +3070,27 @@
     "year": 2024
   },
   "MZ:gdp_per_capita": {
-    "fetched_at": 1789982683.1892948,
+    "fetched_at": 1791685161.749351,
     "value": 656.976148587772,
     "year": 2024
   },
   "MZ:income": {
-    "fetched_at": 1789982683.1892948,
+    "fetched_at": 1791685161.749351,
     "value": 550.0,
     "year": 2024
   },
   "MZ:life_expectancy": {
-    "fetched_at": 1789982683.1892948,
+    "fetched_at": 1791685161.749351,
     "value": 63.797,
     "year": 2024
   },
   "MZ:literacy": {
-    "fetched_at": 1789982683.1892948,
+    "fetched_at": 1791685161.749351,
     "value": 61.6653441678133,
     "year": 2022
   },
   "MZ:population": {
-    "fetched_at": 1789982683.1892948,
+    "fetched_at": 1791685161.749351,
     "value": 34631766.0,
     "year": 2024
   },
