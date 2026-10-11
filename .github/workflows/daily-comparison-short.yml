@@ -4,7 +4,7 @@ name: daily-comparison-short
 # rotating-short.yml: two countries side by side, compared across real World
 # Bank statistics (GDP per capita, income, literacy, population, life
 # expectancy) in an on-screen table -- see scripts/generate_comparison_script.py
-# and scripts/render_comparison_graphics.py. Own dedicated 1-video/day
+# and scripts/render_comparison_motion.py. Own dedicated 1-video/day
 # schedule (reduced 2026-10-03 from 2/day), posting to the same channels.
 #
 # Same "don't require an exact hour match" gate design as daily-rotating-
@@ -176,9 +176,9 @@ jobs:
       # Runs AFTER the voiceover on purpose -- same reason as geography/
       # worlddata's render step: slice/frame timing must come from the real
       # voice length, not a word-count estimate.
-      - name: Render comparison table graphics
+      - name: Render comparison motion graphics (split-screen 3D maps, racing bars, SFX)
         if: steps.gate.outputs.skip == 'false'
-        run: python scripts/render_comparison_graphics.py --video-config config/comparison_video.json
+        run: python scripts/render_comparison_motion.py --video-config config/comparison_video.json
 
       - name: Generate captions
         if: steps.gate.outputs.skip == 'false'
@@ -196,7 +196,7 @@ jobs:
       # render_comparison_graphics.py).
       - name: Assemble video
         if: steps.gate.outputs.skip == 'false'
-        run: python scripts/assemble_video.py --config config/comparison_video.json --no-hook
+        run: python scripts/assemble_video.py --config config/comparison_video.json --sfx build/sfx.wav --no-hook
 
       # ---- publish ----
       - name: Publish video as release asset
@@ -254,7 +254,9 @@ jobs:
             build/final.mp4
             build/voice.wav
             build/script.json
-            build/footage_clip*.png
+            build/footage_clip*.mp4
+            build/sfx.wav
+            build/captions.srt
           if-no-files-found: warn
           retention-days: 3
 

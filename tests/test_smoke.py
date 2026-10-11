@@ -263,3 +263,25 @@ def test_captions_show_script_numbers_timed_by_whisper():
     assert all(b["start"] >= a["start"] for a, b in zip(words, words[1:]))
     srt = gc.build_srt_from_word_timestamps(words, 3)
     assert "$40,430" in srt and "61.7%" in srt
+
+
+def test_main_landmass_framing_ignores_far_territories():
+    import motion_kit as mk
+    cam = mk.MapCamera((540, 690), [(-30, 70), (570, 70), (1175, 1250), (-635, 1250)], (270, 470))
+    us_full, us_main = cam.mask("US")["full_bbox"], cam.mask("US")["bbox"]
+    assert us_full[2] - us_full[0] > 7000          # Alaska/Aleutians/Hawaii span the map
+    assert 1000 < us_main[2] - us_main[0] < 1600     # lower 48 only
+    assert cam.shot_for("RU")[2] <= 6000
+
+
+def test_comparison_split_frame_and_scoring():
+    import render_comparison_motion as rc
+    assert rc.winner({"comparable": True, "value_a": 2, "value_b": 1}) == "a"
+    assert rc.winner({"comparable": False, "value_a": 2, "value_b": 1}) is None
+    assert rc.winner({"comparable": True, "value_a": 1, "value_b": 1}) is None
+    base = {"a": {"name": "United States", "iso2": "US"}, "b": {"name": "Japan", "iso2": "JP"},
+            "flags": [None, None], "subtitle": "HEAD TO HEAD", "tagline": "4 STATS", "dur": 6.0}
+    frame = rc.make_scene("intro", base)(3.0)
+    assert frame.size == (1080, 1920)
+    left, right = frame.getpixel((200, 450))[:3], frame.getpixel((880, 450))[:3]
+    assert left != right  # two different panels/countries

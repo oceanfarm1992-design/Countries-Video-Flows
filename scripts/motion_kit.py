@@ -34,6 +34,8 @@ TEXT = (245, 246, 250)
 TEXT_DIM = (165, 174, 198)
 PANEL = (14, 20, 38)
 SKY_TOP, SKY_BOT = (6, 10, 24), (18, 32, 58)
+LAND_LIT = (72, 196, 140)     # default raised-country colour
+RIVAL = (236, 112, 92)        # second country in two-country scenes
 
 
 # ---------------------------------------------------------------- easing / time
@@ -133,21 +135,50 @@ def apply_coeffs(c, x, y):
     return (c[0] * x + c[1] * y + c[2]) / d, (c[3] * x + c[4] * y + c[5]) / d
 
 
+def main_bbox(half_mask, max_gap=24):
+    """Bounding box (full-res source px) of a country's main landmass: the heaviest
+    run of occupied map columns, gaps up to max_gap half-res px (~2 degrees) bridged
+    (wider merged Alaska into the lower 48: the panhandle is ~5 degrees from Washington).
+    The whole-mask box is useless for framing countries whose territory spans the
+    map -- the US with Alaska and the Aleutians across the date line framed the
+    entire world. Works on the half-res mask; columns only, so it stays cheap."""
+    a = np.asarray(half_mask, dtype=np.uint32)
+    cols = a.sum(axis=0)
+    occupied = np.nonzero(cols)[0]
+    if occupied.size == 0:
+        return None
+    runs, start, prev = [], occupied[0], occupied[0]
+    for x in occupied[1:]:
+        if x - prev > max_gap:
+            runs.append((start, prev))
+            start = x
+        prev = x
+    runs.append((start, prev))
+    x0, x1 = max(runs, key=lambda r: cols[r[0]:r[1] + 1].sum())
+    rows = np.nonzero(a[:, x0:x1 + 1].sum(axis=1))[0]
+    return (int(x0) * 2, int(rows[0]) * 2, int(x1 + 1) * 2, int(rows[-1] + 1) * 2)
+
+
 class MapCamera:
     """Tilted world-map plane. Coordinates are equirectangular source pixels
     (8192 x 4096, the geography series' assets)."""
 
-    def __init__(self, size, plane_quad, focus_screen, tex=1150):
+    def __init__(self, size, plane_quad, focus_screen, tex=1150, share=None):
+        """share: another MapCamera whose loaded map and masks to reuse (several
+        cameras in one scene, e.g. split screen, without loading the 8K map twice)."""
         self.w, self.h = size
         self.tex = tex
         self.src_quad = [(0, 0), (tex, 0), (tex, tex), (0, tex)]
         self.to_tex = perspective_coeffs(plane_quad, self.src_quad)    # screen -> texture
         self.to_screen = perspective_coeffs(self.src_quad, plane_quad)  # texture -> screen
         self.focus_tex = apply_coeffs(self.to_tex, *focus_screen)
-        full = Image.open(os.path.join(GEO_DIR, "basemap_world.png")).convert("RGB")
-        self.base = {1.0: self._pad(full, 1.0), 0.5: self._pad(full.resize((SOURCE_W // 2, SOURCE_H // 2),
-                                                                          Image.BILINEAR), 0.5)}
-        self.masks = {}
+        if share is not None:
+            self.base, self.masks = share.base, share.masks
+        else:
+            full = Image.open(os.path.join(GEO_DIR, "basemap_world.png")).convert("RGB")
+            self.base = {1.0: self._pad(full, 1.0),
+                         0.5: self._pad(full.resize((SOURCE_W // 2, SOURCE_H // 2), Image.BILINEAR), 0.5)}
+            self.masks = {}
         self.bg = self._sky()
         self.fog = self._fog(plane_quad[0][1])
 
@@ -179,8 +210,8 @@ class MapCamera:
     def mask(self, iso2):
         if iso2 not in self.masks:
             m = Image.open(os.path.join(GEO_DIR, "country_masks", f"{iso2.upper()}.png")).convert("L")
-            self.masks[iso2] = {1.0: m, 0.5: m.resize((SOURCE_W // 2, SOURCE_H // 2), Image.BILINEAR),
-                                "bbox": m.getbbox()}
+            half = m.resize((SOURCE_W // 2, SOURCE_H // 2), Image.BILINEAR)
+            self.masks[iso2] = {1.0: m, 0.5: half, "full_bbox": m.getbbox(), "bbox": main_bbox(half)}
         return self.masks[iso2]
 
     def has_mask(self, iso2):
@@ -189,7 +220,7 @@ class MapCamera:
     def shot_for(self, iso2, pad=2.4, min_w=900):
         """(center_x, center_y, window_w) framing a country."""
         x0, y0, x1, y1 = self.mask(iso2)["bbox"]
-        return ((x0 + x1) / 2, (y0 + y1) / 2, max(min_w, max(x1 - x0, y1 - y0) * pad))
+        return ((x0 + x1) / 2, (y0 + y1) / 2, min(6000, max(min_w, max(x1 - x0, y1 - y0) * pad)))
 
     @staticmethod
     def fly(a, b, k):
@@ -223,9 +254,10 @@ class MapCamera:
             baked[scale] = out
         return baked
 
-    def render(self, shot, base=None, lift=None, beam=None):
+    def render(self, shot, base=None, lifts=(), beams=()):
         """shot: (cx, cy, w); base: from bake() (default: plain map).
-        lift: (iso2, amount 0..1) raised country. beam: (iso2, amount) light beam marker."""
+        lifts: [(iso2, amount 0..1, rgb)] countries raised as lit slabs.
+        beams: [(iso2, amount, rgb)] light-beam markers for countries too small to see."""
         base = base or self.base
         left, top, w = self._window(shot)
         scale = 0.5 if w > 2600 else 1.0
@@ -234,14 +266,16 @@ class MapCamera:
         padded = (box[0] + p, box[1] + p, box[2] + p, box[3] + p)
         tex = base[scale].transform((self.tex, self.tex), Image.EXTENT, padded, Image.BILINEAR).convert("RGBA")
         self._graticule(tex, left, top, w)
-        if lift and lift[1] > 0:
-            m = self.mask(lift[0])[scale].transform((self.tex, self.tex), Image.EXTENT, box, Image.BILINEAR)
-            self._extrude(tex, m, lift[1])
+        for iso2, amount, rgb in lifts:
+            if amount > 0:
+                m = self.mask(iso2)[scale].transform((self.tex, self.tex), Image.EXTENT, box, Image.BILINEAR)
+                self._extrude(tex, m, amount, rgb)
         frame = self.bg.copy()
         frame.alpha_composite(tex.transform((self.w, self.h), Image.PERSPECTIVE, self.to_tex, Image.BILINEAR))
         frame.alpha_composite(self.fog)
-        if beam and beam[1] > 0:
-            self._beam(frame, beam[0], beam[1], left, top, w)
+        for iso2, amount, rgb in beams:
+            if amount > 0:
+                self._beam(frame, iso2, amount, left, top, w, rgb)
         return frame
 
     def project(self, iso2, shot):
@@ -265,7 +299,7 @@ class MapCamera:
             d.line([(0, (y - top) * k), (self.tex, (y - top) * k)], fill=(90, 120, 165, 55), width=2)
             y += step
 
-    def _extrude(self, tex, mask, amount):
+    def _extrude(self, tex, mask, amount, rgb=LAND_LIT):
         """Raise the masked country as a lit slab (work only inside its bbox)."""
         bbox = mask.getbbox()
         if not bbox:
@@ -280,19 +314,19 @@ class MapCamera:
         shadow = Image.new("RGBA", region.size, (0, 0, 0, 0))
         shadow.putalpha(m.point(lambda v: int(v * 0.6 * a)))
         region.alpha_composite(shadow.filter(ImageFilter.GaussianBlur(12)), (int(depth * 0.6), int(depth * 0.9)))
-        for k in range(depth):
-            shade = 70 + int(60 * k / max(1, depth))
-            region.paste((int(shade * 0.55), int(shade * 0.9), int(shade * 0.75), 255), (0, -k), m)
+        for k in range(depth):  # side walls: a darker shade of the top colour
+            shade = 0.38 + 0.25 * k / max(1, depth)
+            region.paste(tuple(int(c * shade) for c in rgb) + (255,), (0, -k), m)
         glow = Image.new("RGBA", region.size, ACCENT + (0,))
         glow.putalpha(m.filter(ImageFilter.GaussianBlur(16)).point(lambda v: int(v * 0.5 * a)))
         region.alpha_composite(glow, (0, -depth))
         h, wd = region.size[1], region.size[0]
         ramp = np.linspace(1.15, 0.82, h)[:, None] * np.linspace(1.08, 0.92, wd)[None, :]
-        top = np.clip(np.stack([72 * ramp, 196 * ramp, 140 * ramp], -1), 0, 255).astype(np.uint8)
+        top = np.clip(np.stack([rgb[0] * ramp, rgb[1] * ramp, rgb[2] * ramp], -1), 0, 255).astype(np.uint8)
         region.paste(Image.fromarray(top).convert("RGBA"), (0, -depth), m)
         tex.paste(region, (x0, y0))
 
-    def _beam(self, frame, iso2, amount, left, top, w):
+    def _beam(self, frame, iso2, amount, left, top, w, rgb=ACCENT):
         """Vertical light beam + ring for countries too small to see when raised."""
         x0, y0, x1, y1 = self.mask(iso2)["bbox"]
         u = ((x0 + x1) / 2 - left) / w * self.tex
@@ -302,8 +336,8 @@ class MapCamera:
         layer = Image.new("RGBA", frame.size, (0, 0, 0, 0))
         d = ImageDraw.Draw(layer)
         r = 26 + 18 * a
-        d.ellipse((sx - r, sy - r * 0.45, sx + r, sy + r * 0.45), outline=ACCENT + (int(230 * a),), width=6)
-        d.rectangle((sx - 7, sy - 360 * a, sx + 7, sy), fill=ACCENT + (int(170 * a),))
+        d.ellipse((sx - r, sy - r * 0.45, sx + r, sy + r * 0.45), outline=tuple(rgb) + (int(230 * a),), width=6)
+        d.rectangle((sx - 7, sy - 360 * a, sx + 7, sy), fill=tuple(rgb) + (int(170 * a),))
         frame.alpha_composite(layer.filter(ImageFilter.GaussianBlur(3)))
         frame.alpha_composite(layer)
 

@@ -95,10 +95,10 @@ def make_scene(kind, p):
     cam = _camera()
     cache = {}
 
-    def map_layer(t, shot, base, lift=None, beam=None, static_after=None):
+    def map_layer(t, shot, base, lifts=(), beams=(), static_after=None):
         if static_after is not None and t > static_after and "map" in cache:
             return cache["map"].copy()
-        frame = cam.render(shot, base=base, lift=lift, beam=beam)
+        frame = cam.render(shot, base=base, lifts=lifts, beams=beams)
         if static_after is not None and t > static_after:
             cache["map"] = frame.copy()
         return frame
@@ -147,9 +147,9 @@ def make_scene(kind, p):
                 return cache["full"].copy()
             shot = mk.MapCamera.fly(p["prev_shot"], target, mk.phase(t, 0.0, 1.4))
             amount = mk.phase(t, 1.25, 0.75)
-            lift = (row["iso2"], amount) if has_mask and not small else None
-            beam = (row["iso2"], amount) if small else None
-            frame = map_layer(t, shot, base, lift=lift, beam=beam, static_after=2.05)
+            lifts = [(row["iso2"], amount, mk.LAND_LIT)] if has_mask and not small else []
+            beams = [(row["iso2"], amount, mk.ACCENT)] if small else []
+            frame = map_layer(t, shot, base, lifts=lifts, beams=beams, static_after=2.05)
             _caption_band(frame)
             _card(frame, t, row, flag, p)
             _progress(frame, p["chips"], row["iso2"], t)
