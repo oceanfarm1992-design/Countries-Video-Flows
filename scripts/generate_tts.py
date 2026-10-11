@@ -168,6 +168,58 @@ def _fetch_voice_reference(cache_path=VOICE_REF_CACHE):
     return cache_path
 
 
+# Speaking style from the private voice repo's profile.json (styles -> <name> -> en):
+# the voice keeps the reference sample's timbre and takes pacing/intonation from the
+# style's clip. Set VOICE_STYLE to another style name, or "default" for none.
+VOICE_STYLE = os.environ.get("VOICE_STYLE", "").strip() or "presentation"
+_VOICE_KWARGS = None
+
+
+def _fetch_repo_file(name, cache_dir="build/.voice_refs"):
+    """Download one file from the private voice repo (same read-only PAT)."""
+    pat = os.environ.get("VOICE_REPO_PAT", "").strip()
+    if not pat:
+        raise RuntimeError("VOICE_REPO_PAT is not set — cannot fetch voice reference files.")
+    url = f"https://api.github.com/repos/{VOICE_REF_REPO}/contents/{name}"
+    headers = {"Authorization": f"Bearer {pat}", "Accept": "application/vnd.github.raw+json"}
+    resp = requests.get(url, headers=headers, timeout=60)
+    resp.raise_for_status()
+    dest = os.path.join(cache_dir, name)
+    os.makedirs(os.path.dirname(dest), exist_ok=True)
+    with open(dest, "wb") as f:
+        f.write(resp.content)
+    return dest
+
+
+def _voice_kwargs(model, ref_path):
+    """model.inference() arguments that select the voice (+ style). If the style can't be
+    loaded this falls back to the plain cloned voice, never to a different voice."""
+    global _VOICE_KWARGS
+    if _VOICE_KWARGS is None:
+        _VOICE_KWARGS = {"target_voice_path": ref_path}
+        try:
+            import json
+
+            import torch
+
+            with open(_fetch_repo_file("profile.json"), encoding="utf-8") as f:
+                block = json.load(f)["styles"][VOICE_STYLE]["en"]
+            clip = block.get("style")
+            if clip:
+                voice = model.compute_style(ref_path)
+                style = model.compute_style(_fetch_repo_file(clip))
+                _VOICE_KWARGS = {
+                    "ref_s": torch.cat([voice[:, :128], style[:, 128:]], dim=1),
+                    "beta": block.get("beta", 0.0),
+                    "embedding_scale": block.get("embedding_scale", 1.0),
+                }
+                print(f"[generate_tts] speaking style: {VOICE_STYLE}")
+        except Exception as exc:  # noqa: BLE001
+            print(f"[generate_tts] style '{VOICE_STYLE}' unavailable ({type(exc).__name__}: {exc}); "
+                  "using the plain cloned voice", file=sys.stderr)
+    return _VOICE_KWARGS
+
+
 def _get_styletts2_model():
     global _STYLETTS2_MODEL
     if _STYLETTS2_MODEL is None:
@@ -241,7 +293,7 @@ def run_styletts2(text, out_wav):
     print(f"[generate_tts] calling StyleTTS2 (cloned voice) -- {len(chunks)} chunk(s) ...")
 
     if len(chunks) == 1:
-        model.inference(chunks[0], target_voice_path=ref_path, output_wav_file=out_wav)
+        model.inference(chunks[0], **_voice_kwargs(model, ref_path), output_wav_file=out_wav)
         return
 
     import numpy as np
@@ -251,7 +303,7 @@ def run_styletts2(text, out_wav):
     pieces, sr = [], None
     for i, chunk in enumerate(chunks):
         tmp_wav = os.path.join(tmp_dir, f".styletts2_chunk{i}.wav")
-        model.inference(chunk, target_voice_path=ref_path, output_wav_file=tmp_wav)
+        model.inference(chunk, **_voice_kwargs(model, ref_path), output_wav_file=tmp_wav)
         audio, file_sr = sf.read(tmp_wav)
         sr = sr or file_sr
         pieces.append(audio)
