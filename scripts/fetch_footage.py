@@ -35,6 +35,8 @@ import shutil
 import sys
 import unicodedata
 
+import time
+
 import requests
 
 HEADERS = {"User-Agent": "yt-shorts-generator/1.0 (personal pipeline)"}
@@ -88,12 +90,25 @@ ARCHIVE_DOWNLOAD = "https://archive.org/download/{identifier}/{filename}"
 ARCHIVE_VIDEO_EXT = (".mp4", ".ogv", ".mpeg", ".mpg", ".mov", ".m4v")
 
 
+DOWNLOAD_MAX_SECONDS = 150
+DOWNLOAD_MAX_BYTES = 250 * 1024 * 1024
+
+
 def _download(url, dest, headers=None):
-    with requests.get(url, headers=headers or HEADERS, stream=True, timeout=300) as r:
+    """requests' timeout only limits silence between chunks, so a server trickling
+    bytes kept a dry run in this step for 30+ minutes (the job had no time limit:
+    6 hours). Cap total time and size; the caller falls back to the next source."""
+    start = time.monotonic()
+    received = 0
+    with requests.get(url, headers=headers or HEADERS, stream=True, timeout=(15, 30)) as r:
         r.raise_for_status()
         with open(dest, "wb") as out:
             for chunk in r.iter_content(chunk_size=1 << 20):
                 out.write(chunk)
+                received += len(chunk)
+                if time.monotonic() - start > DOWNLOAD_MAX_SECONDS or received > DOWNLOAD_MAX_BYTES:
+                    raise RuntimeError(f"download too slow or too large ({received >> 20} MB in "
+                                       f"{time.monotonic() - start:.0f}s): {url[:80]}")
 
 
 def _rotate(seq, key=0):
