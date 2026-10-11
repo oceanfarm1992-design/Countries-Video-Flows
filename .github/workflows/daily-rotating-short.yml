@@ -17,6 +17,7 @@ on:
     # the most runs). Extra ticks are catch-up retries for dropped runs; the
     # gate itself enforces target hours, a cross-series gap and a nightly blackout.
     - cron: "17 * * * *"
+    - cron: "47 * * * *"
   workflow_dispatch:
     inputs:
       force_run:

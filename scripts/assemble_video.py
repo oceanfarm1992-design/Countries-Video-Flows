@@ -225,12 +225,15 @@ def build_video_filter(pieces, hook, cta, captions_path, duration):
 
     # hook title card — fontsize=48 (down from 54) leaves headroom for 2-line wraps;
     # y=h*0.10 pushes it slightly higher so even a 2-line block clears the subject's face.
-    parts.append(
-        f"[base]drawtext=fontfile={font_bold}:text='{hook_e}':"
-        "fontcolor=white:fontsize=48:line_spacing=8:"
-        "box=1:boxcolor=black@0.5:boxborderw=24:"
-        f"x=(w-text_w)/2:y=h*0.10:enable='between(t,0,{hook_end})'[v1]"
-    )
+    if hook:
+        parts.append(
+            f"[base]drawtext=fontfile={font_bold}:text='{hook_e}':"
+            "fontcolor=white:fontsize=48:line_spacing=8:"
+            "box=1:boxcolor=black@0.5:boxborderw=24:"
+            f"x=(w-text_w)/2:y=h*0.10:enable='between(t,0,{hook_end})'[v1]"
+        )
+    else:  # the series renders its own animated title
+        parts.append("[base]null[v1]")
     # burned-in lower-third captions
     parts.append(f"[v1]subtitles='{subs}':force_style='{caption_style}'[v2]")
     # end-card CTA — wrapped so the full 45-char string fits on 2 lines within 1080px.
@@ -292,6 +295,8 @@ def main():
                     help="Folder of background-music tracks (optional; picks one by date).")
     ap.add_argument("--music-volume", type=float, default=0.15,
                     help="Background music level, 0..1 (voice stays at full).")
+    ap.add_argument("--no-hook", action="store_true",
+                    help="Skip the hook title card (for series whose graphics carry their own title).")
     ap.add_argument("--sfx", default=None,
                     help="Optional sound-effects track (whooshes, pops) aligned to the montage "
                          "timeline, mixed at full level on top of voice + music.")
@@ -310,7 +315,7 @@ def main():
     with open(args.config, encoding="utf-8") as f:
         cfg = json.load(f)["video"]
 
-    hook = script.get("hook", "STAY STRONG")
+    hook = "" if args.no_hook else script.get("hook", "STAY STRONG")
     cta = cfg.get("cta_text", "Follow for daily wisdom")
 
     # speech_end_time guards against the same TTS trailing-silence padding fixed in

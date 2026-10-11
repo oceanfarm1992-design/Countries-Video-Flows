@@ -19,6 +19,7 @@ name: daily-rankings-short
 on:
   schedule:
     - cron: "37 * * * *"
+    - cron: "7 * * * *"   # second tick: GitHub drops most scheduled runs
   workflow_dispatch:
     inputs:
       force_run:
@@ -185,7 +186,7 @@ jobs:
       # render_rankings_graphics.py).
       - name: Assemble video
         if: steps.gate.outputs.skip == 'false'
-        run: python scripts/assemble_video.py --config config/rankings_video.json --sfx build/sfx.wav
+        run: python scripts/assemble_video.py --config config/rankings_video.json --sfx build/sfx.wav --no-hook
 
       # ---- publish ----
       - name: Publish video as release asset
@@ -245,6 +246,7 @@ jobs:
             build/script.json
             build/footage_clip*.mp4
             build/sfx.wav
+            build/captions.srt
           if-no-files-found: warn
           retention-days: 3
 

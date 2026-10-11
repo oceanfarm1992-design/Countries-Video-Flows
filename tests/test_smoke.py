@@ -247,3 +247,19 @@ def test_motion_rankings_row_frame_renders_and_flight_rises():
     frame = rm.make_scene("row", payload)(3.5)
     assert frame.size == (1080, 1920)
     assert frame.getpixel((540, 300))[:3] != frame.getpixel((540, 1900))[:3]  # card drawn over the map
+
+
+def test_captions_show_script_numbers_timed_by_whisper():
+    import generate_captions as gc
+    script = "GDP of $40,430 and 61.7% literacy, about 1.41B people.".split()
+    heard = ["GDP", "of", "40", "430", "and", "61", "7", "literacy", "about", "1.41", "billion", "people"]
+    times = [{"word": w, "start": i * 0.5, "end": i * 0.5 + 0.4} for i, w in enumerate(heard)]
+    words, share = gc.align_script_words(script, times)
+    assert [w["word"] for w in words] == script
+    assert share > 0.8
+    by = {w["word"]: w for w in words}
+    assert by["$40,430"]["start"] == 1.0 and by["$40,430"]["end"] == 1.9
+    assert by["61.7%"]["start"] == 2.5
+    assert all(b["start"] >= a["start"] for a, b in zip(words, words[1:]))
+    srt = gc.build_srt_from_word_timestamps(words, 3)
+    assert "$40,430" in srt and "61.7%" in srt

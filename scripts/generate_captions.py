@@ -18,6 +18,9 @@ Usage:
 """
 import argparse
 import json
+import unicodedata
+import re
+import difflib
 import os
 import subprocess
 
@@ -91,6 +94,62 @@ def build_srt_even(words, total_seconds, words_per_cue):
     return "\n".join(lines)
 
 
+def _pieces(token):
+    """Comparable fragments of a word: '$40,430' -> ['40', '430'], "Italy's" -> ['italy', 's']."""
+    plain = unicodedata.normalize("NFKD", token).encode("ascii", "ignore").decode().lower()
+    return re.findall(r"[a-z]+|\d+", plain)
+
+
+def align_script_words(script_words, word_times):
+    """Give each SCRIPT word the time Whisper heard it. Whisper's own words drop
+    punctuation ('$40,430' comes back as '40' + '430', '61.7%' as '61' + '7'), so
+    captions show the script's text and use Whisper only for timing. Returns
+    ([{word, start, end}], share of script fragments matched)."""
+    s_pieces, s_owner = [], []
+    for i, w in enumerate(script_words):
+        for piece in _pieces(w):
+            s_pieces.append(piece)
+            s_owner.append(i)
+    w_pieces, w_owner = [], []
+    for j, wt in enumerate(word_times):
+        for piece in _pieces(wt["word"]):
+            w_pieces.append(piece)
+            w_owner.append(j)
+    starts, ends = [None] * len(script_words), [None] * len(script_words)
+    matched = 0
+    blocks = difflib.SequenceMatcher(None, s_pieces, w_pieces, autojunk=False).get_matching_blocks()
+    for a, b, size in blocks:
+        for k in range(size):
+            i, wt = s_owner[a + k], word_times[w_owner[b + k]]
+            starts[i] = wt["start"] if starts[i] is None else min(starts[i], wt["start"])
+            ends[i] = wt["end"] if ends[i] is None else max(ends[i], wt["end"])
+            matched += 1
+
+    # Words Whisper didn't confirm (e.g. "1.41B" spoken as "1.41 billion") share the
+    # gap between their timed neighbours.
+    n = len(script_words)
+    i = 0
+    while i < n:
+        if starts[i] is not None:
+            i += 1
+            continue
+        j = i
+        while j < n and starts[j] is None:
+            j += 1
+        left = ends[i - 1] if i > 0 else (starts[j] - 0.35 * (j - i) if j < n else 0.0)
+        right = starts[j] if j < n else left + 0.35 * (j - i)
+        step = max(0.0, right - max(0.0, left)) / (j - i)
+        for k in range(i, j):
+            starts[k] = max(0.0, left) + step * (k - i)
+            ends[k] = starts[k] + step
+        i = j
+    for k in range(1, n):  # never let a caption start before the previous one
+        starts[k] = max(starts[k], starts[k - 1])
+        ends[k] = max(ends[k], starts[k])
+    words = [{"word": w, "start": starts[k], "end": ends[k]} for k, w in enumerate(script_words)]
+    return words, matched / max(1, len(s_pieces))
+
+
 def whisper_word_timestamps(audio_path):
     """Call OpenAI Whisper with word-level timestamps. Returns [{word, start, end}]."""
     api_key = os.environ.get("OPENAI_API_KEY", "").strip()
@@ -126,6 +185,13 @@ def main():
     # --- Primary: Whisper word-level timestamps ---
     try:
         word_times = whisper_word_timestamps(args.audio)
+        aligned, share = align_script_words(words, word_times)
+        if share >= 0.6:
+            print(f"[generate_captions] showing script text, timed by Whisper ({share:.0%} matched)")
+            word_times = aligned
+        else:
+            print(f"[generate_captions] only {share:.0%} of the script matched Whisper -- "
+                  "showing Whisper's words instead")
         srt = build_srt_from_word_timestamps(word_times, args.words_per_cue)
         print(f"[generate_captions] wrote {args.out} via Whisper ({len(word_times)} words)")
         method = "whisper"

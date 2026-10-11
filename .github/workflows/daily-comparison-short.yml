@@ -15,6 +15,7 @@ name: daily-comparison-short
 on:
   schedule:
     - cron: "53 * * * *"
+    - cron: "23 * * * *"  # second tick: GitHub drops most scheduled runs
   workflow_dispatch:
     inputs:
       force_run:
@@ -195,7 +196,7 @@ jobs:
       # render_comparison_graphics.py).
       - name: Assemble video
         if: steps.gate.outputs.skip == 'false'
-        run: python scripts/assemble_video.py --config config/comparison_video.json
+        run: python scripts/assemble_video.py --config config/comparison_video.json --no-hook
 
       # ---- publish ----
       - name: Publish video as release asset
