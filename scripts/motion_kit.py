@@ -248,9 +248,11 @@ class MapCamera:
         for scale, img in self.base.items():
             out = img.copy()
             p = int(self.PAD * scale)
+            span = int(SOURCE_W * scale)
             for iso2, rgb, alpha in tints:
-                m = self.mask(iso2)[scale]
-                out.paste(rgb, (p, p), m.point(lambda v, a=alpha: int(v * a)))
+                m = self.mask(iso2)[scale].point(lambda v, a=alpha: int(v * a))
+                for dx in (-span, 0, span):  # also into the wrap-around padding (Chukotka, Fiji)
+                    out.paste(rgb, (p + dx, p), m)
             baked[scale] = out
         return baked
 

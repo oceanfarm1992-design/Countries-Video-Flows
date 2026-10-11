@@ -142,7 +142,12 @@ def make_scene(kind, p):
         flag = _flag(p["flag"], 230)
         base = cam.bake([(iso, REVEALED_TINT, 0.35) for iso in p["revealed_before"] if cam.has_mask(iso)])
 
+        # Short beats run the whole timeline faster so the count-up always lands on
+        # the exact published value before the assembler cuts (settles at 3.0 s).
+        speed = 1 / min(1.0, max(0.3, (p.get("dur", 6.0) - 0.4) / 3.0))
+
         def scene(t):
+            t = t * speed
             if "full" in cache and t > 3.4:
                 return cache["full"].copy()
             shot = mk.MapCamera.fly(p["prev_shot"], target, mk.phase(t, 0.0, 1.4))
@@ -286,7 +291,7 @@ def main():
                 bar = (top / row["value"]) if asc else (row["value"] / top)
             chips = [{"iso2": r["iso2"], "rank": r["rank"], "revealed": r["iso2"] in revealed + [visual]}
                      for r in reversed(rows)]
-            payload = {"row": row, "prev_shot": prev_shot, "flag": flags.get(visual), "unit": unit,
+            payload = {"row": row, "prev_shot": prev_shot, "flag": flags.get(visual), "unit": unit, "dur": dur,
                        "bar": bar, "label": label, "chips": chips, "revealed_before": list(revealed)}
             kind = "row"
             events.append((start + 0.05, mk.sfx_whoosh()))

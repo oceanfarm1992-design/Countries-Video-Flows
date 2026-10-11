@@ -170,7 +170,16 @@ jobs:
       # animated stat cards with count-ups, plus a sound-effects track (sfx.wav).
       - name: Render rankings motion graphics
         if: steps.gate.outputs.skip == 'false'
-        run: python scripts/render_rankings_motion.py --video-config config/rankings_video.json
+        # Falls back to the previous static renderer if the motion render fails; that
+        # renderer relies on the hook title card, so HOOK_FLAG is only set on success.
+        run: |
+          if python scripts/render_rankings_motion.py --video-config config/rankings_video.json; then
+            echo "HOOK_FLAG=--no-hook" >> "$GITHUB_ENV"
+          else
+            echo "::warning::motion render failed -- using the static renderer"
+            rm -f build/sfx.wav build/footage_clip*.mp4
+            python scripts/render_rankings_graphics.py --video-config config/rankings_video.json
+          fi
 
       - name: Generate captions
         if: steps.gate.outputs.skip == 'false'
@@ -187,7 +196,7 @@ jobs:
       # render_rankings_graphics.py).
       - name: Assemble video
         if: steps.gate.outputs.skip == 'false'
-        run: python scripts/assemble_video.py --config config/rankings_video.json --sfx build/sfx.wav --no-hook
+        run: python scripts/assemble_video.py --config config/rankings_video.json --sfx build/sfx.wav $HOOK_FLAG
 
       # ---- publish ----
       - name: Publish video as release asset

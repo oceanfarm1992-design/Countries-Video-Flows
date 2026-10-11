@@ -63,7 +63,7 @@ def make_scene(p):
         shot = mk.MapCamera.fly(start, target, k)
         amount = mk.phase(t, fly_end - 0.25, 0.7)
         lifts = [(p["iso"], amount, mk.LAND_LIT)] if has_mask and not small else []
-        beams = [(p["iso"], amount, mk.ACCENT)] if (small or not has_mask) and p["iso"] else []
+        beams = [(p["iso"], amount, mk.ACCENT)] if small else []  # beams need a mask
         frame = cam.render(shot, lifts=lifts, beams=beams)
 
         c = mk.ease_out(mk.phase(t, fly_end - 0.1, 0.55))

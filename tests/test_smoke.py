@@ -276,9 +276,12 @@ def test_main_landmass_framing_ignores_far_territories():
 
 def test_comparison_split_frame_and_scoring():
     import render_comparison_motion as rc
-    assert rc.winner({"comparable": True, "value_a": 2, "value_b": 1}) == "a"
-    assert rc.winner({"comparable": False, "value_a": 2, "value_b": 1}) is None
-    assert rc.winner({"comparable": True, "value_a": 1, "value_b": 1}) is None
+    assert rc.winner({"comparable": True, "unit": "usd", "value_a": 2000, "value_b": 1000}) == "a"
+    assert rc.winner({"comparable": False, "unit": "usd", "value_a": 2000, "value_b": 1000}) is None
+    assert rc.winner({"comparable": True, "unit": "usd", "value_a": 1000, "value_b": 1000}) is None
+    # values that display identically ("82.0 yrs") are a tie, here and in the narration
+    same = {"comparable": True, "unit": "years", "value_a": 82.04, "value_b": 82.01}
+    assert rc.winner(same) is None and comparison._winner(same) is None
     base = {"a": {"name": "United States", "iso2": "US"}, "b": {"name": "Japan", "iso2": "JP"},
             "flags": [None, None], "subtitle": "HEAD TO HEAD", "tagline": "4 STATS", "dur": 6.0}
     frame = rc.make_scene("intro", base)(3.0)
@@ -335,3 +338,26 @@ def test_longform_slide_animates_then_settles():
     assert final.getbbox() is not None
     assert list(early.getdata()) != list(final.getdata())
     assert list(rl.country_slide(rec, row, {"GB"}, None, rl.ANIM_SECONDS).getdata()) == list(final.getdata())
+
+
+def test_comparison_rejects_gpt_beats_that_dont_match_the_stats(monkeypatch):
+    import json as _json
+    rows = [{"label": "GDP per Capita", "unit": "usd", "value_a": 2.0, "value_b": 1.0, "year_a": 2024,
+             "year_b": 2024, "comparable": True}]
+
+    class Fake:
+        def __init__(self, **_):
+            self.chat = self
+            self.completions = self
+
+        def create(self, **_):
+            segs = [{"text": "Intro.", "visual": ""}, {"text": "GDP.", "visual": "GDP per Capita"},
+                    {"text": "GDP again.", "visual": "GDP per Capita"}, {"text": "Bye.", "visual": ""}]
+            msg = type("M", (), {"content": _json.dumps({"hook": "A VS B", "segments": segs})})
+            return type("R", (), {"choices": [type("C", (), {"message": msg})]})
+
+    monkeypatch.setenv("OPENAI_API_KEY", "test")
+    monkeypatch.setattr(comparison, "OpenAI", Fake, raising=False)
+    import pytest
+    with pytest.raises(RuntimeError, match="don't match"):
+        comparison._gpt_script("A", "B", rows, {}, 10, 200)

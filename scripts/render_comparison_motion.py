@@ -56,7 +56,11 @@ def _cameras():
 
 
 def winner(row):
-    if not row["comparable"] or row["value_a"] == row["value_b"]:
+    """Same rule as the narration (generate_comparison_script._winner): comparable
+    stats only, higher wins, and figures that display identically are a tie."""
+    if not row["comparable"] or format_value(row["unit"], row["value_a"]) == format_value(row["unit"], row["value_b"]):
+        return None
+    if row["value_a"] == row["value_b"]:
         return None
     return "a" if row["value_a"] > row["value_b"] else "b"
 
@@ -245,12 +249,23 @@ def make_scene(kind, p):
 
     if kind == "row":
         row = p["row"]
+        # Short beats compress the timeline so the count-up always lands on the real
+        # value before the assembler cuts (it settles at 2.4 s at normal speed).
+        speed = 1 / min(1.0, max(0.3, (p["dur"] - 0.3) / 2.4))
 
         def scene(t):
+            tt = t * speed
             frame = drifting(t, p["dur"])
-            _bar_card(frame, t, p, row, flags)
-            _scoreboard(frame, t, p, p["score_after"] if t >= 2.0 else p["score_before"],
+            _bar_card(frame, tt, p, row, flags)
+            _scoreboard(frame, tt, p, p["score_after"] if tt >= 2.0 else p["score_before"],
                         bump_at=2.0 if p["score_after"] != p["score_before"] else None)
+            return frame
+        return scene
+
+    if kind == "hold":  # unexpected extra beat: keep the scoreboard, never the verdict
+        def scene(t):
+            frame = drifting(t, p["dur"])
+            _scoreboard(frame, 10.0, p, p["score_after"])
             return frame
         return scene
 
@@ -290,13 +305,18 @@ def main():
     base = {"a": {"name": a["name"], "iso2": a["iso2"]}, "b": {"name": b["name"], "iso2": b["iso2"]},
             "flags": flags, "subtitle": subtitle.upper(),
             "tagline": f"{len(rows)} STATS COMPARED  ·  WORLD BANK DATA"}
-    by_label = {r["label"]: r for r in rows}
+    by_label = {r["label"].strip().lower(): r for r in rows}
+    scored = set()
 
     jobs, clips, events, start, score = [], [], [], 0.0, [0, 0]
     last = len(segments) - 1
     for i, (seg, dur) in enumerate(zip(segments, durs)):
         label = (seg.get("visual") or "").strip()
-        row = by_label.get(label)
+        row = by_label.get(label.lower())
+        if row is not None and row["label"] in scored:
+            row = None  # a repeated label must never count a win twice
+        if row is not None:
+            scored.add(row["label"])
         payload = dict(base, dur=dur)
         if row is not None:
             before = tuple(score)
@@ -312,12 +332,11 @@ def main():
             kind = "intro"
             events += [(0.15, mk.sfx_whoosh()), (0.6, mk.sfx_pop()), (1.35, mk.sfx_pop())]
         else:
-            kind = "outro" if i == last else "row_hold"
+            kind = "outro" if i == last else "hold"
             payload.update(score_before=tuple(score), score_after=tuple(score))
             if kind == "outro":
                 events += [(start + 0.6, mk.sfx_impact())]
-        jobs.append((os.path.join(args.out, f"footage_clip{i}.mp4"), dur + TAIL_PAD,
-                     ("outro" if kind == "row_hold" else kind, payload)))
+        jobs.append((os.path.join(args.out, f"footage_clip{i}.mp4"), dur + TAIL_PAD, (kind, payload)))
         clips.append({"source": "comparison_motion", "query": label, "source_url": "",
                       "attribution": "Rendered motion graphics (data: World Bank Open Data)",
                       "resolution": f"{W}x{H}", "license": "Generated content -- original render",

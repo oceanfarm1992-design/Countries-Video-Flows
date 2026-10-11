@@ -173,7 +173,11 @@ def build_rows(stats_a, stats_b):
 
 
 def _winner(row):
+    """Higher wins -- but values that DISPLAY the same (82.04 vs 82.01 -> "82.0 yrs")
+    are a tie: a winner between identical-looking figures looks invented on screen."""
     if not row["comparable"]:
+        return None
+    if format_value(row["unit"], row["value_a"]) == format_value(row["unit"], row["value_b"]):
         return None
     if row["value_a"] > row["value_b"]:
         return "a"
@@ -314,6 +318,12 @@ def _gpt_script(name_a, name_b, rows, openai_cfg, min_words, max_words):
             segments.append({"text": text, "visual": visual})
     if not segments:
         raise RuntimeError("GPT returned no usable segments.")
+    # Exactly: intro, one beat per stat (its exact label, each once, in order), outro.
+    # Otherwise a repeated label double-counted a win on the scoreboard and an
+    # unknown one showed the verdict mid-video (and the narration skipped a stat).
+    expected = [""] + [r["label"] for r in rows] + [""]
+    if [s["visual"] for s in segments] != expected:
+        raise RuntimeError(f"GPT beats {[s['visual'] for s in segments]} don't match the stats {expected}")
     narration = " ".join(s["text"] for s in segments)
     return hook, narration, segments
 
