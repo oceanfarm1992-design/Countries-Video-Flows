@@ -56,6 +56,10 @@ _STRICT_RULE = """
             stated in, or directly calculable from, the source data below -- even if it
             sounds plausible or true. General interpretive language ("a steep climb",
             "a close race", "a remarkable lead") is fine and must not be flagged.
+
+            "issues" must contain ONLY claims that are wrong or unsupported. Never list a
+            claim you checked and found correct (a long-form script was once rejected on
+            entries that read "This is correct."). If nothing is wrong, verdict is "pass".
 """
 
 
