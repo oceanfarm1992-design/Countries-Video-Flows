@@ -34,20 +34,24 @@ def _run(cmd):
         raise SystemExit(f"ffmpeg failed: {' '.join(cmd[:6])} ...")
 
 
-def render_segment(out, overlay, background, dur):
+def render_segment(out, overlay, background, dur, anim=None):
+    """anim: optional transparent MOV of the slide's entrance; its last frame is held
+    (eof_action=repeat) for the rest of the segment instead of the still overlay."""
     fade = (f"fade=t=in:st=0:d={FADE},fade=t=out:st={max(0.0, dur - FADE):.3f}:d={FADE},"
             f"format=yuv420p")
+    over = ["-i", anim] if anim else ["-loop", "1", "-i", overlay]
+    hold = ":eof_action=repeat" if anim else ""
     if background:
-        inputs = ["-stream_loop", "-1", "-i", background, "-loop", "1", "-i", overlay]
+        inputs = ["-stream_loop", "-1", "-i", background, *over]
         graph = (f"[0:v]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},setsar=1,"
                  f"fps={FPS},eq=brightness=-0.06:saturation=0.9[b];"
-                 f"[b][1:v]overlay=0:0:format=auto,{fade}[v]")
+                 f"[b][1:v]overlay=0:0:format=auto{hold},{fade}[v]")
     else:
         # A sharp still: per-frame zoompan over 10+ minutes of stills took longer than
         # the whole rest of the build, and the footage segments already carry motion.
         inputs = ["-f", "lavfi", "-i", f"color=c=0x101828:s={W}x{H}:r={FPS}",
-                  "-loop", "1", "-framerate", str(FPS), "-i", overlay]
-        graph = f"[0:v][1:v]overlay=0:0:format=auto,{fade}[v]"
+                  *(over if anim else ["-loop", "1", "-framerate", str(FPS), "-i", overlay])]
+        graph = f"[0:v][1:v]overlay=0:0:format=auto{hold},{fade}[v]"
     # Capped bitrate: footage is a darkened backdrop, and the uncapped first dry run
     # came out at 557 MB for 18 minutes.
     _run(["ffmpeg", "-y", *inputs, "-filter_complex", graph, "-map", "[v]", "-t", f"{dur:.3f}",
@@ -105,7 +109,9 @@ def main():
     for i, (piece, tm) in enumerate(zip(pieces, timings)):
         clip = os.path.join(d, f"clip_{i:03d}.mp4")
         bg = os.path.join(d, piece["background"]) if piece.get("background") else None
-        render_segment(clip, os.path.join(d, piece["overlay"]), bg, tm["dur"])
+        anim = os.path.join(d, piece["overlay_anim"]) if piece.get("overlay_anim") else None
+        render_segment(clip, os.path.join(d, piece["overlay"]), bg, tm["dur"],
+                       anim if anim and os.path.exists(anim) else None)
         clips.append(clip)
         print(f"[assemble_long] segment {i + 1}/{len(pieces)} ({tm['dur']:.1f}s, "
               f"{'footage' if bg else 'still'})")

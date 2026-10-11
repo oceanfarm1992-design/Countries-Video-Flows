@@ -322,3 +322,16 @@ def test_waving_flag_keeps_transparency_and_fits_box(tmp_path):
     frame = flag.frame(1.0)
     assert frame.getpixel((int(flag.w * 0.9), flag.pad + flag.h // 2))[3] == 0   # transparent stays transparent
     assert frame.getpixel((5, flag.pad + flag.h // 2))[3] == 255
+
+
+def test_longform_slide_animates_then_settles():
+    import render_longform_rankings as rl
+    rec = {"unit": "usd_big", "slide_title": "Top 20 Countries by GDP", "source_label": "World Bank", "as_of": "2025",
+           "rows": [{"iso2": "GB", "country": "United Kingdom", "rank": 5, "tied": False, "value": "$4.00T",
+                     "raw_value": 4.0e12, "year": "2025", "trend": [[2015, 2.9e12], [2025, 4.0e12]], "facts": []}]}
+    row = rec["rows"][0]
+    early = rl.country_slide(rec, row, {"GB"}, None, 0.1)
+    final = rl.country_slide(rec, row, {"GB"}, None)
+    assert final.getbbox() is not None
+    assert list(early.getdata()) != list(final.getdata())
+    assert list(rl.country_slide(rec, row, {"GB"}, None, rl.ANIM_SECONDS).getdata()) == list(final.getdata())

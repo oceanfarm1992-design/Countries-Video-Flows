@@ -355,26 +355,30 @@ def _init_worker(scene_factory):
 
 
 def _render_task(task):
-    key, args, t = task
+    key, args, t, alpha = task
     if _WORKER["key"] != key:  # first frame of a new clip on this worker
         _WORKER["scene"], _WORKER["key"] = _WORKER["factory"](*args), key
-    return _WORKER["scene"](t).convert("RGB").tobytes()
+    frame = _WORKER["scene"](t)
+    return (frame.convert("RGBA") if alpha else frame.convert("RGB")).tobytes()
 
 
-def render_clips(jobs, size, scene_factory, processes=None):
+def render_clips(jobs, size, scene_factory, processes=None, alpha=False):
     """Render every clip with ONE persistent pool (assets load once per worker,
     not once per clip). jobs: [(out_path, duration_seconds, factory_args)].
-    scene_factory(*factory_args) must return scene(t) -> RGBA image."""
-    tasks = [(k, args, i / FPS) for k, (_, dur, args) in enumerate(jobs)
+    scene_factory(*factory_args) must return scene(t) -> RGBA image.
+    alpha=True keeps transparency (PNG-in-MOV) for overlays composited later."""
+    tasks = [(k, args, i / FPS, alpha) for k, (_, dur, args) in enumerate(jobs)
              for i in range(max(1, int(round(dur * FPS))))]
     counts = [max(1, int(round(dur * FPS))) for _, dur, _ in jobs]
     with Pool(processes or os.cpu_count(), initializer=_init_worker, initargs=(scene_factory,)) as pool:
         frames = pool.imap(_render_task, tasks, chunksize=3)
         for (out_path, _, _), n in zip(jobs, counts):
-            ff = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24",
+            codec = (["-c:v", "png", "-pix_fmt", "rgba"] if alpha else
+                     ["-c:v", "libx264", "-preset", "veryfast", "-crf", "19", "-pix_fmt", "yuv420p"])
+            ff = subprocess.Popen(["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo",
+                                   "-pix_fmt", "rgba" if alpha else "rgb24",
                                    "-s", f"{size[0]}x{size[1]}", "-r", str(FPS), "-i", "-",
-                                   "-c:v", "libx264", "-preset", "veryfast", "-crf", "19",
-                                   "-pix_fmt", "yuv420p", out_path], stdin=subprocess.PIPE)
+                                   *codec, out_path], stdin=subprocess.PIPE)
             for _ in range(n):
                 ff.stdin.write(next(frames))
             ff.stdin.close()

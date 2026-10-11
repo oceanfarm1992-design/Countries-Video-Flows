@@ -143,8 +143,9 @@ def _bar_card(frame, t, p, row, flags):
             value = format_value(row["unit"], row[f"value_{key}"] * c) if c < 1 else \
                 format_value(row["unit"], row[f"value_{key}"])
             vf = mk.font(34, 800)
-            tx = min(bar_end + 14, x1 - mk.text_w(value, vf) - 14)
-            inside = tx < bar_end
+            tw = mk.text_w(value, vf)
+            inside = bar_end + 14 + tw > x1 - 6   # no room after the bar: write it inside, right-aligned
+            tx = bar_end - tw - 14 if inside else bar_end + 14
             d.text((tx, y + 30), value, font=vf, anchor="lm",
                    fill=(14, 20, 38, 255) if inside else mk.TEXT + (255,))
         if win == key and glow > 0:

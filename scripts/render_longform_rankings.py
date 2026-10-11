@@ -22,6 +22,8 @@ import os
 from PIL import Image, ImageDraw
 
 from fetch_footage import fetch_pexels
+from motion_kit import ease_back, ease_io, ease_out, phase
+import motion_kit as mk
 from fetch_rankings_stats import format_value
 from render_rankings_graphics import (ACCENT, PANEL_HIGHLIGHT, TEXT_DIM, TEXT_WHITE, _draw_centered,
                                       _fetch_flag_resilient, _fit_text, _font, _paste_flag, _text_w)
@@ -33,6 +35,7 @@ CARD_FILL = (12, 16, 30, 215)
 LIST_FILL = (12, 16, 30, 190)
 LINE_COLOR = (230, 180, 60, 255)
 GENERIC_QUERY = "earth from space globe aerial"
+ANIM_SECONDS = 2.6   # each slide animates in, then holds its final frame
 
 
 def _overlay():
@@ -61,8 +64,10 @@ def _paste_flag_rgba(img, flag_path, cx, top, box_w, box_h):
     img.paste(rgb.convert("RGBA"), (0, 0), mask)
 
 
-def _trend(img, draw, points, box, fmt):
-    """Line through real readings only; first and last points labelled with their year/value."""
+def _trend(img, draw, points, box, fmt, progress=1.0):
+    """Line through real readings only; first and last points labelled with their
+    year/value. progress < 1 draws the line part-way (animation); the end label
+    appears only once the line reaches the last real reading."""
     x0, y0, x1, y1 = box
     if len(points) < 2:
         return
@@ -72,32 +77,54 @@ def _trend(img, draw, points, box, fmt):
     span = (hi - lo) or abs(hi) or 1
     xy = [(x0 + (y - years[0]) / max(1, years[-1] - years[0]) * (x1 - x0),
            y1 - (v - lo) / span * (y1 - y0)) for y, v in points]
-    draw.line(xy, fill=LINE_COLOR, width=5, joint="curve")
-    for x, y in (xy[0], xy[-1]):
-        draw.ellipse((x - 8, y - 8, x + 8, y + 8), fill=LINE_COLOR)
+    upto = progress * (len(xy) - 1)
+    whole = int(upto)
+    shown = xy[:whole + 1]
+    if whole < len(xy) - 1 and upto > whole:
+        (ax, ay), (bx, by) = xy[whole], xy[whole + 1]
+        f = upto - whole
+        shown = shown + [(ax + (bx - ax) * f, ay + (by - ay) * f)]
+    if len(shown) >= 2:
+        draw.line(shown, fill=LINE_COLOR, width=5, joint="curve")
     small = _font(False, 24)
+    draw.ellipse((xy[0][0] - 8, xy[0][1] - 8, xy[0][0] + 8, xy[0][1] + 8), fill=LINE_COLOR)
     draw.text((x0, y1 + 14), f"{years[0]}: {fmt(vals[0])}", font=small, fill=TEXT_DIM)
-    right = f"{years[-1]}: {fmt(vals[-1])}"
-    draw.text((x1 - _text_w(draw, right, small), y1 + 14), right, font=small, fill=TEXT_WHITE)
+    if progress >= 1:
+        draw.ellipse((xy[-1][0] - 8, xy[-1][1] - 8, xy[-1][0] + 8, xy[-1][1] + 8), fill=LINE_COLOR)
+        right = f"{years[-1]}: {fmt(vals[-1])}"
+        draw.text((x1 - _text_w(draw, right, small), y1 + 14), right, font=small, fill=TEXT_WHITE)
 
 
-def country_slide(record, row, revealed, flag_path):
+def country_slide(record, row, revealed, flag_path, t=None):
+    """t=None: the final, settled slide. With t (seconds into the segment) the card
+    slides in, the rank pops, the value counts up to the exact figure and the trend
+    line draws through its real yearly readings (all settled by ANIM_SECONDS)."""
+    t = ANIM_SECONDS if t is None else t
     img = _overlay()
-    _panel(img, CARD, CARD_FILL)
+    slide = ease_out(phase(t, 0.0, 0.55))
+    dx = int(-(CARD[2] + 40) * (1 - slide))
+    card = (CARD[0] + dx, CARD[1], CARD[2] + dx, CARD[3])
+    _panel(img, card, CARD_FILL)
     _panel(img, LIST, LIST_FILL)
     d = ImageDraw.Draw(img)
-    cx = (CARD[0] + CARD[2]) / 2
-    rank = f"#{row['rank']}" + (" (tied)" if row["tied"] else "")
-    _draw_centered(d, cx, CARD[1] + 30, rank, _font(True, 96), ACCENT)
+    cx = (card[0] + card[2]) / 2
+    pop = ease_back(phase(t, 0.35, 0.45))
+    if pop > 0:
+        rank = f"#{row['rank']}" + (" (tied)" if row["tied"] else "")
+        _draw_centered(d, cx, CARD[1] + 30 + int(40 * (1 - min(1.0, pop))), rank, _font(True, max(8, int(96 * pop))),
+                       ACCENT)
     _paste_flag_rgba(img, flag_path, cx, CARD[1] + 160, 360, 230)
     d = ImageDraw.Draw(img)
     name_font = _fit_text(d, row["country"], True, 64, 34, CARD[2] - CARD[0] - 60)
     _draw_centered(d, cx, CARD[1] + 420, row["country"], name_font, TEXT_WHITE)
-    _draw_centered(d, cx, CARD[1] + 505, row["value"], _font(True, 72), TEXT_WHITE)
+    count = ease_out(phase(t, 0.6, 1.3))
+    if count > 0:
+        value = row["value"] if count >= 1 else format_value(record["unit"], row["raw_value"] * count)
+        _draw_centered(d, cx, CARD[1] + 505, value, _font(True, 72), TEXT_WHITE)
     _draw_centered(d, cx, CARD[1] + 595, f"{record['slide_title']} | {row['year']}", _font(False, 26), TEXT_DIM)
     if row.get("trend"):
-        _trend(img, d, row["trend"], (CARD[0] + 70, CARD[1] + 660, CARD[2] - 70, CARD[3] - 90),
-               lambda v: format_value(record["unit"], v))
+        _trend(img, d, row["trend"], (card[0] + 70, CARD[1] + 660, card[2] - 70, CARD[3] - 90),
+               lambda v: format_value(record["unit"], v), progress=ease_io(phase(t, 0.8, 1.6)))
 
     d.text((LIST[0] + 30, LIST[1] + 24), "COUNTDOWN", font=_font(True, 30), fill=TEXT_DIM)
     row_h = (LIST[3] - LIST[1] - 90) / max(1, len(record["rows"]))
@@ -107,7 +134,11 @@ def country_slide(record, row, revealed, flag_path):
         y = LIST[1] + 80 + i * row_h
         current = r["iso2"] == row["iso2"]
         if current:
-            d.rounded_rectangle((LIST[0] + 14, y - 4, LIST[2] - 14, y + row_h - 4), 8, fill=PANEL_HIGHLIGHT)
+            if phase(t, 0.3, 0.4) <= 0:
+                continue  # the new row slides in with the card
+            hx = int(160 * (1 - ease_out(phase(t, 0.3, 0.4))))
+            d.rounded_rectangle((LIST[0] + 14 + hx, y - 4, LIST[2] - 14 + hx, y + row_h - 4), 8,
+                                fill=PANEL_HIGHLIGHT)
         font = _font(current, 24)
         d.text((LIST[0] + 30, y), f"#{r['rank']}", font=font, fill=ACCENT if current else TEXT_DIM)
         value_w = _text_w(d, r["value"], font)
@@ -121,23 +152,30 @@ def country_slide(record, row, revealed, flag_path):
     return img
 
 
-def title_slide(record, kind, flags):
-    img = Image.new("RGBA", (W, H), (8, 12, 24, 170))
+def title_slide(record, kind, flags, t=None):
+    t = ANIM_SECONDS if t is None else t
+    img = Image.new("RGBA", (W, H), (8, 12, 24, int(170 * ease_out(phase(t, 0.0, 0.4)))))
     d = ImageDraw.Draw(img)
     rows = record["rows"]
     if kind == "intro":
-        _draw_centered(d, W / 2, 250, f"TOP {len(rows)}", _font(True, 150), ACCENT)
+        pop = ease_back(phase(t, 0.2, 0.55))
+        if pop > 0:
+            _draw_centered(d, W / 2, 250 + int(60 * (1 - min(1.0, pop))), f"TOP {len(rows)}",
+                           _font(True, max(8, int(150 * pop))), ACCENT)
+        a = int(255 * ease_out(phase(t, 0.6, 0.5)))
         subtitle = record["slide_title"].upper().replace(f"TOP {len(rows)} ", "", 1)
         title_font = _fit_text(d, subtitle, True, 72, 40, W - 200)
-        _draw_centered(d, W / 2, 460, subtitle, title_font, TEXT_WHITE)
+        _draw_centered(d, W / 2, 460, subtitle, title_font, TEXT_WHITE + (a,))
         _draw_centered(d, W / 2, 580, f"Every country explained | {record['source_label']} data, "
-                                       f"as of {record['as_of']}", _font(False, 34), TEXT_DIM)
+                                       f"as of {record['as_of']}", _font(False, 34), TEXT_DIM + (a,))
         return img
     _draw_centered(d, W / 2, 50, record["slide_title"], _font(True, 50), TEXT_WHITE)
     half = (len(rows) + 1) // 2
     for i, r in enumerate(rows):
+        if phase(t, 0.2 + 0.07 * i, 0.3) <= 0:
+            continue  # rows stagger in, #1 first
         col, pos = divmod(i, half)
-        x = 140 + col * 860
+        x = 140 + col * 860 + int(120 * (1 - ease_out(phase(t, 0.2 + 0.07 * i, 0.3))))
         y = 160 + pos * 82
         d = ImageDraw.Draw(img)
         d.text((x, y), f"#{r['rank']}", font=_font(True, 36), fill=ACCENT)
@@ -147,6 +185,14 @@ def title_slide(record, kind, flags):
         d.text((x + 760 - _text_w(d, r["value"], _font(True, 34)), y), r["value"], font=_font(True, 34),
                fill=TEXT_WHITE)
     return img
+
+
+def make_overlay_scene(kind, record, row, revealed, flags):
+    """Worker-side factory for the animated slide entrances (see mk.render_clips)."""
+    if kind == "row":
+        revealed = set(revealed)
+        return lambda t: country_slide(record, row, revealed, flags, t)
+    return lambda t: title_slide(record, kind, flags, t)
 
 
 def thumbnail(record, flags):
@@ -192,20 +238,33 @@ def main():
         path = os.path.join(args.out, f"flag_{iso2}.png")
         flags[iso2] = path if _fetch_flag_resilient(iso2, path) else None
 
-    pieces, revealed = [], set()
+    pieces, revealed, jobs = [], set(), []
     for i, seg in enumerate(record["segments"]):
         visual = seg["visual"]
+        anim = f"anim_{i:03d}.mov"
         if visual in by_iso:
             revealed.add(visual)
             img = country_slide(record, by_iso[visual], revealed, flags[visual])
+            jobs.append((os.path.join(args.out, anim), ANIM_SECONDS,
+                         ("row", record, by_iso[visual], sorted(revealed), flags[visual])))
             query, country = queries.get(visual, by_iso[visual]["country"]), by_iso[visual]["country"]
         else:
             img = title_slide(record, visual, flags)
+            jobs.append((os.path.join(args.out, anim), ANIM_SECONDS, (visual, record, None, [], flags)))
             query, country = GENERIC_QUERY, None
         overlay = f"slide_{i:03d}.png"
         img.save(os.path.join(args.out, overlay))
         bg = None if args.no_footage else _background(query, country, os.path.join(args.out, f"bg_{i:03d}.mp4"))
-        pieces.append({"overlay": overlay, "background": bg})
+        pieces.append({"overlay": overlay, "overlay_anim": anim, "background": bg})
+
+    # Animated entrances (transparent PNG-in-MOV), held on their last frame by the
+    # assembler; the static slides above remain the fallback if this fails.
+    try:
+        mk.render_clips(jobs, (W, H), make_overlay_scene, alpha=True)
+    except (SystemExit, Exception) as exc:  # noqa: BLE001 -- fall back to the still slides
+        print(f"[render_longform] overlay animation failed ({exc}); using still slides")
+        for piece in pieces:
+            piece.pop("overlay_anim", None)
 
     thumbnail(record, flags).save(os.path.join(args.out, "thumbnail.jpg"), quality=90)
     with open(os.path.join(args.out, "pieces.json"), "w", encoding="utf-8") as fh:
