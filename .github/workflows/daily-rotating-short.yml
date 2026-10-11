@@ -241,7 +241,10 @@ jobs:
         if: steps.gate.outputs.skip == 'false'
         run: python scripts/generate_music.py
 
-      - name: Generate globe-zoom intro
+      # Motion intro: camera sweeps across a tilted 3D-style map to the country, which
+      # rises out of the map, then a flag + name card lands. Falls back to the old
+      # globe zoom if the motion render fails, and to no intro if both do.
+      - name: Generate motion intro
         if: steps.gate.outputs.skip == 'false'
         continue-on-error: true
         run: |
@@ -250,13 +253,20 @@ jobs:
           LAT=$(sed -n 's/^--lat=//p' /tmp/introargs)
           LON=$(sed -n 's/^--lon=//p' /tmp/introargs)
           ISO=$(sed -n 's/^--iso=//p' /tmp/introargs)
-          python scripts/generate_intro.py --name "$NAME" --lat "$LAT" --lon "$LON" \
+          python scripts/generate_motion_intro.py --name "$NAME" --lat "$LAT" --lon "$LON" \
+            --iso "$ISO" --out build/intro.mp4 --config config/countries.json \
+          || python scripts/generate_intro.py --name "$NAME" --lat "$LAT" --lon "$LON" \
             --iso "$ISO" --map assets/map/bluemarble.jpg --out build/intro.mp4 \
             --config config/countries.json
 
+      - name: Scene-cut sound effects
+        if: steps.gate.outputs.skip == 'false'
+        continue-on-error: true
+        run: python scripts/make_transition_sfx.py --config config/countries.json
+
       - name: Assemble video
         if: steps.gate.outputs.skip == 'false'
-        run: python scripts/assemble_video.py --config config/countries.json --intro build/intro.mp4
+        run: python scripts/assemble_video.py --config config/countries.json --intro build/intro.mp4 --sfx build/sfx.wav
 
       # ---- publish ----
       - name: Publish video as release asset
@@ -315,6 +325,9 @@ jobs:
             build/final.mp4
             build/voice.wav
             build/intro_voice.wav
+            build/intro.mp4
+            build/sfx.wav
+            build/captions.srt
             build/script.json
           if-no-files-found: warn
           retention-days: 3

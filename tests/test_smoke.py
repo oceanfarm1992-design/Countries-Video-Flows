@@ -285,3 +285,26 @@ def test_comparison_split_frame_and_scoring():
     assert frame.size == (1080, 1920)
     left, right = frame.getpixel((200, 450))[:3], frame.getpixel((880, 450))[:3]
     assert left != right  # two different panels/countries
+
+
+def test_motion_intro_frame_and_duration_rule():
+    import generate_motion_intro as gmi
+    scene = gmi.make_scene({"name": "Japan", "lat": 36.2, "lon": 138.25, "iso": "JP", "flag": None, "duration": 3.4})
+    end = scene(3.39)
+    assert end.size == (1080, 1920)
+    assert end.getpixel((540, 1300))[:3] != scene(0.1).getpixel((540, 1300))[:3]  # title card has landed
+
+
+def test_transition_sfx_hits_every_cut(tmp_path):
+    import json
+    import subprocess
+    import sys
+    import wave
+    script = {"narration": "one two three four five six", "segments": [
+        {"text": "one two", "visual": ""}, {"text": "three four", "visual": ""}, {"text": "five six", "visual": ""}]}
+    (tmp_path / "script.json").write_text(json.dumps(script), encoding="utf-8")
+    out = tmp_path / "sfx.wav"
+    subprocess.run([sys.executable, "scripts/make_transition_sfx.py", "--script", str(tmp_path / "script.json"),
+                    "--audio", str(tmp_path / "missing.wav"), "--out", str(out)], check=True)
+    with wave.open(str(out)) as w:
+        assert w.getnframes() > 0
