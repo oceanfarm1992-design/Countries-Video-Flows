@@ -320,7 +320,7 @@ def test_motion_intro_frame_and_duration_rule():
     scene = gmi.make_scene({"name": "Japan", "lat": 36.2, "lon": 138.25, "iso": "JP", "flag": None, "duration": 3.4})
     end = scene(3.39)
     assert end.size == (1080, 1920)
-    assert end.getpixel((540, 1300))[:3] != scene(0.1).getpixel((540, 1300))[:3]  # title card has landed
+    assert end.getpixel((540, 1500))[:3] != scene(0.1).getpixel((540, 1500))[:3]  # title card has landed
 
 
 def test_transition_sfx_hits_every_cut(tmp_path):

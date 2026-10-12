@@ -26,7 +26,7 @@ from pipeline_common import INTRO_XFADE_SECONDS, ffprobe_duration, speech_end_ti
 W, H = 1080, 1920
 PLANE = [(-60, 170), (1140, 170), (2350, 2350), (-1270, 2350)]
 FOCUS = (540, 860)
-TITLE_Y = 1230
+TITLE_Y = 1385  # below the caption band (1100-1360): speech can start during the intro
 
 
 def world_shot(lon, lat):
@@ -52,7 +52,7 @@ def make_scene(p):
     flag = None
     if p["flag"] and os.path.exists(p["flag"]):
         f = Image.open(p["flag"]).convert("RGBA")
-        flag = f.resize((300, max(1, int(300 * f.height / f.width))), Image.LANCZOS)
+        flag = f.resize((240, max(1, int(240 * f.height / f.width))), Image.LANCZOS)
     d_total = p["duration"]
     fly_end = max(1.2, d_total * 0.62)
     cache = {}
@@ -70,14 +70,14 @@ def make_scene(p):
         c = mk.ease_out(mk.phase(t, fly_end - 0.1, 0.55))
         if c > 0:
             dy = int(220 * (1 - c))
-            box = (90, TITLE_Y + dy, W - 90, TITLE_Y + 460 + dy)
+            box = (90, TITLE_Y + dy, W - 90, TITLE_Y + 400 + dy)
             mk.shadowed_panel(frame, box)
             if flag is not None:
                 frame.alpha_composite(mk.with_alpha(flag, c), (int(W / 2 - flag.width / 2), box[1] + 50))
             n = mk.ease_back(mk.phase(t, fly_end + 0.15, 0.5))
             if n > 0:
                 nf = mk.fit_font(p["name"].upper(), int(96 * min(1.0, n)) + 1, 40, box[2] - box[0] - 80, 900)
-                y = box[1] + (335 if flag is not None else 220)
+                y = box[1] + (285 if flag is not None else 190)
                 mk.draw_text(frame, (W / 2, y), p["name"].upper(), nf, mk.TEXT + (255,), anchor="mm")
                 ImageDraw.Draw(frame).rounded_rectangle(
                     (W / 2 - 90 * n, y + 62, W / 2 + 90 * n, y + 70), 4, fill=mk.ACCENT + (255,))
