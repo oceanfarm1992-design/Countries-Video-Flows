@@ -190,7 +190,7 @@ def _revealed(iso2, alpha, flag_paths):
     """bake() entry for an already-revealed country: painted with its flag when we
     have one, else the plain revealed tint."""
     flag = mk.load_flag(flag_paths.get(iso2))
-    return (iso2, REVEALED_TINT, alpha, flag) if flag is not None else (iso2, REVEALED_TINT, 0.35)
+    return (iso2, REVEALED_TINT, alpha, flag) if flag is not None else (iso2, REVEALED_TINT, alpha * 0.6)
 
 
 def _card(frame, t, row, flag, p):

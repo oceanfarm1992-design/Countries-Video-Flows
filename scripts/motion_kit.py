@@ -305,8 +305,8 @@ class MapCamera:
                 masks = self.mask(iso2)
                 m = masks[scale].point(lambda v, a=alpha: int(v * a))
                 paint, at = rgb, (0, 0)
-                if flag is not None:  # flag image over the country's own extent only
-                    fx0, fy0, fx1, fy1 = (int(v * scale) for v in masks["full_bbox"])
+                fx0, fy0, fx1, fy1 = (int(v * scale) for v in masks["full_bbox"])
+                if flag is not None and fx1 > fx0 and fy1 > fy0:  # flag over the country's own extent only
                     bx = [v * scale for v in masks["bbox"]]
                     paint = flag_fill(flag, (fx1 - fx0, fy1 - fy0),
                                       (bx[0] - fx0, bx[1] - fy0, bx[2] - fx0, bx[3] - fy0))
@@ -399,7 +399,7 @@ class MapCamera:
             top = np.clip(np.stack([rgb[0] * ramp, rgb[1] * ramp, rgb[2] * ramp], -1), 0, 255).astype(np.uint8)
         region.paste(Image.fromarray(top).convert("RGBA"), (0, -depth), m)
         if flag is not None:  # thin rim in the slab colour keeps the outline crisp on pale flags
-            rim = ImageChops.subtract(m, m.filter(ImageFilter.MinFilter(5)))
+            rim = ImageChops.subtract(m, m.filter(ImageFilter.MinFilter(3)))
             region.paste(tuple(rgb) + (255,), (0, -depth), rim)
         tex.paste(region, (x0, y0))
 
@@ -424,9 +424,9 @@ class MapCamera:
             fw = max(2, int(120 * a))
             pin = flag.resize((fw, max(2, int(fw * flag.height / flag.width))), Image.BILINEAR).convert("RGBA")
             px, py = int(sx + 7), int(sy - pole)
-            ImageDraw.Draw(frame).rectangle((px - 3, py - 3, px + fw + 2, py + pin.height + 2),
-                                            fill=tuple(rgb) + (int(255 * a),))
-            frame.alpha_composite(with_alpha(pin, a), (px, py))
+            framed = Image.new("RGBA", (fw + 6, pin.height + 6), tuple(rgb) + (255,))
+            framed.paste(pin, (3, 3))
+            frame.alpha_composite(with_alpha(framed, a), (px - 3, py - 3))  # blends, never punches alpha
 
     def is_small(self, iso2, shot):
         x0, y0, x1, y1 = self.mask(iso2)["bbox"]
