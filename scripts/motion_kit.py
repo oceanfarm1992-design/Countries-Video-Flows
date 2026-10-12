@@ -8,8 +8,9 @@ scenes:
   - Inter typography with soft drop shadows (assets/fonts, SIL OFL)
   - MapCamera: a tilted 2.5D world map plane with depth fog and a graticule, a
     camera that flies between countries (rising mid-flight on long trips), and a
-    country that rises out of the map as a lit 3D slab with shadow and glow;
-    countries too small to read get a light-beam marker instead
+    country that rises out of the map as a lit 3D slab with shadow and glow,
+    its top surface painted with the country's flag; countries too small to read
+    get a light-beam marker (a small flagpole flying their flag) instead
   - render_clip(): renders a scene function frame by frame across all CPU cores
     and pipes the frames straight into ffmpeg
   - synthesized sound effects (whoosh, pop, ding, riser, impact) -- no licensing
@@ -22,7 +23,7 @@ import subprocess
 from multiprocessing import Pool
 
 import numpy as np
-from PIL import Image, ImageDraw, ImageFilter, ImageFont
+from PIL import Image, ImageChops, ImageDraw, ImageFilter, ImageFont
 
 FPS = 30
 FONT_PATH = os.path.join(os.path.dirname(__file__), "..", "assets", "fonts", "Inter-Variable.ttf")
@@ -36,6 +37,8 @@ PANEL = (14, 20, 38)
 SKY_TOP, SKY_BOT = (6, 10, 24), (18, 32, 58)
 LAND_LIT = (72, 196, 140)     # default raised-country colour
 RIVAL = (236, 112, 92)        # second country in two-country scenes
+FLAG_MAX_STRETCH = 2.5        # how far a flag's shape may bend to fit a country
+FLAG_TEX_W = 640              # flag texture width (a raised country tops out ~900 px)
 
 
 # ---------------------------------------------------------------- easing / time
@@ -133,6 +136,53 @@ def perspective_coeffs(dst, src):
 def apply_coeffs(c, x, y):
     d = c[6] * x + c[7] * y + 1
     return (c[0] * x + c[1] * y + c[2]) / d, (c[3] * x + c[4] * y + c[5]) / d
+
+
+def dominant_colour(pixels):
+    """Most common colour of an (N, 3) pixel array (coarsely binned so anti-aliased
+    edges don't split a field) -- Nepal's crimson, not a muddy average with its blue
+    border and white emblems."""
+    if not len(pixels):
+        return (255, 255, 255)
+    bins = (pixels // 16).astype(np.int32)
+    keys = bins[:, 0] * 256 + bins[:, 1] * 16 + bins[:, 2]
+    top = np.bincount(keys).argmax()
+    return tuple(int(c) for c in pixels[keys == top].mean(axis=0))
+
+
+def load_flag(path, width=FLAG_TEX_W):
+    """RGB flag texture for painting countries, or None when there is no flag file.
+    Transparent corners (Nepal's pennants) take the flag's dominant colour, so the
+    country reads as one shape rather than half flag, half white."""
+    if not path or not os.path.exists(path):
+        return None
+    f = Image.open(path).convert("RGBA")
+    f = f.resize((width, max(1, int(width * f.height / f.width))), Image.LANCZOS)
+    px = np.asarray(f).reshape(-1, 4)
+    opaque = px[px[:, 3] > 128, :3]
+    field = dominant_colour(opaque)
+    out = Image.new("RGB", f.size, field)
+    out.paste(f, (0, 0), f)
+    out.info["field"] = dominant_colour(np.asarray(out).reshape(-1, 3))  # flag_fill runs per frame
+    return out
+
+
+def flag_fill(flag, size, box):
+    """RGB image of `size` with the flag laid over `box` (x0, y0, x1, y1 in that
+    image's pixels; the country's main landmass). The flag bends toward the box's
+    shape -- at most FLAG_MAX_STRETCH, so stripes stay stripes and emblems stay
+    recognisable -- then covers it, centred. Land outside the flag (far islands)
+    takes the flag's dominant colour."""
+    bw, bh = max(1.0, box[2] - box[0]), max(1.0, box[3] - box[1])
+    fa = flag.width / flag.height
+    aspect = min(fa * FLAG_MAX_STRETCH, max(fa / FLAG_MAX_STRETCH, bw / bh))
+    s = max(bw / aspect, bh)  # cover: flag height s, width s * aspect
+    fw, fh = max(1, math.ceil(s * aspect)), max(1, math.ceil(s))
+    field = flag.info.get("field") or dominant_colour(np.asarray(flag).reshape(-1, 3))
+    out = Image.new("RGB", (max(1, int(size[0])), max(1, int(size[1]))), field)
+    out.paste(flag.resize((fw, fh), Image.BILINEAR),
+              (int(box[0] + (bw - fw) / 2), int(box[1] + (bh - fh) / 2)))
+    return out
 
 
 def main_bbox(half_mask, max_gap=24):
@@ -243,23 +293,35 @@ class MapCamera:
     def bake(self, tints):
         """Base map with flat country highlights burned in, at both resolutions.
         Done once per scene so a frame costs one map warp however many countries
-        are highlighted. tints: [(iso2, rgb, alpha)]."""
+        are highlighted. tints: [(iso2, rgb, alpha)] or [(iso2, rgb, alpha, flag)]
+        -- with a flag (load_flag) the country is painted with it instead of rgb."""
         baked = {}
         for scale, img in self.base.items():
             out = img.copy()
             p = int(self.PAD * scale)
             span = int(SOURCE_W * scale)
-            for iso2, rgb, alpha in tints:
-                m = self.mask(iso2)[scale].point(lambda v, a=alpha: int(v * a))
+            for iso2, rgb, alpha, *rest in tints:
+                flag = rest[0] if rest else None
+                masks = self.mask(iso2)
+                m = masks[scale].point(lambda v, a=alpha: int(v * a))
+                paint, at = rgb, (0, 0)
+                fx0, fy0, fx1, fy1 = (int(v * scale) for v in masks["full_bbox"])
+                if flag is not None and fx1 > fx0 and fy1 > fy0:  # flag over the country's own extent only
+                    bx = [v * scale for v in masks["bbox"]]
+                    paint = flag_fill(flag, (fx1 - fx0, fy1 - fy0),
+                                      (bx[0] - fx0, bx[1] - fy0, bx[2] - fx0, bx[3] - fy0))
+                    m, at = m.crop((fx0, fy0, fx1, fy1)), (fx0, fy0)
                 for dx in (-span, 0, span):  # also into the wrap-around padding (Chukotka, Fiji)
-                    out.paste(rgb, (p + dx, p), m)
+                    out.paste(paint, (p + dx + at[0], p + at[1]), m)
             baked[scale] = out
         return baked
 
     def render(self, shot, base=None, lifts=(), beams=()):
         """shot: (cx, cy, w); base: from bake() (default: plain map).
-        lifts: [(iso2, amount 0..1, rgb)] countries raised as lit slabs.
-        beams: [(iso2, amount, rgb)] light-beam markers for countries too small to see."""
+        lifts: [(iso2, amount 0..1, rgb[, flag])] countries raised as lit slabs; with a
+        flag (load_flag) its top surface is the flag and rgb colours the walls and rim.
+        beams: [(iso2, amount, rgb[, flag])] light-beam markers for countries too small
+        to see; a flag rides on top of the beam as a pin."""
         base = base or self.base
         left, top, w = self._window(shot)
         scale = 0.5 if w > 2600 else 1.0
@@ -268,16 +330,19 @@ class MapCamera:
         padded = (box[0] + p, box[1] + p, box[2] + p, box[3] + p)
         tex = base[scale].transform((self.tex, self.tex), Image.EXTENT, padded, Image.BILINEAR).convert("RGBA")
         self._graticule(tex, left, top, w)
-        for iso2, amount, rgb in lifts:
+        k = self.tex / w
+        for iso2, amount, rgb, *rest in lifts:
             if amount > 0:
                 m = self.mask(iso2)[scale].transform((self.tex, self.tex), Image.EXTENT, box, Image.BILINEAR)
-                self._extrude(tex, m, amount, rgb)
+                x0, y0, x1, y1 = self.mask(iso2)["bbox"]
+                main = ((x0 - left) * k, (y0 - top) * k, (x1 - left) * k, (y1 - top) * k)
+                self._extrude(tex, m, amount, rgb, flag=rest[0] if rest else None, main=main)
         frame = self.bg.copy()
         frame.alpha_composite(tex.transform((self.w, self.h), Image.PERSPECTIVE, self.to_tex, Image.BILINEAR))
         frame.alpha_composite(self.fog)
-        for iso2, amount, rgb in beams:
+        for iso2, amount, rgb, *rest in beams:
             if amount > 0:
-                self._beam(frame, iso2, amount, left, top, w, rgb)
+                self._beam(frame, iso2, amount, left, top, w, rgb, flag=rest[0] if rest else None)
         return frame
 
     def project(self, iso2, shot):
@@ -301,8 +366,9 @@ class MapCamera:
             d.line([(0, (y - top) * k), (self.tex, (y - top) * k)], fill=(90, 120, 165, 55), width=2)
             y += step
 
-    def _extrude(self, tex, mask, amount, rgb=LAND_LIT):
-        """Raise the masked country as a lit slab (work only inside its bbox)."""
+    def _extrude(self, tex, mask, amount, rgb=LAND_LIT, flag=None, main=None):
+        """Raise the masked country as a lit slab (work only inside its bbox). With a
+        flag, the top is the flag laid over `main` (its main landmass, texture px)."""
         bbox = mask.getbbox()
         if not bbox:
             return
@@ -323,25 +389,44 @@ class MapCamera:
         glow.putalpha(m.filter(ImageFilter.GaussianBlur(16)).point(lambda v: int(v * 0.5 * a)))
         region.alpha_composite(glow, (0, -depth))
         h, wd = region.size[1], region.size[0]
-        ramp = np.linspace(1.15, 0.82, h)[:, None] * np.linspace(1.08, 0.92, wd)[None, :]
-        top = np.clip(np.stack([rgb[0] * ramp, rgb[1] * ramp, rgb[2] * ramp], -1), 0, 255).astype(np.uint8)
+        if flag is not None and main is not None:
+            # Softer light falloff than a flat colour, so the flag's colours read true.
+            ramp = np.linspace(1.06, 0.86, h)[:, None] * np.linspace(1.04, 0.95, wd)[None, :]
+            fill = flag_fill(flag, (wd, h), (main[0] - x0, main[1] - y0, main[2] - x0, main[3] - y0))
+            top = np.clip(np.asarray(fill, dtype=np.float32) * ramp[..., None], 0, 255).astype(np.uint8)
+        else:
+            ramp = np.linspace(1.15, 0.82, h)[:, None] * np.linspace(1.08, 0.92, wd)[None, :]
+            top = np.clip(np.stack([rgb[0] * ramp, rgb[1] * ramp, rgb[2] * ramp], -1), 0, 255).astype(np.uint8)
         region.paste(Image.fromarray(top).convert("RGBA"), (0, -depth), m)
+        if flag is not None:  # thin rim in the slab colour keeps the outline crisp on pale flags
+            rim = ImageChops.subtract(m, m.filter(ImageFilter.MinFilter(3)))
+            region.paste(tuple(rgb) + (255,), (0, -depth), rim)
         tex.paste(region, (x0, y0))
 
-    def _beam(self, frame, iso2, amount, left, top, w, rgb=ACCENT):
-        """Vertical light beam + ring for countries too small to see when raised."""
+    def _beam(self, frame, iso2, amount, left, top, w, rgb=ACCENT, flag=None):
+        """Vertical light beam + ring for countries too small to see when raised;
+        with a flag, the beam is a shorter flagpole flying it (kept low so it clears
+        the cards and headers drawn above the map)."""
         x0, y0, x1, y1 = self.mask(iso2)["bbox"]
         u = ((x0 + x1) / 2 - left) / w * self.tex
         v = ((y0 + y1) / 2 - top) / w * self.tex
         sx, sy = apply_coeffs(self.to_screen, u, v)
         a = ease_out(amount)
+        pole = (190 if flag is not None else 360) * a
         layer = Image.new("RGBA", frame.size, (0, 0, 0, 0))
         d = ImageDraw.Draw(layer)
         r = 26 + 18 * a
         d.ellipse((sx - r, sy - r * 0.45, sx + r, sy + r * 0.45), outline=tuple(rgb) + (int(230 * a),), width=6)
-        d.rectangle((sx - 7, sy - 360 * a, sx + 7, sy), fill=tuple(rgb) + (int(170 * a),))
+        d.rectangle((sx - 7, sy - pole, sx + 7, sy), fill=tuple(rgb) + (int(170 * a),))
         frame.alpha_composite(layer.filter(ImageFilter.GaussianBlur(3)))
         frame.alpha_composite(layer)
+        if flag is not None and a > 0.05:
+            fw = max(2, int(120 * a))
+            pin = flag.resize((fw, max(2, int(fw * flag.height / flag.width))), Image.BILINEAR).convert("RGBA")
+            px, py = int(sx + 7), int(sy - pole)
+            framed = Image.new("RGBA", (fw + 6, pin.height + 6), tuple(rgb) + (255,))
+            framed.paste(pin, (3, 3))
+            frame.alpha_composite(with_alpha(framed, a), (px - 3, py - 3))  # blends, never punches alpha
 
     def is_small(self, iso2, shot):
         x0, y0, x1, y1 = self.mask(iso2)["bbox"]

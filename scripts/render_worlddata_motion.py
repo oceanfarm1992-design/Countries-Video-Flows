@@ -70,7 +70,7 @@ class WavingFlag:
         out = np.zeros((self.h + 2 * self.pad, self.w, 4), np.uint8)
         out[..., :3] = np.clip(px[..., :3] * shade[None, :, None], 0, 255).astype(np.uint8)
         out[..., 3] = (px[..., 3] * valid).astype(np.uint8)
-        return Image.fromarray(out, "RGBA")
+        return Image.fromarray(out)  # uint8 HxWx4 is RGBA; the mode argument goes away in Pillow 13
 
 
 def make_scene(p):

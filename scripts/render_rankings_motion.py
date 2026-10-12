@@ -140,7 +140,8 @@ def make_scene(kind, p):
         target = cam.shot_for(row["iso2"], pad=2.9) if has_mask else p["prev_shot"]
         small = has_mask and cam.is_small(row["iso2"], target)
         flag = _flag(p["flag"], 230)
-        base = cam.bake([(iso, REVEALED_TINT, 0.35) for iso in p["revealed_before"] if cam.has_mask(iso)])
+        tex_flag = mk.load_flag(p["flag"])
+        base = cam.bake([_revealed(iso, 0.6, p.get("flags") or {}) for iso in p["revealed_before"] if cam.has_mask(iso)])
 
         # Short beats run the whole timeline faster so the count-up always lands on
         # the exact published value before the assembler cuts (settles at 3.0 s).
@@ -152,8 +153,8 @@ def make_scene(kind, p):
                 return cache["full"].copy()
             shot = mk.MapCamera.fly(p["prev_shot"], target, mk.phase(t, 0.0, 1.4))
             amount = mk.phase(t, 1.25, 0.75)
-            lifts = [(row["iso2"], amount, mk.LAND_LIT)] if has_mask and not small else []
-            beams = [(row["iso2"], amount, mk.ACCENT)] if small else []
+            lifts = [(row["iso2"], amount, mk.LAND_LIT, tex_flag)] if has_mask and not small else []
+            beams = [(row["iso2"], amount, mk.ACCENT, tex_flag)] if small else []
             frame = map_layer(t, shot, base, lifts=lifts, beams=beams, static_after=2.05)
             _caption_band(frame)
             _card(frame, t, row, flag, p)
@@ -169,7 +170,7 @@ def make_scene(kind, p):
     wide = (sum(cam.shot_for(i)[0] for i in isos) / max(1, len(isos)),
             sum(cam.shot_for(i)[1] for i in isos) / max(1, len(isos)), 6800) if isos else p["prev_shot"]
     flags = {r["iso2"]: _flag(p["flags"].get(r["iso2"]), 120) for r in rows[:3]}
-    lit = cam.bake([(i, REVEALED_TINT, 0.55) for i in isos])
+    lit = cam.bake([_revealed(i, 0.9, p["flags"]) for i in isos])
 
     def scene(t):
         if "full" in cache and t > 2.6:
@@ -183,6 +184,13 @@ def make_scene(kind, p):
             cache["full"] = frame.copy()
         return frame
     return scene
+
+
+def _revealed(iso2, alpha, flag_paths):
+    """bake() entry for an already-revealed country: painted with its flag when we
+    have one, else the plain revealed tint."""
+    flag = mk.load_flag(flag_paths.get(iso2))
+    return (iso2, REVEALED_TINT, alpha, flag) if flag is not None else (iso2, REVEALED_TINT, alpha * 0.6)
 
 
 def _card(frame, t, row, flag, p):
@@ -291,7 +299,8 @@ def main():
                 bar = (top / row["value"]) if asc else (row["value"] / top)
             chips = [{"iso2": r["iso2"], "rank": r["rank"], "revealed": r["iso2"] in revealed + [visual]}
                      for r in reversed(rows)]
-            payload = {"row": row, "prev_shot": prev_shot, "flag": flags.get(visual), "unit": unit, "dur": dur,
+            payload = {"row": row, "prev_shot": prev_shot, "flag": flags.get(visual), "flags": flags,
+                       "unit": unit, "dur": dur,
                        "bar": bar, "label": label, "chips": chips, "revealed_before": list(revealed)}
             kind = "row"
             events.append((start + 0.05, mk.sfx_whoosh()))

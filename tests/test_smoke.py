@@ -249,6 +249,31 @@ def test_motion_rankings_row_frame_renders_and_flight_rises():
     assert frame.getpixel((540, 300))[:3] != frame.getpixel((540, 1900))[:3]  # card drawn over the map
 
 
+def test_raised_country_wears_its_flag(tmp_path):
+    from PIL import Image
+    import motion_kit as mk
+    # a red/white/blue tricolour with transparent corners (like Nepal's pennant)
+    flag = Image.new("RGBA", (300, 200), (0, 0, 0, 0))
+    for i, c in enumerate([(220, 30, 40), (250, 250, 250), (20, 60, 200)]):
+        flag.paste(c + (255,), (20, i * 60 + 10, 280, i * 60 + 70))
+    path = tmp_path / "flag.png"
+    flag.save(path)
+    tex = mk.load_flag(str(path))
+    assert tex.mode == "RGB" and tex.getpixel((2, 2)) != (255, 255, 255)  # corners take the field colour
+    # a very wide country still shows every stripe (bend capped, then cover-fit)
+    fill = mk.flag_fill(tex, (1000, 200), (0, 0, 1000, 200))
+    colours = {fill.getpixel((500, y)) for y in (30, 100, 170)}
+    assert len(colours) == 3
+    # the lift paints the flag onto the raised country
+    cam = mk.MapCamera((1080, 1920), [(-140, 470), (1220, 470), (2350, 1950), (-1270, 1950)], (540, 880))
+    shot = cam.shot_for("BR", pad=2.9)
+    plain = cam.render(shot, lifts=[("BR", 1.0, mk.LAND_LIT)])
+    flagged = cam.render(shot, lifts=[("BR", 1.0, mk.LAND_LIT, tex)])
+    x, y = (int(v) for v in cam.project("BR", shot))
+    assert plain.getpixel((x, y - 30))[:3] != flagged.getpixel((x, y - 30))[:3]
+    assert cam.render(shot, beams=[("BR", 1.0, mk.ACCENT, tex)]).size == (1080, 1920)
+
+
 def test_captions_show_script_numbers_timed_by_whisper():
     import generate_captions as gc
     script = "GDP of $40,430 and 61.7% literacy, about 1.41B people.".split()
