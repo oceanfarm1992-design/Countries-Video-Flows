@@ -141,7 +141,9 @@ def make_scene(kind, p):
         small = has_mask and cam.is_small(row["iso2"], target)
         flag = _flag(p["flag"], 230)
         tex_flag = mk.load_flag(p["flag"])
-        base = cam.bake([_revealed(iso, 0.6, p.get("flags") or {}) for iso in p["revealed_before"] if cam.has_mask(iso)])
+        # Only the country being presented wears its flag: earlier ones stay a faint
+        # tint (a big neighbour's flag -- India behind Nepal -- stole the shot).
+        base = cam.bake([(iso, REVEALED_TINT, 0.35) for iso in p["revealed_before"] if cam.has_mask(iso)])
 
         # Short beats run the whole timeline faster so the count-up always lands on
         # the exact published value before the assembler cuts (settles at 3.0 s).
@@ -299,8 +301,7 @@ def main():
                 bar = (top / row["value"]) if asc else (row["value"] / top)
             chips = [{"iso2": r["iso2"], "rank": r["rank"], "revealed": r["iso2"] in revealed + [visual]}
                      for r in reversed(rows)]
-            payload = {"row": row, "prev_shot": prev_shot, "flag": flags.get(visual), "flags": flags,
-                       "unit": unit, "dur": dur,
+            payload = {"row": row, "prev_shot": prev_shot, "flag": flags.get(visual), "unit": unit, "dur": dur,
                        "bar": bar, "label": label, "chips": chips, "revealed_before": list(revealed)}
             kind = "row"
             events.append((start + 0.05, mk.sfx_whoosh()))
