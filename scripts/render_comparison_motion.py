@@ -103,8 +103,9 @@ def _panels(cams, p, t_a, t_b, lift_a, lift_b, marks, world):
             lifts = beams = ()
         else:
             view = mk.MapCamera.fly(world, target, k)
-            lifts = [] if small else [(iso2, amount, col)]
-            beams = [(iso2, amount, col)] if small else []
+            flag = p["tex_flags"][side]
+            lifts = [] if small else [(iso2, amount, col, flag)]
+            beams = [(iso2, amount, col, flag)] if small else []
         panel = cam.render(view, lifts=lifts, beams=beams)
         frame.alpha_composite(panel, (side * PANEL_W, PANEL_Y))
     layer = Image.new("RGBA", frame.size, (0, 0, 0, 0))
@@ -206,6 +207,7 @@ def make_scene(kind, p):
     cams = _cameras()
     cache = {}
     flags = (_flag(p["flags"][0], 220), _flag(p["flags"][1], 220), _flag(p["flags"][0], 72), _flag(p["flags"][1], 72))
+    p = dict(p, tex_flags=(mk.load_flag(p["flags"][0]), mk.load_flag(p["flags"][1])))
     world = (mk.SOURCE_W / 2, mk.SOURCE_H * 0.42, WORLD_W)
     marks = []
     for cam, iso2, col in ((cams[0], p["a"]["iso2"], COL_A), (cams[1], p["b"]["iso2"], COL_B)):

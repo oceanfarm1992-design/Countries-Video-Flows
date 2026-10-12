@@ -48,6 +48,7 @@ def make_scene(p):
         target = (x, y, 1400)
     small = has_mask and cam.is_small(p["iso"], target)
     start = world_shot(p["lon"], p["lat"])
+    tex_flag = mk.load_flag(p["flag"])
     flag = None
     if p["flag"] and os.path.exists(p["flag"]):
         f = Image.open(p["flag"]).convert("RGBA")
@@ -62,8 +63,8 @@ def make_scene(p):
         k = mk.phase(t, 0.0, fly_end)
         shot = mk.MapCamera.fly(start, target, k)
         amount = mk.phase(t, fly_end - 0.25, 0.7)
-        lifts = [(p["iso"], amount, mk.LAND_LIT)] if has_mask and not small else []
-        beams = [(p["iso"], amount, mk.ACCENT)] if small else []  # beams need a mask
+        lifts = [(p["iso"], amount, mk.LAND_LIT, tex_flag)] if has_mask and not small else []
+        beams = [(p["iso"], amount, mk.ACCENT, tex_flag)] if small else []  # beams need a mask
         frame = cam.render(shot, lifts=lifts, beams=beams)
 
         c = mk.ease_out(mk.phase(t, fly_end - 0.1, 0.55))
