@@ -358,6 +358,7 @@ def main():
         "format": "A", "identifier": metric["id"], "metric_id": metric["id"], "unit": metric["unit"],
         "title": title, "slide_title": head, "description_head": description_head,
         "source_label": source_label, "as_of": as_of, "narration_source": source,
+        "wb_indicator": metric.get("wb_indicator"), "metric_label": metric["label"],
         "rows": rows, "segments": segments,
     }
     with open(os.path.join(args.out, "script.json"), "w", encoding="utf-8") as fh:

@@ -3186,6 +3186,12 @@
       ]
     ]
   },
+  "hashtags_data": {
+    "_comment": "rankings, worst-of and comparison videos are data videos -- the travel pool (#traveltok, #amazingplaces) misdescribes them",
+    "youtube": "#Shorts #worldrankings #geography #worldfacts #countries #statistics #datavisualization #maps #education #facts",
+    "facebook": "#worldrankings #worldfacts #geography #countries #statistics #datavisualization #education",
+    "tiktok": "#worldrankings #worldfacts #geography #countries #statistics #maps #education #facts #didyouknow #fyp"
+  },
   "hashtags": {
     "instagram": "#travel #worldfacts #geography #culture #history #amazingplaces #exploretheworld #countryfacts #travelgram #reels #learnontiktok #didyouknow",
     "facebook": "#travel #worldfacts #geography #culture #history #amazingplaces #countryfacts #exploretheworld",
@@ -3195,7 +3201,8 @@
   "variation": {
     "_comment": "Per-day caption variation (see scripts/daily_variation.py + captions_common.py). TikTok posts always carry tiktok_seo_required plus exactly one rotating tag from tiktok_seo_rotating.",
     "tiktok_seo_required": "#creatorsearchinsights",
-    "tiktok_seo_rotating": ["#learnontiktok", "#tiktoktaughtme", "#edutok", "#traveltok", "#geographytok"]
+    "tiktok_seo_rotating": ["#learnontiktok", "#tiktoktaughtme", "#edutok", "#traveltok", "#geographytok"],
+    "tiktok_seo_rotating_data": ["#edutok", "#geographytok", "#learnontiktok", "#tiktoktaughtme"]
   },
   "video": {
     "width": 1080,

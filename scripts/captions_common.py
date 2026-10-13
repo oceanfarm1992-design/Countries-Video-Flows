@@ -180,22 +180,34 @@ def _pick(pool, seed_int, salt):
     return pool[_seed(seed_int, salt) % len(pool)]
 
 
-def _tiktok_seo_tags(config, seed_int):
+def _tiktok_seo_tags(config, seed_int, data_series=False):
     """#creatorsearchinsights (always) + exactly one rotating search tag."""
     variation = config.get("variation", {})
     required = variation.get("tiktok_seo_required", "#creatorsearchinsights")
-    rotating = variation.get("tiktok_seo_rotating", [])
+    rotating = (data_series and variation.get("tiktok_seo_rotating_data")) or variation.get("tiktok_seo_rotating", [])
     if not rotating:
         return required
     chosen = rotating[_seed(seed_int, "ttseo") % len(rotating)]
     return f"{required} {chosen}"
 
 
-def write_platform_captions(series, country, hook, config, out_dir, seed_int):
+DATA_SERIES = {"rankings", "worst", "comparison"}
+
+
+def write_platform_captions(series, country, hook, config, out_dir, seed_int, sources=None):
     """Build and write the four platform caption files for `series`, applying
-    deterministic per-day variation keyed by `seed_int` (the day number)."""
+    deterministic per-day variation keyed by `seed_int` (the day number).
+
+    sources: for the data series, the proof behind every number --
+    {"lines": [the full list / every figure, as shown in the video],
+     "credit": "Source: <publisher>, <dataset> (<edition>)", "link": url}.
+    YouTube gets all of it; Facebook and TikTok get the one-line credit."""
     copy = SERIES_COPY.get(series, SERIES_COPY["country"])
-    hashtags = config.get("hashtags", {})
+    data_series = series in DATA_SERIES
+    # rankings/worst-of/comparison are data videos: travel tags (#traveltok,
+    # #amazingplaces) misdescribe them, so they use their own pool when configured
+    hashtags = config.get("hashtags_data", {}) if data_series and config.get("hashtags_data") \
+        else config.get("hashtags", {})
     name = country["name"]
     specialty = country.get("specialty", "")
     facts = country.get("facts", [])
@@ -221,27 +233,39 @@ def write_platform_captions(series, country, hook, config, out_dir, seed_int):
     variation = config.get("variation", {})
     seo_managed = {variation.get("tiktok_seo_required", "#creatorsearchinsights").lower()}
     seo_managed.update(t.lower() for t in variation.get("tiktok_seo_rotating", []))
+    seo_managed.update(t.lower() for t in variation.get("tiktok_seo_rotating_data", []))
     tt_tags = _vary_hashtags(hashtags.get("tiktok", ""), seed_int, "tt", keep=8,
                              exclude=seo_managed)
-    tt_seo = _tiktok_seo_tags(config, seed_int)
+    tt_seo = _tiktok_seo_tags(config, seed_int, data_series)
 
     # Country series historically led its description with the specialty; hook &
     # trending lead with the generated hook title. Preserve that distinction.
     lead = specialty if series == "country" else hook_title
 
+    if sources:
+        # the proof: every figure from the video, where it comes from, and a link
+        proof = "\n".join(sources["lines"])
+        link = f"\n{sources['link']}" if sources.get("link") else ""
+        yt_body = f"📊 The data in this video:\n{proof}\n\n{sources['credit']}{link}\n\n"
+        fb_credit = f"{sources['credit']}\n\n"
+        tt_credit = f"{sources['credit']}\n\n"
+    else:
+        yt_body, fb_credit, tt_credit = f"Did you know? {first_fact}\n\n", "", ""
     yt_desc = (
         f"{name} {copy['yt_emoji']} {lead}\n\n"
-        f"Did you know? {first_fact}\n\n"
+        f"{yt_body}"
         f"{subscribe}\n\n"
         f"{ctag} {yt_tags}"
     )
     fb_cap = (
         f"{copy['yt_emoji']} {name} — {lead}\n\n"
         f"{fb_question}\n\n"
+        f"{fb_credit}"
         f"{ctag} {fb_tags}"
     )
     tt_cap = (
         f"{lead} {copy['tt_suffix']}\n\n"
+        f"{tt_credit}"
         f"{ctag} {tt_seo} {tt_tags}"
     )
 

@@ -177,6 +177,33 @@ def _template_script(metric, ranked, rank_phrases, tied_phrases, short_close=Fal
 # OpenAI narration -- STRICTLY limited to the supplied ranked numbers
 # ---------------------------------------------------------------------------
 
+def ranking_sources(metric, ranked, year_range):
+    """The proof for the description: the full countdown exactly as shown, the
+    publisher and edition (or the World Bank indicator and years), and a link."""
+    lines = [f"#{r['rank']}{' (tied)' if r['tied'] else ''} {r['country_name']} — "
+             f"{format_value(metric['unit'], r['value'])}" for r in ranked]
+    if metric.get("note"):
+        lines.append(f"(Note: {metric['note']}.)")
+    if metric["source_type"] == "live":
+        code = metric["wb_indicator"]
+        years = f", latest available year per country ({year_range})" if year_range else ""
+        return {"lines": lines,
+                "credit": f"Source: World Bank — {metric['label']} (indicator {code}){years}.",
+                "link": f"https://data.worldbank.org/indicator/{code}"}
+    edition = ranked[0]["source_label"] if ranked else metric["label"]
+    block_link = _static_link(metric.get("static_key"))
+    return {"lines": lines, "credit": f"Source: {edition} — {metric['label']}.",
+            "link": f"Reference: {block_link}" if block_link else ""}
+
+
+def _static_link(static_key):
+    try:
+        with open("config/rankings_static.json", encoding="utf-8") as fh:
+            return json.load(fh).get(static_key, {}).get("source_url", "")
+    except (OSError, ValueError):
+        return ""
+
+
 def reference_lines(metric, ranked):
     """Display-formatted rows for the fact-check, matching what GPT is given
     (raw floats made it flag ordinary rounding)."""
@@ -512,7 +539,8 @@ def main():
         ],
     }
     copy_series = "worst" if metric.get("tone") == "serious" else "rankings"
-    write_platform_captions(copy_series, synthetic_country, hook, config, args.out, seed)
+    write_platform_captions(copy_series, synthetic_country, hook, config, args.out, seed,
+                            sources=ranking_sources(metric, ranked, record["year_range"]))
 
     words = len(narration.split())
     print(

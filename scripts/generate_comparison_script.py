@@ -48,7 +48,7 @@ from datetime import date
 from captions_common import write_platform_captions
 from daily_variation import day_number_for
 from fact_check import verify_narration
-from fetch_country_stats import COMPARABLE_METRICS, format_value, get_stats
+from fetch_country_stats import COMPARABLE_METRICS, INDICATORS, format_value, get_stats
 
 OPENAI_AVAILABLE = False
 try:
@@ -487,7 +487,14 @@ def main():
             for r in rows
         ],
     }
-    write_platform_captions("comparison", synthetic_country, hook, config, args.out, seed)
+    # the proof: every figure from the video, with its year and World Bank indicator
+    codes = {key: code for key, code, _label, _unit in INDICATORS}
+    lines = [f"{r['label']}: {name_a} {format_value(r['unit'], r['value_a'])} ({r['year_a']}) vs "
+             f"{name_b} {format_value(r['unit'], r['value_b'])} ({r['year_b']})"
+             + (f" — indicator {codes[r['key']]}" if r.get("key") in codes else "") for r in rows]
+    sources = {"lines": lines, "credit": "Source: World Bank Open Data (latest year per country).",
+               "link": "https://data.worldbank.org/indicator"}
+    write_platform_captions("comparison", synthetic_country, hook, config, args.out, seed, sources=sources)
 
     words = len(narration.split())
     print(

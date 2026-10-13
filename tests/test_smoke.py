@@ -426,6 +426,27 @@ def test_feature_pins_only_land_on_the_country():
     assert fp.pinnable("Tibesti Mountains", "Chad")
 
 
+def test_descriptions_carry_the_data_and_its_source(tmp_path):
+    import json
+    import captions_common as cc
+    import generate_rankings_script as gr
+    from fetch_rankings_stats import load_metrics
+    metric = next(m for m in load_metrics("config/rankings_negative_metrics.json")["metrics"]
+                  if m["id"] == "most_polluted_air")
+    rows = [{"iso2": "QA", "country_name": "Qatar", "value": 107.8, "rank": 1, "tied": False},
+            {"iso2": "SA", "country_name": "Saudi Arabia", "value": 73.5, "rank": 2, "tied": False}]
+    src = gr.ranking_sources(metric, rows, "2023")
+    assert "#1 Qatar — 107.8 µg/m³" in src["lines"] and "EN.ATM.PM25.MC.M3" in src["credit"]
+    assert src["link"].endswith("/EN.ATM.PM25.MC.M3")
+    config = json.load(open("config/countries.json", encoding="utf-8"))
+    cc.write_platform_captions("worst", {"name": "Most Polluted Air", "facts": []}, "TOP 8 MOST POLLUTED AIR",
+                               config, str(tmp_path), 7, sources=src)
+    yt = (tmp_path / "caption_youtube.txt").read_text(encoding="utf-8")
+    tt = (tmp_path / "caption_tiktok.txt").read_text(encoding="utf-8")
+    assert "Saudi Arabia — 73.5" in yt and src["link"] in yt and "World Bank" in tt
+    assert "#traveltok" not in tt and "#amazingplaces" not in yt   # data videos get data tags
+
+
 def test_refresh_name_aliases_match_after_normalising():
     import refresh_rankings_static as rr
     assert rr._norm("DR Congo") == rr._norm("Democratic Republic of the Congo")

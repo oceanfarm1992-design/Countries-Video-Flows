@@ -59,6 +59,17 @@ def render_segment(out, overlay, background, dur, anim=None):
           "-maxrate", "2500k", "-bufsize", "5000k", "-r", str(FPS), out])
 
 
+def proof_block(script):
+    """The full ranking with every figure, and the exact dataset it comes from."""
+    rows = script.get("rows") or []
+    lines = [f"#{r['rank']} {r['country']} — {r['value']}" for r in rows]
+    code = script.get("wb_indicator")
+    credit = (f"Source: World Bank — {script.get('metric_label', '')} (indicator {code}), "
+              f"as of {script.get('as_of', '')}: https://data.worldbank.org/indicator/{code}" if code
+              else f"Source: {script.get('source_label', '')}, as of {script.get('as_of', '')}.")
+    return ("\n\nThe full ranking\n" + "\n".join(lines) + f"\n\n{credit}") if lines else f"\n\n{credit}"
+
+
 def build_voice(segments, out):
     """Each segment wav padded/trimmed to its exact slot, then joined."""
     inputs, parts = [], []
@@ -144,6 +155,7 @@ def main():
     if actual < args.min_seconds:
         raise SystemExit(f"[assemble_long] final video is {actual:.0f}s (< {args.min_seconds:.0f}s)")
     description = (f"{script['description_head']}\n\nChapters\n" + "\n".join(chapter_lines(script["segments"], timings))
+                   + proof_block(script)
                    + "\n\nEvery figure is shown as published by the source, rounded for display."
                    + "\n\n#countries #ranking #worldfacts #geography")
     with open(os.path.join(d, "description.txt"), "w", encoding="utf-8") as fh:
