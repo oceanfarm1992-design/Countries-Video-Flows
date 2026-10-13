@@ -21,8 +21,8 @@ def _query(params):
     return r.json()
 
 
-GENERIC = {"region", "regions", "area", "northern", "southern", "eastern", "western", "central",
-           "the", "of", "and", "patterns", "loss", "zone", "basin"}
+# Direction words are NOT generic: "Northern Mountains" must not match "Zagros Mountains".
+GENERIC = {"region", "regions", "area", "the", "of", "and", "patterns", "loss", "zone"}
 
 
 def _coords(title):
@@ -49,8 +49,8 @@ def lookup(label, country):
         resolved, coords = _coords(title)
         if not coords or resolved.lower() == country.lower():
             continue
-        if words & set(resolved.lower().replace("-", " ").replace("(", " ").split()):
-            return coords
+        if words <= set(resolved.lower().replace("-", " ").replace("(", " ").replace(")", " ").split()):
+            return coords  # the article is about exactly this feature
     return None
 
 

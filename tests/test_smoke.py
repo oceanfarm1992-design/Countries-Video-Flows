@@ -393,6 +393,8 @@ def test_alternative_hooks_must_stay_inside_the_narration():
     assert not ih.valid("A CRATER BURNING FOR 80 YEARS", narration, "Turkmenistan", others)   # invented number
     assert not ih.valid("HOTTER THAN IRAN'S DESERTS?", narration, "Turkmenistan", others)    # another country
     assert not ih.valid("X" * (ih.MAX_CHARS + 1), narration, "Turkmenistan", others)
+    assert not ih.valid("THE ONLY BURNING CRATER ON EARTH", narration, "Turkmenistan", others)  # claim word
+    assert not ih.valid("TURKMENISTAN'S SECRET CRATER", narration, "Turkmenistan", others)       # vague teaser
 
 
 def test_quality_gate_blocks_a_black_video(tmp_path):
@@ -406,6 +408,11 @@ def test_quality_gate_blocks_a_black_video(tmp_path):
     assert any("black screen" in b for b in block)
     block, _ = qa_video.check(black, long_form=True)
     assert any("frame size" in b for b in block)
+    navy = str(tmp_path / "navy.mp4")  # the dark design background is not "black screen"
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi", "-i", "color=c=0x101828:s=1080x1920:r=30",
+                    "-f", "lavfi", "-i", "sine=f=300:sample_rate=44100", "-t", "3", "-pix_fmt", "yuv420p",
+                    "-c:v", "libx264", "-preset", "ultrafast", "-c:a", "aac", navy], check=True)
+    assert qa_video.check(navy)[0] == []
 
 
 def test_feature_pins_only_land_on_the_country():

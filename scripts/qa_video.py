@@ -38,7 +38,9 @@ def detectors(video):
     """One decode pass with every detector; returns ffmpeg's log."""
     return subprocess.run(
         ["ffmpeg", "-hide_banner", "-nostats", "-i", video,
-         "-vf", "blackdetect=d=0.5:pic_th=0.97,freezedetect=n=0.002:d=" + str(FREEZE_WARN),
+         # pix_th=0.03: truly black only -- the default (0.10) counted the dark navy design
+         # backgrounds (#101828, rgb 13,17,30) as black and could block a good video
+         "-vf", "blackdetect=d=0.5:pic_th=0.97:pix_th=0.03,freezedetect=n=0.002:d=" + str(FREEZE_WARN),
          "-af", f"silencedetect=noise=-45dB:d={SILENCE_WARN},ebur128=framelog=quiet",
          "-f", "null", "-"], capture_output=True, text=True).stderr
 
@@ -56,9 +58,9 @@ def check(video, long_form=False):
     if a is None:
         block.append("no audio track")
     log = detectors(video)
-    black = sum(float(x) for x in re.findall(r"black_duration:([\d.]+)", log))
-    if black > BLACK_LIMIT:
-        block.append(f"{black:.1f}s of black screen")
+    runs = [float(x) for x in re.findall(r"black_duration:([\d.]+)", log)]
+    if runs and max(runs) > BLACK_LIMIT:  # one long blackout, not brief dips added up
+        block.append(f"{max(runs):.1f}s of black screen")
     for start, length in zip(re.findall(r"freeze_start: ([\d.]+)", log), re.findall(r"freeze_duration: ([\d.]+)", log)):
         warn.append(f"frame frozen for {float(length):.1f}s at {float(start):.1f}s")
     for start, end in zip(re.findall(r"silence_start: ([\d.]+)", log), re.findall(r"silence_end: ([\d.]+)", log)):

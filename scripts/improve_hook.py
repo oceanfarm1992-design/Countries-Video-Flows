@@ -40,11 +40,21 @@ def _ask(client, model, system, user, max_tokens=300, temperature=0.9):
 
 
 VAGUE = ("SECRET", "HIDDEN GEM", "DID YOU KNOW", "WON'T BELIEVE", "YOU NEED TO SEE", "MYSTERY")
+# Words that make a factual claim without digits; allowed only if the narration uses them.
+CLAIM_WORDS = {"one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "twelve",
+               "twenty", "fifty", "hundred", "thousand", "million", "billion", "half", "double", "twice",
+               "triple", "only", "largest", "biggest", "smallest", "oldest", "youngest", "first", "last",
+               "highest", "lowest", "longest", "shortest", "deepest", "tallest", "hottest", "coldest",
+               "driest", "wettest", "most", "least", "best", "worst", "never", "every", "record", "richest",
+               "poorest", "fastest", "newest", "rarest"}
 
 
 def valid(hook, narration, country, other_countries):
     """A candidate may only use what the narration says, and must not be a vague teaser."""
     if not hook or len(hook) > MAX_CHARS or any(v in hook.upper() for v in VAGUE):
+        return False
+    narr_words = set(re.findall(r"[a-z]+", narration.lower()))
+    if any(w in CLAIM_WORDS and w not in narr_words for w in re.findall(r"[a-z]+", hook.lower())):
         return False
     narr_digits = set(re.findall(r"\d[\d,.]*", narration))
     if any(n not in narr_digits for n in re.findall(r"\d[\d,.]*", hook)):
@@ -112,6 +122,15 @@ def main():
     title = _title_from_hook(hook)
     with open(os.path.join(args.out, "yt_title.txt"), "w", encoding="utf-8") as fh:
         fh.write(f"{title} #Shorts")
+    # the post descriptions lead with the hook too -- keep them in step with the title
+    old_title = _title_from_hook(original)
+    for name in ("caption_youtube.txt", "caption_tiktok.txt", "caption_meta.txt"):
+        path = os.path.join(args.out, name)
+        if os.path.exists(path):
+            with open(path, encoding="utf-8") as fh:
+                text = fh.read()
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write(text.replace(old_title, title))
     print(f"[improve_hook] {original!r} -> {hook!r} ({why})")
 
 

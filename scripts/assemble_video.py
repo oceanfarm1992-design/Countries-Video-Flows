@@ -282,6 +282,14 @@ def build_video_filter(pieces, hook, cta, captions_path, duration, hook_idx=None
     return ";".join(parts)
 
 
+def _footage_source(build_dir):
+    try:
+        with open(os.path.join(build_dir, "footage.json"), encoding="utf-8") as fh:
+            return json.load(fh).get("source")
+    except (OSError, ValueError):
+        return None
+
+
 def _card_fades(start, end):
     return (f"fade=t=in:st={start + 0.15:.2f}:d=0.3:alpha=1,"
             f"fade=t=out:st={end - 0.35:.2f}:d=0.35:alpha=1")
@@ -427,6 +435,10 @@ def main():
     # With an intro, the hook goes on the very first second of the video (over the
     # intro, see prepend_intro) -- not 5 s in, after the map flight.
     montage_hook = "" if use_intro and hook_png else hook
+    if not use_intro and _footage_source(out_dir) == "geography_motion":
+        # its feature-label cards sit where the hook card would; without an intro the
+        # two would overlap for the first seconds, so the labels carry the opening
+        montage_hook = ""
     voice_idx = len(piece_inputs)
     music_idx = voice_idx + 1
     use_sfx = bool(args.sfx) and os.path.exists(args.sfx)
