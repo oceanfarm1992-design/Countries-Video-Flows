@@ -2095,27 +2095,27 @@
     "year": 2024
   },
   "JP:gdp_per_capita": {
-    "fetched_at": 1789976346.94369,
+    "fetched_at": 1791862849.1997514,
     "value": 33797.1014287876,
     "year": 2024
   },
   "JP:income": {
-    "fetched_at": 1789981395.942236,
+    "fetched_at": 1791862849.1997514,
     "value": 37170.0,
     "year": 2024
   },
   "JP:life_expectancy": {
-    "fetched_at": 1789976346.94369,
+    "fetched_at": 1791862849.1997514,
     "value": 84.0363414634146,
     "year": 2024
   },
   "JP:literacy": {
-    "fetched_at": 1789976346.94369,
+    "fetched_at": 1791862849.1997514,
     "value": null,
     "year": null
   },
   "JP:population": {
-    "fetched_at": 1789976346.94369,
+    "fetched_at": 1791862849.1997514,
     "value": 123975371.0,
     "year": 2024
   },
@@ -2720,27 +2720,27 @@
     "year": 2024
   },
   "ME:gdp_per_capita": {
-    "fetched_at": 1789982624.6646335,
+    "fetched_at": 1791862839.7690368,
     "value": 13270.1824401005,
     "year": 2024
   },
   "ME:income": {
-    "fetched_at": 1789982624.6646335,
+    "fetched_at": 1791862839.7690368,
     "value": 12210.0,
     "year": 2024
   },
   "ME:life_expectancy": {
-    "fetched_at": 1789982624.6646335,
+    "fetched_at": 1791862839.7690368,
     "value": 77.890243902439,
     "year": 2024
   },
   "ME:literacy": {
-    "fetched_at": 1789982624.6646335,
+    "fetched_at": 1791862839.7690368,
     "value": 98.5299987792969,
     "year": 2018
   },
   "ME:population": {
-    "fetched_at": 1789982624.6646335,
+    "fetched_at": 1791862839.7690368,
     "value": 623525.0,
     "year": 2024
   },
