@@ -288,6 +288,16 @@ def test_geography_dolly_keeps_the_country_pinned():
     assert card.width == rg.W and card.getbbox() is not None
 
 
+def test_longform_backdrop_moves_over_the_ranked_countries(tmp_path):
+    import longform_map_backdrop as lb
+    still = tmp_path / "still.png"
+    lb.render_still(["NE", "TD", "IS"], {}, str(still))  # Iceland is an outlier; no flags -> tint
+    scene = lb.make_scene(str(still), 10.0)
+    first, last = scene(0.0), scene(10.0)
+    assert first.size == last.size == (lb.W, lb.H)
+    assert first.tobytes() != last.tobytes()  # the camera actually moves
+
+
 def test_captions_show_script_numbers_timed_by_whisper():
     import generate_captions as gc
     script = "GDP of $40,430 and 61.7% literacy, about 1.41B people.".split()

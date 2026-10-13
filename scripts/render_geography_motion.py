@@ -39,6 +39,8 @@ PUSH = 1.6                 # how far the dolly closes in over the whole video
 DRIFT = 26                 # px of slow sideways drift, so the move never feels mechanical
 TAIL_PAD = 0.5             # clips run a little past their beat; the assembler trims
 LABEL_BOX = (90, 190, W - 90, 330)
+HOOK_END = 4.0             # assemble_video.py burns the hook banner over the label's spot for
+                           # the first 4 s of the body; the label card waits until it is gone
 
 
 def render_still(iso2, flag_path, out_path):
@@ -75,7 +77,7 @@ def make_scene(kind, p):
     def scene(t):
         k = min(1.0, (p["t0"] + t) / p["total"])
         frame = dolly(still, p["anchor"], k).convert("RGBA")
-        a = mk.ease_out(mk.phase(t, 0.1, 0.45))
+        a = mk.ease_out(mk.phase(t, max(0.1, HOOK_END + 0.15 - p["start"]), 0.45))
         if card is not None and a > 0:  # drops in from above while fading up
             dy = int(50 * (1 - a))
             frame.alpha_composite(mk.with_alpha(card.crop((0, dy, W, card.height)), a))
@@ -144,13 +146,14 @@ def main():
     map_indices = [i for i in range(len(segments)) if i not in cutaways]
     total = max(1.0, sum(durs[i] for i in map_indices))
 
-    jobs, clips, t0 = [], [], 0.0
+    jobs, clips, t0, start = [], [], 0.0, 0.0
     for i, (seg, dur) in enumerate(zip(segments, durs)):
+        start += durs[i - 1] if i else 0.0  # this beat's start in the body (cutaways included)
         if i in cutaways:
             clips.append(cutaways[i])
             continue
         out = os.path.join(args.out, f"footage_clip{i}.mp4")
-        payload = {"still": still_path, "anchor": anchor, "t0": t0, "total": total,
+        payload = {"still": still_path, "anchor": anchor, "t0": t0, "total": total, "start": start,
                    "label": (seg.get("visual") or "").strip(), "flag": flag_path}
         jobs.append((out, dur + TAIL_PAD, ("map", payload)))
         clips.append({"source": "geography_motion", "query": seg.get("visual", ""), "source_url": "",
