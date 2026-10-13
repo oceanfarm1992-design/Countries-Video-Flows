@@ -1,8 +1,10 @@
 name: daily-rotating-short
 
-# One-video-per-day pipeline. Each day posts one of the five series (see
-# daily_variation.py's SERIES_CYCLE) — over any 5-day window every series posts
+# One-video-per-day pipeline. Each day posts one of the six series (see
+# daily_variation.py's SERIES_CYCLE) — over any 6-day window every series posts
 # exactly once. (Reduced 2026-10-03 from 2/day to cut OpenAI/posting volume.)
+# The "worst" day is a worst-of countdown (most polluted air, most corrupt, ...)
+# built with the rankings pipeline (3D countdown, no country intro).
 # The day's narration length, hashtag set, and target post hour rotate
 # deterministically to keep the account's footprint varied.
 #
@@ -36,7 +38,7 @@ on:
       series:
         description: "Force a series (applies with force_run; blank = today's profile)"
         type: choice
-        options: ["", "country", "hook", "trending", "geography", "worlddata"]
+        options: ["", "country", "hook", "trending", "geography", "worlddata", "worst"]
         default: ""
       country_index:
         description: "Force a country index, 0-based into config/countries.json (blank = auto)"
@@ -102,7 +104,10 @@ jobs:
               read_ok = False
 
           def already_posted(series):
-              return any(t.startswith(f"rotating-{series}-") for t in tags_today)
+              # One rotating post per day, whatever its series: when SERIES_CYCLE
+              # changes length mid-day, today's series changes too, and a per-series
+              # check would post a second video.
+              return bool(tags_today)
 
           if force:
               # Manual override: run whichever of today's slots hasn't posted yet
@@ -190,13 +195,19 @@ jobs:
             python scripts/generate_geography_script.py $COMMON_ARGS
           elif [ "$SERIES" = "worlddata" ]; then
             python scripts/generate_worlddata_script.py $COMMON_ARGS
+          elif [ "$SERIES" = "worst" ]; then
+            # Rankings pipeline over the worst-of metrics; the metric advances once per
+            # worst day (every len(SERIES_CYCLE) days). Word targets come from the
+            # rankings video config, like the daily rankings series.
+            STEP=$(python -c "import sys; sys.path.insert(0, 'scripts'); from daily_variation import SERIES_CYCLE; print(len(SERIES_CYCLE))")
+            python scripts/generate_rankings_script.py --config config/countries.json               --video-config config/rankings_video.json               --metrics-config config/rankings_negative_metrics.json               --rotation-step "$STEP" --variant-seed "$VARIANT_SEED"
           else
             echo "[generate] unknown series '$SERIES' — defaulting to country"
             python scripts/generate_country_script.py $COMMON_ARGS
           fi
 
       - name: Fetch footage (Pexels / Pixabay / animation)
-        if: steps.gate.outputs.skip == 'false' && steps.gate.outputs.series != 'geography' && steps.gate.outputs.series != 'worlddata'
+        if: steps.gate.outputs.skip == 'false' && steps.gate.outputs.series != 'geography' && steps.gate.outputs.series != 'worlddata' && steps.gate.outputs.series != 'worst'
         env:
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
           PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
@@ -243,6 +254,20 @@ jobs:
           python scripts/render_worlddata_motion.py --config config/countries.json \
             || python scripts/render_worlddata_graphics.py --config config/countries.json
 
+      # Worst-of countdown: the rankings motion renderer (3D map flights, countries
+      # rising in their flags, count-ups, sfx.wav), with the static renderer as fallback.
+      # Same "after TTS" ordering as the other renderers.
+      - name: Render worst-of countdown
+        if: steps.gate.outputs.skip == 'false' && steps.gate.outputs.series == 'worst'
+        run: |
+          if python scripts/render_rankings_motion.py --video-config config/rankings_video.json; then
+            echo "HOOK_FLAG=--no-hook" >> "$GITHUB_ENV"
+          else
+            echo "::warning::motion render failed -- using the static renderer"
+            rm -f build/sfx.wav build/footage_clip*.mp4
+            python scripts/render_rankings_graphics.py --video-config config/rankings_video.json
+          fi
+
       - name: Generate captions
         if: steps.gate.outputs.skip == 'false'
         env:
@@ -257,7 +282,7 @@ jobs:
       # rises out of the map, then a flag + name card lands. Falls back to the old
       # globe zoom if the motion render fails, and to no intro if both do.
       - name: Generate motion intro
-        if: steps.gate.outputs.skip == 'false'
+        if: steps.gate.outputs.skip == 'false' && steps.gate.outputs.series != 'worst'
         continue-on-error: true
         run: |
           python -c "import json;d=json.load(open('build/script.json'));print(f\"--name={d['name']}\n--lat={d['lat']}\n--lon={d['lon']}\n--iso={d['iso2']}\")" > /tmp/introargs
@@ -272,13 +297,19 @@ jobs:
             --config config/countries.json
 
       - name: Scene-cut sound effects
-        if: steps.gate.outputs.skip == 'false'
+        # the worst-of countdown brings its own sound-effects track
+        if: steps.gate.outputs.skip == 'false' && steps.gate.outputs.series != 'worst'
         continue-on-error: true
         run: python scripts/make_transition_sfx.py --config config/countries.json
 
       - name: Assemble video
         if: steps.gate.outputs.skip == 'false'
-        run: python scripts/assemble_video.py --config config/countries.json --intro build/intro.mp4 --sfx build/sfx.wav
+        run: |
+          if [ "${{ steps.gate.outputs.series }}" = "worst" ]; then
+            python scripts/assemble_video.py --config config/rankings_video.json --sfx build/sfx.wav $HOOK_FLAG
+          else
+            python scripts/assemble_video.py --config config/countries.json --intro build/intro.mp4 --sfx build/sfx.wav
+          fi
 
       # ---- publish ----
       - name: Publish video as release asset
@@ -355,10 +386,12 @@ jobs:
           echo "${DATE},${SERIES},\"${SCRIPT_TITLE}\",${IDENT},${{ steps.post_buffer.outcome }},${{ steps.post_youtube.outcome }}" >> logs/history_rotating.csv
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add logs/history_rotating.csv
+          # Both stats caches are rewritten by the data fetches (worst-of live metrics,
+          # worlddata stats); left unstaged they made every pull --rebase below fail.
+          git add logs/history_rotating.csv config/rankings_stats_cache.json config/country_stats_cache.json
           git commit -m "log: rotating run ${DATE} (${SERIES})" || echo "nothing to commit"
           for i in 1 2 3; do
-            git pull --rebase && git push && break || sleep $((i * 5))
+            git pull --rebase --autostash && git push && break || sleep $((i * 5))
           done
 
       - name: Fail the run if any platform post failed

@@ -329,6 +329,11 @@ def main():
     # tail so the last word/CTA has room to breathe), clamped to the configured bounds.
     duration = max(cfg["min_seconds"], min(audio_dur + 0.4, cfg["max_seconds"]))
     print(f"[assemble_video] voice {audio_dur:.1f}s -> target duration {duration:.1f}s")
+    if audio_dur > cfg["max_seconds"]:
+        # The narration is cut here -- rankings lost its #1 reveal this way for weeks
+        # unnoticed. Shows on the run page; fix the word target, never speed up the voice.
+        print(f"::warning::narration ({audio_dur:.1f}s) is longer than max_seconds "
+              f"({cfg['max_seconds']}s) -- the last {audio_dur - cfg['max_seconds']:.1f}s of speech is cut")
 
     # Prefer a real track dropped in --music-dir; otherwise use the generated ambient
     # pad (--music, built by generate_music.py). So adding real music later just works.

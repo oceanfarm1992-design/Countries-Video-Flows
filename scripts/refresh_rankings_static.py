@@ -58,6 +58,12 @@ SOURCES = {
     "passport_index": {"page": "Henley Passport Index", "find": r"^Visa-free destinations$",
                        "value": r"^Visa-free destinations$", "year": "heading", "edition": "{y} ranking"},
 }
+# The same tables read from the other end, for the "worst" countdowns in the rotating
+# series (most corrupt, least democratic, unhappiest): the bottom TOP_N of each.
+BOTTOM_OF = {"corruption_index_bottom": "corruption_index",
+             "democracy_index_bottom": "democracy_index",
+             "world_happiness_bottom": "world_happiness"}
+SOURCES.update({key: dict(SOURCES[of], bottom=True) for key, of in BOTTOM_OF.items()})
 
 # Wikipedia spellings that differ from config/countries.json, normalized (see _norm).
 ALIASES = {
@@ -201,7 +207,10 @@ def _norm(name):
     s = re.sub(r"[^a-z ]", "", s.replace("-", " "))
     s = " ".join(w for w in s.split() if w != "the" or s.startswith("the gambia") or s.startswith("the bahamas"))
     s = " ".join(s.split())
-    return ALIASES.get(s, s)
+    s = ALIASES.get(s, s)
+    # Alias targets are written naturally ("democratic republic of the congo") but
+    # compared with "the" dropped, as above -- "DR Congo" never matched before this.
+    return " ".join(w for w in s.split() if w != "the" or s.startswith(("the gambia", "the bahamas")))
 
 
 def _parse_number(text):
@@ -331,12 +340,17 @@ def main():
         src, block = SOURCES[key], static[key]
         try:
             edition, rows, unmatched, revid = extract(key, src, countries)
-            entries = top_entries(rows, lower_is_better=bool(block.get("lower_is_stronger")))
+            # A bottom block is the same table sorted from the other end.
+            entries = top_entries(rows, lower_is_better=bool(block.get("lower_is_stronger") or src.get("bottom")))
             if len(entries) < MIN_MATCHED:
                 raise RuntimeError(f"only {len(entries)} countries matched")
-            old_top, new_top = float(block["entries"][0]["value"]), float(entries[0]["raw"])
+            # Bottom blocks compare their middle entry: the lowest value is an outlier
+            # (Democracy Index 0.25), and if it leaves the table the next lowest is 3x it.
+            at = len(entries) // 2 if src.get("bottom") else 0
+            old_at = min(at, len(block["entries"]) - 1)
+            old_top, new_top = float(block["entries"][old_at]["value"]), float(entries[at]["raw"])
             if not (1 / MAX_TOP_RATIO <= new_top / old_top <= MAX_TOP_RATIO):
-                raise RuntimeError(f"top value {new_top} is implausible next to the current {old_top}")
+                raise RuntimeError(f"value {new_top} is implausible next to the current {old_top}")
         except Exception as exc:  # noqa: BLE001 -- one broken page must not stop the others
             failed.append(key)
             report.append(f"### {key}: FAILED\n\n{type(exc).__name__}: {exc}\n")
@@ -355,8 +369,10 @@ def main():
         if re.search(rf"\b{re.escape(edition.split()[0])}\b", block["edition"]):
             edition = block["edition"]
         text = apply_update(text, key, edition, entries)
+        edge = float(entries[-1]["raw"])
         top_unmatched = [f"{n} ({v})" for n, v in unmatched
-                         if float(v) >= float(entries[-1]["raw"]) or block.get("lower_is_stronger")][:8]
+                         if (float(v) <= edge if src.get("bottom") else float(v) >= edge)
+                         or block.get("lower_is_stronger")][:8]
         report.append(
             f"### {key}: {block['edition']} -> {edition}\n\n"
             f"Read from [this exact page revision]({source}). Check against the primary source "

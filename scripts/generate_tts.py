@@ -93,6 +93,8 @@ SPOKEN_UNITS = [
     (r"km²", "square kilometres"),
     (r"(\d) t\b", r"\1 tonnes"),
     (r"#(\d+)", r"number \1"),
+    (r"µg/m³", "micrograms per cubic metre"),
+    (r"\bper 100k\b", "per 100,000 people"),
 ]
 
 

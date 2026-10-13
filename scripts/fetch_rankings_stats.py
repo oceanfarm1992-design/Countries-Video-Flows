@@ -361,6 +361,14 @@ def format_value(unit, value):
         return f"{value:.0f}"
     if unit == "powerindex":
         return f"{value:.4f}"
+    if unit == "ugm3":
+        return f"{value:.1f} µg/m³"
+    if unit == "per_100k":
+        return f"{value:.1f} per 100k"
+    if unit == "mt_co2e":  # megatonnes of CO2-equivalent
+        if value >= 1000:
+            return f"{value / 1000:.2f}B tonnes"
+        return f"{value:,.0f}M tonnes"
     return str(value)
 
 

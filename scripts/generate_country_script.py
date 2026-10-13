@@ -37,7 +37,7 @@ except ImportError:
 
 from fact_check import verify_narration
 from captions_common import write_platform_captions
-from daily_variation import day_number_for
+from daily_variation import day_number_for, rotation_index
 
 # Every time a country comes back around in the rotation (every len(countries)/3 days
 # at 3 videos/day), the narration should take a different angle instead of retelling
@@ -284,10 +284,12 @@ def main():
         idx = raw_index % len(countries)
         cycle = raw_index // len(countries)
     else:
-        # Fallback: single video/day, date-based rotation
+        # One video per series every len(SERIES_CYCLE) days: one country per post
+        # (see daily_variation.rotation_index for why not the raw day number).
         day_number = (date.today() - date(2026, 7, 23)).days
-        idx = day_number % len(countries)
-        cycle = day_number // len(countries)
+        raw_index = rotation_index(day_number)
+        idx = raw_index % len(countries)
+        cycle = raw_index // len(countries)
 
     country = countries[idx]
     angle_index = cycle % len(ANGLES)

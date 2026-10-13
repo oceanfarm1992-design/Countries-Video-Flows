@@ -296,9 +296,12 @@ def main():
         visual = (seg.get("visual") or "").strip().upper()
         if visual in by_iso:
             row = by_iso[visual]
+            # Bar vs #1 only where higher is "more": for a lowest-first list (most
+            # corrupt, least democratic) top/value turns a 0.25-vs-1.08 gap on a 0-10
+            # index into what looks like a 4x difference.
             bar = None
-            if top > 0 and row["value"] > 0:
-                bar = (top / row["value"]) if asc else (row["value"] / top)
+            if top > 0 and row["value"] > 0 and not asc:
+                bar = row["value"] / top
             chips = [{"iso2": r["iso2"], "rank": r["rank"], "revealed": r["iso2"] in revealed + [visual]}
                      for r in reversed(rows)]
             payload = {"row": row, "prev_shot": prev_shot, "flag": flags.get(visual), "unit": unit, "dur": dur,

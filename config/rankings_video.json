@@ -1,11 +1,11 @@
 {
-  "_comment": "Video bounds for the rankings series only -- kept separate from config/countries.json's global 'video' block and config/comparison_video.json, same reasoning as comparison's own file. Target is 60-70s (portrait Top-8 countdown), widened to 58-78s per this project's standing rule (see feedback memory: widen the cap for natural-paced narration rather than speeding up the TTS voice) -- a Top-8 countdown (intro + 8 rows + outro = 10 beats) at ~2.3 words/sec needs room to breathe without a mid-sentence cut. The upper bound intentionally runs past the classic 60s YouTube Shorts ceiling into the up-to-3-minute allowance now supported on YouTube/TikTok/Reels, since the user's brief explicitly asked for 60-70s.",
+  "_comment": "Video bounds for the rankings series only -- kept separate from config/countries.json's global 'video' block and config/comparison_video.json, same reasoning as comparison's own file. Target is 60-70s (portrait Top-8 countdown), widened to 58-78s per this project's standing rule (see feedback memory: widen the cap for natural-paced narration rather than speeding up the TTS voice) -- a Top-8 countdown (intro + 8 rows + outro = 10 beats) at ~2.3 words/sec needs room to breathe without a mid-sentence cut. 2026-10-13: the cloned voice reads this numbers-heavy narration at ~1.45 words/sec (172 words took 116 s), not 2.3 -- the old target produced 96-116 s of voice against the 78 s cap, so the assembler cut off the top ranks and the call-to-action on 4 of 7 runs. words_per_second now matches the real voice (so GPT is asked for ~84-130 words) and the cap is 90 s. The upper bound intentionally runs past the classic 60s YouTube Shorts ceiling into the up-to-3-minute allowance now supported on YouTube/TikTok/Reels, since the user's brief explicitly asked for 60-70s.",
   "video": {
     "width": 1080,
     "height": 1920,
-    "words_per_second": 2.3,
+    "words_per_second": 1.45,
     "min_seconds": 58,
-    "max_seconds": 78,
+    "max_seconds": 90,
     "cta_text": "Where does your country rank? Comment below! Follow for more rankings",
     "font_hint": "DejaVuSans (preinstalled on GitHub Ubuntu runners)"
   }

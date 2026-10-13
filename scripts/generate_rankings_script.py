@@ -52,9 +52,12 @@ except ImportError:
     pass
 
 
-def pick_metric_id(metrics_cfg, day_number):
+def pick_metric_id(metrics_cfg, day_number, step=1):
+    """step: how many days apart this series posts. The worst-of countdowns run one
+    day in six; day_number % 8 on every sixth day would only ever reach half of the
+    eight metrics, so they rotate by occurrence (day_number // step) instead."""
     metrics = metrics_cfg["metrics"]
-    return metrics[day_number % len(metrics)]["id"]
+    return metrics[(day_number // step) % len(metrics)]["id"]
 
 
 def title_name(metric):
@@ -92,13 +95,29 @@ RANK_PHRASES = [
     "Number {rank}: {country}, with a {label} of {value}.",
     "At number {rank}, {country} lands here with a {label} of {value}.",
 ]
+# Used when the full phrasing would run past the word budget (the cloned voice reads
+# a numbers-heavy countdown at ~1.45 words/s, and a cut-off narration loses #1).
+COMPACT_RANK_PHRASES = ["Number {rank}: {country}, at {value}."]
+COMPACT_TIED_RANK_PHRASES = ["Tied at number {rank}: {country}, at {value}."]
 TIED_RANK_PHRASES = [
     "Tied at number {rank} is {country}, with a {label} of {value}.",
     "Also at number {rank}: {country}, with a {label} of {value}.",
 ]
 
 
-def _fallback_script(metric, ranked):
+def _fallback_script(metric, ranked, max_words=None):
+    """Template narration; switches to compact row phrasing if the full one would
+    exceed max_words."""
+    hook, narration, segments = _template_script(metric, ranked, RANK_PHRASES, TIED_RANK_PHRASES)
+    for short_close in (False, True):  # compact rows, then also a bare call-to-action
+        if not max_words or len(narration.split()) <= max_words:
+            break
+        hook, narration, segments = _template_script(metric, ranked, COMPACT_RANK_PHRASES,
+                                                     COMPACT_TIED_RANK_PHRASES, short_close)
+    return hook, narration, segments
+
+
+def _template_script(metric, ranked, rank_phrases, tied_phrases, short_close=False):
     """Countdown from the weakest of the top N down to #1, one sentence per
     row, rotating through a small set of phrase templates for rhythm. Ties
     are spoken as ties (never invented into a false ordering -- see
@@ -115,10 +134,14 @@ def _fallback_script(metric, ranked):
     # title_name's docstring).
     raw_label = metric["label"]
     hook = f"TOP {n} {title_phrase(metric, n)}"
-    intro_text = (
-        f"Today we're counting down the top {n} countries in the world "
-        f"by {raw_label.lower()}, straight from real data."
-    )
+    if metric.get("countdown_phrase"):  # worst-of lists: "by <index>" would read backwards
+        intro_text = (f"Today we're counting down the {n} {metric['countdown_phrase']} "
+                      f"in the world, straight from real data.")
+    else:
+        intro_text = (
+            f"Today we're counting down the top {n} countries in the world "
+            f"by {raw_label.lower()}, straight from real data."
+        )
     if metric.get("note"):
         intro_text += f" One note before we start: {metric['note']}."
     segments = [{"text": intro_text, "visual": ""}]
@@ -127,7 +150,7 @@ def _fallback_script(metric, ranked):
     # goes from the weakest of the top N down to the true #1.
     for row in reversed(ranked):
         val = format_value(metric["unit"], row["value"])
-        phrases = TIED_RANK_PHRASES if row["tied"] else RANK_PHRASES
+        phrases = tied_phrases if row["tied"] else rank_phrases
         phrase = phrases[hash(row["iso2"]) % len(phrases)]
         text = phrase.format(rank=row["rank"], country=row["country_name"],
                               label=raw_label, value=val)
@@ -142,13 +165,10 @@ def _fallback_script(metric, ranked):
             text += f" {count} more {plural} also tie at this exact value, just outside our top {n}."
         segments.append({"text": text, "visual": row["iso2"]})
 
-    segments.append({
-        "text": (
-            f"That's our top {n} for {raw_label.lower()}. Where does "
-            f"your country rank? Comment below and follow for more rankings."
-        ),
-        "visual": "",
-    })
+    closing = (f"Those are the {n} {metric['countdown_phrase']}." if metric.get("countdown_phrase")
+               else f"That's our top {n} for {raw_label.lower()}.")
+    cta = "Where does your country rank? Comment below and follow for more rankings."
+    segments.append({"text": cta if short_close else f"{closing} {cta}", "visual": ""})
     narration = " ".join(s["text"] for s in segments)
     return hook, narration, segments
 
@@ -197,21 +217,30 @@ def _gpt_script(metric, ranked, openai_cfg, min_words, max_words):
         for row in reversed(ranked)
     )
     tone = metric.get("tone", "energetic")
-    tone_line = (
-        "Tone: energetic countdown reveal, like a great \"top 10\" video -- not a "
-        "dry recitation."
-        if tone == "energetic" else
-        "Tone: clear and matter-of-fact -- this metric is not a \"win\", so avoid "
-        "celebratory framing (no \"congrats\", no \"amazing\") even though it's "
-        "still an engaging countdown."
-    )
+    if tone == "energetic":
+        tone_line = ("Tone: energetic countdown reveal, like a great \"top 10\" video -- not a "
+                     "dry recitation.")
+    elif tone == "serious":
+        tone_line = ("Tone: serious and respectful, like a good news explainer. These are hard "
+                     "facts about real people's lives: state each one plainly and never mock, "
+                     "blame, insult or joke about a country or its people. No celebratory or "
+                     "sensational words (no \"shocking\", no \"crazy\", no \"winner\"). Keep it "
+                     "engaging through clear pacing, not drama.")
+    else:
+        tone_line = ("Tone: clear and matter-of-fact -- this metric is not a \"win\", so avoid "
+                     "celebratory framing (no \"congrats\", no \"amazing\") even though it's "
+                     "still an engaging countdown.")
+    # Worst-of lists count down from the other end of the index; "the top N by
+    # <index>" would tell GPT the opposite ranking.
+    countdown = (f"the {n} {metric['countdown_phrase']}" if metric.get("countdown_phrase")
+                 else f"the top {n} countries by {label}")
     note_line = f"\nIMPORTANT CONTEXT: {metric['note']}. Work this into your opening line " \
                 f"in your own words, since without it the ranking can be misread.\n" \
                 if metric.get("note") else ""
 
     system_prompt = textwrap.dedent(f"""
-        You are writing a short YouTube Shorts narration counting down the top
-        {n} countries by {label} for a country-rankings series. This is shown
+        You are writing a short YouTube Shorts narration counting down
+        {countdown} for a country-rankings series. This is shown
         over an on-screen COUNTDOWN LEADERBOARD (not video footage), so the
         narration should read out and react to each row as it appears on
         screen. Write ONLY the spoken narration -- no stage directions, no
@@ -259,7 +288,7 @@ def _gpt_script(metric, ranked, openai_cfg, min_words, max_words):
     """).strip()
 
     user_message = textwrap.dedent(f"""
-        Ranking: Top {n} countries by {label}
+        Ranking: {countdown[0].upper() + countdown[1:]}
 
         Rows you may cite (do not use any number, country, rank, or tie
         status not present here, and do not reorder them):
@@ -286,6 +315,15 @@ def _gpt_script(metric, ranked, openai_cfg, min_words, max_words):
             segments.append({"text": text, "visual": visual})
     if not segments:
         raise RuntimeError("GPT returned no usable segments.")
+    # GPT sometimes splits the opening or closing line into two non-row beats; joining
+    # them only joins text (no number, rank or order changes), so repair that one case
+    # instead of discarding the whole narration.
+    while len(segments) > 2 and segments[-1]["visual"] == "" and segments[-2]["visual"] == "":
+        tail = segments.pop()
+        segments[-1] = {"text": f"{segments[-1]['text']} {tail['text']}", "visual": ""}
+    while len(segments) > 2 and segments[0]["visual"] == "" and segments[1]["visual"] == "":
+        head = segments.pop(0)
+        segments[0] = {"text": f"{head['text']} {segments[0]['text']}", "visual": ""}
 
     # render_rankings_graphics.py trusts each row beat's "visual" to identify
     # exactly one row in `ranked`, and trusts the FIRST and LAST segments to
@@ -334,6 +372,9 @@ def main():
     ap.add_argument("--max-words", type=int, default=None,
                     help="Defaults to video-config's max_seconds * words_per_second.")
     ap.add_argument("--variant-seed", type=int, default=None)
+    ap.add_argument("--rotation-step", type=int, default=1,
+                    help="Days between this series' posts (6 for the rotating worst-of day), "
+                         "so the metric rotation advances once per post.")
     args = ap.parse_args()
 
     with open(args.config, encoding="utf-8") as fh:
@@ -372,7 +413,8 @@ def main():
         metric = None
         ranked = None
         for attempt in range(MAX_METRIC_ATTEMPTS):
-            candidate_id = pick_metric_id(metrics_cfg, day_number + attempt)
+            candidate_id = pick_metric_id(metrics_cfg, day_number + attempt * args.rotation_step,
+                                          args.rotation_step)
             candidate = ids_by_metric[candidate_id]
             print(f"[generate_rankings_script] fetching ranking for {candidate['label']} ...")
             candidate_ranked = get_ranked(candidate["id"], countries, metrics_cfg=metrics_cfg)
@@ -394,31 +436,28 @@ def main():
 
     if OPENAI_AVAILABLE and api_key:
         print(f"[generate_rankings_script] calling OpenAI {openai_cfg.get('model', 'gpt-4o-mini')} ...")
-        try:
-            hook, narration, segments = _gpt_script(metric, ranked, openai_cfg, min_words, max_words)
-            ok, issues = verify_narration(narration, metric["label"], openai_cfg,
-                                          reference=reference_lines(metric, ranked))
-            if not ok:
-                print(f"[generate_rankings_script] fact-check flagged: {issues} -- regenerating once")
+        source = None
+        # Two attempts: a malformed shape or an API error now gets the same one retry
+        # a fact-check failure always had, before falling back to the template.
+        for attempt in (1, 2):
+            try:
                 hook, narration, segments = _gpt_script(metric, ranked, openai_cfg, min_words, max_words)
                 ok, issues = verify_narration(narration, metric["label"], openai_cfg,
-                                          reference=reference_lines(metric, ranked))
-                if not ok:
-                    print(f"[generate_rankings_script] fact-check flagged again: {issues} -- using fallback script")
-                    hook, narration, segments = _fallback_script(metric, ranked)
-                    source = "fallback"
-                else:
+                                              reference=reference_lines(metric, ranked))
+                if ok:
                     source = "openai"
-            else:
-                source = "openai"
-        except Exception as exc:
-            print(f"[generate_rankings_script] OpenAI error: {exc} -- using fallback script")
-            hook, narration, segments = _fallback_script(metric, ranked)
+                    break
+                print(f"[generate_rankings_script] fact-check flagged (attempt {attempt}): {issues}")
+            except Exception as exc:  # noqa: BLE001 -- any GPT failure falls through to the template
+                print(f"[generate_rankings_script] OpenAI error (attempt {attempt}): {exc}")
+        if source is None:
+            print("[generate_rankings_script] using fallback script")
+            hook, narration, segments = _fallback_script(metric, ranked, max_words)
             source = "fallback"
     else:
         reason = "openai library not installed" if not OPENAI_AVAILABLE else "OPENAI_API_KEY not set"
         print(f"[generate_rankings_script] {reason} -- using fallback script")
-        hook, narration, segments = _fallback_script(metric, ranked)
+        hook, narration, segments = _fallback_script(metric, ranked, max_words)
         source = "fallback"
 
     for seg in segments:
@@ -472,7 +511,8 @@ def main():
             for row in ranked
         ],
     }
-    write_platform_captions("rankings", synthetic_country, hook, config, args.out, seed)
+    copy_series = "worst" if metric.get("tone") == "serious" else "rankings"
+    write_platform_captions(copy_series, synthetic_country, hook, config, args.out, seed)
 
     words = len(narration.split())
     print(
