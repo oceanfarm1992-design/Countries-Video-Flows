@@ -198,7 +198,7 @@ def _revealed(iso2, alpha, flag_paths):
     return (iso2, REVEALED_TINT, alpha, flag) if flag is not None else (iso2, REVEALED_TINT, alpha * 0.6)
 
 
-TEASE_BOX = 210   # silhouette fits in this square, centred at (540, 300)
+TEASE_BOX = (340, 210)   # silhouette fits in this box (wide countries use the width), centred at (540, 300)
 
 
 def _silhouette(cam, iso2):
@@ -209,7 +209,7 @@ def _silhouette(cam, iso2):
     if max(x1 - x0, y1 - y0) < 40:
         return None
     m = cam.mask(iso2)[1.0].crop((x0, y0, x1, y1))
-    k = TEASE_BOX / max(m.width, m.height)
+    k = min(TEASE_BOX[0] / m.width, TEASE_BOX[1] / m.height)
     m = m.resize((max(1, int(m.width * k)), max(1, int(m.height * k))), Image.LANCZOS)
     pad = 24
     glow = Image.new("RGBA", (m.width + 2 * pad, m.height + 2 * pad), mk.ACCENT + (0,))

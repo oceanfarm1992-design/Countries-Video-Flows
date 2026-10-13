@@ -349,6 +349,11 @@ class MapCamera:
                 self._beam(frame, iso2, amount, left, top, w, rgb, flag=rest[0] if rest else None)
         return frame
 
+    def project_xy(self, x, y, shot):
+        """Screen position of a source-pixel point (e.g. a feature's coordinates)."""
+        left, top, w = self._window(shot)
+        return apply_coeffs(self.to_screen, (x - left) / w * self.tex, (y - top) / w * self.tex)
+
     def project(self, iso2, shot):
         """Screen position of a country's centre for this shot."""
         left, top, w = self._window(shot)

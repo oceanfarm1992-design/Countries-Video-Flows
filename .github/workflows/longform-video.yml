@@ -168,6 +168,20 @@ jobs:
         if: steps.gate.outputs.skip == 'false'
         run: python scripts/finish_video.py --video build/long/final.mp4 --long
 
+      # Quality gate: blocks a broken video (black screen, no audio, wrong size) from
+      # posting; warns on frozen frames, silences and loudness. Then the AI editor's
+      # advisory frame review (never blocks).
+      - name: Quality check
+        if: steps.gate.outputs.skip == 'false'
+        run: python scripts/qa_video.py --video build/long/final.mp4 --long
+
+      - name: AI editor review
+        if: steps.gate.outputs.skip == 'false'
+        continue-on-error: true
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python scripts/vision_check.py --video build/long/final.mp4 --script build/long/script.json --out build/long/vision_review.json
+
       - name: Publish video as release asset
         id: publish_asset
         if: steps.gate.outputs.skip == 'false' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)

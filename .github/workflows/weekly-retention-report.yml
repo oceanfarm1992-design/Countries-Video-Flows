@@ -1,0 +1,48 @@
+name: weekly-retention-report
+
+# Weekly: reads the channel's own YouTube Analytics (read-only token, see
+# scripts/authorize_youtube_analytics.py) and opens an issue showing which series
+# and which openings keep viewers watching -- the feedback loop for the editing.
+# Until the token secret exists it only reminds once (an issue with setup steps).
+on:
+  schedule:
+    - cron: "41 5 * * 1"   # Mondays 09:41 Dubai
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+
+      - name: Install Google API client (same pins as requirements.txt)
+        run: pip install $(grep -E '^(google-auth|google-auth-oauthlib|google-api-python-client)==' requirements.txt)
+
+      - name: Build the report
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_ANALYTICS_REFRESH_TOKEN: ${{ secrets.YOUTUBE_ANALYTICS_REFRESH_TOKEN }}
+        run: python scripts/retention_report.py --out build/retention_report.md
+
+      - name: Open the report issue
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TITLE="Retention report $(date -u +%Y-%m-%d)"
+          if grep -q "not set up yet" build/retention_report.md; then
+            TITLE="Retention report: one-time setup needed"
+            # remind once, not every week
+            if gh issue list --state open --search "in:title \"$TITLE\"" --json number --jq 'length' | grep -qv '^0$'; then
+              echo "setup reminder already open"; exit 0
+            fi
+          fi
+          gh issue create --title "$TITLE" --body-file build/retention_report.md

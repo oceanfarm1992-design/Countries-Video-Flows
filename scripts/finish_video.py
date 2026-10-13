@@ -42,6 +42,23 @@ def loudness_filter(video):
             f"offset={m['target_offset']}:linear=true")
 
 
+def opening_frame_source(video):
+    """The clean opening shot to loop into -- the intro or the first clip, which have no
+    captions or cards burned in. The finished video's own first frame carries the first
+    caption, and dissolving that over the last caption stacked two lines of text."""
+    build = os.path.dirname(video) or "."
+    intro = os.path.join(build, "intro.mp4")
+    if os.path.exists(intro):
+        return intro
+    manifest = os.path.join(build, "footage.json")
+    if os.path.exists(manifest):
+        with open(manifest, encoding="utf-8") as fh:
+            clips = json.load(fh).get("clips") or []
+        if clips and clips[0].get("path") and os.path.exists(os.path.join(build, clips[0]["path"])):
+            return os.path.join(build, clips[0]["path"])
+    return video
+
+
 def finish(video, out, long_form=False):
     dur = ffprobe_duration(video)
     loud = loudness_filter(video)
@@ -51,7 +68,8 @@ def finish(video, out, long_form=False):
         vmap, vcodec = ["-map", "0:v"], ["-c:v", "copy"]
     else:
         first = os.path.splitext(out)[0] + "_first.png"
-        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", video, "-frames:v", "1", first], check=True)
+        subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-i", opening_frame_source(video), "-frames:v", "1",
+                        "-vf", "scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920", first], check=True)
         loop_at = max(0.0, dur - LOOP_SECONDS)
         inputs = ["-i", video, "-f", "lavfi", "-i", f"color=c={BAR_RGB}:s=1080x{BAR_H}:r=30",
                   "-loop", "1", "-i", first]
