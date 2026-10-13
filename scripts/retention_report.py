@@ -125,7 +125,8 @@ def report(videos, start, end):
     for name, vs in sorted(by.items(), key=lambda kv: -sum(v["views"] for v in kv[1])):
         lines.append(f"| {name} | {len(vs)} | {sum(v['views'] for v in vs)} | {_fmt(avg(vs, 'pct'))}% | "
                      f"{_fmt(avg(vs, 'open'), True)} | {_fmt(avg(vs, 'end'), True)} |")
-    ranked = sorted([v for v in videos if v["views"] >= 20], key=lambda v: -(v["open"] or 0))
+    # only videos with a measured curve: "no data" is not a weak opening
+    ranked = sorted([v for v in videos if v["views"] >= 20 and v["open"] is not None], key=lambda v: -v["open"])
     for heading, chunk in (("Best openings (learn from these)", ranked[:5]),
                            ("Weakest openings (what to change)", ranked[-5:][::-1])):
         lines += ["", f"## {heading}", "", "| Video | Series | Views | Opening hold | Avg % viewed |",
