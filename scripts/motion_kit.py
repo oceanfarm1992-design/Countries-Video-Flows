@@ -213,11 +213,14 @@ class MapCamera:
     """Tilted world-map plane. Coordinates are equirectangular source pixels
     (8192 x 4096, the geography series' assets)."""
 
-    def __init__(self, size, plane_quad, focus_screen, tex=1150, share=None):
+    def __init__(self, size, plane_quad, focus_screen, tex=1150, share=None, ui=1.0):
         """share: another MapCamera whose loaded map and masks to reuse (several
-        cameras in one scene, e.g. split screen, without loading the 8K map twice)."""
+        cameras in one scene, e.g. split screen, without loading the 8K map twice).
+        ui: scale for slab depth, glows, lines and markers when rendering a
+        supersampled frame (2.0 for a 2x still that is later cropped and scaled)."""
         self.w, self.h = size
         self.tex = tex
+        self.ui = ui
         self.src_quad = [(0, 0), (tex, 0), (tex, tex), (0, tex)]
         self.to_tex = perspective_coeffs(plane_quad, self.src_quad)    # screen -> texture
         self.to_screen = perspective_coeffs(self.src_quad, plane_quad)  # texture -> screen
@@ -359,11 +362,11 @@ class MapCamera:
         k = self.tex / w
         x = left - left % step
         while x < left + w:
-            d.line([((x - left) * k, 0), ((x - left) * k, self.tex)], fill=(90, 120, 165, 55), width=2)
+            d.line([((x - left) * k, 0), ((x - left) * k, self.tex)], fill=(90, 120, 165, 55), width=max(1, round(2 * self.ui)))
             x += step
         y = top - top % step
         while y < top + w:
-            d.line([(0, (y - top) * k), (self.tex, (y - top) * k)], fill=(90, 120, 165, 55), width=2)
+            d.line([(0, (y - top) * k), (self.tex, (y - top) * k)], fill=(90, 120, 165, 55), width=max(1, round(2 * self.ui)))
             y += step
 
     def _extrude(self, tex, mask, amount, rgb=LAND_LIT, flag=None, main=None):
@@ -372,8 +375,9 @@ class MapCamera:
         bbox = mask.getbbox()
         if not bbox:
             return
-        depth = int(26 * ease_back(amount))
-        pad = 60 + depth
+        ui = self.ui
+        depth = int(26 * ui * ease_back(amount))
+        pad = int(60 * ui) + depth
         x0, y0 = max(0, bbox[0] - pad), max(0, bbox[1] - pad)
         x1, y1 = min(self.tex, bbox[2] + pad), min(self.tex, bbox[3] + pad)
         region = tex.crop((x0, y0, x1, y1))
@@ -381,12 +385,12 @@ class MapCamera:
         a = min(1.0, amount * 1.5)
         shadow = Image.new("RGBA", region.size, (0, 0, 0, 0))
         shadow.putalpha(m.point(lambda v: int(v * 0.6 * a)))
-        region.alpha_composite(shadow.filter(ImageFilter.GaussianBlur(12)), (int(depth * 0.6), int(depth * 0.9)))
+        region.alpha_composite(shadow.filter(ImageFilter.GaussianBlur(12 * ui)), (int(depth * 0.6), int(depth * 0.9)))
         for k in range(depth):  # side walls: a darker shade of the top colour
             shade = 0.38 + 0.25 * k / max(1, depth)
             region.paste(tuple(int(c * shade) for c in rgb) + (255,), (0, -k), m)
         glow = Image.new("RGBA", region.size, ACCENT + (0,))
-        glow.putalpha(m.filter(ImageFilter.GaussianBlur(16)).point(lambda v: int(v * 0.5 * a)))
+        glow.putalpha(m.filter(ImageFilter.GaussianBlur(16 * ui)).point(lambda v: int(v * 0.5 * a)))
         region.alpha_composite(glow, (0, -depth))
         h, wd = region.size[1], region.size[0]
         if flag is not None and main is not None:
@@ -399,7 +403,7 @@ class MapCamera:
             top = np.clip(np.stack([rgb[0] * ramp, rgb[1] * ramp, rgb[2] * ramp], -1), 0, 255).astype(np.uint8)
         region.paste(Image.fromarray(top).convert("RGBA"), (0, -depth), m)
         if flag is not None:  # thin rim in the slab colour keeps the outline crisp on pale flags
-            rim = ImageChops.subtract(m, m.filter(ImageFilter.MinFilter(3)))
+            rim = ImageChops.subtract(m, m.filter(ImageFilter.MinFilter(3 if ui < 1.5 else 5)))
             region.paste(tuple(rgb) + (255,), (0, -depth), rim)
         tex.paste(region, (x0, y0))
 
@@ -412,25 +416,28 @@ class MapCamera:
         v = ((y0 + y1) / 2 - top) / w * self.tex
         sx, sy = apply_coeffs(self.to_screen, u, v)
         a = ease_out(amount)
-        pole = (190 if flag is not None else 360) * a
+        ui = self.ui
+        pole = (190 if flag is not None else 360) * a * ui
+        half, edge = 7 * ui, max(1, round(3 * ui))
         layer = Image.new("RGBA", frame.size, (0, 0, 0, 0))
         d = ImageDraw.Draw(layer)
-        r = 26 + 18 * a
-        d.ellipse((sx - r, sy - r * 0.45, sx + r, sy + r * 0.45), outline=tuple(rgb) + (int(230 * a),), width=6)
-        d.rectangle((sx - 7, sy - pole, sx + 7, sy), fill=tuple(rgb) + (int(170 * a),))
-        frame.alpha_composite(layer.filter(ImageFilter.GaussianBlur(3)))
+        r = (26 + 18 * a) * ui
+        d.ellipse((sx - r, sy - r * 0.45, sx + r, sy + r * 0.45), outline=tuple(rgb) + (int(230 * a),),
+                  width=max(1, round(6 * ui)))
+        d.rectangle((sx - half, sy - pole, sx + half, sy), fill=tuple(rgb) + (int(170 * a),))
+        frame.alpha_composite(layer.filter(ImageFilter.GaussianBlur(3 * ui)))
         frame.alpha_composite(layer)
         if flag is not None and a > 0.05:
-            fw = max(2, int(120 * a))
+            fw = max(2, int(120 * a * ui))
             pin = flag.resize((fw, max(2, int(fw * flag.height / flag.width))), Image.BILINEAR).convert("RGBA")
-            px, py = int(sx + 7), int(sy - pole)
-            framed = Image.new("RGBA", (fw + 6, pin.height + 6), tuple(rgb) + (255,))
-            framed.paste(pin, (3, 3))
-            frame.alpha_composite(with_alpha(framed, a), (px - 3, py - 3))  # blends, never punches alpha
+            px, py = int(sx + half), int(sy - pole)
+            framed = Image.new("RGBA", (fw + 2 * edge, pin.height + 2 * edge), tuple(rgb) + (255,))
+            framed.paste(pin, (edge, edge))
+            frame.alpha_composite(with_alpha(framed, a), (px - edge, py - edge))  # blends, never punches alpha
 
     def is_small(self, iso2, shot):
         x0, y0, x1, y1 = self.mask(iso2)["bbox"]
-        return max(x1 - x0, y1 - y0) / shot[2] * self.tex < 60
+        return max(x1 - x0, y1 - y0) / shot[2] * self.tex < 60 * self.ui
 
 
 # ---------------------------------------------------------------- rendering

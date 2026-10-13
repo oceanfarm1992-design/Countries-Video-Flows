@@ -224,7 +224,14 @@ jobs:
         env:
           PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
           PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
-        run: python scripts/render_geography_map.py --config config/countries.json
+        # 3D map with the country raised in its flag colours and one continuous dolly;
+        # the flat-map renderer is the fallback (same footage.json contract).
+        run: |
+          python scripts/render_geography_motion.py --config config/countries.json || {
+            echo "::warning::3D geography render failed -- using the flat map"
+            rm -f build/footage_clip*.mp4
+            python scripts/render_geography_map.py --config config/countries.json
+          }
 
       # Same "after TTS" ordering requirement as geography's render step above —
       # segment slice boundaries must match the real voice length.
