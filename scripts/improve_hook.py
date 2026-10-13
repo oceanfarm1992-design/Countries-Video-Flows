@@ -39,9 +39,12 @@ def _ask(client, model, system, user, max_tokens=300, temperature=0.9):
     return json.loads(r.choices[0].message.content)
 
 
+VAGUE = ("SECRET", "HIDDEN GEM", "DID YOU KNOW", "WON'T BELIEVE", "YOU NEED TO SEE", "MYSTERY")
+
+
 def valid(hook, narration, country, other_countries):
-    """A candidate may only use what the narration says."""
-    if not hook or len(hook) > MAX_CHARS:
+    """A candidate may only use what the narration says, and must not be a vague teaser."""
+    if not hook or len(hook) > MAX_CHARS or any(v in hook.upper() for v in VAGUE):
         return False
     narr_digits = set(re.findall(r"\d[\d,.]*", narration))
     if any(n not in narr_digits for n in re.findall(r"\d[\d,.]*", hook)):
@@ -56,8 +59,10 @@ def best_hook(script, countries, model):
     others = [c["name"] for c in countries if c["name"] != country and len(c["name"]) > 3]
     gen = _ask(client, model,
                "You write the on-screen opening line of YouTube Shorts about countries. The line "
-               "appears in the first second and must make a scrolling viewer stop. Use curiosity: a "
-               "question, a surprising contrast, or an intriguing claim -- but ONLY facts stated in the "
+               "appears in the first second and must make a scrolling viewer stop. Be SPECIFIC: name the "
+               "concrete place, thing or fact (\"A CRATER THAT HAS BURNED SINCE 1971\"), and add "
+               "curiosity with a question or a surprising contrast. Never vague teasers (no \"secret\", "
+               "\"hidden gem\", \"did you know\", \"you won't believe\"). Use ONLY facts stated in the "
                "narration you are given, no new numbers, no exaggeration, nothing misleading. "
                f"Max {MAX_CHARS} characters. ALL CAPS. Respond as JSON: {{\"hooks\": [3 strings]}}.",
                f"Country: {country}\nNarration: {narration}")
@@ -68,8 +73,10 @@ def best_hook(script, countries, model):
     listing = "\n".join(f"{i}. {h}" for i, h in enumerate(candidates))
     pick = _ask(client, model,
                 "You are a YouTube Shorts editor choosing the opening on-screen line. Pick the line most "
-                "likely to stop a viewer scrolling past, that is also fully supported by the narration "
-                "(reject anything misleading). Respond as JSON: {\"best\": <index>, \"why\": \"...\"}.",
+                "likely to stop a viewer scrolling past AND that names something specific -- a concrete "
+                "place, thing or fact beats a vague teaser. It must be fully supported by the narration "
+                "(reject anything misleading). Keep the original (index 0) unless another is clearly "
+                "better. Respond as JSON: {\"best\": <index>, \"why\": \"...\"}.",
                 f"Narration: {narration}\n\nCandidates:\n{listing}", max_tokens=150, temperature=0)
     idx = pick.get("best")
     if not isinstance(idx, int) or not 0 <= idx < len(candidates):

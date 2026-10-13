@@ -18,11 +18,11 @@ import re
 PLAY_W, PLAY_H = 1080, 1920
 BAND_BOTTOM = 1330          # baseline of the bottom caption line
 FONT = "DejaVu Sans"        # preinstalled on the Ubuntu runners
-FONT_SIZE = 86
+FONT_SIZE = 80
 ACTIVE = "&H003CBEF0&"      # ASS colours are &HAABBGGRR -- accent yellow (240, 190, 60)
 WHITE = "&H00FFFFFF&"
 POP_IN = r"{\fscx88\fscy88\t(0,90,\fscx100\fscy100)}"
-ACTIVE_ON = r"{\c" + ACTIVE + r"\fscx112\fscy112}"
+ACTIVE_ON = r"{\c" + ACTIVE + r"\fscx108\fscy108}"
 NUMBER_ON = r"{\c" + ACTIVE + "}"
 RESET = r"{\r}"
 
@@ -35,7 +35,7 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Word,{FONT},{FONT_SIZE},{WHITE},{WHITE},&H00000000&,&H96000000&,-1,0,0,0,100,100,0,0,1,6,3,2,70,70,{PLAY_H - BAND_BOTTOM},1
+Style: Word,{FONT},{FONT_SIZE},{WHITE},{WHITE},&H00000000&,&H96000000&,-1,0,0,0,100,100,0,0,1,6,3,2,100,100,{PLAY_H - BAND_BOTTOM},1
 
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text

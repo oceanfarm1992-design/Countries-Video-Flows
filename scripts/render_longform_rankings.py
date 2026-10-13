@@ -16,6 +16,7 @@ Usage:
     python scripts/render_longform_rankings.py --script build/long/script.json --out build/long
 """
 import argparse
+import glob
 import json
 import os
 
@@ -266,6 +267,13 @@ def main():
                 bg = os.path.basename(bg_path)
         if bg is None and not args.no_footage:
             bg = _background(query, country, bg_path)
+        if bg is None and not args.no_footage and visual in by_iso:
+            # No footage for this country: the 3D map on it, in its flag, with a slow
+            # camera move -- a still card held for 20+ s was the video's dead spot.
+            seconds = estimate_seconds([seg]) * 1.35 + 6
+            if render_backdrop([visual], flags, bg_path, seconds,
+                               os.path.join(args.out, f"_backdrop_{visual}.png"), single=True):
+                bg = os.path.basename(bg_path)
         pieces.append({"overlay": overlay, "overlay_anim": anim, "background": bg})
 
     # Animated entrances (transparent PNG-in-MOV), held on their last frame by the
@@ -277,8 +285,8 @@ def main():
         for piece in pieces:
             piece.pop("overlay_anim", None)
 
-    if os.path.exists(os.path.join(args.out, "_backdrop.png")):
-        os.remove(os.path.join(args.out, "_backdrop.png"))
+    for still in glob.glob(os.path.join(args.out, "_backdrop*.png")):
+        os.remove(still)
     thumbnail(record, flags).save(os.path.join(args.out, "thumbnail.jpg"), quality=90)
     with open(os.path.join(args.out, "pieces.json"), "w", encoding="utf-8") as fh:
         json.dump(pieces, fh, indent=2)
