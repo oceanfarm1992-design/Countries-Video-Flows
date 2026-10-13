@@ -298,6 +298,43 @@ def test_longform_backdrop_moves_over_the_ranked_countries(tmp_path):
     assert first.tobytes() != last.tobytes()  # the camera actually moves
 
 
+def test_worst_of_countdowns_rotate_through_every_metric():
+    import json
+    import daily_variation as dv
+    import generate_rankings_script as gr
+    from fetch_rankings_stats import format_value, load_metrics
+    from generate_tts import apply_pronunciation_fixups
+    cfg = load_metrics("config/rankings_negative_metrics.json")
+    static = json.load(open("config/rankings_static.json", encoding="utf-8"))
+    step = len(dv.SERIES_CYCLE)
+    assert "worst" in dv.SERIES_CYCLE
+    # one worst day in six must still reach every metric, not just half of them
+    worst_days = [d for d in range(400) if dv.SERIES_CYCLE[d % step] == "worst"]
+    seen = {gr.pick_metric_id(cfg, d, step) for d in worst_days}
+    assert seen == {m["id"] for m in cfg["metrics"]}
+    for m in cfg["metrics"]:
+        assert m["tone"] == "serious" and m["countdown_phrase"] and m["display_label"]
+        if m["source_type"] == "static":  # the bottom of a published table, worst first
+            block = static[m["static_key"]]
+            assert block["bottom"] and m["sort_direction"] == "asc" and len(block["entries"]) >= 8
+        format_value(m["unit"], 12.5)  # every unit is known
+    assert format_value("mt_co2e", 15540.2) == "15.54B tonnes"
+    assert format_value("mt_co2e", 640.0) == "640M tonnes"
+    spoken = apply_pronunciation_fixups("Qatar at 107.8 µg/m³ and 41.2 per 100k")
+    assert "micrograms per cubic metre" in spoken and "per 100,000 people" in spoken
+    metric = next(m for m in cfg["metrics"] if m["id"] == "most_corrupt")
+    rows = [{"iso2": "SO", "country_name": "Somalia", "value": 9, "rank": 1, "tied": False}]
+    _, narration, _ = gr._fallback_script(metric, rows)
+    assert "countries seen as the most corrupt" in narration and "by corruption" not in narration
+
+
+def test_refresh_name_aliases_match_after_normalising():
+    import refresh_rankings_static as rr
+    assert rr._norm("DR Congo") == rr._norm("Democratic Republic of the Congo")
+    assert rr._norm("Congo-Brazzaville") == rr._norm("Republic of the Congo")
+    assert rr._norm("The Gambia") == rr._norm("Gambia")
+
+
 def test_captions_show_script_numbers_timed_by_whisper():
     import generate_captions as gc
     script = "GDP of $40,430 and 61.7% literacy, about 1.41B people.".split()

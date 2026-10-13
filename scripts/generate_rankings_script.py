@@ -52,9 +52,12 @@ except ImportError:
     pass
 
 
-def pick_metric_id(metrics_cfg, day_number):
+def pick_metric_id(metrics_cfg, day_number, step=1):
+    """step: how many days apart this series posts. The worst-of countdowns run one
+    day in six; day_number % 8 on every sixth day would only ever reach half of the
+    eight metrics, so they rotate by occurrence (day_number // step) instead."""
     metrics = metrics_cfg["metrics"]
-    return metrics[day_number % len(metrics)]["id"]
+    return metrics[(day_number // step) % len(metrics)]["id"]
 
 
 def title_name(metric):
@@ -115,10 +118,14 @@ def _fallback_script(metric, ranked):
     # title_name's docstring).
     raw_label = metric["label"]
     hook = f"TOP {n} {title_phrase(metric, n)}"
-    intro_text = (
-        f"Today we're counting down the top {n} countries in the world "
-        f"by {raw_label.lower()}, straight from real data."
-    )
+    if metric.get("countdown_phrase"):  # worst-of lists: "by <index>" would read backwards
+        intro_text = (f"Today we're counting down the {n} {metric['countdown_phrase']} "
+                      f"in the world, straight from real data.")
+    else:
+        intro_text = (
+            f"Today we're counting down the top {n} countries in the world "
+            f"by {raw_label.lower()}, straight from real data."
+        )
     if metric.get("note"):
         intro_text += f" One note before we start: {metric['note']}."
     segments = [{"text": intro_text, "visual": ""}]
@@ -142,11 +149,10 @@ def _fallback_script(metric, ranked):
             text += f" {count} more {plural} also tie at this exact value, just outside our top {n}."
         segments.append({"text": text, "visual": row["iso2"]})
 
+    closing = (f"Those are the {n} {metric['countdown_phrase']}." if metric.get("countdown_phrase")
+               else f"That's our top {n} for {raw_label.lower()}.")
     segments.append({
-        "text": (
-            f"That's our top {n} for {raw_label.lower()}. Where does "
-            f"your country rank? Comment below and follow for more rankings."
-        ),
+        "text": f"{closing} Where does your country rank? Comment below and follow for more rankings.",
         "visual": "",
     })
     narration = " ".join(s["text"] for s in segments)
@@ -197,21 +203,30 @@ def _gpt_script(metric, ranked, openai_cfg, min_words, max_words):
         for row in reversed(ranked)
     )
     tone = metric.get("tone", "energetic")
-    tone_line = (
-        "Tone: energetic countdown reveal, like a great \"top 10\" video -- not a "
-        "dry recitation."
-        if tone == "energetic" else
-        "Tone: clear and matter-of-fact -- this metric is not a \"win\", so avoid "
-        "celebratory framing (no \"congrats\", no \"amazing\") even though it's "
-        "still an engaging countdown."
-    )
+    if tone == "energetic":
+        tone_line = ("Tone: energetic countdown reveal, like a great \"top 10\" video -- not a "
+                     "dry recitation.")
+    elif tone == "serious":
+        tone_line = ("Tone: serious and respectful, like a good news explainer. These are hard "
+                     "facts about real people's lives: state each one plainly and never mock, "
+                     "blame, insult or joke about a country or its people. No celebratory or "
+                     "sensational words (no \"shocking\", no \"crazy\", no \"winner\"). Keep it "
+                     "engaging through clear pacing, not drama.")
+    else:
+        tone_line = ("Tone: clear and matter-of-fact -- this metric is not a \"win\", so avoid "
+                     "celebratory framing (no \"congrats\", no \"amazing\") even though it's "
+                     "still an engaging countdown.")
+    # Worst-of lists count down from the other end of the index; "the top N by
+    # <index>" would tell GPT the opposite ranking.
+    countdown = (f"the {n} {metric['countdown_phrase']}" if metric.get("countdown_phrase")
+                 else f"the top {n} countries by {label}")
     note_line = f"\nIMPORTANT CONTEXT: {metric['note']}. Work this into your opening line " \
                 f"in your own words, since without it the ranking can be misread.\n" \
                 if metric.get("note") else ""
 
     system_prompt = textwrap.dedent(f"""
-        You are writing a short YouTube Shorts narration counting down the top
-        {n} countries by {label} for a country-rankings series. This is shown
+        You are writing a short YouTube Shorts narration counting down
+        {countdown} for a country-rankings series. This is shown
         over an on-screen COUNTDOWN LEADERBOARD (not video footage), so the
         narration should read out and react to each row as it appears on
         screen. Write ONLY the spoken narration -- no stage directions, no
@@ -259,7 +274,7 @@ def _gpt_script(metric, ranked, openai_cfg, min_words, max_words):
     """).strip()
 
     user_message = textwrap.dedent(f"""
-        Ranking: Top {n} countries by {label}
+        Ranking: {countdown[0].upper() + countdown[1:]}
 
         Rows you may cite (do not use any number, country, rank, or tie
         status not present here, and do not reorder them):
@@ -334,6 +349,9 @@ def main():
     ap.add_argument("--max-words", type=int, default=None,
                     help="Defaults to video-config's max_seconds * words_per_second.")
     ap.add_argument("--variant-seed", type=int, default=None)
+    ap.add_argument("--rotation-step", type=int, default=1,
+                    help="Days between this series' posts (6 for the rotating worst-of day), "
+                         "so the metric rotation advances once per post.")
     args = ap.parse_args()
 
     with open(args.config, encoding="utf-8") as fh:
@@ -372,7 +390,8 @@ def main():
         metric = None
         ranked = None
         for attempt in range(MAX_METRIC_ATTEMPTS):
-            candidate_id = pick_metric_id(metrics_cfg, day_number + attempt)
+            candidate_id = pick_metric_id(metrics_cfg, day_number + attempt * args.rotation_step,
+                                          args.rotation_step)
             candidate = ids_by_metric[candidate_id]
             print(f"[generate_rankings_script] fetching ranking for {candidate['label']} ...")
             candidate_ranked = get_ranked(candidate["id"], countries, metrics_cfg=metrics_cfg)

@@ -2,7 +2,7 @@
 """
 Shared deterministic per-day "variation profile" for the rotating series.
 Given a day number (days since the pipeline epoch), it decides — the same way
-on every machine, with no stored state — which ONE of the five series runs
+on every machine, with no stored state — which ONE of the six series runs
 today, at what hour, how long its narration should be, and which hashtag/tag
 variant to use.
 
@@ -21,10 +21,12 @@ from datetime import date
 # Pipeline epoch — same reference date the generators already use for rotation.
 EPOCH = date(2026, 7, 23)
 
-# One video per day, cycling through all five series in a fixed 5-day order so
-# every series posts once every 5 days (was 2/day across a 5-day pairing table;
+# One video per day, cycling through all six series in a fixed 6-day order so
+# every series posts once every 6 days (was 2/day across a 5-day pairing table;
 # reduced 2026-10-03 to cut posting volume).
-SERIES_CYCLE = ["country", "hook", "trending", "geography", "worlddata"]
+# "worst": a worst-of countdown (most polluted air, most corrupt, ...) built with the
+# rankings pipeline from config/rankings_negative_metrics.json.
+SERIES_CYCLE = ["country", "hook", "trending", "geography", "worlddata", "worst"]
 
 # Target-hour lane (UTC) for the single daily slot: 15:00-17:59 Dubai. Stays
 # well before UTC midnight: GitHub often starts late ticks after 00:00 UTC,
