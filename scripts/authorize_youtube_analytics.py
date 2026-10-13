@@ -11,8 +11,8 @@ Steps:
        PowerShell:  $env:YOUTUBE_CLIENT_ID="..."; $env:YOUTUBE_CLIENT_SECRET="..."
   2. Run:  python scripts/authorize_youtube_analytics.py
      A browser window opens; sign in with the channel's Google account and allow access.
-     (If Google says the redirect is not allowed, the OAuth client must be of type
-     "Desktop app".)
+     (If Google says "redirect_uri_mismatch", the OAuth client is a "Web application":
+     add  http://localhost:8080/  to its Authorized redirect URIs and run it again.)
   3. Add the printed token to the repo:
        gh secret set YOUTUBE_ANALYTICS_REFRESH_TOKEN
      and paste it when asked.
@@ -34,8 +34,9 @@ def main():
         {"installed": {"client_id": cid, "client_secret": secret,
                        "auth_uri": "https://accounts.google.com/o/oauth2/auth",
                        "token_uri": "https://oauth2.googleapis.com/token",
-                       "redirect_uris": ["http://localhost"]}}, SCOPES)
-    creds = flow.run_local_server(port=0, access_type="offline", prompt="consent")
+                       "redirect_uris": ["http://localhost:8080/"]}}, SCOPES)
+    # fixed port so a "Web application" client works too (its redirect URI must match exactly)
+    creds = flow.run_local_server(port=8080, access_type="offline", prompt="consent")
     print("\nAdd this as the GitHub secret YOUTUBE_ANALYTICS_REFRESH_TOKEN:\n")
     print(creds.refresh_token)
 
