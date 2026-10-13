@@ -21,6 +21,7 @@ import argparse
 import os
 import re
 import sys
+import time
 from datetime import date, timedelta
 
 WINDOW_DAYS = 28
@@ -58,10 +59,20 @@ def services():
 
 
 def hold_at(analytics, video_id, start, end, ratio):
-    """audienceWatchRatio at the closest measured point to `ratio` of the video."""
-    rows = analytics.reports().query(
-        ids="channel==MINE", startDate=start, endDate=end, metrics="audienceWatchRatio",
-        dimensions="elapsedVideoTimeRatio", filters=f"video=={video_id}").execute().get("rows", [])
+    """audienceWatchRatio at the closest measured point to `ratio` of the video, or None.
+    The API answers 500 for videos with too little data -- retried once, then skipped
+    rather than failing the whole report."""
+    for attempt in (1, 2):
+        try:
+            rows = analytics.reports().query(
+                ids="channel==MINE", startDate=start, endDate=end, metrics="audienceWatchRatio",
+                dimensions="elapsedVideoTimeRatio", filters=f"video=={video_id}").execute().get("rows", [])
+            break
+        except Exception as exc:  # noqa: BLE001 -- googleapiclient HttpError and transport errors
+            if attempt == 2:
+                print(f"[retention_report] no retention curve for {video_id} ({type(exc).__name__})")
+                return None
+            time.sleep(2)
     if not rows:
         return None
     return min(rows, key=lambda r: abs(r[0] - ratio))[1]
