@@ -104,7 +104,10 @@ jobs:
               read_ok = False
 
           def already_posted(series):
-              return any(t.startswith(f"rotating-{series}-") for t in tags_today)
+              # One rotating post per day, whatever its series: when SERIES_CYCLE
+              # changes length mid-day, today's series changes too, and a per-series
+              # check would post a second video.
+              return bool(tags_today)
 
           if force:
               # Manual override: run whichever of today's slots hasn't posted yet
@@ -383,10 +386,12 @@ jobs:
           echo "${DATE},${SERIES},\"${SCRIPT_TITLE}\",${IDENT},${{ steps.post_buffer.outcome }},${{ steps.post_youtube.outcome }}" >> logs/history_rotating.csv
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add logs/history_rotating.csv
+          # Both stats caches are rewritten by the data fetches (worst-of live metrics,
+          # worlddata stats); left unstaged they made every pull --rebase below fail.
+          git add logs/history_rotating.csv config/rankings_stats_cache.json config/country_stats_cache.json
           git commit -m "log: rotating run ${DATE} (${SERIES})" || echo "nothing to commit"
           for i in 1 2 3; do
-            git pull --rebase && git push && break || sleep $((i * 5))
+            git pull --rebase --autostash && git push && break || sleep $((i * 5))
           done
 
       - name: Fail the run if any platform post failed

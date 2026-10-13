@@ -46,7 +46,7 @@ from generate_country_script import intro_line_for, _fallback_script
 from fetch_trending_news import fetch_trending_headlines
 from fact_check import verify_narration
 from captions_common import write_platform_captions
-from daily_variation import day_number_for
+from daily_variation import day_number_for, rotation_index
 
 OPENAI_AVAILABLE = False
 try:
@@ -192,8 +192,9 @@ def main():
         raw_index = day_number * 3 + args.slot + offset
         idx = raw_index % len(countries)
     else:
+        # one country per post of this series -- see daily_variation.rotation_index
         day_number = (date.today() - date(2026, 7, 23)).days
-        raw_index = day_number + offset
+        raw_index = rotation_index(day_number) + offset
         idx = raw_index % len(countries)
 
     country = countries[idx]

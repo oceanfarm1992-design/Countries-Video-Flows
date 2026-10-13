@@ -344,9 +344,13 @@ def main():
             entries = top_entries(rows, lower_is_better=bool(block.get("lower_is_stronger") or src.get("bottom")))
             if len(entries) < MIN_MATCHED:
                 raise RuntimeError(f"only {len(entries)} countries matched")
-            old_top, new_top = float(block["entries"][0]["value"]), float(entries[0]["raw"])
+            # Bottom blocks compare their middle entry: the lowest value is an outlier
+            # (Democracy Index 0.25), and if it leaves the table the next lowest is 3x it.
+            at = len(entries) // 2 if src.get("bottom") else 0
+            old_at = min(at, len(block["entries"]) - 1)
+            old_top, new_top = float(block["entries"][old_at]["value"]), float(entries[at]["raw"])
             if not (1 / MAX_TOP_RATIO <= new_top / old_top <= MAX_TOP_RATIO):
-                raise RuntimeError(f"top value {new_top} is implausible next to the current {old_top}")
+                raise RuntimeError(f"value {new_top} is implausible next to the current {old_top}")
         except Exception as exc:  # noqa: BLE001 -- one broken page must not stop the others
             failed.append(key)
             report.append(f"### {key}: FAILED\n\n{type(exc).__name__}: {exc}\n")

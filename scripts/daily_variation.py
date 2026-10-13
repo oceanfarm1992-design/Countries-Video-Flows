@@ -28,6 +28,19 @@ EPOCH = date(2026, 7, 23)
 # rankings pipeline from config/rankings_negative_metrics.json.
 SERIES_CYCLE = ["country", "hook", "trending", "geography", "worlddata", "worst"]
 
+# Country rotation for the single-country series. Each posts once every
+# len(SERIES_CYCLE) days, and indexing the 196 countries by the day number on those
+# days reaches only 196 / gcd(196, 6) = 98 of them -- the other half would never air.
+# So each series advances one country per post instead. The offset starts this past
+# every index the old day-number scheme used before the switch (day 82, 2026-10-13),
+# so no series repeats a country for ~110 posts.
+ROTATION_OFFSET = 70
+
+
+def rotation_index(day_number):
+    """One step per post of a series (not per calendar day)."""
+    return day_number // len(SERIES_CYCLE) + ROTATION_OFFSET
+
 # Target-hour lane (UTC) for the single daily slot: 15:00-17:59 Dubai. Stays
 # well before UTC midnight: GitHub often starts late ticks after 00:00 UTC,
 # when "today" rolls over and an unposted slot is lost.

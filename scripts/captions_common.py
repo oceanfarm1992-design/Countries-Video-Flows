@@ -157,6 +157,22 @@ SERIES_COPY = {
             "Did your country make the cut? Tell us below! 👇",
         ],
     },
+    # Worst-of countdowns (most corrupt, highest murder rates, ...): no trophy and no
+    # "make the cut" -- these are hard facts about real people's lives.
+    "worst": {
+        "yt_emoji": "📊",
+        "tt_suffix": "📊",
+        "subscribe_lines": [
+            "Subscribe for real world data, explained. 🌏",
+            "Follow for more world rankings from real data. 🌏",
+            "Hard numbers about our world, every week — subscribe. 🌏",
+        ],
+        "fb_questions": [
+            "Did anything in this data surprise you? Let us know below! 👇",
+            "What do you think drives these numbers? Comment below! 👇",
+            "What would you like us to rank next? Tell us below! 👇",
+        ],
+    },
 }
 
 

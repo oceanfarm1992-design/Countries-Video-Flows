@@ -3202,7 +3202,7 @@
     "height": 1920,
     "words_per_second": 2.3,
     "min_seconds": 45,
-    "max_seconds": 80,
+    "max_seconds": 84,
     "cta_text": "Love this? Like the video! From here? Comment I love my country",
     "font_hint": "DejaVuSans (preinstalled on GitHub Ubuntu runners)"
   },

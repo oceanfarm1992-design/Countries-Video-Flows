@@ -491,7 +491,8 @@ def main():
             for row in ranked
         ],
     }
-    write_platform_captions("rankings", synthetic_country, hook, config, args.out, seed)
+    copy_series = "worst" if metric.get("tone") == "serious" else "rankings"
+    write_platform_captions(copy_series, synthetic_country, hook, config, args.out, seed)
 
     words = len(narration.split())
     print(
