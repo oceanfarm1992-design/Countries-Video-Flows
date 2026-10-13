@@ -24,6 +24,8 @@ from PIL import Image, ImageDraw
 from fetch_footage import fetch_pexels
 from motion_kit import ease_back, ease_io, ease_out, phase
 import motion_kit as mk
+from generate_longform_rankings import estimate_seconds
+from longform_map_backdrop import render_backdrop
 from fetch_rankings_stats import format_value
 from render_rankings_graphics import (ACCENT, PANEL_HIGHLIGHT, TEXT_DIM, TEXT_WHITE, _draw_centered,
                                       _fetch_flag_resilient, _fit_text, _font, _paste_flag, _text_w)
@@ -254,7 +256,16 @@ def main():
             query, country = GENERIC_QUERY, None
         overlay = f"slide_{i:03d}.png"
         img.save(os.path.join(args.out, overlay))
-        bg = None if args.no_footage else _background(query, country, os.path.join(args.out, f"bg_{i:03d}.mp4"))
+        bg_path = os.path.join(args.out, f"bg_{i:03d}.mp4")
+        bg = None
+        if visual not in by_iso and not args.no_footage:
+            # Opening/closing tables: the ranked countries in their flags on the 3D map.
+            # Rendered past the spoken estimate so the assembler never loops it.
+            seconds = estimate_seconds([seg]) * 1.35 + 6
+            if render_backdrop(list(by_iso), flags, bg_path, seconds, os.path.join(args.out, "_backdrop.png")):
+                bg = os.path.basename(bg_path)
+        if bg is None and not args.no_footage:
+            bg = _background(query, country, bg_path)
         pieces.append({"overlay": overlay, "overlay_anim": anim, "background": bg})
 
     # Animated entrances (transparent PNG-in-MOV), held on their last frame by the
@@ -266,6 +277,8 @@ def main():
         for piece in pieces:
             piece.pop("overlay_anim", None)
 
+    if os.path.exists(os.path.join(args.out, "_backdrop.png")):
+        os.remove(os.path.join(args.out, "_backdrop.png"))
     thumbnail(record, flags).save(os.path.join(args.out, "thumbnail.jpg"), quality=90)
     with open(os.path.join(args.out, "pieces.json"), "w", encoding="utf-8") as fh:
         json.dump(pieces, fh, indent=2)
