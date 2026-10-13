@@ -25,8 +25,9 @@ PUSH = 1.25          # gentle: this sits behind a full table of text
 PAN = 0.22           # share of the slack width the camera travels sideways
 
 
-def render_still(isos, flag_paths, out_path):
-    """2x still of the map framed on the ranked countries, each in its flag."""
+def render_still(isos, flag_paths, out_path, single=False):
+    """2x still of the map framed on the ranked countries, each in its flag. single:
+    framed on the one country (a chapter that found no footage)."""
     cam = mk.MapCamera((W * SS, H * SS), [(x * SS, y * SS) for x, y in PLANE],
                        (FOCUS[0] * SS, FOCUS[1] * SS), tex=1150 * SS, ui=SS)
     isos = [i for i in isos if cam.has_mask(i)]
@@ -39,6 +40,8 @@ def render_still(isos, flag_paths, out_path):
     lo, hi = len(isos) // 6, len(isos) - 1 - len(isos) // 6
     span = max(xs[hi] - xs[lo], (ys[hi] - ys[lo]) * 1.6)
     shot = ((xs[lo] + xs[hi]) / 2, (ys[lo] + ys[hi]) / 2, min(6400.0, max(2600.0, span * 1.7)))
+    if single:
+        shot = cam.shot_for(isos[0], pad=3.4, min_w=1400)
     tints = []
     for iso in isos:
         flag = mk.load_flag(flag_paths.get(iso))
@@ -70,12 +73,12 @@ def make_scene(still_path, total):
     return scene
 
 
-def render_backdrop(isos, flag_paths, dest, seconds, still_path):
+def render_backdrop(isos, flag_paths, dest, seconds, still_path, single=False):
     """Write `dest` (mp4, `seconds` long). Returns True on success; the caller keeps
     its stock-footage fallback otherwise."""
     try:
         if not os.path.exists(still_path):
-            render_still(isos, flag_paths, still_path)
+            render_still(isos, flag_paths, still_path, single)
         mk.render_clips([(dest, seconds, (still_path, seconds))], (W, H), make_scene)
         return True
     except (SystemExit, Exception) as exc:  # noqa: BLE001 -- decoration; stock footage is the fallback

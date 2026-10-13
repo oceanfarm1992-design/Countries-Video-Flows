@@ -306,7 +306,8 @@ def main():
     subtitle = hook.split(":", 1)[1].strip() if ":" in hook else "HEAD TO HEAD"
     base = {"a": {"name": a["name"], "iso2": a["iso2"]}, "b": {"name": b["name"], "iso2": b["iso2"]},
             "flags": flags, "subtitle": subtitle.upper(),
-            "tagline": f"{len(rows)} STATS COMPARED  ·  WORLD BANK DATA"}
+            # a question in the first seconds: viewers who pick a side stay for the verdict
+            "tagline": f"WHO WINS? PICK A SIDE  ·  {len(rows)} STATS"}
     by_label = {r["label"].strip().lower(): r for r in rows}
     scored = set()
 

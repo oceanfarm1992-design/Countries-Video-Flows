@@ -129,8 +129,10 @@ def main():
     audio = "[1:a]afftdn=nr=12,highpass=f=70,loudnorm=I=-16:TP=-1.5:LRA=11"
     if args.music and os.path.exists(args.music):
         inputs += ["-stream_loop", "-1", "-i", args.music]
-        audio += (f"[va];[2:a]volume={args.music_volume},afade=t=in:d=2,"
-                  f"afade=t=out:st={max(0.0, total - 3):.2f}:d=3[mus];"
+        # the music ducks under the voice and swells in the pauses (as in the Shorts)
+        audio += (f",asplit=2[va][vkey];[2:a]volume={args.music_volume * 1.6:.3f},afade=t=in:d=2,"
+                  f"afade=t=out:st={max(0.0, total - 3):.2f}:d=3[mraw];"
+                  "[mraw][vkey]sidechaincompress=threshold=0.02:ratio=8:attack=15:release=400[mus];"
                   "[va][mus]amix=inputs=2:duration=first:normalize=0[aout]")
     else:
         audio += "[aout]"

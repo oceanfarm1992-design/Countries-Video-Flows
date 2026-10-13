@@ -10,6 +10,8 @@ so the assembler is unchanged.
     between beats never snap the camera back
   - each beat's map label (the feature being talked about: "Adamawa Plateau")
     drops in as a styled label card with the country's flag
+  - when a beat's label is a real place (Lake Chad, Tibesti Mountains), a pin drops on
+    it -- coordinates from Wikipedia, only if they fall on the country (feature_pins.py)
   - up to MAX_CUTAWAYS real clips of filmable features, exactly as before
 
 Cheap on GitHub's runners: the 3D scene is rendered ONCE as a 2x still, and the
@@ -23,9 +25,10 @@ import json
 import math
 import os
 
-from PIL import Image
+from PIL import Image, ImageDraw
 
 import motion_kit as mk
+from feature_pins import find_pins
 from pipeline_common import segment_durations
 from render_geography_map import fetch_cutaway_clips, resolve_duration
 from render_rankings_graphics import _fetch_flag_resilient
@@ -39,12 +42,13 @@ PUSH = 1.6                 # how far the dolly closes in over the whole video
 DRIFT = 26                 # px of slow sideways drift, so the move never feels mechanical
 TAIL_PAD = 0.5             # clips run a little past their beat; the assembler trims
 LABEL_BOX = (90, 190, W - 90, 330)
-HOOK_END = 4.0             # assemble_video.py burns the hook banner over the label's spot for
-                           # the first 4 s of the body; the label card waits until it is gone
+HOOK_END = 0.0             # the hook card now sits on the intro (assemble_video.py), so the
+                           # body's first label no longer waits for it (was 4.0)
 
 
-def render_still(iso2, flag_path, out_path):
-    """The 3D scene at 2x, and the country's screen position in it."""
+def render_still(iso2, flag_path, out_path, segments=(), country=""):
+    """The 3D scene at 2x; returns the country's screen position in it and
+    {segment index: pin position} for the features that could be placed."""
     cam = mk.MapCamera((W * SS, H * SS), [(x * SS, y * SS) for x, y in PLANE],
                        (FOCUS[0] * SS, FOCUS[1] * SS), tex=1150 * SS, ui=SS)
     if not cam.has_mask(iso2):
@@ -56,7 +60,8 @@ def render_still(iso2, flag_path, out_path):
     else:
         frame = cam.render(shot, lifts=[(iso2, 1.0, mk.LAND_LIT, flag)])
     frame.convert("RGB").save(out_path)
-    return cam.project(iso2, shot)
+    pins = find_pins(segments, country, cam.mask(iso2)[1.0]) if segments else {}
+    return cam.project(iso2, shot), {i: cam.project_xy(x, y, shot) for i, (x, y) in pins.items()}
 
 
 _STILL = {}
@@ -79,7 +84,12 @@ def make_scene(kind, p):
 
     def scene(t):
         k = min(1.0, (p["t0"] + t) / p["total"])
-        frame = dolly(still, p["anchor"], k).convert("RGBA")
+        img, box = dolly(still, p["anchor"], k)
+        frame = img.convert("RGBA")
+        if p.get("pin"):
+            sx, sy = p["pin"]
+            fx, fy = (sx - box[0]) * W / (box[2] - box[0]), (sy - box[1]) * H / (box[3] - box[1])
+            draw_pin(frame, fx, fy, t - p["card_at"] - 0.15)
         a = mk.ease_out(mk.phase(t, p["card_at"], 0.45))
         if card is not None and a > 0:  # drops in from above while fading up
             dy = int(50 * (1 - a))
@@ -98,7 +108,25 @@ def dolly(still, anchor, k):
     top = anchor[1] - FOCUS[1] / H * ch
     left = min(max(0.0, left), still.width - cw)
     top = min(max(0.0, top), still.height - ch)
-    return still.resize((W, H), Image.BILINEAR, box=(left, top, left + cw, top + ch))
+    box = (left, top, left + cw, top + ch)
+    return still.resize((W, H), Image.BILINEAR, box=box), box
+
+
+def draw_pin(frame, x, y, t):
+    """A map pin that drops in on the feature, with a slow pulse ring around it."""
+    if t <= 0 or not (40 < x < W - 40 and 460 < y < 1080):  # only where it's clear of the cards
+        return
+    drop = mk.ease_back(mk.clamp(t / 0.45))
+    py = y - 70 * (1 - drop)
+    layer = Image.new("RGBA", frame.size, (0, 0, 0, 0))
+    d = ImageDraw.Draw(layer)
+    ring = (t % 1.4) / 1.4
+    r = 26 + 70 * ring
+    d.ellipse((x - r, y - r * 0.5, x + r, y + r * 0.5), outline=mk.ACCENT + (int(230 * (1 - ring)),), width=5)
+    d.ellipse((x - 13, y - 6, x + 13, y + 6), fill=(0, 0, 0, 120))                # shadow on the map
+    d.line((x, py, x, py - 68), fill=(245, 246, 250, 255), width=7)               # stem
+    d.ellipse((x - 25, py - 118, x + 25, py - 68), fill=mk.ACCENT + (255,), outline=(255, 255, 255, 255), width=6)
+    frame.alpha_composite(mk.with_alpha(layer, min(1.0, t / 0.2)))
 
 
 def label_layer(label, flag):
@@ -143,7 +171,7 @@ def main():
     if not _fetch_flag_resilient(iso2, flag_path):
         flag_path = None
     still_path = os.path.join(args.out, "_geo_motion_still.png")
-    anchor = render_still(iso2, flag_path, still_path)
+    anchor, pin_at = render_still(iso2, flag_path, still_path, segments, script.get("name", ""))
 
     cutaways = fetch_cutaway_clips(segments, script.get("name", ""), cfg, args.out)
     map_indices = [i for i in range(len(segments)) if i not in cutaways]
@@ -157,7 +185,7 @@ def main():
             continue
         out = os.path.join(args.out, f"footage_clip{i}.mp4")
         payload = {"still": still_path, "anchor": anchor, "t0": t0, "total": total, "dur": dur,
-                   "card_at": max(0.1, HOOK_END + 0.15 - start),
+                   "card_at": max(0.1, HOOK_END + 0.15 - start), "pin": pin_at.get(i),
                    "label": (seg.get("visual") or "").strip(), "flag": flag_path}
         jobs.append((out, dur + TAIL_PAD, ("map", payload)))
         clips.append({"source": "geography_motion", "query": seg.get("visual", ""), "source_url": "",

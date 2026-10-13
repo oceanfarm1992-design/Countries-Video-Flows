@@ -281,7 +281,7 @@ def test_geography_dolly_keeps_the_country_pinned():
     anchor = (1100, 1600)
     ImageDraw.Draw(still).ellipse((anchor[0] - 90, anchor[1] - 90, anchor[0] + 90, anchor[1] + 90), fill=(255, 0, 0))  # wider than the drift
     for k in (0.0, 0.5, 1.0):  # the dolly closes in, the country stays near FOCUS
-        frame = rg.dolly(still, anchor, k)
+        frame, _ = rg.dolly(still, anchor, k)
         assert frame.size == (rg.W, rg.H)
         assert frame.getpixel((rg.FOCUS[0] - 3, rg.FOCUS[1]))[0] > 200
     card = rg.label_layer("Ubangi River", None)
@@ -349,6 +349,81 @@ def test_rankings_fallback_fits_the_word_budget_and_split_outro_is_repaired(monk
     monkeypatch.setattr(gr, "OpenAI", lambda api_key: client, raising=False)
     _, narration, segments = gr._gpt_script(metric, rows, {}, 80, 130)
     assert len(segments) == 10 and segments[-1]["text"] == "Where does your country rank? Follow for more."
+
+
+def test_word_by_word_captions_highlight_the_spoken_word():
+    import karaoke_captions as kc
+    words = [{"word": w, "start": i * 0.5, "end": i * 0.5 + 0.4}
+             for i, w in enumerate("GDP of $40,430 per person".split())]
+    ass = kc.build_ass(words, 3)
+    events = [ln for ln in ass.splitlines() if ln.startswith("Dialogue:")]
+    assert len(events) == len(words)                       # one event per spoken word
+    assert kc.ACTIVE_ON + "GDP" in events[0] and kc.POP_IN in events[0]
+    assert kc.NUMBER_ON + "$40,430" in events[0]            # numbers stay highlighted
+    assert events[1].split(",", 3)[1] == "0:00:00.50"       # each word lights up on time
+    assert "PlayResY: 1920" in ass
+
+
+def test_hook_card_and_finishing_pass(tmp_path):
+    import subprocess
+    from PIL import Image
+    import finish_video
+    from hook_card import make_hook_card
+    from pipeline_common import ffprobe_duration
+    card = Image.open(make_hook_card("Turkmenistan's hidden gate to hell!", str(tmp_path / "hook.png")))
+    assert card.size == (1080, 1920) and card.getbbox()[1] >= 100 and card.getbbox()[3] < 700
+    src = str(tmp_path / "v.mp4")
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi", "-i", "testsrc2=s=1080x1920:r=30",
+                    "-f", "lavfi", "-i", "sine=f=440:sample_rate=44100", "-t", "3", "-pix_fmt", "yuv420p",
+                    "-c:v", "libx264", "-preset", "ultrafast", "-c:a", "aac", src], check=True)
+    out = str(tmp_path / "out.mp4")
+    finish_video.finish(src, out)
+    assert abs(ffprobe_duration(out) - 3.0) < 0.2
+    top = str(tmp_path / "top.png")
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", "2.0", "-i", out, "-frames:v", "1", top], check=True)
+    bar = Image.open(top).convert("RGB")
+    assert bar.getpixel((200, 4))[0] > 200 and bar.getpixel((1060, 4)) != bar.getpixel((200, 4))  # filling
+
+
+def test_alternative_hooks_must_stay_inside_the_narration():
+    import improve_hook as ih
+    narration = "Turkmenistan's Darvaza crater has burned since 1971 in the Karakum Desert."
+    others = ["Iran", "Kazakhstan"]
+    assert ih.valid("WHY HAS THIS CRATER BURNED SINCE 1971?", narration, "Turkmenistan", others)
+    assert not ih.valid("A CRATER BURNING FOR 80 YEARS", narration, "Turkmenistan", others)   # invented number
+    assert not ih.valid("HOTTER THAN IRAN'S DESERTS?", narration, "Turkmenistan", others)    # another country
+    assert not ih.valid("X" * (ih.MAX_CHARS + 1), narration, "Turkmenistan", others)
+    assert not ih.valid("THE ONLY BURNING CRATER ON EARTH", narration, "Turkmenistan", others)  # claim word
+    assert not ih.valid("TURKMENISTAN'S SECRET CRATER", narration, "Turkmenistan", others)       # vague teaser
+
+
+def test_quality_gate_blocks_a_black_video(tmp_path):
+    import subprocess
+    import qa_video
+    black = str(tmp_path / "black.mp4")
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi", "-i", "color=c=black:s=1080x1920:r=30",
+                    "-f", "lavfi", "-i", "sine=f=300:sample_rate=44100", "-t", "3", "-pix_fmt", "yuv420p",
+                    "-c:v", "libx264", "-preset", "ultrafast", "-c:a", "aac", black], check=True)
+    block, _ = qa_video.check(black)
+    assert any("black screen" in b for b in block)
+    block, _ = qa_video.check(black, long_form=True)
+    assert any("frame size" in b for b in block)
+    navy = str(tmp_path / "navy.mp4")  # the dark design background is not "black screen"
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi", "-i", "color=c=0x101828:s=1080x1920:r=30",
+                    "-f", "lavfi", "-i", "sine=f=300:sample_rate=44100", "-t", "3", "-pix_fmt", "yuv420p",
+                    "-c:v", "libx264", "-preset", "ultrafast", "-c:a", "aac", navy], check=True)
+    assert qa_video.check(navy)[0] == []
+
+
+def test_feature_pins_only_land_on_the_country():
+    import motion_kit as mk
+    import feature_pins as fp
+    cam = mk.MapCamera((540, 960), [(-30, 85), (570, 85), (1175, 1175), (-635, 1175)], (270, 400))
+    chad = cam.mask("TD")[1.0]
+    assert fp.near_country(chad, 14.53, 13.10)          # Lake Chad, on the western border
+    assert not fp.near_country(chad, 2.35, 48.86)       # Paris: a same-named match elsewhere
+    assert not fp.pinnable("Chad", "Chad") and not fp.pinnable("Follow Us!", "Chad")
+    assert fp.pinnable("Tibesti Mountains", "Chad")
 
 
 def test_refresh_name_aliases_match_after_normalising():

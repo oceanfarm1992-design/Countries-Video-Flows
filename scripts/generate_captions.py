@@ -10,7 +10,9 @@ Fallback (even distribution): if Whisper is unavailable (no API key, network
 error), words are spread evenly across the voiceover duration. Accurate at the
 start but drifts by 1-2s toward the end due to natural TTS rhythm variation.
 
-Output: build/captions.srt
+Output: build/captions.srt, plus build/captions.ass -- the same timings as
+word-by-word highlight captions (see karaoke_captions.py), which the assembler
+burns in when present
 
 Usage:
     python scripts/generate_captions.py
@@ -23,6 +25,8 @@ import re
 import difflib
 import os
 import subprocess
+
+from karaoke_captions import build_ass, even_word_times
 
 OPENAI_AVAILABLE = False
 try:
@@ -193,6 +197,7 @@ def main():
             print(f"[generate_captions] only {share:.0%} of the script matched Whisper -- "
                   "showing Whisper's words instead")
         srt = build_srt_from_word_timestamps(word_times, args.words_per_cue)
+        ass = build_ass(word_times, args.words_per_cue)
         print(f"[generate_captions] wrote {args.out} via Whisper ({len(word_times)} words)")
         method = "whisper"
     except Exception as exc:
@@ -207,11 +212,14 @@ def main():
         else:
             print(f"[generate_captions] voiceover duration {duration:.1f}s")
         srt = build_srt_even(words, duration, args.words_per_cue)
+        ass = build_ass(even_word_times(words, duration), args.words_per_cue)
         method = "even"
 
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
     with open(args.out, "w", encoding="utf-8") as f:
         f.write(srt)
+    with open(os.path.splitext(args.out)[0] + ".ass", "w", encoding="utf-8") as f:
+        f.write(ass)
     if method != "whisper":
         print(f"[generate_captions] wrote {args.out} ({len(words)} words)")
 
