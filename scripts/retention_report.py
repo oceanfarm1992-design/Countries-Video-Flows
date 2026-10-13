@@ -132,7 +132,7 @@ def report(videos, start, end):
         lines += ["", f"## {heading}", "", "| Video | Series | Views | Opening hold | Avg % viewed |",
                   "|---|---|---|---|---|"]
         for v in chunk:
-            title = v["title"][:70].replace("|", r"|")  # a bare\|")  # a bare | splits the table cell
+            title = v["title"][:70].replace("|", "\\|")  # a bare | splits the table cell
             lines.append(f"| [{title}](https://youtu.be/{v['id']}) | {v['series']} | {v['views']} | "
                          f"{_fmt(v['open'], True)} | {_fmt(v['pct'])}% |")
     return "\n".join(lines) + "\n"
