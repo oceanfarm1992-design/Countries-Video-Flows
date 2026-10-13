@@ -351,6 +351,40 @@ def test_rankings_fallback_fits_the_word_budget_and_split_outro_is_repaired(monk
     assert len(segments) == 10 and segments[-1]["text"] == "Where does your country rank? Follow for more."
 
 
+def test_word_by_word_captions_highlight_the_spoken_word():
+    import karaoke_captions as kc
+    words = [{"word": w, "start": i * 0.5, "end": i * 0.5 + 0.4}
+             for i, w in enumerate("GDP of $40,430 per person".split())]
+    ass = kc.build_ass(words, 3)
+    events = [ln for ln in ass.splitlines() if ln.startswith("Dialogue:")]
+    assert len(events) == len(words)                       # one event per spoken word
+    assert kc.ACTIVE_ON + "GDP" in events[0] and kc.POP_IN in events[0]
+    assert kc.NUMBER_ON + "$40,430" in events[0]            # numbers stay highlighted
+    assert events[1].split(",", 3)[1] == "0:00:00.50"       # each word lights up on time
+    assert "PlayResY: 1920" in ass
+
+
+def test_hook_card_and_finishing_pass(tmp_path):
+    import subprocess
+    from PIL import Image
+    import finish_video
+    from hook_card import make_hook_card
+    from pipeline_common import ffprobe_duration
+    card = Image.open(make_hook_card("Turkmenistan's hidden gate to hell!", str(tmp_path / "hook.png")))
+    assert card.size == (1080, 1920) and card.getbbox()[1] >= 100 and card.getbbox()[3] < 700
+    src = str(tmp_path / "v.mp4")
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-f", "lavfi", "-i", "testsrc2=s=1080x1920:r=30",
+                    "-f", "lavfi", "-i", "sine=f=440:sample_rate=44100", "-t", "3", "-pix_fmt", "yuv420p",
+                    "-c:v", "libx264", "-preset", "ultrafast", "-c:a", "aac", src], check=True)
+    out = str(tmp_path / "out.mp4")
+    finish_video.finish(src, out)
+    assert abs(ffprobe_duration(out) - 3.0) < 0.2
+    top = str(tmp_path / "top.png")
+    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-ss", "2.0", "-i", out, "-frames:v", "1", top], check=True)
+    bar = Image.open(top).convert("RGB")
+    assert bar.getpixel((200, 4))[0] > 200 and bar.getpixel((1060, 4)) != bar.getpixel((200, 4))  # filling
+
+
 def test_refresh_name_aliases_match_after_normalising():
     import refresh_rankings_static as rr
     assert rr._norm("DR Congo") == rr._norm("Democratic Republic of the Congo")

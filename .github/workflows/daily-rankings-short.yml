@@ -198,6 +198,12 @@ jobs:
         if: steps.gate.outputs.skip == 'false'
         run: python scripts/assemble_video.py --config config/rankings_video.json --sfx build/sfx.wav $HOOK_FLAG
 
+      # Progress bar, seamless loop ending and -14 LUFS loudness; never fatal (the
+      # unfinished video is kept if anything fails).
+      - name: Finishing pass
+        if: steps.gate.outputs.skip == 'false'
+        run: python scripts/finish_video.py --video build/final.mp4
+
       # ---- publish ----
       - name: Publish video as release asset
         id: publish_asset

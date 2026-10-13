@@ -102,10 +102,14 @@ def build_audio_filter(has_music, duration, music_vol, voice_idx=1, music_idx=2)
     if not has_music:
         return voice + "[aout]"
     fade_out = max(0.0, duration - 2.0)
+    # Ducking: the voice keys a compressor on the music, so the bed dips under every
+    # line and swells back in the pauses -- the music can sit louder overall without
+    # ever competing with the words.
     return (
-        voice + "[va];"
-        f"[{music_idx}:a]volume={music_vol},afade=t=in:st=0:d=1.5,"
-        f"afade=t=out:st={fade_out:.2f}:d=2[mus];"
+        voice + ",asplit=2[va][vkey];"
+        f"[{music_idx}:a]volume={music_vol * DUCK_HEADROOM:.3f},afade=t=in:st=0:d=1.5,"
+        f"afade=t=out:st={fade_out:.2f}:d=2[mraw];"
+        "[mraw][vkey]sidechaincompress=threshold=0.02:ratio=8:attack=15:release=400[mus];"
         # duration=longest so the music plays the FULL video length (incl. the tail
         # after the voice ends) — duration=first cut the audio off at the voice length,
         # leaving a silent tail and an effectively inaudible bed. normalize=0 keeps the
@@ -161,9 +165,23 @@ def fontfile_escape(path):
 
 
 DEFAULT_ZOOM_MAX = 1.25
+DUCK_HEADROOM = 1.6   # music level between lines, relative to --music-volume (ducked under speech)
+HOOK_SECONDS = 4.0    # how long the opening hook card stays up
+STOCK_SOURCES = {"pexels", "pixabay", "archive", "wikimedia"}
+# Stock clips get an editor's touch: a 0.2 s zoom punch on every cut (pairs with the
+# whoosh), a slow push-in or pull-out across the clip, and one shared grade so clips
+# from different sources look like one film. Rendered graphics are left as designed.
+STOCK_GRADE = "eq=contrast=1.06:saturation=1.12,vignette=angle=PI/6"
 
 
-def build_video_filter(pieces, hook, cta, captions_path, duration):
+def _stock_motion(i, frames):
+    """zoompan expression: punch-in on the cut, then a slow push (even clips) or pull."""
+    punch = "0.10*max(0,1-on/6)"
+    drift = f"0.07*on/{frames}" if i % 2 == 0 else f"0.07-0.07*on/{frames}"
+    return f"1+{drift}+{punch}"
+
+
+def build_video_filter(pieces, hook, cta, captions_path, duration, hook_idx=None):
     """Build the video filtergraph for a montage of per-segment pieces (videos AND photos).
 
     Inputs 0..N-1 are the pieces in order. A video piece is trimmed to its beat's spoken
@@ -186,7 +204,7 @@ def build_video_filter(pieces, hook, cta, captions_path, duration):
     cta_e = wrap_drawtext(cta, 38)
     font_bold = fontfile_escape(FONT_BOLD)
     subs = captions_path.replace("\\", "/")
-    hook_end = 4.0
+    hook_end = HOOK_SECONDS
     cta_start = max(0.0, duration - 4.0)
 
     # Lower-third captions: Alignment=2 (bottom-centre); MarginV is measured up from the
@@ -214,6 +232,15 @@ def build_video_filter(pieces, hook, cta, captions_path, duration):
                 f"x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':s=1080x1920,"
                 f"trim=duration={d:.3f},setpts=PTS-STARTPTS,format=yuv420p[c{i}]"
             )
+        elif p.get("stock"):
+            frames = max(2, int(round(d * 30)))
+            parts.append(
+                f"[{i}:v]trim=duration={d:.3f},setpts=PTS-STARTPTS,fps=30,"
+                "scale=1296:2304:force_original_aspect_ratio=increase,crop=1296:2304,setsar=1,"
+                f"zoompan=z='{_stock_motion(i, frames)}':d=1:fps=30:s=1080x1920:"
+                "x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)',"
+                f"{STOCK_GRADE},format=yuv420p[c{i}]"
+            )
         else:
             parts.append(
                 f"[{i}:v]trim=duration={d:.3f},setpts=PTS-STARTPTS,"
@@ -225,17 +252,25 @@ def build_video_filter(pieces, hook, cta, captions_path, duration):
 
     # hook title card — fontsize=48 (down from 54) leaves headroom for 2-line wraps;
     # y=h*0.10 pushes it slightly higher so even a 2-line block clears the subject's face.
-    if hook:
+    if hook and hook_idx is not None:  # designed card (hook_card.py), faded in and out
+        parts.append(f"[{hook_idx}:v]format=rgba,{_card_fades(0.0, hook_end)}[hk]")
+        parts.append("[base][hk]overlay=0:0:eof_action=pass[v1]")
+    elif hook:
         parts.append(
             f"[base]drawtext=fontfile={font_bold}:text='{hook_e}':"
             "fontcolor=white:fontsize=48:line_spacing=8:"
             "box=1:boxcolor=black@0.5:boxborderw=24:"
             f"x=(w-text_w)/2:y=h*0.10:enable='between(t,0,{hook_end})'[v1]"
         )
-    else:  # the series renders its own animated title
+    else:  # the series renders its own animated title (or the hook sits on the intro)
         parts.append("[base]null[v1]")
-    # burned-in lower-third captions
-    parts.append(f"[v1]subtitles='{subs}':force_style='{caption_style}'[v2]")
+    # Word-by-word highlight captions (captions.ass) when generate_captions.py wrote
+    # them; the plain SRT style otherwise.
+    ass = os.path.splitext(captions_path)[0] + ".ass"
+    if os.path.exists(ass):
+        parts.append(f"[v1]subtitles='{ass.replace(chr(92), '/')}'[v2]")
+    else:
+        parts.append(f"[v1]subtitles='{subs}':force_style='{caption_style}'[v2]")
     # end-card CTA — wrapped so the full 45-char string fits on 2 lines within 1080px.
     # y=h*0.82 gives the 2-line card breathing room above the bottom edge.
     parts.append(
@@ -245,6 +280,11 @@ def build_video_filter(pieces, hook, cta, captions_path, duration):
         f"x=(w-text_w)/2:y=h*0.82:enable='gte(t,{cta_start:.2f})'[vout]"
     )
     return ";".join(parts)
+
+
+def _card_fades(start, end):
+    return (f"fade=t=in:st={start + 0.15:.2f}:d=0.3:alpha=1,"
+            f"fade=t=out:st={end - 0.35:.2f}:d=0.35:alpha=1")
 
 
 def find_segment_pieces(build_dir):
@@ -263,7 +303,7 @@ def find_segment_pieces(build_dir):
                 p = c.get("path")
                 if p:
                     pieces.append((os.path.join(build_dir, p), c.get("type", "video"),
-                                   c.get("zoom_max")))
+                                   c.get("zoom_max"), c.get("source") in STOCK_SOURCES))
             if pieces:
                 return pieces
         except Exception:  # noqa: BLE001 — fall back to globbing
@@ -276,7 +316,7 @@ def find_segment_pieces(build_dir):
         m = re.search(r"footage_clip(\d+)\.", path)
         return int(m.group(1)) if m else 0
 
-    return [(p, "photo" if p.endswith(".jpg") else "video", None)
+    return [(p, "photo" if p.endswith(".jpg") else "video", None, False)
             for p in sorted(found, key=idx)]
 
 
@@ -360,8 +400,8 @@ def main():
         # what we have so every beat still gets a visual
         piece_inputs = [found_pieces[i % len(found_pieces)] for i in range(len(durs))]
         pieces = []
-        for i, (_, t, zoom_max) in enumerate(piece_inputs):
-            piece = {"type": t, "dur": durs[i]}
+        for i, (_, t, zoom_max, stock) in enumerate(piece_inputs):
+            piece = {"type": t, "dur": durs[i], "stock": stock}
             if zoom_max is not None:
                 piece["zoom_max"] = zoom_max
             pieces.append(piece)
@@ -371,16 +411,31 @@ def main():
     else:
         # legacy single-clip path
         durs = [duration]
-        piece_inputs = [(args.footage, "video", None)]
+        piece_inputs = [(args.footage, "video", None, False)]
         pieces = [{"type": "video", "dur": duration}]
         print("[assemble_video] no per-segment pieces — single looped footage")
 
-    video_fc = build_video_filter(pieces, hook, cta, args.captions, duration)
+    use_intro = bool(args.intro) and os.path.exists(args.intro)
+    out_dir = os.path.dirname(args.out) or "."
+    hook_png = None
+    if hook:
+        try:
+            from hook_card import make_hook_card
+            hook_png = make_hook_card(hook, os.path.join(out_dir, "_hook_card.png"))
+        except Exception as exc:  # noqa: BLE001 -- the drawtext card is the fallback
+            print(f"[assemble_video] hook card failed ({exc}); using the plain title")
+    # With an intro, the hook goes on the very first second of the video (over the
+    # intro, see prepend_intro) -- not 5 s in, after the map flight.
+    montage_hook = "" if use_intro and hook_png else hook
     voice_idx = len(piece_inputs)
     music_idx = voice_idx + 1
+    use_sfx = bool(args.sfx) and os.path.exists(args.sfx)
+    hook_idx = None
+    if montage_hook and hook_png:
+        hook_idx = music_idx + (1 if music_path else 0) + (1 if use_sfx else 0)
+    video_fc = build_video_filter(pieces, montage_hook, cta, args.captions, duration, hook_idx)
     audio_fc = build_audio_filter(bool(music_path), duration, args.music_volume,
                                   voice_idx, music_idx)
-    use_sfx = bool(args.sfx) and os.path.exists(args.sfx)
     if use_sfx:
         sfx_idx = music_idx + 1 if music_path else music_idx
         assert audio_fc.endswith("[aout]")
@@ -390,12 +445,11 @@ def main():
     filter_complex = video_fc + ";" + audio_fc
 
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
-    use_intro = bool(args.intro) and os.path.exists(args.intro)
     # When an intro will be crossfaded in front, render the montage to a temp file first.
     montage_out = (os.path.splitext(args.out)[0] + ".montage.mp4") if use_intro else args.out
 
     cmd = ["ffmpeg", "-y"]
-    for path, ptype, _zoom_max in piece_inputs:
+    for path, ptype, _zoom_max, _stock in piece_inputs:
         if ptype == "photo":
             cmd += ["-loop", "1", "-i", path]          # still image, framed by zoompan
         else:
@@ -405,6 +459,8 @@ def main():
         cmd += ["-stream_loop", "-1", "-i", music_path]  # music (input music_idx)
     if use_sfx:
         cmd += ["-i", args.sfx]                          # sound effects (after music)
+    if hook_idx is not None:
+        cmd += ["-loop", "1", "-t", f"{HOOK_SECONDS:.2f}", "-i", hook_png]  # hook card (last)
     cmd += [
         "-filter_complex", filter_complex,
         "-map", "[vout]", "-map", "[aout]",
@@ -424,12 +480,13 @@ def main():
     if use_intro:
         intro_voice = os.path.join(os.path.dirname(args.out) or ".", "intro_voice.wav")
         prepend_intro(args.intro, montage_out, args.out, args.intro_xfade,
-                      intro_voice if os.path.exists(intro_voice) else None)
+                      intro_voice if os.path.exists(intro_voice) else None,
+                      hook_png if hook else None)
         os.remove(montage_out)
     print(f"[assemble_video] wrote {args.out}")
 
 
-def prepend_intro(intro, montage, out, xfade, intro_voice=None):
+def prepend_intro(intro, montage, out, xfade, intro_voice=None, hook_png=None):
     """Crossfade the globe intro into the montage. The montage's audio is delayed so the
     main voice starts once the intro finishes; if an intro voiceover is given ("Today we
     travel to X"), it plays over the globe so the opening isn't silent."""
@@ -445,12 +502,20 @@ def prepend_intro(intro, montage, out, xfade, intro_voice=None):
     inputs = ["-i", intro, "-i", montage]
     if intro_voice:
         inputs += ["-i", intro_voice]
+    hook_input = None
+    if hook_png:  # opening hook card over the first seconds of the video
+        hook_input = len(inputs) // 2
+        inputs += ["-loop", "1", "-t", f"{HOOK_SECONDS:.2f}", "-i", hook_png]
 
     vfc = (
         f"[0:v]fps=30,scale=1080:1920,setsar=1,format=yuv420p,settb=AVTB[iv];"
         f"[1:v]fps=30,scale=1080:1920,setsar=1,format=yuv420p,settb=AVTB[mv];"
-        f"[iv][mv]xfade=transition=fade:duration={xfade}:offset={voffset:.3f}[v]"
+        f"[iv][mv]xfade=transition=fade:duration={xfade}:offset={voffset:.3f}"
+        + ("[vx];" if hook_input is not None else "[v]")
     )
+    if hook_input is not None:
+        vfc += (f"[{hook_input}:v]format=rgba,{_card_fades(0.0, HOOK_SECONDS)},setpts=PTS-STARTPTS[hk];"
+                "[vx][hk]overlay=0:0:eof_action=pass,format=yuv420p[v]")
     if intro_voice:
         # intro VO starts ~0.3s in (over the globe). The montage's audio (voice +
         # music) must wait until that line actually finishes speaking -- NOT

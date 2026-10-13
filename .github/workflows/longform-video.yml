@@ -163,6 +163,11 @@ jobs:
         if: steps.gate.outputs.skip == 'false'
         run: python scripts/assemble_long_video.py --dir build/long --music build/long/music.mp3
 
+      # -14 LUFS loudness (YouTube draws its own progress bar on long-form); never fatal
+      - name: Finishing pass
+        if: steps.gate.outputs.skip == 'false'
+        run: python scripts/finish_video.py --video build/long/final.mp4 --long
+
       - name: Publish video as release asset
         id: publish_asset
         if: steps.gate.outputs.skip == 'false' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)

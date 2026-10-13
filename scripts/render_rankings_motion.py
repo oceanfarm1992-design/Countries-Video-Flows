@@ -26,7 +26,7 @@ import argparse
 import json
 import os
 
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFilter
 
 import motion_kit as mk
 from fetch_rankings_stats import format_value, year_range_label
@@ -110,6 +110,8 @@ def make_scene(kind, p):
         cy = sum(s[1] for s in shots) / len(shots) if shots else mk.SOURCE_H / 2
 
         lit = cam.bake([(iso, REVEALED_TINT, 0.6) for iso in isos])
+        one = next((r["iso2"] for r in p["rows"] if r["rank"] == 1), None)
+        tease = _silhouette(cam, one) if one and cam.has_mask(one) else None
 
         def scene(t):
             shot = (cx - 250 + 500 * mk.clamp(t / max(1.0, p["dur"])), cy, 6400)
@@ -131,6 +133,7 @@ def make_scene(kind, p):
             if b > 0:
                 mk.draw_text(frame, (W / 2, 880), p["source"], mk.font(34, 500),
                              mk.TEXT_DIM + (int(255 * b),), anchor="mm", shadow=0.5)
+            _tease(frame, t, tease)
             return frame
         return scene
 
@@ -193,6 +196,44 @@ def _revealed(iso2, alpha, flag_paths):
     have one, else the plain revealed tint."""
     flag = mk.load_flag(flag_paths.get(iso2))
     return (iso2, REVEALED_TINT, alpha, flag) if flag is not None else (iso2, REVEALED_TINT, alpha * 0.6)
+
+
+TEASE_BOX = 210   # silhouette fits in this square, centred at (540, 300)
+
+
+def _silhouette(cam, iso2):
+    """#1's outline as a dark mystery shape with a glowing edge -- the 'guess #1' tease
+    that gives viewers a reason to stay for the final reveal. None if the country is
+    too small to have a recognisable shape."""
+    x0, y0, x1, y1 = cam.mask(iso2)["bbox"]
+    if max(x1 - x0, y1 - y0) < 40:
+        return None
+    m = cam.mask(iso2)[1.0].crop((x0, y0, x1, y1))
+    k = TEASE_BOX / max(m.width, m.height)
+    m = m.resize((max(1, int(m.width * k)), max(1, int(m.height * k))), Image.LANCZOS)
+    pad = 24
+    glow = Image.new("RGBA", (m.width + 2 * pad, m.height + 2 * pad), mk.ACCENT + (0,))
+    edge = Image.new("L", glow.size, 0)
+    edge.paste(m, (pad, pad))
+    glow.putalpha(edge.filter(ImageFilter.GaussianBlur(9)).point(lambda v: min(255, v * 2)))
+    body = Image.new("RGBA", glow.size, (10, 14, 28, 0))
+    body.putalpha(edge)
+    glow.alpha_composite(body)
+    return glow
+
+
+def _tease(frame, t, shape):
+    """'Guess #1' block above the title: the mystery silhouette (if any) and the line."""
+    a = mk.ease_out(mk.phase(t, 1.4, 0.5))
+    if a <= 0:
+        return
+    if shape is not None:
+        s = 0.85 + 0.15 * mk.ease_back(mk.phase(t, 1.4, 0.5))
+        img = shape.resize((max(1, int(shape.width * s)), max(1, int(shape.height * s))), Image.BILINEAR)
+        frame.alpha_composite(mk.with_alpha(img, a), (int(540 - img.width / 2), int(300 - img.height / 2)))
+        mk.draw_text(frame, (540, 300), "?", mk.font(96, 900), mk.ACCENT + (int(255 * a),), anchor="mm")
+    mk.draw_text(frame, (540, 470), "CAN YOU GUESS #1?", mk.font(40, 800), mk.TEXT + (int(255 * a),),
+                 anchor="mm")
 
 
 def _card(frame, t, row, flag, p):
