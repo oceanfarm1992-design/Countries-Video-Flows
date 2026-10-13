@@ -328,6 +328,29 @@ def test_worst_of_countdowns_rotate_through_every_metric():
     assert "countries seen as the most corrupt" in narration and "by corruption" not in narration
 
 
+def test_rankings_fallback_fits_the_word_budget_and_split_outro_is_repaired(monkeypatch):
+    import json
+    import types
+    import generate_rankings_script as gr
+    from fetch_rankings_stats import load_metrics
+    metric = next(m for m in load_metrics("config/rankings_negative_metrics.json")["metrics"]
+                  if m["id"] == "most_polluted_air")
+    rows = [{"iso2": f"C{i}", "country_name": f"Countryland Number {i}", "value": 100 - i,
+             "rank": i + 1, "tied": False, "year_or_edition": "2023"} for i in range(8)]
+    assert len(gr._fallback_script(metric, rows, 130)[1].split()) <= 130
+    # GPT splitting the closing line into two empty-visual beats is merged, not rejected
+    beats = ([{"text": "Intro.", "visual": ""}] + [{"text": f"Row {r['iso2']}.", "visual": r["iso2"]} for r in rows]
+             + [{"text": "Where does your country rank?", "visual": ""}, {"text": "Follow for more.", "visual": ""}])
+    reply = types.SimpleNamespace(choices=[types.SimpleNamespace(message=types.SimpleNamespace(
+        content=json.dumps({"hook": "TOP 8", "segments": beats})))])
+    client = types.SimpleNamespace(chat=types.SimpleNamespace(completions=types.SimpleNamespace(
+        create=lambda **k: reply)))
+    monkeypatch.setenv("OPENAI_API_KEY", "test")
+    monkeypatch.setattr(gr, "OpenAI", lambda api_key: client, raising=False)
+    _, narration, segments = gr._gpt_script(metric, rows, {}, 80, 130)
+    assert len(segments) == 10 and segments[-1]["text"] == "Where does your country rank? Follow for more."
+
+
 def test_refresh_name_aliases_match_after_normalising():
     import refresh_rankings_static as rr
     assert rr._norm("DR Congo") == rr._norm("Democratic Republic of the Congo")

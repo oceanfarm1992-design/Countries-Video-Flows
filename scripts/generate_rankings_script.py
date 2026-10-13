@@ -95,13 +95,29 @@ RANK_PHRASES = [
     "Number {rank}: {country}, with a {label} of {value}.",
     "At number {rank}, {country} lands here with a {label} of {value}.",
 ]
+# Used when the full phrasing would run past the word budget (the cloned voice reads
+# a numbers-heavy countdown at ~1.45 words/s, and a cut-off narration loses #1).
+COMPACT_RANK_PHRASES = ["Number {rank}: {country}, at {value}."]
+COMPACT_TIED_RANK_PHRASES = ["Tied at number {rank}: {country}, at {value}."]
 TIED_RANK_PHRASES = [
     "Tied at number {rank} is {country}, with a {label} of {value}.",
     "Also at number {rank}: {country}, with a {label} of {value}.",
 ]
 
 
-def _fallback_script(metric, ranked):
+def _fallback_script(metric, ranked, max_words=None):
+    """Template narration; switches to compact row phrasing if the full one would
+    exceed max_words."""
+    hook, narration, segments = _template_script(metric, ranked, RANK_PHRASES, TIED_RANK_PHRASES)
+    for short_close in (False, True):  # compact rows, then also a bare call-to-action
+        if not max_words or len(narration.split()) <= max_words:
+            break
+        hook, narration, segments = _template_script(metric, ranked, COMPACT_RANK_PHRASES,
+                                                     COMPACT_TIED_RANK_PHRASES, short_close)
+    return hook, narration, segments
+
+
+def _template_script(metric, ranked, rank_phrases, tied_phrases, short_close=False):
     """Countdown from the weakest of the top N down to #1, one sentence per
     row, rotating through a small set of phrase templates for rhythm. Ties
     are spoken as ties (never invented into a false ordering -- see
@@ -134,7 +150,7 @@ def _fallback_script(metric, ranked):
     # goes from the weakest of the top N down to the true #1.
     for row in reversed(ranked):
         val = format_value(metric["unit"], row["value"])
-        phrases = TIED_RANK_PHRASES if row["tied"] else RANK_PHRASES
+        phrases = tied_phrases if row["tied"] else rank_phrases
         phrase = phrases[hash(row["iso2"]) % len(phrases)]
         text = phrase.format(rank=row["rank"], country=row["country_name"],
                               label=raw_label, value=val)
@@ -151,10 +167,8 @@ def _fallback_script(metric, ranked):
 
     closing = (f"Those are the {n} {metric['countdown_phrase']}." if metric.get("countdown_phrase")
                else f"That's our top {n} for {raw_label.lower()}.")
-    segments.append({
-        "text": f"{closing} Where does your country rank? Comment below and follow for more rankings.",
-        "visual": "",
-    })
+    cta = "Where does your country rank? Comment below and follow for more rankings."
+    segments.append({"text": cta if short_close else f"{closing} {cta}", "visual": ""})
     narration = " ".join(s["text"] for s in segments)
     return hook, narration, segments
 
@@ -301,6 +315,15 @@ def _gpt_script(metric, ranked, openai_cfg, min_words, max_words):
             segments.append({"text": text, "visual": visual})
     if not segments:
         raise RuntimeError("GPT returned no usable segments.")
+    # GPT sometimes splits the opening or closing line into two non-row beats; joining
+    # them only joins text (no number, rank or order changes), so repair that one case
+    # instead of discarding the whole narration.
+    while len(segments) > 2 and segments[-1]["visual"] == "" and segments[-2]["visual"] == "":
+        tail = segments.pop()
+        segments[-1] = {"text": f"{segments[-1]['text']} {tail['text']}", "visual": ""}
+    while len(segments) > 2 and segments[0]["visual"] == "" and segments[1]["visual"] == "":
+        head = segments.pop(0)
+        segments[0] = {"text": f"{head['text']} {segments[0]['text']}", "visual": ""}
 
     # render_rankings_graphics.py trusts each row beat's "visual" to identify
     # exactly one row in `ranked`, and trusts the FIRST and LAST segments to
@@ -413,31 +436,28 @@ def main():
 
     if OPENAI_AVAILABLE and api_key:
         print(f"[generate_rankings_script] calling OpenAI {openai_cfg.get('model', 'gpt-4o-mini')} ...")
-        try:
-            hook, narration, segments = _gpt_script(metric, ranked, openai_cfg, min_words, max_words)
-            ok, issues = verify_narration(narration, metric["label"], openai_cfg,
-                                          reference=reference_lines(metric, ranked))
-            if not ok:
-                print(f"[generate_rankings_script] fact-check flagged: {issues} -- regenerating once")
+        source = None
+        # Two attempts: a malformed shape or an API error now gets the same one retry
+        # a fact-check failure always had, before falling back to the template.
+        for attempt in (1, 2):
+            try:
                 hook, narration, segments = _gpt_script(metric, ranked, openai_cfg, min_words, max_words)
                 ok, issues = verify_narration(narration, metric["label"], openai_cfg,
-                                          reference=reference_lines(metric, ranked))
-                if not ok:
-                    print(f"[generate_rankings_script] fact-check flagged again: {issues} -- using fallback script")
-                    hook, narration, segments = _fallback_script(metric, ranked)
-                    source = "fallback"
-                else:
+                                              reference=reference_lines(metric, ranked))
+                if ok:
                     source = "openai"
-            else:
-                source = "openai"
-        except Exception as exc:
-            print(f"[generate_rankings_script] OpenAI error: {exc} -- using fallback script")
-            hook, narration, segments = _fallback_script(metric, ranked)
+                    break
+                print(f"[generate_rankings_script] fact-check flagged (attempt {attempt}): {issues}")
+            except Exception as exc:  # noqa: BLE001 -- any GPT failure falls through to the template
+                print(f"[generate_rankings_script] OpenAI error (attempt {attempt}): {exc}")
+        if source is None:
+            print("[generate_rankings_script] using fallback script")
+            hook, narration, segments = _fallback_script(metric, ranked, max_words)
             source = "fallback"
     else:
         reason = "openai library not installed" if not OPENAI_AVAILABLE else "OPENAI_API_KEY not set"
         print(f"[generate_rankings_script] {reason} -- using fallback script")
-        hook, narration, segments = _fallback_script(metric, ranked)
+        hook, narration, segments = _fallback_script(metric, ranked, max_words)
         source = "fallback"
 
     for seg in segments:
