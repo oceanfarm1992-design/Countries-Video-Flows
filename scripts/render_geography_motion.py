@@ -72,12 +72,15 @@ def make_scene(kind, p):
         f = Image.open(p["flag"]).convert("RGBA")
         flag = f.resize((96, max(1, int(96 * f.height / f.width))), Image.LANCZOS)
 
-    card = label_layer(p["label"], flag) if p["label"] else None  # drawn once per beat
+    # A beat that ends too soon after the hook banner leaves skips its card rather
+    # than flashing it for a few frames before the cut.
+    shown = p["label"] and p["card_at"] + 0.6 < p["dur"]
+    card = label_layer(p["label"], flag) if shown else None  # drawn once per beat
 
     def scene(t):
         k = min(1.0, (p["t0"] + t) / p["total"])
         frame = dolly(still, p["anchor"], k).convert("RGBA")
-        a = mk.ease_out(mk.phase(t, max(0.1, HOOK_END + 0.15 - p["start"]), 0.45))
+        a = mk.ease_out(mk.phase(t, p["card_at"], 0.45))
         if card is not None and a > 0:  # drops in from above while fading up
             dy = int(50 * (1 - a))
             frame.alpha_composite(mk.with_alpha(card.crop((0, dy, W, card.height)), a))
@@ -153,7 +156,8 @@ def main():
             clips.append(cutaways[i])
             continue
         out = os.path.join(args.out, f"footage_clip{i}.mp4")
-        payload = {"still": still_path, "anchor": anchor, "t0": t0, "total": total, "start": start,
+        payload = {"still": still_path, "anchor": anchor, "t0": t0, "total": total, "dur": dur,
+                   "card_at": max(0.1, HOOK_END + 0.15 - start),
                    "label": (seg.get("visual") or "").strip(), "flag": flag_path}
         jobs.append((out, dur + TAIL_PAD, ("map", payload)))
         clips.append({"source": "geography_motion", "query": seg.get("visual", ""), "source_url": "",

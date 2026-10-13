@@ -253,9 +253,10 @@ class MapCamera:
 
     def _fog(self, horizon):
         y = np.arange(self.h, dtype=float)
-        near = np.clip(1 - (y - horizon - 40) / 300, 0, 1) * 255
-        haze = np.clip(1 - (y - horizon - 300) / 900, 0, 1) ** 2 * 110
-        alpha = np.maximum(np.where(y < horizon + 340, near, 0), haze).astype(np.uint8)
+        u = self.ui
+        near = np.clip(1 - (y - horizon - 40 * u) / (300 * u), 0, 1) * 255
+        haze = np.clip(1 - (y - horizon - 300 * u) / (900 * u), 0, 1) ** 2 * 110
+        alpha = np.maximum(np.where(y < horizon + 340 * u, near, 0), haze).astype(np.uint8)
         layer = Image.new("RGBA", (self.w, self.h), SKY_BOT + (0,))
         layer.putalpha(Image.fromarray(np.repeat(alpha[:, None], self.w, axis=1)))
         return layer

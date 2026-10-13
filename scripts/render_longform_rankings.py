@@ -258,7 +258,7 @@ def main():
         img.save(os.path.join(args.out, overlay))
         bg_path = os.path.join(args.out, f"bg_{i:03d}.mp4")
         bg = None
-        if visual not in by_iso:
+        if visual not in by_iso and not args.no_footage:
             # Opening/closing tables: the ranked countries in their flags on the 3D map.
             # Rendered past the spoken estimate so the assembler never loops it.
             seconds = estimate_seconds([seg]) * 1.35 + 6
