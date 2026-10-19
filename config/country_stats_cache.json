@@ -2325,22 +2325,22 @@
     "year": 2024
   },
   "KW:income": {
-    "fetched_at": 1789981622.5897655,
+    "fetched_at": 1792385942.6337795,
     "value": 41110.0,
     "year": 2024
   },
   "KW:life_expectancy": {
-    "fetched_at": 1789983104.8324792,
+    "fetched_at": 1792385942.6337795,
     "value": 84.580487804878,
     "year": 2024
   },
   "KW:literacy": {
-    "fetched_at": 1789981622.5897655,
+    "fetched_at": 1792385942.6337795,
     "value": 96.4599990844727,
     "year": 2020
   },
   "KW:population": {
-    "fetched_at": 1789983104.8324792,
+    "fetched_at": 1792385942.6337795,
     "value": 4897263.0,
     "year": 2024
   },
@@ -2950,22 +2950,22 @@
     "year": 2024
   },
   "MU:income": {
-    "fetched_at": 1789982553.0530236,
+    "fetched_at": 1792385841.1778622,
     "value": 12960.0,
     "year": 2024
   },
   "MU:life_expectancy": {
-    "fetched_at": 1789982553.0530236,
+    "fetched_at": 1792385841.1778622,
     "value": 73.7890243902439,
     "year": 2024
   },
   "MU:literacy": {
-    "fetched_at": 1789982553.0530236,
+    "fetched_at": 1792385841.1778622,
     "value": 94.2877776512134,
     "year": 2023
   },
   "MU:population": {
-    "fetched_at": 1789982553.0530236,
+    "fetched_at": 1792385841.1778622,
     "value": 1245779.0,
     "year": 2024
   },
