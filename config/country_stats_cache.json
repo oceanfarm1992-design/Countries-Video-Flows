@@ -2370,27 +2370,27 @@
     "year": 2024
   },
   "LA:gdp_per_capita": {
-    "fetched_at": 1789983106.1171243,
+    "fetched_at": 1792544709.9992366,
     "value": 2123.97909415109,
     "year": 2024
   },
   "LA:income": {
-    "fetched_at": 1789983106.1171243,
+    "fetched_at": 1792544709.9992366,
     "value": 2000.0,
     "year": 2024
   },
   "LA:life_expectancy": {
-    "fetched_at": 1789983106.1171243,
+    "fetched_at": 1792544709.9992366,
     "value": 69.225,
     "year": 2024
   },
   "LA:literacy": {
-    "fetched_at": 1789983106.1171243,
+    "fetched_at": 1792544709.9992366,
     "value": 75.6399993896484,
     "year": 2023
   },
   "LA:population": {
-    "fetched_at": 1789983106.1171243,
+    "fetched_at": 1792544709.9992366,
     "value": 7769819.0,
     "year": 2024
   },
@@ -2770,27 +2770,27 @@
     "year": 2024
   },
   "MH:gdp_per_capita": {
-    "fetched_at": 1789982511.0051136,
+    "fetched_at": 1792544711.8001413,
     "value": 7590.28443592202,
     "year": 2024
   },
   "MH:income": {
-    "fetched_at": 1789982511.0051136,
+    "fetched_at": 1792544711.8001413,
     "value": 8510.0,
     "year": 2024
   },
   "MH:life_expectancy": {
-    "fetched_at": 1789982511.0051136,
+    "fetched_at": 1792544711.8001413,
     "value": 67.075,
     "year": 2024
   },
   "MH:literacy": {
-    "fetched_at": 1789982511.0051136,
+    "fetched_at": 1792544711.8001413,
     "value": 95.7629302411191,
     "year": 2021
   },
   "MH:population": {
-    "fetched_at": 1789982511.0051136,
+    "fetched_at": 1792544711.8001413,
     "value": 37548.0,
     "year": 2024
   },
