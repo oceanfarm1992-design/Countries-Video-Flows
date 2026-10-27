@@ -31,7 +31,9 @@ currently reports, not what it reported over a month ago). A cache hit is
 only trusted without a network call within CACHE_FRESH_HOURS (same-day
 reuse across this run's two lookups); after that, a live call is always
 attempted first, and only a failed live call after retries falls back to
-the cached value (however old), rather than dropping the metric entirely.
+the cached value, but only if it is at most CACHE_MAX_AGE_DAYS old; beyond that
+the metric is omitted rather than shown from a stale snapshot. The year filter ends
+at the current year, so a newly published World Bank year is used automatically.
 
 Usage:
     python scripts/fetch_country_stats.py JP BR
@@ -42,12 +44,22 @@ import sys
 import time
 import urllib.error
 import urllib.request
+from datetime import datetime, timezone
 
 WB_BASE = "https://api.worldbank.org/v2/country"
-DATE_RANGE = "2003:2024"
+DATE_START = 2003
 CACHE_PATH = "config/country_stats_cache.json"
 CACHE_FRESH_HOURS = 12  # reuse without a network call only within the same run-day
+CACHE_MAX_AGE_DAYS = 30  # stale-fallback ceiling -- beyond this a cached value is treated as no data
 REQUEST_TIMEOUT = 15
+
+
+def _date_range(now=None):
+    """World Bank `date` filter, ending at the current year so a newly published year is
+    picked up automatically. The API returns null for years it has no value for yet, and
+    _fetch_indicator_live already skips nulls, so asking for the current year is safe."""
+    year = (now or datetime.now(timezone.utc)).year
+    return f"{DATE_START}:{year}"
 
 # (key, World Bank indicator code, display label, unit)
 INDICATORS = [
@@ -86,7 +98,7 @@ def _save_cache(cache):
 
 def _fetch_indicator_live(iso2, code):
     """Return (value, year) for the most recent non-null reading, or None."""
-    url = f"{WB_BASE}/{iso2.lower()}/indicator/{code}?format=json&per_page=100&date={DATE_RANGE}"
+    url = f"{WB_BASE}/{iso2.lower()}/indicator/{code}?format=json&per_page=100&date={_date_range()}"
     req = urllib.request.Request(url, headers=HEADERS)
     with urllib.request.urlopen(req, timeout=REQUEST_TIMEOUT) as resp:
         payload = json.load(resp)
@@ -129,9 +141,16 @@ def get_stats(iso2, use_cache=True):
             except (urllib.error.URLError, TimeoutError, ValueError, OSError) as exc:
                 last_exc = exc
         if last_exc is not None:
-            print(f"[fetch_country_stats] {iso2} {key} live fetch failed ({last_exc}) "
-                  f"-- {'using stale cache' if entry else 'no cached value, skipping'}")
-            result = (entry["value"], entry["year"]) if entry and entry.get("value") is not None else None
+            usable = (entry and entry.get("value") is not None
+                      and (now - entry.get("fetched_at", 0)) <= CACHE_MAX_AGE_DAYS * 86400)
+            if usable:
+                msg = "using cached value"
+            elif entry and entry.get("value") is not None:
+                msg = f"cached value is older than {CACHE_MAX_AGE_DAYS} days, skipping"
+            else:
+                msg = "no cached value, skipping"
+            print(f"[fetch_country_stats] {iso2} {key} live fetch failed ({last_exc}) -- {msg}")
+            result = (entry["value"], entry["year"]) if usable else None
         else:
             cache[cache_key] = {
                 "value": result[0] if result else None,
