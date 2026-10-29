@@ -6,9 +6,9 @@ name: daily-rankings-short
 # Democracy Index, Corruption Perceptions Index, ...) -- see
 # config/rankings_metrics.json for the full ~19-metric registry and
 # scripts/generate_rankings_script.py / scripts/render_rankings_graphics.py.
-# One video per day, walking a fixed rotation through the metric registry.
-# Own dedicated schedule, posting to the same channels, additive to the
-# other series' posting volume.
+# One video per post, walking a fixed rotation through the metric registry.
+# Since 2026-10-30 it posts every third day, taking turns with the comparison
+# and rotating workflows (daily_variation.SHORT_CYCLE) for one Short a day.
 #
 # Same "don't require an exact hour match" gate design as the other per-
 # series workflows (GitHub's scheduler starts cron runs late and silently
@@ -69,6 +69,7 @@ jobs:
           import hashlib, json, os, subprocess, sys
           sys.path.insert(0, "scripts")
           from datetime import date, datetime, timezone
+          from daily_variation import is_short_turn, short_series_for
 
           EPOCH = date(2026, 7, 23)
           CANDIDATE_HOURS = [4, 5, 6]  # 08:00-10:59 Dubai
@@ -100,6 +101,8 @@ jobs:
 
           if force:
               skip, reason = False, "force_run=true"
+          elif not is_short_turn("rankings", day_number):
+              skip, reason = True, f"not the rankings turn today ({short_series_for(day_number)} posts today)"
           elif not read_ok:
               skip, reason = True, "could not read releases -- failing closed"
           elif already_posted:

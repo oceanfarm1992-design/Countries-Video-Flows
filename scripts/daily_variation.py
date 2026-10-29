@@ -21,12 +21,43 @@ from datetime import date
 # Pipeline epoch — same reference date the generators already use for rotation.
 EPOCH = date(2026, 7, 23)
 
-# One video per day, cycling through all six series in a fixed 6-day order so
-# every series posts once every 6 days (was 2/day across a 5-day pairing table;
-# reduced 2026-10-03 to cut posting volume).
+# One video per rotating turn, cycling through all six series in a fixed order so
+# every series posts once every 6 turns (was 2/day across a 5-day pairing table;
+# reduced 2026-10-03 to cut posting volume). Since 2026-10-30 the rotating workflow
+# posts every third day (see SHORT_CYCLE), so that is once every 18 days.
 # "worst": a worst-of countdown (most polluted air, most corrupt, ...) built with the
 # rankings pipeline from config/rankings_negative_metrics.json.
 SERIES_CYCLE = ["country", "hook", "trending", "geography", "worlddata", "worst"]
+
+# One Short per day across the three Short workflows (reduced 2026-10-30 from one
+# each per day): from SHORT_CYCLE_START, day N belongs to
+# SHORT_CYCLE[(N - SHORT_CYCLE_START) % 3] and the other two workflows skip.
+SHORT_CYCLE = ["comparison", "rankings", "rotating"]
+SHORT_CYCLE_START = 99  # 2026-10-30
+
+
+def short_series_for(day_number):
+    """Which Short workflow posts on this day (every one of them, before the switch)."""
+    if day_number < SHORT_CYCLE_START:
+        return None
+    return SHORT_CYCLE[(day_number - SHORT_CYCLE_START) % len(SHORT_CYCLE)]
+
+
+def is_short_turn(series, day_number):
+    turn = short_series_for(day_number)
+    return turn is None or turn == series
+
+
+def series_day(day_number):
+    """The day number the Short series rotate by. Their own rotations (metric, pair,
+    sub-series, country) were built for one post per day, so after the switch they
+    advance one step per post of that series: each post continues from the
+    series' last day-numbered pick instead of jumping three, and series cycling
+    by day_number % k don't get stuck on the subset that lands on their turns."""
+    if day_number < SHORT_CYCLE_START:
+        return day_number
+    return SHORT_CYCLE_START + (day_number - SHORT_CYCLE_START) // len(SHORT_CYCLE)
+
 
 # Country rotation for the single-country series. Each posts once every
 # len(SERIES_CYCLE) days, and indexing the 196 countries by the day number on those
@@ -39,7 +70,7 @@ ROTATION_OFFSET = 70
 
 def rotation_index(day_number):
     """One step per post of a series (not per calendar day)."""
-    return day_number // len(SERIES_CYCLE) + ROTATION_OFFSET
+    return series_day(day_number) // len(SERIES_CYCLE) + ROTATION_OFFSET
 
 # Target-hour lane (UTC) for the single daily slot: 15:00-17:59 Dubai. Stays
 # well before UTC midnight: GitHub often starts late ticks after 00:00 UTC,
@@ -72,7 +103,7 @@ def profiles_for(day_number):
     """Return today's single deterministic slot profile, as a one-element list
     (kept as a list so callers that iterate over "today's slots" don't need a
     separate single-slot code path)."""
-    series = SERIES_CYCLE[day_number % len(SERIES_CYCLE)]
+    series = SERIES_CYCLE[series_day(day_number) % len(SERIES_CYCLE)]
     hour = SLOT_HOURS[_seed(day_number, "hour") % len(SLOT_HOURS)]
     word_band = WORD_BANDS[_seed(day_number, "words") % len(WORD_BANDS)]
     return [{
@@ -91,6 +122,10 @@ if __name__ == "__main__":
     # Quick visibility: print the next 9 days' rotation for sanity-checking.
     base = day_number_for()
     for d in range(base, base + 9):
+        turn = short_series_for(d)
+        if turn not in (None, "rotating"):
+            print(f"day {d}: {turn} Short (no rotating post)")
+            continue
         for p in profiles_for(d):
             print(f"day {d} slot {p['slot']}: series={p['series']:9} hour={p['hour']:02d}:00 UTC "
                   f"words={p['min_words']}-{p['max_words']}")

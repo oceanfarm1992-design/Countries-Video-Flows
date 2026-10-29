@@ -1,11 +1,12 @@
 name: longform-video
 
-# One 8+ minute 16:9 video roughly every 2 days (YouTube + Facebook), rotating formats
+# One 8+ minute 16:9 video roughly every 3 days (YouTube + Facebook), rotating formats
 # A (top-20 ranking explained) -> B (bar-chart race) -> D (weekly recap). Only A is
 # built so far; until B and D exist, their turns fall back to A.
 #
-# Due whenever 40+ hours have passed since the last long-form post, from the day's
-# target hour (11:00-13:59 Dubai) until 23:00 Dubai. Not fixed even days: GitHub drops
+# Due whenever 64+ hours have passed since the last long-form post (40h, for every 2
+# days, until 2026-10-30), from the day's target hour (11:00-13:59 Dubai) until
+# 23:00 Dubai. Not fixed even days: GitHub drops
 # most scheduled ticks, and on 2026-10-03 the only tick inside a narrow evening window
 # was blocked by the spacing rule, so nothing posted and the slot wasn't retried. Now a
 # missed day carries over, and two ticks per hour double the chances of a surviving run.
@@ -17,7 +18,7 @@ on:
   workflow_dispatch:
     inputs:
       force_run:
-        description: "Skip the gate (40h rule, hour window, spacing)"
+        description: "Skip the gate (64h rule, hour window, spacing)"
         type: boolean
         default: false
       dry_run:
@@ -64,7 +65,7 @@ jobs:
           EPOCH = date(2026, 7, 23)
           LANE = [7, 8, 9]             # target start, 11:00-13:59 Dubai
           LAST_START_HOUR = 19         # a ~40-min build started later lands in the 23:50 Dubai quiet hours
-          MIN_HOURS_BETWEEN = 40
+          MIN_HOURS_BETWEEN = 64
           FORMATS = ["A", "B", "D"]
           BUILT = {"A"}
 
@@ -191,7 +192,7 @@ jobs:
         run: |
           TAG="longform-${FORMAT}-$(date -u +%Y%m%d-%H%M%S)"
           gh release create "$TAG" build/long/final.mp4 \
-            --title "$TAG" --notes "Automated long-form video (format $FORMAT, every 2 days)" --latest=false
+            --title "$TAG" --notes "Automated long-form video (format $FORMAT, every 3 days)" --latest=false
           echo "video_url=https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/final.mp4" >> "$GITHUB_OUTPUT"
 
       - name: Post to Facebook (Buffer, regular video)

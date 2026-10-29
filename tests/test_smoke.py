@@ -566,3 +566,34 @@ def test_comparison_rejects_gpt_beats_that_dont_match_the_stats(monkeypatch):
     import pytest
     with pytest.raises(RuntimeError, match="don't match"):
         comparison._gpt_script("A", "B", rows, {}, 10, 200)
+
+
+def test_one_short_per_day_after_the_switch():
+    import daily_variation as dv
+    start = dv.SHORT_CYCLE_START
+    for day in range(start - 3, start):
+        assert all(dv.is_short_turn(s, day) for s in dv.SHORT_CYCLE)
+    for day in range(start, start + 300):
+        assert sum(dv.is_short_turn(s, day) for s in dv.SHORT_CYCLE) == 1
+
+
+def test_short_rotations_advance_one_step_per_post_across_the_switch():
+    import daily_variation as dv
+    start = dv.SHORT_CYCLE_START
+    for series in dv.SHORT_CYCLE:
+        turns = [d for d in range(start - 6, start + 300) if dv.is_short_turn(series, d)]
+        steps = [dv.series_day(d) for d in turns]
+        # consecutive posts take consecutive rotation steps: nothing skipped or repeated
+        assert steps == list(range(steps[0], steps[0] + len(steps)))
+    rotating_days = [d for d in range(start, start + 300) if dv.is_short_turn("rotating", d)]
+    # every sub-series still airs, not just the two whose day_number % 6 lands on the turns
+    assert {dv.profiles_for(d)[0]["series"] for d in rotating_days[:6]} == set(dv.SERIES_CYCLE)
+    # the first rotating post after the switch continues the cycle from the day before
+    last_old = dv.profiles_for(start - 1)[0]["series"]
+    first_new = dv.profiles_for(rotating_days[0])[0]["series"]
+    i = dv.SERIES_CYCLE.index(last_old)
+    assert first_new == dv.SERIES_CYCLE[(i + 1) % len(dv.SERIES_CYCLE)]
+    # each single-country series moves on to a new country every time it airs
+    country_days = [d for d in rotating_days if dv.profiles_for(d)[0]["series"] == "country"]
+    idx = [dv.rotation_index(d) for d in country_days]
+    assert idx == list(range(idx[0], idx[0] + len(idx)))

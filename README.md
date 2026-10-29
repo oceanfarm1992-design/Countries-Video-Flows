@@ -6,24 +6,27 @@ Actions. Narration uses the channel owner's cloned voice (StyleTTS2).
 
 ## Series
 
-| Workflow | Series | Posts/day |
+| Workflow | Series | Posts |
 |---|---|---|
-| `daily-rotating-short.yml` | Rotates 5 single-country series: `country`, `hook`, `trending`, `geography`, `worlddata` (1 per day, cycled by `scripts/daily_variation.py`, each series once every 5 days) | 1 |
-| `daily-comparison-short.yml` | Country vs country, real World Bank stats | 1 |
-| `daily-rankings-short.yml` | Top-8 countdown of one metric (live World Bank data + curated indices in `config/rankings_static.json`) | 1 |
+| `daily-comparison-short.yml` | Country vs country, real World Bank stats | 1 every 3 days |
+| `daily-rankings-short.yml` | Top-8 countdown of one metric (live World Bank data + curated indices in `config/rankings_static.json`) | 1 every 3 days |
+| `daily-rotating-short.yml` | Rotates 6 series: `country`, `hook`, `trending`, `geography`, `worlddata`, `worst` (cycled by `scripts/daily_variation.py`, each series once every 6 rotating turns) | 1 every 3 days |
 | `ci.yml` | Installs pinned deps and runs `tests/`; gates Dependabot auto-merge | - |
-| `longform-video.yml` | 8+ min 16:9 video every 2 days on YouTube + Facebook, rotating A (top-20 ranking explained), B (bar-chart race), D (weekly recap). Only A is built so far; B/D days fall back to A | 1 every 2 days |
+| `longform-video.yml` | 8+ min 16:9 video every 3 days on YouTube + Facebook, rotating A (top-20 ranking explained), B (bar-chart race), D (weekly recap). Only A is built so far; B/D days fall back to A | 1 every 3 days |
 
-Reduced 2026-10-03 from 5 videos/day (rotating + comparison at 2/day each) to 3/day.
+One Short a day: the three Short workflows take turns, comparison, rankings, then rotating
+(`SHORT_CYCLE` in `scripts/daily_variation.py`), and each series' own rotation advances
+one step per post. Reduced 2026-10-30 from 3 Shorts/day plus a long video every 2 days;
+before 2026-10-03 it was 5 Shorts/day.
 
 ## Schedule
 
 Each video workflow ticks hourly, but GitHub drops or delays many scheduled runs, so the
-gate step posts a slot once its target hour has passed and it isn't posted yet. Each slot
-has its own target-hour lane (Dubai time): comparison 04-07, rankings 08-11, rotating
-15-18. `scripts/post_gate.py` also requires at least 100 minutes between any two posts,
-waits while another video workflow is mid-build, and blocks posting from 23:50 to 01:00
-Dubai.
+gate step posts a slot once its target hour has passed and it isn't posted yet. On days
+that aren't its turn, a Short workflow skips. Each series keeps its own target-hour lane
+(Dubai time): comparison 04-07, rankings 08-11, rotating 15-18. `scripts/post_gate.py`
+also requires at least 100 minutes between any two posts, waits while another video
+workflow is mid-build, and blocks posting from 23:50 to 01:00 Dubai.
 
 ## Long-form (format A)
 

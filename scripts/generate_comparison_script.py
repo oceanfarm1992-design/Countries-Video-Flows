@@ -46,7 +46,7 @@ import textwrap
 from datetime import date
 
 from captions_common import write_platform_captions
-from daily_variation import day_number_for
+from daily_variation import day_number_for, series_day
 from fact_check import verify_narration
 from fetch_country_stats import COMPARABLE_METRICS, INDICATORS, format_value, get_stats
 
@@ -384,7 +384,8 @@ def main():
         # Pairs already posted are skipped: a data-sparse pair makes the walk
         # borrow the NEXT position, which the next run would otherwise post
         # again (South Korea vs Chile aired twice on 2026-09-27 this way).
-        base_index = day_number + args.slot
+        # One position per comparison post (every third day since 2026-10-30).
+        base_index = series_day(day_number) + args.slot
         aired = aired_pairs()
         rows = None
         position = base_index
