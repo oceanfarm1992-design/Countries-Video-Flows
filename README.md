@@ -91,11 +91,11 @@ Output of a local build lands in `build/` (`build/final.mp4`).
 
 ## Maintenance
 
-- `config/rankings_static.json` holds the curated indices. On the 1st of each month
-  `refresh-rankings-data.yml` re-reads their source pages, pushes any changes to a
-  `data-refresh/<date>` branch and opens an issue listing every changed number with a
-  link to the exact source revision. Check the numbers, then open the pull request from the
-  link in the issue. Global Firepower (military strength) isn't covered and stays manual;
+- `config/rankings_static.json` holds the curated indices. Every 3 days (the 1st, 4th,
+  7th, ... of each month) `refresh-rankings-data.yml` re-reads their source pages, pushes
+  any changes to a `data-refresh/<date>` branch and opens an issue listing every changed
+  number with a link to the exact source revision; a new issue closes earlier open ones as
+  superseded. Check the numbers, then open the pull request from the link in the issue. Global Firepower (military strength) isn't covered and stays manual;
   runs log a warning once `_last_refreshed` is over 400 days old.
 - `config/rankings_metrics.json` and `config/countries.json` drive date-based rotations,
   so only append to them. Appending still moves the hook and geography offsets by one and

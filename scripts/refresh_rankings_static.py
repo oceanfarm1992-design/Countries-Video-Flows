@@ -2,7 +2,7 @@
 """
 Proposes updates to config/rankings_static.json from the same Wikipedia pages the
 curated snapshot was originally read from (each block's source_url). It never
-publishes anything itself: the monthly workflow pushes the result to a branch and
+publishes anything itself: the scheduled workflow pushes the result to a branch and
 opens an issue so a person reviews every new number before it can reach a video.
 
 Each source is parsed from the page's rendered HTML table (rowspans expanded, so
