@@ -158,7 +158,8 @@ jobs:
             METRIC_ARGS="--metric-id $METRIC_ID"
           fi
           python scripts/generate_rankings_script.py \
-            --config config/countries.json --video-config config/rankings_video.json $METRIC_ARGS
+            --config config/countries.json --video-config config/rankings_video.json \
+            --history logs/history_rankings.csv $METRIC_ARGS
 
       - name: Generate TTS voiceover
         if: steps.gate.outputs.skip == 'false'
@@ -291,7 +292,9 @@ jobs:
           DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           SCRIPT_TITLE=$(python -c "import json;d=json.load(open('build/script.json'));print(d.get('name','unknown'))" 2>/dev/null || echo "unknown")
           IDENT=$(python -c "import json;print(json.load(open('build/footage.json'))['identifier'])" 2>/dev/null || echo "unknown")
-          echo "${DATE},\"${SCRIPT_TITLE}\",${IDENT},${{ steps.post_buffer.outcome }},${{ steps.post_youtube.outcome }}" >> logs/history_rankings.csv
+          # 6th column: the ranking's data fingerprint, so an unchanged curated ranking isn't posted again
+          FP=$(python -c "import json;print(json.load(open('build/script.json')).get('data_fingerprint',''))" 2>/dev/null || echo "")
+          echo "${DATE},\"${SCRIPT_TITLE}\",${IDENT},${{ steps.post_buffer.outcome }},${{ steps.post_youtube.outcome }},${FP}" >> logs/history_rankings.csv
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add logs/history_rankings.csv config/rankings_stats_cache.json

@@ -8,11 +8,12 @@ scripts/fetch_rankings_stats.py for how each metric's numbers are sourced
 (live World Bank API or a curated static snapshot) -- numbers are NEVER
 invented, same rule every other series in this project already follows.
 
-Rotation: one metric posts per day, walking a fixed order through the metric
-registry (metrics_cfg["metrics"], index = day_number % len(metrics)) so a
-re-run of the same day always regenerates the same metric. Own dedicated
-1-video/day schedule (.github/workflows/daily-rankings-short.yml), separate
-from both the 5-day single-country rotation and the comparison series.
+Rotation: one metric per post, walking a fixed order through the metric
+registry (metrics_cfg["metrics"], index = series_day % len(metrics)) so a
+re-run of the same day always regenerates the same metric. With --history, a
+metric that posted in the last MIN_REPEAT_DAYS days is skipped, and so is a
+curated (static) ranking whose numbers are exactly the ones it already posted
+(those indices change once a year, so a repeat would be the same video).
 
 Requires:
     OPENAI_API_KEY environment variable (optional -- falls back to a template
@@ -30,9 +31,12 @@ Usage:
     python scripts/generate_rankings_script.py --metric-id hdi
 """
 import argparse
+import csv
+import hashlib
 import json
 import os
 import textwrap
+from datetime import date, datetime
 
 from captions_common import write_platform_captions
 from daily_variation import day_number_for, series_day
@@ -42,7 +46,8 @@ from fetch_rankings_stats import format_value, get_ranked, load_metrics, year_ra
 # How many data-sparse metrics to skip forward past before giving up (see the
 # fallback loop in main()) -- comfortably more than expected, since most
 # metrics comfortably clear min_entries (see config/rankings_metrics.json).
-MAX_METRIC_ATTEMPTS = 5
+MAX_METRIC_ATTEMPTS = 5  # data-sparse metrics tried before giving up
+MIN_REPEAT_DAYS = 90
 
 OPENAI_AVAILABLE = False
 try:
@@ -50,6 +55,46 @@ try:
     OPENAI_AVAILABLE = True
 except ImportError:
     pass
+
+
+def data_fingerprint(ranked):
+    """Short hash of a ranking's rows, logged with each post so an unchanged
+    curated ranking isn't posted again."""
+    key = ";".join(f"{r['iso2']}={r['value']}" for r in ranked)
+    return hashlib.sha256(key.encode("utf-8")).hexdigest()[:12]
+
+
+def aired_rankings(path):
+    """[(date, metric_id, fingerprint or None)] for history rows that posted to
+    at least one platform (a run that failed everywhere never reached viewers)."""
+    aired = []
+    if not path or not os.path.exists(path):
+        return aired
+    with open(path, encoding="utf-8", newline="") as fh:
+        for row in csv.reader(fh):
+            if len(row) < 5 or "success" not in row[3:5]:
+                continue
+            try:
+                when = datetime.fromisoformat(row[0].replace("Z", "+00:00")).date()
+            except ValueError:
+                continue
+            aired.append((when, row[2], row[5] if len(row) > 5 and row[5] else None))
+    return aired
+
+
+def recent_repeat(metric_id, aired, today, min_days=MIN_REPEAT_DAYS):
+    """The date this metric last posted, if that was under min_days ago."""
+    dates = [when for when, mid, _ in aired if mid == metric_id and (today - when).days < min_days]
+    return max(dates) if dates else None
+
+
+def same_data_repeat(metric, ranked, aired):
+    """The date this exact curated ranking already posted, if it did."""
+    if metric["source_type"] != "static":
+        return None
+    fp = data_fingerprint(ranked)
+    dates = [when for when, mid, f in aired if mid == metric["id"] and f == fp]
+    return max(dates) if dates else None
 
 
 def pick_metric_id(metrics_cfg, day_number, step=1):
@@ -402,6 +447,8 @@ def main():
     ap.add_argument("--rotation-step", type=int, default=1,
                     help="Days between this series' posts (6 for the rotating worst-of day), "
                          "so the metric rotation advances once per post.")
+    ap.add_argument("--history", default="",
+                    help="This series' history CSV: skip recent and unchanged repeats (blank = off).")
     args = ap.parse_args()
 
     with open(args.config, encoding="utf-8") as fh:
@@ -437,28 +484,49 @@ def main():
         # walk forward through the fixed rotation (deterministic per day,
         # same fallback every time) rather than fail the day's post, same
         # pattern generate_comparison_script.py uses for data-sparse pairs.
-        metric = None
-        ranked = None
-        for attempt in range(MAX_METRIC_ATTEMPTS):
+        # Repeats are skipped too (see the module docstring); if every metric is a
+        # repeat, the first one with enough data posts anyway rather than nothing.
+        aired = aired_rankings(args.history)
+        today = date.today()
+        metric = ranked = fallback = None
+        sparse = 0
+        for attempt in range(len(metrics)):
             # series_day: one step per post of the series running this (every third
             # day since 2026-10-30, for the daily rankings and the rotating worst-of).
             candidate_id = pick_metric_id(metrics_cfg, series_day(day_number) + attempt * args.rotation_step,
                                           args.rotation_step)
             candidate = ids_by_metric[candidate_id]
+            recent = recent_repeat(candidate_id, aired, today)
+            if recent and fallback:  # no need to fetch it: a fallback is already in hand
+                print(f"[generate_rankings_script] {candidate['label']} posted {recent} -- skipping")
+                continue
             print(f"[generate_rankings_script] fetching ranking for {candidate['label']} ...")
             candidate_ranked = get_ranked(candidate["id"], countries, metrics_cfg=metrics_cfg)
-            if len(candidate_ranked) >= min_entries:
-                metric, ranked = candidate, candidate_ranked
-                if attempt:
-                    print(f"[generate_rankings_script] skipped {attempt} data-sparse metric(s) "
-                          f"before landing on {metric['label']}")
-                break
-            print(f"[generate_rankings_script] only {len(candidate_ranked)} countries for "
-                  f"{candidate['label']} -- trying the next scheduled metric")
+            if len(candidate_ranked) < min_entries:
+                print(f"[generate_rankings_script] only {len(candidate_ranked)} countries for "
+                      f"{candidate['label']} -- trying the next scheduled metric")
+                sparse += 1
+                if sparse >= MAX_METRIC_ATTEMPTS:
+                    break
+                continue
+            repeat = recent or same_data_repeat(candidate, candidate_ranked, aired)
+            if repeat:
+                why = "posted" if recent else "same numbers already posted"
+                print(f"[generate_rankings_script] {candidate['label']}: {why} {repeat} -- skipping")
+                fallback = fallback or (candidate, candidate_ranked)
+                continue
+            metric, ranked = candidate, candidate_ranked
+            if attempt:
+                print(f"[generate_rankings_script] skipped {attempt} metric(s) "
+                      f"before landing on {metric['label']}")
+            break
+        if metric is None and fallback:
+            metric, ranked = fallback
+            print(f"[generate_rankings_script] every metric is a repeat -- posting {metric['label']} anyway")
         if metric is None:
             raise SystemExit(
-                f"Could not find a metric with >= {min_entries} countries in "
-                f"{MAX_METRIC_ATTEMPTS} attempts starting from day {day_number}.")
+                f"Could not find a metric with >= {min_entries} countries "
+                f"(starting from day {day_number}).")
 
     openai_cfg = config.get("openai", {})
     api_key = os.environ.get("OPENAI_API_KEY", "").strip()
@@ -511,6 +579,7 @@ def main():
         "series": "rankings",
         "metric": metric,
         "ranked": ranked,
+        "data_fingerprint": data_fingerprint(ranked),
         "year_range": year_range_label(ranked),
         "day_number": day_number,
         "variant_seed": seed,

@@ -339,6 +339,10 @@ def format_value(unit, value):
         return f"{value:.1f} t"
     if unit == "km2":
         return f"{value:,.0f} km²"
+    if unit == "per_km2":
+        return f"{value:,.0f} people/km²"
+    if unit == "births":
+        return f"{value:.2f} births per woman"
     if unit == "count":
         if value >= 1_000_000_000:
             return f"{value / 1_000_000_000:.2f}B"

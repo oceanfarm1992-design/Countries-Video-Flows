@@ -56,6 +56,11 @@ anything under 8:00.
 6. A row is appended to `logs/history_<series>.csv`:
    date, title, identifier, Buffer outcome, YouTube outcome.
 
+Repeats: a rankings Short skips any metric it posted in the last 90 days, and a curated
+index whose Top 8 is exactly what it already posted (the data fingerprint is the 6th
+column of `logs/history_rankings.csv`); if everything is a repeat it posts the first
+one anyway. A long-form metric doesn't come back within 45 days.
+
 Numbers are never invented: every figure comes from a live fetch or a curated snapshot
 with a named source. Ties use competition ranking, and stale live data is dropped.
 

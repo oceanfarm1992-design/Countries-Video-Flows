@@ -90,6 +90,8 @@ SPOKEN_UNITS = [
     (r"(\d)M\b", r"\1 million"),
     (r"(\d)K\b", r"\1 thousand"),
     (r"\byrs\b", "years"),
+    (r"/km²", " per square kilometre"),
+    (r"\bper km²", "per square kilometre"),
     (r"km²", "square kilometres"),
     (r"(\d) t\b", r"\1 tonnes"),
     (r"#(\d+)", r"number \1"),
