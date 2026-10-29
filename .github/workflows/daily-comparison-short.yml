@@ -4,8 +4,9 @@ name: daily-comparison-short
 # rotating-short.yml: two countries side by side, compared across real World
 # Bank statistics (GDP per capita, income, literacy, population, life
 # expectancy) in an on-screen table -- see scripts/generate_comparison_script.py
-# and scripts/render_comparison_motion.py. Own dedicated 1-video/day
-# schedule (reduced 2026-10-03 from 2/day), posting to the same channels.
+# and scripts/render_comparison_motion.py. One video every third day since
+# 2026-10-30 (was 1/day, 2/day before 2026-10-03), taking turns with the
+# rankings and rotating workflows (daily_variation.SHORT_CYCLE).
 #
 # Same "don't require an exact hour match" gate design as daily-rotating-
 # short.yml (GitHub's scheduler starts cron runs late and silently drops
@@ -69,6 +70,7 @@ jobs:
           import hashlib, json, os, subprocess, sys
           sys.path.insert(0, "scripts")
           from datetime import date, datetime, timezone
+          from daily_variation import is_short_turn, short_series_for
 
           EPOCH = date(2026, 7, 23)
           LANE_A = [0, 1, 2]  # 04:00-06:59 Dubai
@@ -101,6 +103,8 @@ jobs:
 
           if force:
               pick, skip, reason = (slots[posted_count] if posted_count < len(slots) else slots[0]), False, "force_run=true"
+          elif not is_short_turn("comparison", day_number):
+              pick, skip, reason = None, True, f"not the comparison turn today ({short_series_for(day_number)} posts today)"
           elif not read_ok:
               pick, skip, reason = None, True, "could not read releases -- failing closed"
           else:

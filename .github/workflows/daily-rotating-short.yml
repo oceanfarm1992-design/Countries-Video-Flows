@@ -1,8 +1,9 @@
 name: daily-rotating-short
 
-# One-video-per-day pipeline. Each day posts one of the six series (see
-# daily_variation.py's SERIES_CYCLE) — over any 6-day window every series posts
-# exactly once. (Reduced 2026-10-03 from 2/day to cut OpenAI/posting volume.)
+# Posts every third day since 2026-10-30, taking turns with the comparison and
+# rankings workflows (daily_variation.SHORT_CYCLE) for one Short a day. Each turn
+# posts one of the six series (see daily_variation.py's SERIES_CYCLE) — over any
+# 6 turns every series posts exactly once. (Was 1/day, 2/day before 2026-10-03.)
 # The "worst" day is a worst-of countdown (most polluted air, most corrupt, ...)
 # built with the rankings pipeline (3D countdown, no country intro).
 # The day's narration length, hashtag set, and target post hour rotate
@@ -82,10 +83,11 @@ jobs:
           import json, os, subprocess, sys
           from datetime import datetime, timezone
           sys.path.insert(0, "scripts")
-          from daily_variation import profiles_for, day_number_for
+          from daily_variation import profiles_for, day_number_for, is_short_turn, short_series_for
 
           now = datetime.now(timezone.utc)
-          slots = profiles_for(day_number_for(now.date()))
+          day_number = day_number_for(now.date())
+          slots = profiles_for(day_number)
           force = os.environ.get("FORCE_RUN", "").lower() == "true"
 
           # Posting creates a release tagged rotating-<series>-YYYYMMDD-HHMMSS (UTC).
@@ -116,6 +118,8 @@ jobs:
               pick, skip, reason = (remaining[0] if remaining else slots[0]), False, "force_run=true"
               if os.environ.get("SERIES_OVERRIDE"):
                   pick = dict(pick, series=os.environ["SERIES_OVERRIDE"])
+          elif not is_short_turn("rotating", day_number):
+              pick, skip, reason = None, True, f"not the rotating turn today ({short_series_for(day_number)} posts today)"
           elif not read_ok:
               pick, skip, reason = None, True, "could not read releases — failing closed"
           else:

@@ -35,7 +35,7 @@ import os
 import textwrap
 
 from captions_common import write_platform_captions
-from daily_variation import day_number_for
+from daily_variation import day_number_for, series_day
 from fact_check import verify_narration
 from fetch_rankings_stats import format_value, get_ranked, load_metrics, year_range_label
 
@@ -440,7 +440,9 @@ def main():
         metric = None
         ranked = None
         for attempt in range(MAX_METRIC_ATTEMPTS):
-            candidate_id = pick_metric_id(metrics_cfg, day_number + attempt * args.rotation_step,
+            # series_day: one step per post of the series running this (every third
+            # day since 2026-10-30, for the daily rankings and the rotating worst-of).
+            candidate_id = pick_metric_id(metrics_cfg, series_day(day_number) + attempt * args.rotation_step,
                                           args.rotation_step)
             candidate = ids_by_metric[candidate_id]
             print(f"[generate_rankings_script] fetching ranking for {candidate['label']} ...")
