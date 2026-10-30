@@ -9,7 +9,8 @@ is given; the whole script is then fact-checked against those same lines, and a
 template built purely from the data is used if GPT fails or is rejected.
 
 Metric choice: walks the metric registry after the last long-form metric, skipping
-any metric a rankings Short covered in the past week.
+any metric a rankings Short covered in the past week or a long-form video covered in
+the past LONG_MIN_REPEAT_DAYS days.
 
 Output: <out>/script.json (segments with visual + chapter), <out>/caption_facebook.txt
 
@@ -48,6 +49,7 @@ MIN_EST_SECONDS = 540
 LONG_HISTORY = "logs/history_longform.csv"
 SHORTS_HISTORY = "logs/history_rankings.csv"
 SHORTS_RECENT_DAYS = 7
+LONG_MIN_REPEAT_DAYS = 45  # a metric's long-form video doesn't come back sooner than this
 # Units where "X% of the leader's figure" is meaningful (amounts, not rates or scores).
 RATIO_UNITS = {"usd", "usd_big", "count", "km2", "tonnes"}
 # Units whose change is better stated in points than as a percentage.
@@ -90,7 +92,10 @@ def pick_metric(metrics_cfg, countries, forced=None):
         start = next((i + 1 for i, m in enumerate(metrics) if used and m["id"] == used[-1]), 0)
         order = metrics[start:] + metrics[:start]
         recent = set(_history_ids(SHORTS_HISTORY, since=date.today() - timedelta(days=SHORTS_RECENT_DAYS)))
-        order = [m for m in order if m["id"] not in recent] or order
+        recent_long = set(_history_ids(LONG_HISTORY, since=date.today() - timedelta(days=LONG_MIN_REPEAT_DAYS),
+                                       fmt="A"))
+        order = ([m for m in order if m["id"] not in recent | recent_long]
+                 or [m for m in order if m["id"] not in recent_long] or order)
     for metric in order:
         ranked = get_ranked(metric["id"], countries, top_n=TOP_N, metrics_cfg=metrics_cfg)
         if len(ranked) >= MIN_ENTRIES:

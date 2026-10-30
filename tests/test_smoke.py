@@ -597,3 +597,43 @@ def test_short_rotations_advance_one_step_per_post_across_the_switch():
     country_days = [d for d in rotating_days if dv.profiles_for(d)[0]["series"] == "country"]
     idx = [dv.rotation_index(d) for d in country_days]
     assert idx == list(range(idx[0], idx[0] + len(idx)))
+
+
+def test_every_rankings_metric_is_well_formed():
+    cfg = load_metrics()
+    ids = [m["id"] for m in cfg["metrics"]]
+    assert len(ids) == len(set(ids))
+    for m in cfg["metrics"]:
+        assert format_value(m["unit"], 12.34567) != "12.34567"  # a known unit, not the raw fallback
+        if m["source_type"] == "live":
+            assert m["wb_indicator"] and m["sort_direction"] in ("asc", "desc")
+    assert format_value("per_km2", 26150.3) == "26,150 people/km²"
+    assert format_value("births", 6.126) == "6.13 births per woman"
+    from generate_tts import apply_pronunciation_fixups
+    assert apply_pronunciation_fixups("26,150 people/km²") == "26,150 people per square kilometre"
+
+
+def test_rankings_skip_recent_and_unchanged_repeats(tmp_path):
+    from datetime import date
+    cfg = load_metrics()
+    hdi = next(m for m in cfg["metrics"] if m["id"] == "hdi")
+    ranked = get_ranked("hdi", _countries(), metrics_cfg=cfg)
+    fp = rankings.data_fingerprint(ranked)
+    log = tmp_path / "history.csv"
+    log.write_text(
+        f'2026-01-10T06:00:00Z,"Top 8 Countries by Human Development Index",hdi,success,success,{fp}\n'
+        '2026-10-20T06:00:00Z,"Top 8 Countries by Population",population,success,failure\n'
+        '2026-10-21T06:00:00Z,"Top 8 Countries by GDP (Nominal)",gdp_nominal,failure,failure\n'
+        '2026-10-22T06:00:00Z,"Top 8 Countries by GDP (PPP)",gdp_ppp,success,success\n',
+        encoding="utf-8")
+    aired = rankings.aired_rankings(str(log))
+    today = date(2026, 10, 30)
+    assert rankings.recent_repeat("population", aired, today) == date(2026, 10, 20)
+    assert rankings.recent_repeat("gdp_nominal", aired, today) is None  # never reached viewers
+    assert rankings.recent_repeat("gdp_ppp", aired, date(2027, 2, 1)) is None  # 90+ days later
+    # a curated index long past the 90 days still doesn't repeat with the same numbers ...
+    assert rankings.recent_repeat("hdi", aired, today) is None
+    assert rankings.same_data_repeat(hdi, ranked, aired) == date(2026, 1, 10)
+    # ... but does once its numbers change
+    changed = [dict(ranked[0], value=0.999)] + ranked[1:]
+    assert rankings.same_data_repeat(hdi, changed, aired) is None
