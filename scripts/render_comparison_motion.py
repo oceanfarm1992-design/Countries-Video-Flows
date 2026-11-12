@@ -285,6 +285,8 @@ def main():
     ap.add_argument("--out", default="build")
     ap.add_argument("--audio", default="build/voice.wav")
     ap.add_argument("--processes", type=int, default=None)
+    ap.add_argument("--classic-tagline", action="store_true",
+                    help="Opening A/B test (opening_variant.py): the tagline from before the upgrade.")
     args = ap.parse_args()
 
     with open(args.script, encoding="utf-8") as fh:
@@ -307,7 +309,8 @@ def main():
     base = {"a": {"name": a["name"], "iso2": a["iso2"]}, "b": {"name": b["name"], "iso2": b["iso2"]},
             "flags": flags, "subtitle": subtitle.upper(),
             # a question in the first seconds: viewers who pick a side stay for the verdict
-            "tagline": f"WHO WINS? PICK A SIDE  ·  {len(rows)} STATS"}
+            "tagline": (f"{len(rows)} STATS COMPARED  ·  WORLD BANK DATA" if args.classic_tagline
+                        else f"WHO WINS? PICK A SIDE  ·  {len(rows)} STATS")}
     by_label = {r["label"].strip().lower(): r for r in rows}
     scored = set()
 

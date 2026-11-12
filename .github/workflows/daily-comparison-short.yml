@@ -150,6 +150,20 @@ jobs:
           pip install torch==2.8.0+cpu torchaudio==2.8.0+cpu --index-url https://download.pytorch.org/whl/cpu
           pip install -r requirements.txt
 
+      # Opening A/B test (scripts/opening_variant.py): this series alternates post by post
+      # between the new opening and the classic one; everything else is identical.
+      - name: Pick the opening (A/B test)
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          OPENING=$(python scripts/opening_variant.py pick --series "comparison")
+          echo "OPENING=$OPENING" >> "$GITHUB_ENV"
+          if [ "$OPENING" = "classic" ]; then
+            echo "OPENING_FLAG=--classic-opening" >> "$GITHUB_ENV"
+            echo "TEASE_FLAG=--no-tease" >> "$GITHUB_ENV"
+            echo "TAGLINE_FLAG=--classic-tagline" >> "$GITHUB_ENV"
+          fi
+          echo "opening variant: $OPENING"
+
       # ---- content pipeline ----
       - name: Generate comparison script (2 countries, real World Bank stats)
         if: steps.gate.outputs.skip == 'false'
@@ -186,7 +200,7 @@ jobs:
         # Falls back to the previous static renderer if the motion render fails; that
         # renderer relies on the hook title card, so HOOK_FLAG is only set on success.
         run: |
-          if python scripts/render_comparison_motion.py --video-config config/comparison_video.json; then
+          if python scripts/render_comparison_motion.py --video-config config/comparison_video.json $TAGLINE_FLAG; then
             echo "HOOK_FLAG=--no-hook" >> "$GITHUB_ENV"
           else
             echo "::warning::motion render failed -- using the static renderer"
@@ -305,7 +319,8 @@ jobs:
           echo "${DATE},\"${SCRIPT_TITLE}\",${IDENT},${{ steps.post_buffer.outcome }},${{ steps.post_youtube.outcome }}" >> logs/history_comparison.csv
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add logs/history_comparison.csv config/country_stats_cache.json
+          python scripts/opening_variant.py log --series "comparison" --variant "${OPENING:-new}" || true
+          git add logs/history_comparison.csv config/country_stats_cache.json logs/opening_variants.csv
           git commit -m "log: comparison run ${DATE} (${IDENT})" || echo "nothing to commit"
           for i in 1 2 3; do
             git pull --rebase && git push && break || sleep $((i * 5))

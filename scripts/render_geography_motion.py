@@ -151,6 +151,9 @@ def main():
     ap.add_argument("--out", default="build")
     ap.add_argument("--audio", default="build/voice.wav")
     ap.add_argument("--processes", type=int, default=None)
+    ap.add_argument("--hook-wait", type=float, default=HOOK_END,
+                    help="Seconds the first label waits for a hook drawn over the body "
+                         "(4 for the classic opening of the A/B test, opening_variant.py).")
     args = ap.parse_args()
 
     with open(args.script, encoding="utf-8") as fh:
@@ -185,7 +188,7 @@ def main():
             continue
         out = os.path.join(args.out, f"footage_clip{i}.mp4")
         payload = {"still": still_path, "anchor": anchor, "t0": t0, "total": total, "dur": dur,
-                   "card_at": max(0.1, HOOK_END + 0.15 - start), "pin": pin_at.get(i),
+                   "card_at": max(0.1, args.hook_wait + 0.15 - start), "pin": pin_at.get(i),
                    "label": (seg.get("visual") or "").strip(), "flag": flag_path}
         jobs.append((out, dur + TAIL_PAD, ("map", payload)))
         clips.append({"source": "geography_motion", "query": seg.get("visual", ""), "source_url": "",

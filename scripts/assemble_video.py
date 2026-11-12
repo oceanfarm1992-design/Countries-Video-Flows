@@ -343,6 +343,9 @@ def main():
                     help="Folder of background-music tracks (optional; picks one by date).")
     ap.add_argument("--music-volume", type=float, default=0.15,
                     help="Background music level, 0..1 (voice stays at full).")
+    ap.add_argument("--classic-opening", action="store_true",
+                    help="Opening A/B test (opening_variant.py): plain hook text over the first "
+                         "seconds of the montage, as before the editing upgrade -- no hook card.")
     ap.add_argument("--no-hook", action="store_true",
                     help="Skip the hook title card (for series whose graphics carry their own title).")
     ap.add_argument("--sfx", default=None,
@@ -426,7 +429,7 @@ def main():
     use_intro = bool(args.intro) and os.path.exists(args.intro)
     out_dir = os.path.dirname(args.out) or "."
     hook_png = None
-    if hook:
+    if hook and not args.classic_opening:
         try:
             from hook_card import make_hook_card
             hook_png = make_hook_card(hook, os.path.join(out_dir, "_hook_card.png"))

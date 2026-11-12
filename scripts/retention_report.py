@@ -24,6 +24,8 @@ import sys
 import time
 from datetime import date, timedelta
 
+from opening_variant import variants_by_date
+
 WINDOW_DAYS = 28
 # Eras for the before/after table: what changed when, so a drop can be pinned to its cause.
 ERAS = [("2026-09-15", "before the editing upgrade"),
@@ -136,18 +138,41 @@ def collect_eras(analytics, youtube, end):
         for v in youtube.videos().list(part="snippet,contentDetails", id=",".join(ids[i:i + 50])).execute()["items"]:
             meta[v["id"]] = (v["snippet"]["title"], _iso_seconds(v["contentDetails"]["duration"]),
                              v["snippet"]["publishedAt"][:10])
-    groups = {}
+    groups, ab = {}, {}
+    variants = variants_by_date()   # opening A/B test: which opening each day's Short used
+
+    def add(bucket, key, views, pct, secs):
+        g = bucket.setdefault(key, {"videos": 0, "views": 0, "pct_w": 0.0, "secs_w": 0.0})
+        g["videos"] += 1
+        g["views"] += int(views)
+        g["pct_w"] += pct * int(views)       # view-weighted, so a 3-view video can't swing it
+        g["secs_w"] += secs * int(views)
+
     for vid, views, pct, secs in rows:
         title, length, published = meta.get(vid, ("", 0, ""))
         era = _era(published) if published else None
         if era is None or not views:
             continue
-        g = groups.setdefault((series_of(title, length), era), {"videos": 0, "views": 0, "pct_w": 0.0, "secs_w": 0.0})
-        g["videos"] += 1
-        g["views"] += int(views)
-        g["pct_w"] += pct * int(views)       # view-weighted, so a 3-view video can't swing it
-        g["secs_w"] += secs * int(views)
-    return groups
+        series = series_of(title, length)
+        add(groups, (series, era), views, pct, secs)
+        if series != "long-form" and published in variants:
+            add(ab, (series, variants[published]), views, pct, secs)
+    return {"eras": groups, "ab": ab}
+
+
+def ab_table(ab):
+    lines = ["", "## Opening A/B test: new vs classic opening (since 2026-11-13)", "",
+             "Each series alternates post by post; only the opening differs. Judge on several videos "
+             "per side, not one.", "",
+             "| Series | Opening | Videos | Views/video | Avg % viewed | Avg seconds watched |",
+             "|---|---|---|---|---|---|"]
+    for series in sorted({k[0] for k in ab}):
+        for variant in ("new", "classic"):
+            g = ab.get((series, variant))
+            if g:
+                lines.append(f"| {series} | {variant} | {g['videos']} | {g['views'] / g['videos']:.0f} | "
+                             f"{g['pct_w'] / g['views']:.0f}% | {g['secs_w'] / g['views']:.0f} |")
+    return "\n".join(lines)
 
 
 def eras_table(groups):
@@ -197,8 +222,10 @@ def report(videos, start, end, eras=None):
             title = v["title"][:70].replace("|", "\\|")  # a bare | splits the table cell
             lines.append(f"| [{title}](https://youtu.be/{v['id']}) | {v['series']} | {v['views']} | "
                          f"{_fmt(v['open'], True)} | {_fmt(v['pct'])}% |")
-    if eras:
-        lines.append(eras_table(eras))
+    if eras and eras.get("eras"):
+        lines.append(eras_table(eras["eras"]))
+    if eras and eras.get("ab"):
+        lines.append(ab_table(eras["ab"]))
     return "\n".join(lines) + "\n"
 
 

@@ -112,6 +112,7 @@ def make_scene(kind, p):
         lit = cam.bake([(iso, REVEALED_TINT, 0.6) for iso in isos])
         one = next((r["iso2"] for r in p["rows"] if r["rank"] == 1), None)
         tease = _silhouette(cam, one) if one and cam.has_mask(one) else None
+        show_tease = p.get("tease", True)  # opening A/B test: off for the classic opening
 
         def scene(t):
             shot = (cx - 250 + 500 * mk.clamp(t / max(1.0, p["dur"])), cy, 6400)
@@ -133,7 +134,8 @@ def make_scene(kind, p):
             if b > 0:
                 mk.draw_text(frame, (W / 2, 880), p["source"], mk.font(34, 500),
                              mk.TEXT_DIM + (int(255 * b),), anchor="mm", shadow=0.5)
-            _tease(frame, t, tease)
+            if show_tease:
+                _tease(frame, t, tease)
             return frame
         return scene
 
@@ -302,6 +304,8 @@ def main():
     ap.add_argument("--out", default="build")
     ap.add_argument("--audio", default="build/voice.wav")
     ap.add_argument("--processes", type=int, default=None)
+    ap.add_argument("--no-tease", action="store_true",
+                    help="Opening A/B test (opening_variant.py): no 'Can you guess #1?' tease.")
     args = ap.parse_args()
 
     with open(args.script, encoding="utf-8") as fh:
@@ -360,7 +364,7 @@ def main():
                 prev_shot = cam.shot_for(visual, pad=2.9)
         elif i == 0:
             kind = "intro"
-            payload = {"rows": rows, "title": title, "dur": dur,
+            payload = {"rows": rows, "title": title, "dur": dur, "tease": not args.no_tease,
                        "source": f"{ranked[0]['source_label']}" + (f"  ·  {year_range}" if year_range else "")}
             events.append((0.45, mk.sfx_pop()))
         else:
