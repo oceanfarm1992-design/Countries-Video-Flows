@@ -637,3 +637,11 @@ def test_rankings_skip_recent_and_unchanged_repeats(tmp_path):
     # ... but does once its numbers change
     changed = [dict(ranked[0], value=0.999)] + ranked[1:]
     assert rankings.same_data_repeat(hdi, changed, aired) is None
+
+
+def test_comparison_pairs_are_fair_matchups():
+    import generate_comparison_script as g
+    v = lambda x: {"gdp_per_capita": {"value": x}}  # noqa: E731
+    assert g.balanced(v(6751), v(5074))            # similar wealth: a real contest
+    assert not g.balanced(v(2500), v(48000))       # very poor vs very rich: skipped
+    assert not g.balanced({}, v(5000))             # unknown wealth: never paired blind

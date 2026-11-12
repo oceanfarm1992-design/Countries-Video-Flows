@@ -83,6 +83,10 @@ MAX_PAIR_ATTEMPTS = 20
 # count as attempts, so this bounds the loop if the log ever covers a long run).
 MAX_SCHEDULE_SCAN = 5000
 HISTORY_LOG = "logs/history_comparison.csv"
+# Fair match-ups only (user request 2026-11-12): a very poor country against a very rich
+# one is a foregone, unfair contest. Both countries' GDP per person must be within this
+# ratio of each other (e.g. $6.7k vs $5.1k fine; $2.5k vs $48k skipped).
+MAX_WEALTH_RATIO = 3.0
 
 
 def aired_pairs(path=HISTORY_LOG):
@@ -145,6 +149,16 @@ def pick_pair_at(countries, global_index):
     if _seed(global_index, "side") % 2 == 1:
         idx_a, idx_b = idx_b, idx_a
     return idx_a, idx_b
+
+
+def balanced(stats_a, stats_b):
+    """True when the two countries are in a similar wealth bracket (GDP per person,
+    else income per person, within MAX_WEALTH_RATIO). Unknown wealth -> not paired."""
+    for key in ("gdp_per_capita", "income"):
+        a, b = stats_a.get(key, {}).get("value"), stats_b.get(key, {}).get("value")
+        if a and b and a > 0 and b > 0:
+            return max(a, b) / min(a, b) <= MAX_WEALTH_RATIO
+    return False
 
 
 def build_rows(stats_a, stats_b):
@@ -400,6 +414,10 @@ def main():
             name_a, name_b = country_a["name"], country_b["name"]
             print(f"[generate_comparison_script] fetching stats for {name_a} and {name_b} ...")
             stats_a, stats_b = get_stats(country_a["iso2"]), get_stats(country_b["iso2"])
+            if not balanced(stats_a, stats_b):
+                attempt -= 1  # a mismatch isn't a data problem; keep walking the schedule
+                print(f"[generate_comparison_script] {name_a} vs {name_b}: wealth too far apart -- skipping")
+                continue
             candidate_rows = build_rows(stats_a, stats_b)
             if len(candidate_rows) >= MIN_ROWS:
                 rows = candidate_rows
