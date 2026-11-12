@@ -151,6 +151,19 @@ def pick_pair_at(countries, global_index):
     return idx_a, idx_b
 
 
+def wealth_table(countries):
+    """{iso2: GDP per person} for every country from ONE bulk World Bank request
+    (cached), so checking a pair's balance costs nothing -- fetching each candidate's
+    full stats live took 20+ minutes when the schedule walked past many mismatches."""
+    try:
+        from fetch_rankings_stats import _get_live_values
+        values = _get_live_values("NY.GDP.PCAP.CD", known_iso2={c["iso2"] for c in countries})
+        return {iso: v["value"] for iso, v in values.items() if v.get("value")}
+    except Exception as exc:  # noqa: BLE001 -- fall back to the per-pair stats check
+        print(f"[generate_comparison_script] wealth table unavailable ({exc}) -- checking pairs one by one")
+        return {}
+
+
 def balanced(stats_a, stats_b):
     """True when the two countries are in a similar wealth bracket (GDP per person,
     else income per person, within MAX_WEALTH_RATIO). Unknown wealth -> not paired."""
@@ -401,6 +414,7 @@ def main():
         # One position per comparison post (every third day since 2026-10-30).
         base_index = series_day(day_number) + args.slot
         aired = aired_pairs()
+        wealth = wealth_table(countries)
         rows = None
         position = base_index
         attempt = 0
@@ -410,6 +424,9 @@ def main():
             country_a, country_b = countries[idx_a], countries[idx_b]
             if frozenset((country_a["iso2"], country_b["iso2"])) in aired:
                 continue
+            wa, wb = wealth.get(country_a["iso2"]), wealth.get(country_b["iso2"])
+            if wealth and not (wa and wb and max(wa, wb) / min(wa, wb) <= MAX_WEALTH_RATIO):
+                continue  # mismatched (or unknown) wealth: skipped without any fetch
             attempt += 1
             name_a, name_b = country_a["name"], country_b["name"]
             print(f"[generate_comparison_script] fetching stats for {name_a} and {name_b} ...")
