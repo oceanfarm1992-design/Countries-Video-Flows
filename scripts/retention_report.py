@@ -105,7 +105,12 @@ def collect():
                        "series": series_of(title, length),
                        "open": hold_at(analytics, vid, s, e, OPENING),
                        "end": hold_at(analytics, vid, s, e, ENDING)})
-    return videos, s, e, collect_eras(analytics, youtube, e)
+    try:
+        eras = collect_eras(analytics, youtube, e)
+    except Exception as exc:  # noqa: BLE001 -- the comparison is extra; the weekly report must still post
+        print(f"[retention_report] before/after table skipped ({type(exc).__name__}: {exc})")
+        eras = None
+    return videos, s, e, eras
 
 
 def _era(published):
@@ -119,16 +124,12 @@ def _era(published):
 def collect_eras(analytics, youtube, end):
     """Every video published since the first era, measured over its whole life so far
     (not just the last 28 days), grouped by series and era."""
-    rows, start_index = [], 1
-    while True:
-        page = analytics.reports().query(
-            ids="channel==MINE", startDate=ERAS[0][0], endDate=end, dimensions="video",
-            metrics="views,averageViewPercentage,averageViewDuration", sort="-views",
-            maxResults=200, startIndex=start_index).execute().get("rows", [])
-        rows += page
-        if len(page) < 200:
-            break
-        start_index += 200
+    # the top-videos report takes no startIndex (400) -- one page of 200 covers the
+    # channel's videos since the first era
+    rows = analytics.reports().query(
+        ids="channel==MINE", startDate=ERAS[0][0], endDate=end, dimensions="video",
+        metrics="views,averageViewPercentage,averageViewDuration", sort="-views",
+        maxResults=200).execute().get("rows", [])
     meta = {}
     ids = [r[0] for r in rows]
     for i in range(0, len(ids), 50):
