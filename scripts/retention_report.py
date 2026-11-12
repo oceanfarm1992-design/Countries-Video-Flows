@@ -25,6 +25,10 @@ import time
 from datetime import date, timedelta
 
 WINDOW_DAYS = 28
+# Eras for the before/after table: what changed when, so a drop can be pinned to its cause.
+ERAS = [("2026-09-15", "before the editing upgrade"),
+        ("2026-10-14", "new editing, 3 Shorts a day"),
+        ("2026-10-29", "new editing, 1 Short a day")]
 OPENING, ENDING = 0.1, 0.9
 TOKEN_URI = "https://oauth2.googleapis.com/token"
 WORST_WORDS = ("most corrupt", "most polluted", "least democratic", "unhappiest", "biggest polluters",
@@ -101,14 +105,71 @@ def collect():
                        "series": series_of(title, length),
                        "open": hold_at(analytics, vid, s, e, OPENING),
                        "end": hold_at(analytics, vid, s, e, ENDING)})
-    return videos, s, e
+    return videos, s, e, collect_eras(analytics, youtube, e)
+
+
+def _era(published):
+    name = None
+    for start, label in ERAS:
+        if published >= start:
+            name = label
+    return name
+
+
+def collect_eras(analytics, youtube, end):
+    """Every video published since the first era, measured over its whole life so far
+    (not just the last 28 days), grouped by series and era."""
+    rows, start_index = [], 1
+    while True:
+        page = analytics.reports().query(
+            ids="channel==MINE", startDate=ERAS[0][0], endDate=end, dimensions="video",
+            metrics="views,averageViewPercentage,averageViewDuration", sort="-views",
+            maxResults=200, startIndex=start_index).execute().get("rows", [])
+        rows += page
+        if len(page) < 200:
+            break
+        start_index += 200
+    meta = {}
+    ids = [r[0] for r in rows]
+    for i in range(0, len(ids), 50):
+        for v in youtube.videos().list(part="snippet,contentDetails", id=",".join(ids[i:i + 50])).execute()["items"]:
+            meta[v["id"]] = (v["snippet"]["title"], _iso_seconds(v["contentDetails"]["duration"]),
+                             v["snippet"]["publishedAt"][:10])
+    groups = {}
+    for vid, views, pct, secs in rows:
+        title, length, published = meta.get(vid, ("", 0, ""))
+        era = _era(published) if published else None
+        if era is None or not views:
+            continue
+        g = groups.setdefault((series_of(title, length), era), {"videos": 0, "views": 0, "pct_w": 0.0, "secs_w": 0.0})
+        g["videos"] += 1
+        g["views"] += int(views)
+        g["pct_w"] += pct * int(views)       # view-weighted, so a 3-view video can't swing it
+        g["secs_w"] += secs * int(views)
+    return groups
+
+
+def eras_table(groups):
+    lines = ["", "## Before vs after (videos by publish date, whole life so far)", "",
+             "Avg % viewed and seconds are weighted by views. Newer videos have had less time to collect views.", "",
+             "| Series | Period | Videos | Views/video | Avg % viewed | Avg seconds watched |",
+             "|---|---|---|---|---|---|"]
+    order = [label for _, label in ERAS]
+    for series in sorted({k[0] for k in groups}):
+        for era in order:
+            g = groups.get((series, era))
+            if not g:
+                continue
+            lines.append(f"| {series} | {era} | {g['videos']} | {g['views'] / g['videos']:.0f} | "
+                         f"{g['pct_w'] / g['views']:.0f}% | {g['secs_w'] / g['views']:.0f} |")
+    return "\n".join(lines)
 
 
 def _fmt(x, pct=False):
     return "–" if x is None else (f"{x * 100:.0f}%" if pct else f"{x:.0f}")
 
 
-def report(videos, start, end):
+def report(videos, start, end, eras=None):
     lines = [f"# Retention report {start} → {end}", "",
              f"{len(videos)} videos with views. *Opening hold* = share of viewers still watching "
              f"{OPENING:.0%} into the video (how well the hook works); *ending hold* = still watching at "
@@ -135,6 +196,8 @@ def report(videos, start, end):
             title = v["title"][:70].replace("|", "\\|")  # a bare | splits the table cell
             lines.append(f"| [{title}](https://youtu.be/{v['id']}) | {v['series']} | {v['views']} | "
                          f"{_fmt(v['open'], True)} | {_fmt(v['pct'])}% |")
+    if eras:
+        lines.append(eras_table(eras))
     return "\n".join(lines) + "\n"
 
 
@@ -149,8 +212,8 @@ def main():
                 "`YOUTUBE_ANALYTICS_REFRESH_TOKEN` (instructions at the top of that file).\n")
         print("[retention_report] no analytics token -- wrote the setup note")
     else:
-        videos, start, end = collect()
-        text = report(videos, start, end)
+        videos, start, end, eras = collect()
+        text = report(videos, start, end, eras)
         print(f"[retention_report] {len(videos)} videos, {start} -> {end}")
     with open(args.out, "w", encoding="utf-8") as fh:
         fh.write(text)
