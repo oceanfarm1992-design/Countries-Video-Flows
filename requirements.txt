@@ -7,7 +7,10 @@ requests==2.34.2
 
 # Music synthesis: scripts/generate_music.py builds the upbeat backing track from
 # scratch with numpy (no audio files, no license concerns).
-numpy==2.5.4
+# Held at 1.26.x: numpy 2.5 has no build for the workflows' Python 3.11, and a
+# hand-merged bump to 2.5.4 (2026-11-09) made every install fail -- no videos posted
+# for days. Dependabot is told to skip numpy 2.x (.github/dependabot.yml).
+numpy==1.26.4
 
 # OpenAI SDK — used by scripts/generate_country_script.py to write narrations via GPT-4o-mini
 openai==3.46.0
@@ -29,7 +32,7 @@ kokoro==0.9.4
 # Dependabot bump to >=0.14.0 (2026-09-21) made `pip install -r requirements.txt`
 # fail outright (ResolutionImpossible) for every workflow, since nothing satisfies
 # both constraints at once. Kokoro doesn't need anything newer than 0.12.x.
-soundfile==0.14.0
+soundfile==0.12.1
 
 # Piper: fully-offline fallback if Kokoro fails to load. Ships prebuilt wheels for linux.
 # VERIFY: exact package name / version. On PyPI the package is "piper-tts" and the CLI entrypoint is "piper".
