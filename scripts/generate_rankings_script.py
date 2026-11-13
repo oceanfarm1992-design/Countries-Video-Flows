@@ -460,8 +460,8 @@ def main():
     countries = config["countries"]
     day_number = day_number_for()
     wps = video_cfg.get("words_per_second", 2.3)
-    min_words = args.min_words or round(video_cfg["min_seconds"] * wps)
-    max_words = args.max_words or round(video_cfg["max_seconds"] * wps)
+    min_words = args.min_words or video_cfg.get("min_words") or round(video_cfg["min_seconds"] * wps)
+    max_words = args.max_words or video_cfg.get("max_words") or round(video_cfg["max_seconds"] * wps)
     min_entries = metrics_cfg.get("min_entries", 7)
 
     metrics = metrics_cfg["metrics"]

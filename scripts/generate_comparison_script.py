@@ -387,8 +387,8 @@ def main():
 
     day_number = day_number_for()
     wps = video_cfg.get("words_per_second", 2.3)
-    min_words = args.min_words or round(video_cfg["min_seconds"] * wps)
-    max_words = args.max_words or round(video_cfg["max_seconds"] * wps)
+    min_words = args.min_words or video_cfg.get("min_words") or round(video_cfg["min_seconds"] * wps)
+    max_words = args.max_words or video_cfg.get("max_words") or round(video_cfg["max_seconds"] * wps)
 
     if args.index_a is not None and args.index_b is not None:
         idx_a, idx_b = args.index_a % len(countries), args.index_b % len(countries)
