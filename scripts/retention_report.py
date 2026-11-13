@@ -30,7 +30,8 @@ WINDOW_DAYS = 28
 # Eras for the before/after table: what changed when, so a drop can be pinned to its cause.
 ERAS = [("2026-09-15", "before the editing upgrade"),
         ("2026-10-14", "new editing, 3 Shorts a day"),
-        ("2026-10-29", "new editing, 1 Short a day")]
+        ("2026-10-29", "new editing, 1 Short a day"),
+        ("2026-11-14", "own voice (RVC), storyteller style")]
 OPENING, ENDING = 0.1, 0.9
 TOKEN_URI = "https://oauth2.googleapis.com/token"
 WORST_WORDS = ("most corrupt", "most polluted", "least democratic", "unhappiest", "biggest polluters",
