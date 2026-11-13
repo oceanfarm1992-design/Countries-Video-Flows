@@ -3,6 +3,10 @@
 Stage 3: generate a voiceover WAV from the script text.
 
 Engines, tried in order (first available wins unless --engine forces one):
+  0. voiceclone -- the owner's voice engine (StyleTTS2 in the "storyteller" speaking
+     style + RVC conversion with a model trained on the owner's voice). Installed by
+     the workflow step `uses: oceanfarm1992-design/styletts2-voice-clone`; every
+     engine below is a fallback if it is missing or fails.
   1. StyleTTS2 (MIT license) — clones the channel owner's own voice from a private
      reference sample (fetched at runtime via VOICE_REPO_PAT, never stored in this
      repo). Primary voice across every series when that secret is available.
@@ -37,6 +41,8 @@ import subprocess
 import sys
 
 import requests
+
+from spoken_text import to_spoken
 
 OPENAI_AVAILABLE = False
 try:
@@ -82,30 +88,10 @@ PRONUNCIATION_FIXUPS = {
 }
 
 
-# Display-style number formats (from format_value) that the voice would otherwise
-# read letter by letter: "1.41B" -> "one point four one B".
-SPOKEN_UNITS = [
-    (r"(\d)T\b", r"\1 trillion"),
-    (r"(\d)B\b", r"\1 billion"),
-    (r"(\d)M\b", r"\1 million"),
-    (r"(\d)K\b", r"\1 thousand"),
-    (r"\byrs\b", "years"),
-    (r"/km²", " per square kilometre"),
-    (r"\bper km²", "per square kilometre"),
-    (r"km²", "square kilometres"),
-    (r"(\d) t\b", r"\1 tonnes"),
-    (r"#(\d+)", r"number \1"),
-    (r"µg/m³", "micrograms per cubic metre"),
-    (r"\bper 100k\b", "per 100,000 people"),
-]
-
-
 def apply_pronunciation_fixups(text):
     for wrong, fixed in PRONUNCIATION_FIXUPS.items():
         text = re.sub(rf"\b{re.escape(wrong)}\b", fixed, text)
-    for pattern, spoken in SPOKEN_UNITS:
-        text = re.sub(pattern, spoken, text)
-    return text
+    return to_spoken(text)  # "$997 billion" etc.: forms the phonemizer would drop
 
 
 # --------------------------------------------------------------------------- OpenAI
@@ -175,7 +161,30 @@ def _fetch_voice_reference(cache_path=VOICE_REF_CACHE):
 # Speaking style from the private voice repo's profile.json (styles -> <name> -> en):
 # the voice keeps the reference sample's timbre and takes pacing/intonation from the
 # style's clip. Set VOICE_STYLE to another style name, or "default" for none.
-VOICE_STYLE = os.environ.get("VOICE_STYLE", "").strip() or "presentation"
+VOICE_STYLE = os.environ.get("VOICE_STYLE", "").strip() or "storyteller"
+
+
+# ------------------------------------------------------------------------ voiceclone
+# Long-form narrates segment by segment: a segment whose RVC step failed would sound
+# like a different person mid-video, so longform_tts.py makes RVC failure fail the engine.
+REQUIRE_RVC = False
+
+
+def run_voiceclone(text, out_wav):
+    """The channel owner's voice engine (oceanfarm1992-design/styletts2-voice-clone,
+    installed by the workflow's `voiceclone` step): StyleTTS2 in the profile's speaking
+    style, then RVC voice conversion with the model trained on the owner's own voice --
+    the step that makes it sound like them rather than a generic clone. Raises if the
+    package isn't installed or no cloned voice came out, so synth() moves on."""
+    from voiceclone import synthesize
+
+    used = synthesize(text, out_wav, language="en", style=VOICE_STYLE, voice_ref_repo=VOICE_REF_REPO,
+                      rvc="on" if REQUIRE_RVC else "auto")
+    print(f"[generate_tts] voiceclone engine: {used} (style={VOICE_STYLE})")
+    if not used.startswith("styletts2"):
+        raise RuntimeError(f"voiceclone fell back to a stock voice ({used})")
+    if not used.endswith("+rvc"):
+        print("::warning::voice conversion (RVC) failed -- narration is the plain StyleTTS2 clone")
 _VOICE_KWARGS = None
 
 
@@ -265,16 +274,21 @@ MAX_CHARS_PER_STYLETTS2_CALL = 220
 
 
 def _split_for_styletts2(text):
-    """Split `text` into chunks safe for one StyleTTS2 call each, preferring
-    sentence boundaries (natural pause points); falls back to splitting an
-    unusually long single sentence on its clause commas."""
+    """Split `text` into chunks safe for one StyleTTS2 call each: whole sentences,
+    packed together up to the limit; an unusually long single sentence is split on
+    its clause commas. Packing matters -- one call per short sentence comes out
+    ~40% slower and drawn out, with dead air between sentences (measured
+    2026-11-13: the same 5 sentences took 15.3 s one by one, 11.0 s together)."""
     sentences = re.split(r"(?<=[.!?])\s+", text.strip())
     chunks = []
     for sent in sentences:
         if not sent:
             continue
         if len(sent) <= MAX_CHARS_PER_STYLETTS2_CALL:
-            chunks.append(sent)
+            if chunks and len(chunks[-1]) + 1 + len(sent) <= MAX_CHARS_PER_STYLETTS2_CALL:
+                chunks[-1] += " " + sent
+            else:
+                chunks.append(sent)
             continue
         parts = sent.split(", ")
         current = ""
@@ -377,7 +391,9 @@ def synth(text, out, engines, openai_model, openai_voice, instructions,
     last_error = None
     for engine in engines:
         try:
-            if engine == "styletts2":
+            if engine == "voiceclone":
+                run_voiceclone(text, out)
+            elif engine == "styletts2":
                 run_styletts2(text, out)
             elif engine == "kokoro":
                 run_kokoro(text, out, kokoro_voice, kokoro_lang)
@@ -402,8 +418,9 @@ def main():
     ap.add_argument("--script", default="build/script.txt")
     ap.add_argument("--out", default="build/voice.wav")
     ap.add_argument("--config", default="config/countries.json")
-    ap.add_argument("--engine", choices=["auto", "styletts2", "kokoro", "openai", "piper", "espeak"], default="auto",
-                    help="auto tries StyleTTS2 (cloned voice), then Kokoro, then Piper, then espeak-ng.")
+    ap.add_argument("--engine", choices=["auto", "voiceclone", "styletts2", "kokoro", "openai", "piper", "espeak"], default="auto",
+                    help="auto tries voiceclone (StyleTTS2 + RVC, the owner's voice), then plain "
+                         "StyleTTS2, then Kokoro, then Piper, then espeak-ng.")
     ap.add_argument("--voice", default=None,
                     help="Override the Kokoro voice name (config's tts.kokoro_voice otherwise).")
     ap.add_argument("--voices-dir", default="voices")
@@ -432,7 +449,7 @@ def main():
     openai_model = tts_cfg.get("openai_model", "gpt-4o-mini-tts")
     openai_voice = tts_cfg.get("openai_voice", "marin")
     instructions = tts_cfg.get("instructions")
-    engines = [args.engine] if args.engine != "auto" else ["styletts2", "kokoro", "piper", "espeak"]
+    engines = [args.engine] if args.engine != "auto" else ["voiceclone", "styletts2", "kokoro", "piper", "espeak"]
 
     common = dict(engines=engines, openai_model=openai_model, openai_voice=openai_voice,
                   instructions=instructions, piper_voice=piper_voice, voices_dir=args.voices_dir,

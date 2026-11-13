@@ -175,6 +175,18 @@ jobs:
             --config config/countries.json --video-config config/rankings_video.json \
             --history logs/history_rankings.csv $METRIC_ARGS
 
+      # The owner's voice engine: StyleTTS2 in the "storyteller" speaking style, then
+      # RVC conversion with the model trained on the owner's own voice. This step only
+      # installs it (same Python as above, so earlier packages stay); the voice step
+      # calls it and falls back to the plain StyleTTS2 clone if this step failed.
+      - name: Install the voice engine (own voice + RVC)
+        if: steps.gate.outputs.skip == 'false'
+        continue-on-error: true
+        uses: oceanfarm1992-design/styletts2-voice-clone@7fde0e580c60475dbb55e5e7003f743892c3ce17
+        with:
+          engines: styletts2 rvc
+          python-version: "3.11"
+
       - name: Generate TTS voiceover
         if: steps.gate.outputs.skip == 'false'
         env:

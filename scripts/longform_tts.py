@@ -23,10 +23,11 @@ import json
 import os
 import sys
 
+import generate_tts
 from generate_tts import apply_pronunciation_fixups, synth
 from pipeline_common import ffprobe_duration, speech_end_time
 
-ENGINE_CHAIN = ["styletts2", "kokoro", "piper", "espeak"]
+ENGINE_CHAIN = ["voiceclone", "styletts2", "kokoro", "piper", "espeak"]
 GAP_SECONDS = 0.45
 
 
@@ -64,6 +65,7 @@ def main():
         texts = [s["text"] for s in json.load(fh)["segments"]]
     os.makedirs(args.out_dir, exist_ok=True)
     options = _engine_options(args.config)
+    generate_tts.REQUIRE_RVC = True  # one voice for the whole video
     chain = ENGINE_CHAIN if args.engine == "auto" else [args.engine]
 
     for engine in chain:
