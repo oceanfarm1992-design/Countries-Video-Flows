@@ -106,7 +106,7 @@ def test_openai_failure_falls_back_to_groq_with_a_groq_model(providers):
 
     assert ai_client.client().chat.completions.create(model="gpt-4o-mini", messages=[]) == "chat-ok"
 
-    assert groq.calls[0][1]["model"] == "llama-3.3-70b-versatile"
+    assert groq.calls[0][1]["model"] == "openai/gpt-oss-120b"
 
 
 
