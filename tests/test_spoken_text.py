@@ -30,6 +30,9 @@ from spoken_text import to_spoken  # noqa: E402
     ("12.4 Mt CO₂e", "12.4 million tonnes of C O two"),
     ("PM2.5 of 41 µg/m³", "PM2.5 of 41 micrograms per cubic metre"),
     ("41.2 per 100k", "41.2 per 100,000 people"),
+    ("BIGGEST MILITARY BUDGETS – TOP 8 COUNTDOWN", "Biggest Military Budgets, Top 8 Countdown"),
+    ("TOP 8 GDP GIANTS OF THE WORLD. Number 8 is Spain.", "Top 8 GDP Giants Of The World. Number 8 is Spain."),
+    ("eighty‑three point two", "eighty-three point two"),
 ])
 def test_to_spoken_rewrites_forms_the_voice_cannot_read(written, spoken):
     assert to_spoken(written) == spoken
@@ -42,3 +45,7 @@ def test_to_spoken_leaves_plain_text_alone():
 
 def test_negative_numbers_are_not_ranges():
     assert to_spoken("growth of -3.2%") == "growth of -3.2%"
+
+
+def test_short_capitalised_acronyms_stay_letters():
+    assert to_spoken("The GDP of the UK grew.") == "The GDP of the UK grew."

@@ -67,7 +67,29 @@ def _money(m):
     return f"{amount}{scale} {word}"
 
 
+# Kept as letters when a whole line is in capitals (everything else is read as words).
+ACRONYMS = {"GDP", "PPP", "UK", "US", "USA", "UAE", "EU", "UN", "DRC", "HDI", "OECD", "NATO", "PISA",
+            "CO2", "AI", "TV", "BC", "AD"}
+# Hyphen look-alikes some models write ("eighty‑three"): the phonemizer mangles them.
+ODD_HYPHENS = "‐‑‒­"
+
+
+def _shouting_to_words(text):
+    """A line written in capitals ("BIGGEST MILITARY BUDGETS") is spelled out letter by
+    letter by the voice -- read it as ordinary words, keeping real acronyms."""
+    def fix(line):
+        letters = [c for c in line if c.isalpha()]
+        if len(letters) < 12 or sum(c.isupper() for c in letters) / len(letters) < 0.8:
+            return line
+        return re.sub(r"[A-Z][A-Z0-9']*", lambda m: m.group(0) if m.group(0) in ACRONYMS
+                      else m.group(0).capitalize(), line)
+    return re.sub(r"[^.!?\n]+[.!?]*", lambda m: fix(m.group(0)), text)  # sentence by sentence
+
+
 def to_spoken(text):
+    for ch in ODD_HYPHENS:
+        text = text.replace(ch, "-")
+    text = _shouting_to_words(text)
     for pattern, spoken in UNITS:
         text = re.sub(pattern, spoken, text)
     text = _MONEY.sub(_money, text)
@@ -81,5 +103,5 @@ def to_spoken(text):
     text = re.sub(r"(\d)x\b", r"\1 times", text)
     text = re.sub(r"#(\d+)", r"number \1", text)
     text = re.sub(r"\bNo\.\s?(\d)", r"number \1", text)
-    text = re.sub(r"[–—]", ", ", text)              # a dash between words is a pause
+    text = re.sub(r"\s*[–—]\s*", ", ", text)        # a dash between words is a pause
     return re.sub(r"[ \t]{2,}", " ", text)

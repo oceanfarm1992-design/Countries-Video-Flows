@@ -20,12 +20,12 @@ import os
 import sys
 
 GROQ_BASE_URL = "https://api.groq.com/openai/v1"
-# Preferred Groq models, in order (checked once against Groq's model list, so a retired
-# model is skipped instead of failing); a chat request that fails on one tries the next.
-# Llama first: gpt-oss is a reasoning model whose hidden reasoning eats the callers'
-# max_tokens -- in a 2026-11-13 test it returned 4 of 10 segments, then invalid JSON.
-# GROQ_CHAT_MODEL / GROQ_WHISPER_MODEL override.
-GROQ_CHAT_MODELS = ("llama-3.3-70b-versatile", "openai/gpt-oss-120b", "llama-3.1-8b-instant")
+# Preferred Groq models, in order (checked once against Groq's model list -- logged as
+# "Groq serves: ..." -- so a retired model is skipped instead of failing); a chat request
+# that fails on one tries the next. Groq served gpt-oss-120b/20b and qwen3.8-27b on
+# 2026-11-13 (the Llama 3.x models were gone). GROQ_CHAT_MODEL / GROQ_WHISPER_MODEL override.
+GROQ_CHAT_MODELS = ("openai/gpt-oss-120b", "qwen/qwen3.8-27b", "openai/gpt-oss-20b",
+                    "llama-3.3-70b-versatile")
 GROQ_CHAT_TRIES = 2
 # Reasoning models (gpt-oss): reasoning tokens count against max_tokens, so keep the
 # reasoning short and give the answer room on top of what the caller asked for.

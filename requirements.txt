@@ -48,3 +48,5 @@ Pillow==13.0.0
 google-auth==2.62.1
 google-auth-oauthlib==1.5.0
 google-api-python-client==2.201.0
+# caption/picture timing: compares numbers written as digits or words (generate_captions.py)
+num2words==0.5.14

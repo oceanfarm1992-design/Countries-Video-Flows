@@ -106,10 +106,24 @@ def build_srt_even(words, total_seconds, words_per_cue):
     return "\n".join(lines)
 
 
+def _number_words(match):
+    """'83.2' -> 'eighty three point two', so a script that writes numbers as words and
+    a transcript that writes digits (or the other way round) still line up."""
+    try:
+        from num2words import num2words
+        return " " + re.sub(r"[^a-z]+", " ", num2words(float(match.group(0)) if "." in match.group(0)
+                                                       else int(match.group(0)))) + " "
+    except Exception:  # noqa: BLE001 -- num2words missing or odd input: compare digits
+        return " " + match.group(0) + " "
+
+
 def _pieces(token):
-    """Comparable fragments of a word: '$40,430' -> ['40', '430'], "Italy's" -> ['italy', 's']."""
+    """Comparable fragments of a word: '$40,430' -> ['forty', 'thousand', 'four', ...],
+    "Italy's" -> ['italy', 's'], 'eighty-three' -> ['eighty', 'three']."""
     plain = unicodedata.normalize("NFKD", token).encode("ascii", "ignore").decode().lower()
-    return re.findall(r"[a-z]+|\d+", plain)
+    plain = re.sub(r"(?<=\d),(?=\d{3})", "", plain)              # 40,430 -> 40430
+    plain = re.sub(r"\d+(?:\.\d+)?", _number_words, plain)
+    return [p for p in re.findall(r"[a-z]+|\d+", plain) if p != "and"]
 
 
 def align_script_words(script_words, word_times):
