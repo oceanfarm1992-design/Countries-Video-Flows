@@ -57,6 +57,8 @@ try:
 except ImportError:
     pass
 
+import ai_client  # OpenAI first, Groq fallback
+
 EPOCH = date(2026, 7, 23)  # same pipeline epoch as daily_variation.py
 
 # Preference order for which metrics make the table when more than MAX_ROWS
@@ -267,11 +269,11 @@ def reference_lines(name_a, name_b, rows):
 
 
 def _gpt_script(name_a, name_b, rows, openai_cfg, min_words, max_words):
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    api_key = ai_client.available()
     if not api_key:
-        raise RuntimeError("OPENAI_API_KEY is not set -- cannot call GPT.")
+        raise RuntimeError("no AI key set (OPENAI_API_KEY / GROQ_API_KEY) -- cannot call GPT.")
 
-    client = OpenAI(api_key=api_key)
+    client = ai_client.client()
     rows_block = "\n".join(f"- {line}" for line in reference_lines(name_a, name_b, rows))
 
     system_prompt = textwrap.dedent(f"""
@@ -460,7 +462,7 @@ def main():
                 f"{base_index}. If the World Bank API was timing out, the next slot retries.")
 
     openai_cfg = config.get("openai", {})
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    api_key = ai_client.available()
 
     if OPENAI_AVAILABLE and api_key:
         print(f"[generate_comparison_script] calling OpenAI {openai_cfg.get('model', 'gpt-4o-mini')} ...")
@@ -486,7 +488,7 @@ def main():
             hook, narration, segments = _fallback_script(name_a, name_b, rows)
             source = "fallback"
     else:
-        reason = "openai library not installed" if not OPENAI_AVAILABLE else "OPENAI_API_KEY not set"
+        reason = "openai library not installed" if not OPENAI_AVAILABLE else "no AI key set"
         print(f"[generate_comparison_script] {reason} -- using fallback script")
         hook, narration, segments = _fallback_script(name_a, name_b, rows)
         source = "fallback"

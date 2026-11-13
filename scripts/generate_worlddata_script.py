@@ -57,6 +57,8 @@ try:
 except ImportError:
     pass
 
+import ai_client  # OpenAI first, Groq fallback
+
 # Cycled by "cycle" (how many full passes through the country list have
 # happened) the same way GEOGRAPHY_ANGLES rotates in generate_geography_script.py
 # — so the same country gets the OTHER sub-type next time it comes up.
@@ -108,11 +110,11 @@ def _gpt_script_flags(country: dict, openai_cfg: dict, min_words: int, max_words
     """Return (hook, narration, segments) for the "flags" sub-type. "visual"
     holds a SHORT on-screen symbol/color label (e.g. "Red = Bloodshed") to
     burn over the flag image."""
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    api_key = ai_client.available()
     if not api_key:
-        raise RuntimeError("OPENAI_API_KEY is not set — cannot call GPT.")
+        raise RuntimeError("no AI key set (OPENAI_API_KEY / GROQ_API_KEY) — cannot call GPT.")
 
-    client = OpenAI(api_key=api_key)
+    client = ai_client.client()
     name = country["name"]
 
     system_prompt = textwrap.dedent(f"""
@@ -200,11 +202,11 @@ def _gpt_script_stats(country: dict, openai_cfg: dict, min_words: int, max_words
     prompt is explicitly forbidden from citing anything not supplied, the
     same trick geography uses to keep physical-geography claims verifiable.
     "visual" holds the stat callout text to burn over the map highlight."""
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    api_key = ai_client.available()
     if not api_key:
-        raise RuntimeError("OPENAI_API_KEY is not set — cannot call GPT.")
+        raise RuntimeError("no AI key set (OPENAI_API_KEY / GROQ_API_KEY) — cannot call GPT.")
 
-    client = OpenAI(api_key=api_key)
+    client = ai_client.client()
     name = country["name"]
     facts_block = "\n".join(f"- {f}" for f in country.get("facts", []))
 
@@ -351,7 +353,7 @@ def main():
     subtype = WORLDDATA_SUBTYPES[cycle % len(WORLDDATA_SUBTYPES)]
 
     openai_cfg = config.get("openai", {})
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    api_key = ai_client.available()
 
     if OPENAI_AVAILABLE and api_key:
         print(f"[generate_worlddata_script] calling OpenAI {openai_cfg.get('model', 'gpt-4o-mini')} "
@@ -378,7 +380,7 @@ def main():
             hook, narration, segments = _fallback_script(country, subtype)
             source = "fallback"
     else:
-        reason = "openai library not installed" if not OPENAI_AVAILABLE else "OPENAI_API_KEY not set"
+        reason = "openai library not installed" if not OPENAI_AVAILABLE else "no AI key set"
         print(f"[generate_worlddata_script] {reason} — using fallback script")
         hook, narration, segments = _fallback_script(country, subtype)
         source = "fallback"

@@ -45,6 +45,8 @@ try:
 except ImportError:
     pass
 
+import ai_client  # OpenAI first, Groq fallback
+
 
 def _reference_block(reference):
     return "\n".join(f"- {line}" for line in reference)
@@ -76,7 +78,7 @@ def verify_narration(narration: str, country_name: str, openai_cfg: dict, refere
     `strict` (with `reference`) also flags claims the data doesn't SUPPORT, not just
     ones that contradict it: long-form narration has room to pad with invented
     context, which a contradiction-only check lets through."""
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    api_key = ai_client.available()
     if not (OPENAI_AVAILABLE and api_key):
         return True, []
 
@@ -133,7 +135,7 @@ def verify_narration(narration: str, country_name: str, openai_cfg: dict, refere
         """).strip()
 
     try:
-        client = OpenAI(api_key=api_key)
+        client = ai_client.client()
         response = client.chat.completions.create(
             model=openai_cfg.get("fact_check_model", openai_cfg.get("model", "gpt-4o-mini")),
             messages=[

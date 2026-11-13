@@ -217,7 +217,7 @@ def test_strict_fact_check_fails_closed_when_checker_breaks(monkeypatch):
             raise RuntimeError("network down")
     monkeypatch.setenv("OPENAI_API_KEY", "test")
     monkeypatch.setattr(fact_check, "OPENAI_AVAILABLE", True)
-    monkeypatch.setattr(fact_check, "OpenAI", Broken, raising=False)
+    monkeypatch.setattr(fact_check.ai_client, "client", lambda: Broken())
     ok, issues = fact_check.verify_narration("text", "X", {}, reference=["a"], strict=True)
     assert ok is False and issues
     ok, _ = fact_check.verify_narration("text", "X", {}, reference=["a"])
@@ -346,7 +346,7 @@ def test_rankings_fallback_fits_the_word_budget_and_split_outro_is_repaired(monk
     client = types.SimpleNamespace(chat=types.SimpleNamespace(completions=types.SimpleNamespace(
         create=lambda **k: reply)))
     monkeypatch.setenv("OPENAI_API_KEY", "test")
-    monkeypatch.setattr(gr, "OpenAI", lambda api_key: client, raising=False)
+    monkeypatch.setattr(gr.ai_client, "client", lambda: client)
     _, narration, segments = gr._gpt_script(metric, rows, {}, 80, 130)
     assert len(segments) == 10 and segments[-1]["text"] == "Where does your country rank? Follow for more."
 
@@ -562,7 +562,7 @@ def test_comparison_rejects_gpt_beats_that_dont_match_the_stats(monkeypatch):
             return type("R", (), {"choices": [type("C", (), {"message": msg})]})
 
     monkeypatch.setenv("OPENAI_API_KEY", "test")
-    monkeypatch.setattr(comparison, "OpenAI", Fake, raising=False)
+    monkeypatch.setattr(comparison.ai_client, "client", lambda: Fake())
     import pytest
     with pytest.raises(RuntimeError, match="don't match"):
         comparison._gpt_script("A", "B", rows, {}, 10, 200)

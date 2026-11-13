@@ -191,6 +191,8 @@ jobs:
         if: steps.gate.outputs.skip == 'false'
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API }}
+          AI_PROVIDER: ${{ vars.AI_PROVIDER }}
           NEWS_API_KEY: ${{ secrets.NEWS_API_KEY }}
           COUNTRY_INDEX: ${{ inputs.country_index }}
         run: |
@@ -233,6 +235,8 @@ jobs:
         continue-on-error: true
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API }}
+          AI_PROVIDER: ${{ vars.AI_PROVIDER }}
         run: python scripts/improve_hook.py --config config/countries.json
 
       - name: Fetch footage (Pexels / Pixabay / animation)
@@ -272,6 +276,8 @@ jobs:
         if: steps.gate.outputs.skip == 'false'
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API }}
+          AI_PROVIDER: ${{ vars.AI_PROVIDER }}
         run: python scripts/generate_captions.py --config config/countries.json
 
       # Runs AFTER the voiceover on purpose: the map is pre-sliced into one clip
@@ -372,6 +378,8 @@ jobs:
         continue-on-error: true
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API }}
+          AI_PROVIDER: ${{ vars.AI_PROVIDER }}
         run: python scripts/vision_check.py --video build/final.mp4 --script build/script.json --out build/vision_review.json
 
       # ---- publish ----

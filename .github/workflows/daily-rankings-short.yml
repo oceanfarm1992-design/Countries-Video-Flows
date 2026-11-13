@@ -159,6 +159,8 @@ jobs:
         if: steps.gate.outputs.skip == 'false'
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API }}
+          AI_PROVIDER: ${{ vars.AI_PROVIDER }}
           # Routed through env instead of interpolated directly into the run:
           # script -- a raw ${{ inputs.metric_id }} substitution happens
           # BEFORE bash ever parses this block (GitHub Actions templates the
@@ -199,6 +201,8 @@ jobs:
         if: steps.gate.outputs.skip == 'false'
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API }}
+          AI_PROVIDER: ${{ vars.AI_PROVIDER }}
         run: python scripts/generate_captions.py --config config/countries.json
 
       # Runs AFTER the voiceover on purpose -- same reason as comparison's
@@ -248,6 +252,8 @@ jobs:
         continue-on-error: true
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API }}
+          AI_PROVIDER: ${{ vars.AI_PROVIDER }}
         run: python scripts/vision_check.py --video build/final.mp4 --script build/script.json --out build/vision_review.json
 
       # ---- publish ----

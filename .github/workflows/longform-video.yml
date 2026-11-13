@@ -136,6 +136,8 @@ jobs:
         if: steps.gate.outputs.skip == 'false' && steps.gate.outputs.format == 'A'
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API }}
+          AI_PROVIDER: ${{ vars.AI_PROVIDER }}
           METRIC_ID: ${{ inputs.metric_id }}
         run: |
           ARGS=""
@@ -193,6 +195,8 @@ jobs:
         continue-on-error: true
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API }}
+          AI_PROVIDER: ${{ vars.AI_PROVIDER }}
         run: python scripts/vision_check.py --video build/long/final.mp4 --script build/long/script.json --out build/long/vision_review.json
 
       - name: Publish video as release asset

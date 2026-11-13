@@ -30,6 +30,8 @@ try:
 except ImportError:
     pass
 
+import ai_client  # OpenAI first, Groq fallback
+
 
 def _ask(client, model, system, user, max_tokens=300, temperature=0.9):
     r = client.chat.completions.create(
@@ -64,7 +66,7 @@ def valid(hook, narration, country, other_countries):
 
 
 def best_hook(script, countries, model):
-    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    client = ai_client.client()
     country, narration, original = script.get("name", ""), script["narration"], script.get("hook", "")
     others = [c["name"] for c in countries if c["name"] != country and len(c["name"]) > 3]
     gen = _ask(client, model,
@@ -100,7 +102,7 @@ def main():
     ap.add_argument("--config", default="config/countries.json")
     ap.add_argument("--out", default="build")
     args = ap.parse_args()
-    if not (OPENAI_AVAILABLE and os.environ.get("OPENAI_API_KEY", "").strip()):
+    if not (OPENAI_AVAILABLE and ai_client.available()):
         print("[improve_hook] no OpenAI -- keeping the original hook")
         return
     with open(args.script, encoding="utf-8") as fh:

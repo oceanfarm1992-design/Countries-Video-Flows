@@ -37,6 +37,8 @@ try:
 except ImportError:
     pass
 
+import ai_client  # OpenAI first, Groq fallback
+
 TOP_N = 20
 MIN_ENTRIES = 15
 TREND_YEARS = 10
@@ -246,7 +248,7 @@ def _fallback_script(metric, rows, source_label, as_of):
 
 
 def _gpt_script(metric, rows, source_label, as_of, openai_cfg):
-    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+    client = ai_client.client()
     n = len(rows)
     rows_block = "\n".join(f"- ISO2 {r['iso2']} | {line}"
                            for r, line in zip(reversed(rows), reversed(reference_lines(rows))))
@@ -335,7 +337,7 @@ def main():
     source = "fallback"
     segments = None
     openai_cfg = config.get("openai", {})
-    if OPENAI_AVAILABLE and os.environ.get("OPENAI_API_KEY", "").strip():
+    if OPENAI_AVAILABLE and ai_client.available():
         for attempt in (1, 2):
             try:
                 candidate = _gpt_script(metric, rows, source_label, as_of, openai_cfg)

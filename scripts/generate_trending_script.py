@@ -55,6 +55,8 @@ try:
 except ImportError:
     pass
 
+import ai_client  # OpenAI first, Groq fallback
+
 
 # ---------------------------------------------------------------------------
 # OpenAI narration, grounded in real fetched headlines
@@ -66,11 +68,11 @@ def _gpt_script(country: dict, openai_cfg: dict, headlines: list,
     narration must be grounded ONLY in the provided headlines — no outside facts,
     no embellishment, no speculation. Same segments contract as the other scripts
     ({"text", "visual"})."""
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    api_key = ai_client.available()
     if not api_key:
-        raise RuntimeError("OPENAI_API_KEY is not set — cannot call GPT.")
+        raise RuntimeError("no AI key set (OPENAI_API_KEY / GROQ_API_KEY) — cannot call GPT.")
 
-    client = OpenAI(api_key=api_key)
+    client = ai_client.client()
     name = country["name"]
     headlines_block = "\n".join(
         f"- {h['title']}" + (f" — {h['description']}" if h.get("description") else "")
@@ -201,7 +203,7 @@ def main():
     name = country["name"]
 
     openai_cfg = config.get("openai", {})
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    api_key = ai_client.available()
     news_api_key = os.environ.get("NEWS_API_KEY", "").strip()
 
     headlines = []
@@ -242,7 +244,7 @@ def main():
             source = "fallback"
     else:
         reason = "no safe/recent headlines found" if not headlines else (
-            "openai library not installed" if not OPENAI_AVAILABLE else "OPENAI_API_KEY not set")
+            "openai library not installed" if not OPENAI_AVAILABLE else "no AI key set")
         print(f"[generate_trending_script] {reason} — using fallback script")
         narration, segments = _fallback_script(country)
         hook = f"DISCOVER {name.upper()} TODAY"

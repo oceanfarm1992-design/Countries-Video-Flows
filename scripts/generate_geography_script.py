@@ -55,6 +55,8 @@ try:
 except ImportError:
     pass
 
+import ai_client  # OpenAI first, Groq fallback
+
 # Physical-geography angles, cycling by "cycle" (how many full passes through
 # the country list have happened) the same way the other generators rotate.
 GEOGRAPHY_ANGLES = [
@@ -129,11 +131,11 @@ def _gpt_script(country: dict, openai_cfg: dict, angle: dict,
 
     min_words/max_words set the spoken-length target so the daily rotation can vary
     video duration (see daily_variation.py's WORD_BANDS)."""
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    api_key = ai_client.available()
     if not api_key:
-        raise RuntimeError("OPENAI_API_KEY is not set — cannot call GPT.")
+        raise RuntimeError("no AI key set (OPENAI_API_KEY / GROQ_API_KEY) — cannot call GPT.")
 
-    client = OpenAI(api_key=api_key)
+    client = ai_client.client()
     name = country["name"]
     facts_block = "\n".join(f"- {f}" for f in country.get("facts", []))
     angle_desc = angle["desc"].format(name=name)
@@ -282,7 +284,7 @@ def main():
     angle = GEOGRAPHY_ANGLES[cycle % len(GEOGRAPHY_ANGLES)]
 
     openai_cfg = config.get("openai", {})
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    api_key = ai_client.available()
 
     if OPENAI_AVAILABLE and api_key:
         print(f"[generate_geography_script] calling OpenAI {openai_cfg.get('model', 'gpt-4o-mini')} "
@@ -309,7 +311,7 @@ def main():
             hook, narration, segments = _fallback_script(country, angle)
             source = "fallback"
     else:
-        reason = "openai library not installed" if not OPENAI_AVAILABLE else "OPENAI_API_KEY not set"
+        reason = "openai library not installed" if not OPENAI_AVAILABLE else "no AI key set"
         print(f"[generate_geography_script] {reason} — using fallback script")
         hook, narration, segments = _fallback_script(country, angle)
         source = "fallback"

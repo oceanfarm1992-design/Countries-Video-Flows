@@ -38,6 +38,8 @@ try:
 except ImportError:
     pass
 
+import ai_client  # OpenAI first, Groq fallback
+
 
 WORD_TIMES = "build/word_times.json"  # read by pipeline_common.segment_durations
 
@@ -162,10 +164,10 @@ def align_script_words(script_words, word_times):
 
 def whisper_word_timestamps(audio_path):
     """Call OpenAI Whisper with word-level timestamps. Returns [{word, start, end}]."""
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    api_key = ai_client.available()
     if not api_key or not OPENAI_AVAILABLE:
         raise RuntimeError("OpenAI not available.")
-    client = OpenAI(api_key=api_key)
+    client = ai_client.client()
     print("[generate_captions] calling Whisper for word timestamps...")
     with open(audio_path, "rb") as f:
         resp = client.audio.transcriptions.create(

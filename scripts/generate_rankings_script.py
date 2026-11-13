@@ -56,6 +56,8 @@ try:
 except ImportError:
     pass
 
+import ai_client  # OpenAI first, Groq fallback
+
 
 def data_fingerprint(ranked):
     """Short hash of a ranking's rows, logged with each post so an unchanged
@@ -262,11 +264,11 @@ def reference_lines(metric, ranked):
 
 
 def _gpt_script(metric, ranked, openai_cfg, min_words, max_words):
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    api_key = ai_client.available()
     if not api_key:
-        raise RuntimeError("OPENAI_API_KEY is not set -- cannot call GPT.")
+        raise RuntimeError("no AI key set (OPENAI_API_KEY / GROQ_API_KEY) -- cannot call GPT.")
 
-    client = OpenAI(api_key=api_key)
+    client = ai_client.client()
     n = len(ranked)
     # `label` (raw index name) is used for mid-sentence grammar ("counting
     # down ... by {label}"); `title` (display_label override when present)
@@ -529,7 +531,7 @@ def main():
                 f"(starting from day {day_number}).")
 
     openai_cfg = config.get("openai", {})
-    api_key = os.environ.get("OPENAI_API_KEY", "").strip()
+    api_key = ai_client.available()
 
     if OPENAI_AVAILABLE and api_key:
         print(f"[generate_rankings_script] calling OpenAI {openai_cfg.get('model', 'gpt-4o-mini')} ...")
@@ -552,7 +554,7 @@ def main():
             hook, narration, segments = _fallback_script(metric, ranked, max_words)
             source = "fallback"
     else:
-        reason = "openai library not installed" if not OPENAI_AVAILABLE else "OPENAI_API_KEY not set"
+        reason = "openai library not installed" if not OPENAI_AVAILABLE else "no AI key set"
         print(f"[generate_rankings_script] {reason} -- using fallback script")
         hook, narration, segments = _fallback_script(metric, ranked, max_words)
         source = "fallback"
