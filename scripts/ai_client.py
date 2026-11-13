@@ -20,11 +20,13 @@ import os
 import sys
 
 GROQ_BASE_URL = "https://api.groq.com/openai/v1"
-# Preferred Groq models, first available wins (checked once against Groq's model list,
-# so a retired model is skipped instead of failing). GROQ_CHAT_MODEL / GROQ_WHISPER_MODEL
-# override.
-GROQ_CHAT_MODELS = ("openai/gpt-oss-120b", "llama-3.3-70b-versatile", "openai/gpt-oss-20b",
-                    "llama-3.1-8b-instant")
+# Preferred Groq models, in order (checked once against Groq's model list, so a retired
+# model is skipped instead of failing); a chat request that fails on one tries the next.
+# Llama first: gpt-oss is a reasoning model whose hidden reasoning eats the callers'
+# max_tokens -- in a 2026-11-13 test it returned 4 of 10 segments, then invalid JSON.
+# GROQ_CHAT_MODEL / GROQ_WHISPER_MODEL override.
+GROQ_CHAT_MODELS = ("llama-3.3-70b-versatile", "openai/gpt-oss-120b", "llama-3.1-8b-instant")
+GROQ_CHAT_TRIES = 2
 GROQ_WHISPER_MODELS = ("whisper-large-v3", "whisper-large-v3-turbo")
 
 _GROQ_MODEL_IDS = None
@@ -57,19 +59,20 @@ def _groq():
     return OpenAI(api_key=groq_key(), base_url=GROQ_BASE_URL)
 
 
-def _groq_model(groq, preferred, env_name):
-    """First model in `preferred` that Groq currently serves (env override wins)."""
+def _groq_models(groq, preferred, env_name):
+    """Models from `preferred` that Groq currently serves, in order (env override wins)."""
     global _GROQ_MODEL_IDS
     override = os.environ.get(env_name, "").strip()
     if override:
-        return override
+        return [override]
     if _GROQ_MODEL_IDS is None:
         try:
             _GROQ_MODEL_IDS = {m.id for m in groq.models.list().data}
-        except Exception as exc:  # noqa: BLE001 -- listing is a nicety; try the first model
-            _log(f"couldn't list Groq models ({type(exc).__name__}); trying {preferred[0]}")
+        except Exception as exc:  # noqa: BLE001 -- listing is a nicety; try them in order
+            _log(f"couldn't list Groq models ({type(exc).__name__}); trying them in order")
             _GROQ_MODEL_IDS = set()
-    return next((m for m in preferred if m in _GROQ_MODEL_IDS), preferred[0])
+    served = [m for m in preferred if m in _GROQ_MODEL_IDS]
+    return served or list(preferred)
 
 
 def _has_images(messages):
@@ -99,9 +102,15 @@ class _Completions:
     def create(self, **kwargs):
         def groq_call():
             groq = _groq()
-            model = _groq_model(groq, GROQ_CHAT_MODELS, "GROQ_CHAT_MODEL")
-            _log(f"chat via Groq ({model})")
-            return groq.chat.completions.create(**dict(kwargs, model=model))
+            models = _groq_models(groq, GROQ_CHAT_MODELS, "GROQ_CHAT_MODEL")[:GROQ_CHAT_TRIES]
+            for i, model in enumerate(models):
+                _log(f"chat via Groq ({model})")
+                try:
+                    return groq.chat.completions.create(**dict(kwargs, model=model))
+                except Exception as exc:  # noqa: BLE001 -- e.g. JSON validation: next model
+                    if i == len(models) - 1:
+                        raise
+                    _log(f"Groq {model} failed ({type(exc).__name__}: {str(exc)[:120]}) -- next model")
         return _with_fallback(lambda: _openai().chat.completions.create(**kwargs),
                               None if _has_images(kwargs.get("messages")) else groq_call, "chat")
 
@@ -110,7 +119,7 @@ class _Transcriptions:
     def create(self, **kwargs):
         def groq_call():
             groq = _groq()
-            model = _groq_model(groq, GROQ_WHISPER_MODELS, "GROQ_WHISPER_MODEL")
+            model = _groq_models(groq, GROQ_WHISPER_MODELS, "GROQ_WHISPER_MODEL")[0]
             _log(f"transcription via Groq ({model})")
             f = kwargs.get("file")
             if hasattr(f, "seek"):

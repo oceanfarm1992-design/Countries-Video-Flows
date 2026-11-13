@@ -13,7 +13,7 @@ import ai_client  # noqa: E402
 class FakeProvider:
     """Stands in for an OpenAI(...) client; records calls, optionally fails."""
 
-    def __init__(self, fail=False, models=("openai/gpt-oss-120b", "whisper-large-v3")):
+    def __init__(self, fail=False, models=("llama-3.3-70b-versatile", "openai/gpt-oss-120b", "whisper-large-v3")):
         self.fail, self.calls = fail, []
         self.models = SimpleNamespace(list=lambda: SimpleNamespace(
             data=[SimpleNamespace(id=m) for m in models]))
@@ -52,16 +52,36 @@ def test_openai_failure_falls_back_to_groq_with_a_groq_model(providers):
     openai, groq = providers
     openai.fail = True
     assert ai_client.client().chat.completions.create(model="gpt-4o-mini", messages=[]) == "chat-ok"
-    assert groq.calls[0][1]["model"] == "openai/gpt-oss-120b"
+    assert groq.calls[0][1]["model"] == "llama-3.3-70b-versatile"
+
+
+def test_a_failing_groq_model_is_followed_by_the_next(providers, monkeypatch):
+    openai, _ = providers
+    openai.fail = True
+
+    class FirstModelFails(FakeProvider):
+        def _call(self, kind):
+            inner = super()._call(kind)
+
+            def create(**kw):
+                if kw.get("model") == "llama-3.3-70b-versatile":
+                    self.calls.append((kind, kw))
+                    raise RuntimeError("Failed to validate JSON")
+                return inner(**kw)
+            return create
+    groq = FirstModelFails()
+    monkeypatch.setattr(ai_client, "_groq", lambda: groq)
+    assert ai_client.client().chat.completions.create(model="gpt-4o-mini", messages=[]) == "chat-ok"
+    assert [c[1]["model"] for c in groq.calls] == ["llama-3.3-70b-versatile", "openai/gpt-oss-120b"]
 
 
 def test_retired_preferred_model_is_skipped(providers, monkeypatch):
     openai, _ = providers
     openai.fail = True
-    groq = FakeProvider(models=("llama-3.3-70b-versatile",))
+    groq = FakeProvider(models=("openai/gpt-oss-120b",))
     monkeypatch.setattr(ai_client, "_groq", lambda: groq)
     ai_client.client().chat.completions.create(model="gpt-4o-mini", messages=[])
-    assert groq.calls[0][1]["model"] == "llama-3.3-70b-versatile"
+    assert groq.calls[0][1]["model"] == "openai/gpt-oss-120b"
 
 
 def test_image_requests_never_go_to_groq(providers):
