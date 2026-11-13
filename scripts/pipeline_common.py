@@ -55,3 +55,38 @@ def speech_end_time(path, full_duration, noise_db=-35, min_silence=0.2, eof_tole
     if starts and ends and abs(ends[-1] - full_duration) <= eof_tolerance:
         return starts[-1]
     return full_duration
+
+
+def wrap_lines(text, max_chars):
+    """Word-wrap `text` into lines of at most ~max_chars (a long word keeps its own line)."""
+    lines, current, count = [], [], 0
+    for w in text.split():
+        space = 1 if current else 0
+        if current and count + space + len(w) > max_chars:
+            lines.append(" ".join(current))
+            current, count = [w], len(w)
+        else:
+            current.append(w)
+            count += space + len(w)
+    if current:
+        lines.append(" ".join(current))
+    return lines
+
+
+def stacked_drawtext(src, dst, lines, font, fontsize, y, style, enable=None, tag="tl"):
+    """drawtext filters for a multi-line block: ONE filter per line, each centred, never a
+    newline inside a text= value. ffmpeg 8 (GitHub's Ubuntu runners) draws the newline
+    character itself as a missing-glyph box -- live videos showed "From here?[box]" in the
+    end card on 2026-11-13. `lines` must already be drawtext-escaped; `y` is the top of
+    the first line (an ffmpeg expression); `style` holds colour/box/border options. A box
+    keeps its full side padding but only a small top/bottom one, and the line pitch matches
+    the box height, so stacked boxes touch without overlapping (no darker seams)."""
+    pitch = round(fontsize * 1.17) + 12
+    filters, cur = [], src
+    for i, line in enumerate(lines):
+        out = dst if i == len(lines) - 1 else f"{tag}{i}"
+        when = f":enable='{enable}'" if enable else ""
+        filters.append(f"[{cur}]drawtext=fontfile={font}:text='{line}':fontsize={fontsize}:{style}:"
+                       f"x=(w-text_w)/2:y={y}+{i * pitch}{when}[{out}]")
+        cur = out
+    return filters

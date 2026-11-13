@@ -32,7 +32,7 @@ import time
 
 import requests
 
-from pipeline_common import INTRO_XFADE_SECONDS, ffprobe_duration, speech_end_time
+from pipeline_common import INTRO_XFADE_SECONDS, ffprobe_duration, speech_end_time, stacked_drawtext, wrap_lines
 
 HEADERS = {"User-Agent": "yt-shorts-generator/1.0"}
 
@@ -87,27 +87,6 @@ def _name_fontsize(name):
     if n <= 15: return 90
     if n <= 22: return 72
     return 60   # e.g. "Democratic Republic of the Congo" (32 chars) at 60pt ≈ 1114px — use wrap
-
-
-def wrap_drawtext(text, max_chars):
-    """Word-wrap `text` and return a drawtext-safe string.
-    Lines are joined with an actual newline character — confirmed on a real render
-    that the two-character "\\n" escape gets its backslash silently dropped by
-    ffmpeg's filtergraph parser, leaving a bare "n" instead of a line break (see
-    the same fix and evidence in assemble_video.py's wrap_drawtext)."""
-    words = text.split()
-    lines, current, count = [], [], 0
-    for w in words:
-        space = 1 if current else 0
-        if current and count + space + len(w) > max_chars:
-            lines.append(" ".join(current))
-            current, count = [w], len(w)
-        else:
-            current.append(w)
-            count += space + len(w)
-    if current:
-        lines.append(" ".join(current))
-    return "\n".join(drawtext_escape(line) for line in lines)
 
 
 def fetch_flag(iso2, dest, attempts=2):
@@ -249,10 +228,8 @@ def main():
     name_fontsize = _name_fontsize(name_upper)
     # Wrap names longer than 22 chars at 20 chars/line so they don't exceed the frame.
     # "Democratic Republic of the Congo" (32 chars) → 2 lines, each well within 1080px.
-    if len(name_upper) > 22:
-        name_e = wrap_drawtext(name_upper, 20)
-    else:
-        name_e = drawtext_escape(name_upper)
+    name_lines = [drawtext_escape(line)
+                  for line in (wrap_lines(name_upper, 20) if len(name_upper) > 22 else [name_upper])]
     globe_y = 120
     globe_cx = width // 2
     country_y = globe_y + width // 2          # globe is scaled to width x width; centre = country
@@ -298,12 +275,8 @@ def main():
     # Country name banner — adaptive fontsize keeps even long names inside the frame;
     # wrapping splits names >22 chars onto 2 lines.  y is lifted slightly (height-420)
     # to give a 2-line block room before the bottom edge.
-    fc.append(
-        f"[{last}]drawtext=fontfile={font}:text='{name_e}':"
-        f"fontcolor=white:fontsize={name_fontsize}:line_spacing=6:"
-        "borderw=4:bordercolor=black@0.85:"
-        f"x=(w-text_w)/2:y={height - 420}[vout]"
-    )
+    fc += stacked_drawtext(last, "vout", name_lines, font, name_fontsize, str(height - 420),
+                           "fontcolor=white:borderw=4:bordercolor=black@0.85", tag="nm")
     filter_complex = ";".join(fc)
 
     cmd = ["ffmpeg", "-y"] + inputs + [

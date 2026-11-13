@@ -36,7 +36,8 @@ import shutil
 import subprocess
 import sys
 
-from pipeline_common import INTRO_XFADE_SECONDS, ffprobe_duration, segment_durations, speech_end_time
+from pipeline_common import (INTRO_XFADE_SECONDS, ffprobe_duration, segment_durations, speech_end_time,
+                             stacked_drawtext, wrap_lines)
 
 def _find_font(candidates):
     """First existing path from candidates, or the first candidate (let ffmpeg error
@@ -132,31 +133,6 @@ def drawtext_escape(text):
                 .replace("%", "\\%"))
 
 
-def wrap_drawtext(text, max_chars=30):
-    """Wrap `text` at word boundaries so it fits within the frame width.
-
-    Returns a drawtext-safe string where each line is individually escaped and
-    lines are joined with an actual newline character (not the two-character
-    "\\n" escape — confirmed on a real render that ffmpeg's filtergraph parser
-    silently drops the backslash and leaves a bare "n" instead of breaking the
-    line, e.g. "...TALEnOF CONTRASTS" instead of two lines). Escaping each line
-    separately, before joining, keeps the backslash from drawtext_escape from
-    ever being adjacent to the newline byte."""
-    words = text.split()
-    lines, current, count = [], [], 0
-    for w in words:
-        space = 1 if current else 0
-        if current and count + space + len(w) > max_chars:
-            lines.append(" ".join(current))
-            current, count = [w], len(w)
-        else:
-            current.append(w)
-            count += space + len(w)
-    if current:
-        lines.append(" ".join(current))
-    return "\n".join(drawtext_escape(line) for line in lines)
-
-
 def fontfile_escape(path):
     """Escape a fontfile= path for ffmpeg's filtergraph syntax. Colons separate filter
     options, so a Windows drive letter (C:/...) must be escaped; Linux paths have no
@@ -200,8 +176,8 @@ def build_video_filter(pieces, hook, cta, captions_path, duration, hook_idx=None
     line) out of frame for most of every video before this was added."""
     # Wrap at ~28 chars so a 50-char hook fits on 2 lines at fontsize=48 within 1080px.
     # Wrap CTA at ~38 chars; "Follow for more stories from around the world" is 45 chars.
-    hook_e = wrap_drawtext(hook, 28)
-    cta_e = wrap_drawtext(cta, 38)
+    hook_lines = [drawtext_escape(line) for line in wrap_lines(hook or "", 28)]
+    cta_lines = [drawtext_escape(line) for line in wrap_lines(cta, 38)]
     font_bold = fontfile_escape(FONT_BOLD)
     subs = captions_path.replace("\\", "/")
     hook_end = HOOK_SECONDS
@@ -256,12 +232,9 @@ def build_video_filter(pieces, hook, cta, captions_path, duration, hook_idx=None
         parts.append(f"[{hook_idx}:v]format=rgba,{_card_fades(0.0, hook_end)}[hk]")
         parts.append("[base][hk]overlay=0:0:eof_action=pass[v1]")
     elif hook:
-        parts.append(
-            f"[base]drawtext=fontfile={font_bold}:text='{hook_e}':"
-            "fontcolor=white:fontsize=48:line_spacing=8:"
-            "box=1:boxcolor=black@0.5:boxborderw=24:"
-            f"x=(w-text_w)/2:y=h*0.10:enable='between(t,0,{hook_end})'[v1]"
-        )
+        parts += stacked_drawtext("base", "v1", hook_lines, font_bold, 48, "h*0.10",
+                                  "fontcolor=white:box=1:boxcolor=black@0.5:boxborderw=6|24",
+                                  enable=f"between(t,0,{hook_end})", tag="hl")
     else:  # the series renders its own animated title (or the hook sits on the intro)
         parts.append("[base]null[v1]")
     # Word-by-word highlight captions (captions.ass) when generate_captions.py wrote
@@ -273,12 +246,9 @@ def build_video_filter(pieces, hook, cta, captions_path, duration, hook_idx=None
         parts.append(f"[v1]subtitles='{subs}':force_style='{caption_style}'[v2]")
     # end-card CTA — wrapped so the full 45-char string fits on 2 lines within 1080px.
     # y=h*0.82 gives the 2-line card breathing room above the bottom edge.
-    parts.append(
-        f"[v2]drawtext=fontfile={font_bold}:text='{cta_e}':"
-        "fontcolor=white:fontsize=44:line_spacing=8:"
-        "box=1:boxcolor=black@0.55:boxborderw=20:"
-        f"x=(w-text_w)/2:y=h*0.82:enable='gte(t,{cta_start:.2f})'[vout]"
-    )
+    parts += stacked_drawtext("v2", "vout", cta_lines, font_bold, 44, "h*0.82",
+                              "fontcolor=white:box=1:boxcolor=black@0.55:boxborderw=6|20",
+                              enable=f"gte(t,{cta_start:.2f})", tag="cl")
     return ";".join(parts)
 
 
