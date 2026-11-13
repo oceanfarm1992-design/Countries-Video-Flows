@@ -27,6 +27,19 @@ GROQ_BASE_URL = "https://api.groq.com/openai/v1"
 # GROQ_CHAT_MODEL / GROQ_WHISPER_MODEL override.
 GROQ_CHAT_MODELS = ("llama-3.3-70b-versatile", "openai/gpt-oss-120b", "llama-3.1-8b-instant")
 GROQ_CHAT_TRIES = 2
+# Reasoning models (gpt-oss): reasoning tokens count against max_tokens, so keep the
+# reasoning short and give the answer room on top of what the caller asked for.
+REASONING_PREFIXES = ("openai/gpt-oss",)
+REASONING_EXTRA_TOKENS = 4000
+
+
+def _for_groq(kwargs, model):
+    req = dict(kwargs, model=model)
+    if model.startswith(REASONING_PREFIXES):
+        req["reasoning_effort"] = "low"
+        if req.get("max_tokens"):
+            req["max_tokens"] = req["max_tokens"] + REASONING_EXTRA_TOKENS
+    return req
 GROQ_WHISPER_MODELS = ("whisper-large-v3", "whisper-large-v3-turbo")
 
 _GROQ_MODEL_IDS = None
@@ -68,6 +81,7 @@ def _groq_models(groq, preferred, env_name):
     if _GROQ_MODEL_IDS is None:
         try:
             _GROQ_MODEL_IDS = {m.id for m in groq.models.list().data}
+            _log("Groq serves: " + ", ".join(sorted(_GROQ_MODEL_IDS)))
         except Exception as exc:  # noqa: BLE001 -- listing is a nicety; try them in order
             _log(f"couldn't list Groq models ({type(exc).__name__}); trying them in order")
             _GROQ_MODEL_IDS = set()
@@ -106,7 +120,7 @@ class _Completions:
             for i, model in enumerate(models):
                 _log(f"chat via Groq ({model})")
                 try:
-                    return groq.chat.completions.create(**dict(kwargs, model=model))
+                    return groq.chat.completions.create(**_for_groq(kwargs, model))
                 except Exception as exc:  # noqa: BLE001 -- e.g. JSON validation: next model
                     if i == len(models) - 1:
                         raise
