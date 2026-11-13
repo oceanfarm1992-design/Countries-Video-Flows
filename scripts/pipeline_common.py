@@ -3,6 +3,7 @@
 Small helpers shared across pipeline stages that would otherwise need to
 duplicate the same math and risk drifting out of sync with each other.
 """
+import json
 import re
 import subprocess
 
@@ -13,14 +14,66 @@ import subprocess
 INTRO_XFADE_SECONDS = 0.8
 
 
-def segment_durations(script, total):
-    """Split `total` seconds across the narration segments in proportion to how many
-    words each one has, so each clip is on screen for exactly as long as its words are
-    spoken."""
+# Written by generate_captions.py: when each script word is actually spoken (Whisper).
+WORD_TIMES = "build/word_times.json"
+# A picture change lands this much before its first word, so it never trails the voice.
+CUT_LEAD_SECONDS = 0.15
+# Spoken-length estimate when no word timings exist: seconds per plain word / per digit
+# (numbers are read out in full -- "$83.2B" is ~6 spoken words). Measured on the own
+# voice, 2026-11-13 (same model as generate_longform_rankings.py).
+SECONDS_PER_WORD = 0.30
+SECONDS_PER_DIGIT = 0.57
+
+
+def _spoken_weight(text):
+    from spoken_text import to_spoken  # local import: keeps this module dependency-light
+    tokens = to_spoken(text).split()
+    plain = sum(1 for t in tokens if not re.search(r"\d", t))
+    digits = sum(len(re.sub(r"\D", "", t)) for t in tokens)
+    return max(0.3, plain * SECONDS_PER_WORD + digits * SECONDS_PER_DIGIT)
+
+
+def _timed_starts(segs, path):
+    """Start second of each segment's first word, from the Whisper word timings, or None
+    when there are none or they don't belong to these segments."""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            timed = json.load(fh)["words"]
+    except (OSError, ValueError, KeyError):
+        return None
+    seg_words = [s.get("text", "").split() for s in segs]
+    if [w["word"] for w in timed] != [w for ws in seg_words for w in ws] or not all(seg_words):
+        return None
+    starts, i = [], 0
+    for ws in seg_words:
+        starts.append(timed[i]["start"])
+        i += len(ws)
+    return starts
+
+
+def segment_durations(script, total, word_times_path=WORD_TIMES):
+    """Split `total` seconds across the narration segments so each picture is on screen
+    exactly while its words are spoken.
+
+    Uses the real word timings from generate_captions.py when they match the script:
+    a segment's picture starts when its first word is heard (CUT_LEAD_SECONDS early).
+    Otherwise the split follows each segment's SPOKEN length -- not its written word
+    count, which put pictures up to 3 s behind the voice in number-heavy Shorts
+    ("$83.2B" is one written word but six spoken ones)."""
     segs = script.get("segments") or []
-    words = [max(1, s.get("words", len(s.get("text", "").split()))) for s in segs]
-    tw = sum(words) or 1
-    return [total * w / tw for w in words]
+    if not segs:
+        return []
+    starts = _timed_starts(segs, word_times_path) if word_times_path else None
+    if starts and len(segs) > 1:
+        cuts = [0.0] + [max(0.0, t - CUT_LEAD_SECONDS) for t in starts[1:]] + [total]
+        for k in range(1, len(cuts)):            # keep every segment at least 0.3 s
+            cuts[k] = max(cuts[k], cuts[k - 1] + 0.3)
+        scale = total / cuts[-1] if cuts[-1] > total else 1.0
+        return [(b - a) * scale for a, b in zip(cuts, cuts[1:])]
+    weights = [_spoken_weight(s.get("text", "")) if s.get("text") else max(1, s.get("words", 1)) * SECONDS_PER_WORD
+               for s in segs]
+    tw = sum(weights)
+    return [total * w / tw for w in weights]
 
 
 def ffprobe_duration(path):

@@ -12,7 +12,10 @@ start but drifts by 1-2s toward the end due to natural TTS rhythm variation.
 
 Output: build/captions.srt, plus build/captions.ass -- the same timings as
 word-by-word highlight captions (see karaoke_captions.py), which the assembler
-burns in when present
+burns in when present -- and build/word_times.json: when each SCRIPT word is
+spoken (Whisper-timed only), which pipeline_common.segment_durations uses so every
+picture changes exactly when its words start. Runs right after the voiceover,
+before any renderer.
 
 Usage:
     python scripts/generate_captions.py
@@ -34,6 +37,9 @@ try:
     OPENAI_AVAILABLE = True
 except ImportError:
     pass
+
+
+WORD_TIMES = "build/word_times.json"  # read by pipeline_common.segment_durations
 
 
 def wav_duration_seconds(path):
@@ -185,6 +191,8 @@ def main():
 
     with open(args.script, encoding="utf-8") as f:
         words = f.read().split()
+    if os.path.exists(WORD_TIMES):
+        os.remove(WORD_TIMES)  # never let a previous run's timings drive this video
 
     # --- Primary: Whisper word-level timestamps ---
     try:
@@ -193,6 +201,8 @@ def main():
         if share >= 0.6:
             print(f"[generate_captions] showing script text, timed by Whisper ({share:.0%} matched)")
             word_times = aligned
+            with open(WORD_TIMES, "w", encoding="utf-8") as fh:
+                json.dump({"words": aligned}, fh)
         else:
             print(f"[generate_captions] only {share:.0%} of the script matched Whisper -- "
                   "showing Whisper's words instead")

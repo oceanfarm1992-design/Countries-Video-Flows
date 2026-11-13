@@ -204,6 +204,14 @@ jobs:
           VOICE_REPO_PAT: ${{ secrets.VOICE_REPO_PAT }}
         run: python scripts/generate_tts.py --config config/countries.json
 
+      # Right after the voiceover, BEFORE any renderer: it also writes build/word_times.json
+      # (when each word is spoken), which sets when every picture changes.
+      - name: Generate captions
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        run: python scripts/generate_captions.py --config config/countries.json
+
       # Runs AFTER the voiceover on purpose -- same reason as geography/
       # worlddata's render step: slice/frame timing must come from the real
       # voice length, not a word-count estimate.
@@ -219,12 +227,6 @@ jobs:
             rm -f build/sfx.wav build/footage_clip*.mp4
             python scripts/render_comparison_graphics.py --video-config config/comparison_video.json
           fi
-
-      - name: Generate captions
-        if: steps.gate.outputs.skip == 'false'
-        env:
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        run: python scripts/generate_captions.py --config config/countries.json
 
       - name: Generate background music (energetic)
         if: steps.gate.outputs.skip == 'false'
