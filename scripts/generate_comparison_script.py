@@ -87,6 +87,10 @@ HISTORY_LOG = "logs/history_comparison.csv"
 # one is a foregone, unfair contest. Both countries' GDP per person must be within this
 # ratio of each other (e.g. $6.7k vs $5.1k fine; $2.5k vs $48k skipped).
 MAX_WEALTH_RATIO = 3.0
+# Pairs whose full stats are fetched, at most. Each fetch can take minutes when the
+# World Bank API is timing out (2026-11-13: a run walked pair after pair until the
+# 45-minute job timeout) -- better to fail fast and let the next slot try again.
+MAX_PAIRS_FETCHED = 6
 
 
 def aired_pairs(path=HISTORY_LOG):
@@ -417,8 +421,9 @@ def main():
         wealth = wealth_table(countries)
         rows = None
         position = base_index
-        attempt = 0
-        while attempt < MAX_PAIR_ATTEMPTS and position < base_index + MAX_SCHEDULE_SCAN:
+        attempt = fetched = 0
+        while (attempt < MAX_PAIR_ATTEMPTS and fetched < MAX_PAIRS_FETCHED
+               and position < base_index + MAX_SCHEDULE_SCAN):
             idx_a, idx_b = pick_pair_at(countries, position)
             position += 1
             country_a, country_b = countries[idx_a], countries[idx_b]
@@ -431,9 +436,13 @@ def main():
             name_a, name_b = country_a["name"], country_b["name"]
             print(f"[generate_comparison_script] fetching stats for {name_a} and {name_b} ...")
             stats_a, stats_b = get_stats(country_a["iso2"]), get_stats(country_b["iso2"])
-            if not balanced(stats_a, stats_b):
+            fetched += 1
+            # Only without the bulk table: with it, the pair is already known to be fair, and a
+            # per-country fetch that just failed (502 / timeout) must not count as "unfair".
+            if not wealth and not balanced(stats_a, stats_b):
                 attempt -= 1  # a mismatch isn't a data problem; keep walking the schedule
-                print(f"[generate_comparison_script] {name_a} vs {name_b}: wealth too far apart -- skipping")
+                print(f"[generate_comparison_script] {name_a} vs {name_b}: wealth too far apart "
+                      f"or unknown -- skipping")
                 continue
             candidate_rows = build_rows(stats_a, stats_b)
             if len(candidate_rows) >= MIN_ROWS:
@@ -447,7 +456,8 @@ def main():
         if rows is None:
             raise SystemExit(
                 f"Could not find an unaired pair with >= {MIN_ROWS} comparable metrics in "
-                f"{attempt} attempts starting from schedule position {base_index}.")
+                f"{attempt} attempts ({fetched} pairs fetched) starting from schedule position "
+                f"{base_index}. If the World Bank API was timing out, the next slot retries.")
 
     openai_cfg = config.get("openai", {})
     api_key = os.environ.get("OPENAI_API_KEY", "").strip()
