@@ -19,6 +19,7 @@ SCALES = r"(?:thousand|million|billion|trillion)"
 
 # Display formats (from format_value) that would otherwise be read letter by letter.
 UNITS = [
+    (r"\bper 100k\b", "per 100,000 people"),   # before the generic k rule below
     (r"(\d)\s?T\b", r"\1 trillion"),
     (r"(\d)\s?(?:B|bn)\b", r"\1 billion"),
     (r"(\d)\s?(?:M|mn)\b", r"\1 million"),
@@ -29,7 +30,6 @@ UNITS = [
     (r"km²", "square kilometres"),
     (r"(\d) t\b", r"\1 tonnes"),
     (r"µg/m³", "micrograms per cubic metre"),
-    (r"\bper 100k\b", "per 100,000 people"),
     (r"\bMt\s?CO(?:2|₂)e?\b", "million tonnes of C O two"),
     (r"\btCO(?:2|₂)e?\b", "tonnes of C O two"),
     (r"(\d)\s?Mt\b", r"\1 million tonnes"),

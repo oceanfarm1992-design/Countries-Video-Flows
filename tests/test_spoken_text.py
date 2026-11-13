@@ -29,6 +29,7 @@ from spoken_text import to_spoken  # noqa: E402
     ("1.41B people", "1.41 billion people"),
     ("12.4 Mt CO₂e", "12.4 million tonnes of C O two"),
     ("PM2.5 of 41 µg/m³", "PM2.5 of 41 micrograms per cubic metre"),
+    ("41.2 per 100k", "41.2 per 100,000 people"),
 ])
 def test_to_spoken_rewrites_forms_the_voice_cannot_read(written, spoken):
     assert to_spoken(written) == spoken
