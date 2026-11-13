@@ -3208,7 +3208,8 @@
     "width": 1080,
     "height": 1920,
     "words_per_second": 2.3,
-    "min_seconds": 45,
+    "_min_seconds_note": "2026-11-13: 45 -> 25. The own voice (RVC, storyteller style, whole passages) reads an 82-word script in ~28 s; at 45 the video ran ~17 s past the last word.",
+    "min_seconds": 25,
     "max_seconds": 84,
     "cta_text": "Love this? Like the video! From here? Comment I love my country",
     "font_hint": "DejaVuSans (preinstalled on GitHub Ubuntu runners)"

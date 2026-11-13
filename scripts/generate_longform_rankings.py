@@ -40,12 +40,14 @@ except ImportError:
 TOP_N = 20
 MIN_ENTRIES = 15
 TREND_YEARS = 10
-# Measured on the cloned voice (2026-10-03 dry run, 22 segments, max error 4.7 s):
-# ~0.40 s per plain word and ~0.81 s per DIGIT -- numbers are read out in full, so
-# word counts badly underestimate number-heavy narration. Aim past 8:00 with margin.
-SECONDS_PER_WORD = 0.40
-SECONDS_PER_DIGIT = 0.81
-MIN_EST_SECONDS = 540
+# Measured on the owner's own voice (RVC, storyteller style; 2026-11-13 dry run, 22
+# segments, 493 s, max error 1.6 s): ~0.30 s per plain word and ~0.57 s per DIGIT --
+# numbers are read out in full, so word counts badly underestimate number-heavy
+# narration. (The earlier plain clone, one call per sentence, was ~35% slower: 0.40/0.81.)
+# Aim past 8:00 with margin.
+SECONDS_PER_WORD = 0.30
+SECONDS_PER_DIGIT = 0.57
+MIN_EST_SECONDS = 510
 LONG_HISTORY = "logs/history_longform.csv"
 SHORTS_HISTORY = "logs/history_rankings.csv"
 SHORTS_RECENT_DAYS = 7
@@ -219,11 +221,16 @@ def _fallback_script(metric, rows, source_label, as_of):
     openers = ["At number {rank}", "Number {rank} on our list", "Coming in at number {rank}",
                "Next up, at number {rank}", "Holding number {rank}"]
     usual_year = max(set(r["year"] for r in rows), key=lambda y: sum(r["year"] == y for r in rows))
+    by_rank = {r["rank"]: r for r in rows}
     for i, r in enumerate(reversed(rows)):
         rank_txt = f"{r['rank']}, tied," if r["tied"] else str(r["rank"])
         year_note = f", based on its {r['year']} figure" if r["year"] != usual_year else ""
         parts = [f"{openers[i % len(openers)].format(rank=rank_txt)} is {r['country']}, "
                  f"with a {label} of {r['value']}{year_note}."]
+        # the neighbour the intro promises ("how far it sits from its neighbours")
+        below = next((by_rank[k] for k in range(r["rank"] + 1, n + 1) if k in by_rank), None)
+        if below and not r["tied"] and below["value"] != r["value"]:
+            parts.append(f"That puts it ahead of {below['country']}, at {below['value']}.")
         parts += [_fact_sentence(f, r["country"]) for f in r["facts"]]
         if r["tied"]:
             parts.append(f"{r['country']} shares this exact figure with at least one other country on the list.")
@@ -261,8 +268,8 @@ def _gpt_script(metric, rows, source_label, as_of, openai_cfg):
         Return JSON: {{"segments": [{{"visual": "intro", "text": "..."}},
           one {{"visual": "<ISO2>", "text": "..."}} per row in the order given,
           {{"visual": "outro", "text": "..."}}]}}
-        Lengths: intro 120-160 words (what this ranking measures in general terms, the source,
-        how the countdown works); each country 65-80 words; outro 70-100 words (recap the top 3,
+        Lengths: intro 140-180 words (what this ranking measures in general terms, the source,
+        how the countdown works); each country 80-100 words; outro 80-110 words (recap the top 3,
         invite comments, ask viewers to subscribe for a new full ranking every week).
 
         ROWS (rank {n} first):
