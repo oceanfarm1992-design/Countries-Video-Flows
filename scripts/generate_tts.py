@@ -178,8 +178,10 @@ def run_voiceclone(text, out_wav):
     package isn't installed or no cloned voice came out, so synth() moves on."""
     from voiceclone import synthesize
 
-    used = synthesize(text, out_wav, language="en", style=VOICE_STYLE, voice_ref_repo=VOICE_REF_REPO,
-                      rvc="on" if REQUIRE_RVC else "auto")
+    # engine="styletts2": its stock-voice fallbacks would be rejected below anyway, so
+    # don't spend minutes on them -- the plain clone in this file is the next step.
+    used = synthesize(text, out_wav, engine="styletts2", language="en", style=VOICE_STYLE,
+                      voice_ref_repo=VOICE_REF_REPO, rvc="on" if REQUIRE_RVC else "auto")
     print(f"[generate_tts] voiceclone engine: {used} (style={VOICE_STYLE})")
     if not used.startswith("styletts2"):
         raise RuntimeError(f"voiceclone fell back to a stock voice ({used})")
