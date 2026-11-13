@@ -280,6 +280,24 @@ jobs:
           AI_PROVIDER: ${{ vars.AI_PROVIDER }}
         run: python scripts/generate_captions.py --config config/countries.json
 
+      # The cloned voice sometimes blurs "billion" into "million" (seen 2026-11-13). Compare
+      # the scale words the script has with what Whisper heard; re-record on a mismatch.
+      - name: Check the voice says every amount right
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          VOICE_REPO_PAT: ${{ secrets.VOICE_REPO_PAT }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API }}
+          AI_PROVIDER: ${{ vars.AI_PROVIDER }}
+        run: |
+          for take in 2 3; do
+            python scripts/check_spoken_numbers.py && exit 0
+            echo "::warning::the voice misspoke an amount -- recording take $take"
+            python scripts/generate_tts.py --config config/countries.json
+            python scripts/generate_captions.py --config config/countries.json
+          done
+          python scripts/check_spoken_numbers.py || echo "::warning::an amount is still misspoken after 3 takes"
+
       # Runs AFTER the voiceover on purpose: the map is pre-sliced into one clip
       # per narration beat, and those boundaries have to match what
       # assemble_video.py derives from the REAL voice length. Estimating from

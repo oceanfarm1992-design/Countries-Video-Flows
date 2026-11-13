@@ -42,6 +42,7 @@ import ai_client  # OpenAI first, Groq fallback
 
 
 WORD_TIMES = "build/word_times.json"  # read by pipeline_common.segment_durations
+HEARD = "build/transcript_words.json"  # what Whisper heard -- read by check_spoken_numbers.py
 
 
 def wav_duration_seconds(path):
@@ -207,12 +208,15 @@ def main():
 
     with open(args.script, encoding="utf-8") as f:
         words = f.read().split()
-    if os.path.exists(WORD_TIMES):
-        os.remove(WORD_TIMES)  # never let a previous run's timings drive this video
+    for stale in (WORD_TIMES, HEARD):
+        if os.path.exists(stale):
+            os.remove(stale)  # never let a previous take's timings or transcript count
 
     # --- Primary: Whisper word-level timestamps ---
     try:
         word_times = whisper_word_timestamps(args.audio)
+        with open(HEARD, "w", encoding="utf-8") as fh:
+            json.dump({"words": word_times}, fh)
         aligned, share = align_script_words(words, word_times)
         if share >= 0.6:
             print(f"[generate_captions] showing script text, timed by Whisper ({share:.0%} matched)")
