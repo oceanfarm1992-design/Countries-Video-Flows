@@ -18,6 +18,12 @@ INTRO_XFADE_SECONDS = 0.8
 WORD_TIMES = "build/word_times.json"
 # A picture change lands this much before its first word, so it never trails the voice.
 CUT_LEAD_SECONDS = 0.15
+# Series whose beats open with an animation before the subject appears get a longer
+# lead, so the subject is on screen as it is named. Rankings / worst-of
+# (render_rankings_motion.py): the camera flies ~1.3 s before the stat card drops in.
+# Read from script.json's "series", so the renderer and the assembler (which re-cuts
+# the same clips) always use the same cuts.
+CUT_LEAD_BY_SERIES = {"rankings": 1.2}
 # Spoken-length estimate when no word timings exist: seconds per plain word / per digit
 # (numbers are read out in full -- "$83.2B" is ~6 spoken words). Measured on the own
 # voice, 2026-11-13 (same model as generate_longform_rankings.py).
@@ -56,7 +62,8 @@ def segment_durations(script, total, word_times_path=WORD_TIMES):
     exactly while its words are spoken.
 
     Uses the real word timings from generate_captions.py when they match the script:
-    a segment's picture starts when its first word is heard (CUT_LEAD_SECONDS early).
+    a segment's picture starts when its first word is heard (CUT_LEAD_SECONDS early, or
+    the series' own lead from CUT_LEAD_BY_SERIES).
     Otherwise the split follows each segment's SPOKEN length -- not its written word
     count, which put pictures up to 3 s behind the voice in number-heavy Shorts
     ("$83.2B" is one written word but six spoken ones)."""
@@ -65,7 +72,8 @@ def segment_durations(script, total, word_times_path=WORD_TIMES):
         return []
     starts = _timed_starts(segs, word_times_path) if word_times_path else None
     if starts and len(segs) > 1:
-        cuts = [0.0] + [max(0.0, t - CUT_LEAD_SECONDS) for t in starts[1:]] + [total]
+        lead = CUT_LEAD_BY_SERIES.get(script.get("series"), CUT_LEAD_SECONDS)
+        cuts = [0.0] + [max(0.0, t - lead) for t in starts[1:]] + [total]
         for k in range(1, len(cuts)):            # keep every segment at least 0.3 s
             cuts[k] = max(cuts[k], cuts[k - 1] + 0.3)
         scale = total / cuts[-1] if cuts[-1] > total else 1.0

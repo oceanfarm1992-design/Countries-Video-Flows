@@ -46,3 +46,11 @@ def test_without_timings_numbers_count_by_spoken_length(tmp_path):
     durs = segment_durations(SCRIPT, 12.0, word_times_path=str(tmp_path / "missing.json"))
     assert durs[1] / sum(durs) > 0.6
     assert abs(sum(durs) - 12.0) < 1e-9
+
+
+def test_rankings_beats_start_early_enough_for_the_card_to_land_on_the_name(tmp_path):
+    from pipeline_common import CUT_LEAD_BY_SERIES
+    starts = [0.0, 0.4, 0.8, 1.6, 2.0, 2.4, 2.8, 3.2, 3.6, 4.0, 7.0, 7.4]
+    path = _write_times(tmp_path, starts)
+    durs = segment_durations(dict(SCRIPT, series="rankings"), 9.0, word_times_path=path)
+    assert abs(durs[0] - (1.6 - CUT_LEAD_BY_SERIES["rankings"])) < 1e-9
