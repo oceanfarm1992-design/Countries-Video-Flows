@@ -25,6 +25,7 @@ import os
 import re
 import sys
 
+from generate_captions import _pieces
 from spoken_text import to_spoken
 
 SCALES = {"thousand", "million", "billion", "trillion"}
@@ -55,6 +56,26 @@ def mismatches(script_text, heard_words):
     return out
 
 
+MIN_READ_ACCURACY = 0.88  # below this the take is re-recorded (proper nouns Whisper mishears cost a little)
+
+
+def _flat(words):
+    return [piece for w in words for piece in _pieces(w)]
+
+
+def read_accuracy(script_text, heard_words):
+    """(similarity 0..1, [(script words, heard words)] for every stretch that differs).
+    Numbers are compared as words, so "2,400" and "two thousand four hundred" agree."""
+    said, heard = _flat(to_spoken(script_text).split()), _flat(heard_words)
+    if not said:
+        return 1.0, []
+    sm = difflib.SequenceMatcher(None, said, heard, autojunk=False)
+    matched = sum(b.size for b in sm.get_matching_blocks())
+    diffs = [(" ".join(said[i1:i2]), " ".join(heard[j1:j2]))
+             for tag, i1, i2, j1, j2 in sm.get_opcodes() if tag != "equal"]
+    return 2 * matched / (len(said) + len(heard)), diffs
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--script", default="build/script.txt")
@@ -68,9 +89,17 @@ def main():
     with open(args.heard, encoding="utf-8") as fh:
         heard = [w["word"] for w in json.load(fh)["words"]]
     bad = mismatches(script_text, heard)
+    accuracy, diffs = read_accuracy(script_text, heard)
+    if diffs:
+        print("[check_spoken_numbers] words that differ (script -> heard): "
+              + "; ".join(f"'{a}' -> '{b}'" for a, b in diffs[:12]))
     if bad:
         print("[check_spoken_numbers] the voice misspoke: " + "; ".join(bad))
         return 1
+    if accuracy < MIN_READ_ACCURACY:
+        print(f"[check_spoken_numbers] the voice misread the script (only {accuracy:.0%} matches)")
+        return 1
+    print(f"[check_spoken_numbers] read-through matches the script {accuracy:.0%}")
     print(f"[check_spoken_numbers] every amount spoken as written "
           f"({len(scale_words(to_spoken(script_text).split()))} checked)")
     return 0

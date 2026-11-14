@@ -213,6 +213,8 @@ jobs:
         if: steps.gate.outputs.skip == 'false'
         env:
           VOICE_REPO_PAT: ${{ secrets.VOICE_REPO_PAT }}
+          VOICE_STYLE: default
+          VOICE_RVC: "off"
         run: python scripts/generate_tts.py --config config/countries.json
 
       # Right after the voiceover, BEFORE any renderer: it also writes build/word_times.json
@@ -231,6 +233,8 @@ jobs:
         if: steps.gate.outputs.skip == 'false'
         env:
           VOICE_REPO_PAT: ${{ secrets.VOICE_REPO_PAT }}
+          VOICE_STYLE: default
+          VOICE_RVC: "off"
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_API }}
           AI_PROVIDER: ${{ vars.AI_PROVIDER }}

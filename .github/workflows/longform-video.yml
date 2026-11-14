@@ -175,6 +175,8 @@ jobs:
         if: steps.gate.outputs.skip == 'false'
         env:
           VOICE_REPO_PAT: ${{ secrets.VOICE_REPO_PAT }}
+          VOICE_STYLE: default
+          VOICE_RVC: "off"
         run: python scripts/longform_tts.py --script build/long/script.json --out-dir build/long
 
       - name: Background music bed
