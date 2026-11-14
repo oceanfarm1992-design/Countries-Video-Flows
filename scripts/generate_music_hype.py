@@ -3,7 +3,7 @@
 Original "hype" background track for the India channel, synthesised from scratch with numpy
 (no samples, no licensing). The style target is modern trap-pop drive: a 96 BPM groove with a
 deep gliding 808, a rolling 16th hi-hat, claps on 2 and 4, tabla hits for an Indian colour,
-a warm major-key pad and a bansuri-like flute playing an original four-bar riff. Energy stays
+a warm major-key pad and, optionally (--flute), a bansuri-like flute playing an original four-bar riff. Energy stays
 steady like a loop bed, with a riser into every 8th bar so the cuts feel lifted.
 
 The tempo, groove density and low-end weight were taken from a style reference; the notes,
@@ -134,7 +134,7 @@ def riser(seconds, rng):
     return noise * swell
 
 
-def synth(bars, tonic, seed):
+def synth(bars, tonic, seed, with_flute=False):
     rng = np.random.default_rng(seed)
     beat = 60.0 / BPM
     bar_len = 4 * beat
@@ -169,7 +169,7 @@ def synth(bars, tonic, seed):
             else:
                 _place(buf, at(b, i * sixteenth), hat(rng), 0.2 * vel)
 
-        if b >= 2:                                         # flute riff enters on bar 3, up an octave in the 2nd half
+        if with_flute and b >= 2:                          # optional flute riff (off by default), up an octave in the 2nd half
             octave = 12 if (b // 8) % 2 else 0
             for start, semis, length in RIFF[b % 4]:
                 _place(buf, at(b, start * eighth),
@@ -189,12 +189,13 @@ def main():
     ap.add_argument("--out", default="build/music.mp3")
     ap.add_argument("--bars", type=int, default=16, help="whole bars (16 = 40 s)")
     ap.add_argument("--key", type=int, default=None, help="force a key index")
+    ap.add_argument("--flute", action="store_true", help="add the flute riff (off: groove only)")
     args = ap.parse_args()
 
     day = datetime.date.today().timetuple().tm_yday
     tonic = KEY_ROOTS[(args.key if args.key is not None else day) % len(KEY_ROOTS)]
     print(f"[generate_music_hype] {args.bars} bars @ {BPM} BPM, tonic MIDI {tonic}")
-    samples = synth(args.bars, tonic, seed=GHOST_NOISE_SEED)
+    samples = synth(args.bars, tonic, seed=GHOST_NOISE_SEED, with_flute=args.flute)
 
     os.makedirs(os.path.dirname(args.out) or ".", exist_ok=True)
     tmp = args.out + ".tmp.wav"
