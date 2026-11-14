@@ -170,9 +170,10 @@ jobs:
           done
           python scripts/check_spoken_numbers.py || echo "::warning::an amount is still misspoken after 3 takes"
 
-      - name: Generate background music
+      # Original hype track (96 BPM, 808 + flute + tabla), not the news-style loop.
+      - name: Generate background music (hype)
         if: steps.gate.outputs.skip == 'false'
-        run: python scripts/generate_music.py
+        run: python scripts/generate_music_hype.py
 
       - name: Scene-cut sound effects
         if: steps.gate.outputs.skip == 'false'
