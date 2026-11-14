@@ -1,0 +1,64 @@
+name: export-indiapis
+
+# Installs the IndiAPIs R package from CRAN (https://lightbluetitan.github.io/indiapis/) and
+# saves every dataset it ships as a CSV in data/indiapis/, with an index, so the Python
+# pipeline can use the curated India datasets without R. Run by hand when the package updates.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v7
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+      - name: Install IndiAPIs and export its datasets
+        run: |
+          mkdir -p data/indiapis
+          Rscript - <<'EOF_R'
+          install.packages("IndiAPIs", repos = "https://cloud.r-project.org")
+          library(IndiAPIs)
+          items <- data(package = "IndiAPIs")$results
+          index <- data.frame(name = character(), title = character(), rows = integer(),
+                              cols = integer(), file = character(), stringsAsFactors = FALSE)
+          for (i in seq_len(nrow(items))) {
+            name <- items[i, "Item"]; title <- items[i, "Title"]
+            env <- new.env()
+            ok <- tryCatch({ data(list = name, package = "IndiAPIs", envir = env); TRUE },
+                           error = function(e) FALSE)
+            if (!ok) next
+            x <- get(name, envir = env)
+            df <- tryCatch({
+              if (is.ts(x)) data.frame(time = as.numeric(time(x)), value = as.numeric(x))
+              else as.data.frame(x)
+            }, error = function(e) NULL)
+            if (is.null(df)) next
+            file <- paste0(name, ".csv")
+            write.csv(df, file.path("data/indiapis", file), row.names = FALSE)
+            index[nrow(index) + 1, ] <- list(name, title, nrow(df), ncol(df), file)
+          }
+          write.csv(index, "data/indiapis/_index.csv", row.names = FALSE)
+          d <- packageDescription("IndiAPIs")
+          writeLines(c(paste("# IndiAPIs", d$Version, "datasets"), "",
+                       paste("Exported", Sys.Date(), "from CRAN by .github/workflows/export-indiapis.yml."),
+                       paste("Package licence:", d$License), "",
+                       "Each dataset keeps its original source; see the package help (?name) before publishing a figure.",
+                       paste("Datasets:", nrow(index))),
+                     "data/indiapis/README.md")
+          cat("exported", nrow(index), "datasets\n")
+          EOF_R
+      - name: Commit the datasets
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/indiapis
+          git commit -m "data: IndiAPIs datasets exported as CSV" || { echo "no change"; exit 0; }
+          for i in 1 2 3; do
+            git pull --rebase --autostash && git push && break || sleep $((i * 5))
+          done
