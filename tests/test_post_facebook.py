@@ -24,6 +24,8 @@ class FakeGraph:
 
     def get(self, url, params=None, timeout=None, headers=None):
         self.calls.append(("GET", url, params or {}, headers or {}))
+        if url.endswith("/123") and (params or {}).get("fields") == "access_token":
+            return Resp({"access_token": "PAGE_TOKEN", "id": "123"})
         if url.endswith("/123"):
             return Resp({"id": "123", "name": "Incredible India Facts"})
         return Resp({"status": {"uploading_phase": {"status": self.statuses.pop(0)}}})
@@ -67,3 +69,12 @@ def test_without_secrets_it_skips(monkeypatch):
     monkeypatch.delenv("FACEBOOK_PAGE_TOKEN", raising=False)
     monkeypatch.setattr(sys, "argv", ["post_facebook.py", "--check"])
     assert fb.main() == 0
+
+
+def test_a_system_user_token_is_swapped_for_the_pages_own_token():
+    g = FakeGraph()
+    page = fb.Page("123", "SYSTEM_TOKEN", session=g)
+    assert page.use_page_token() and page.token == "PAGE_TOKEN"
+    page.post_reel("u", "c", sleep=lambda s: None)
+    finish = [c for c in g.calls if c[2].get("upload_phase") == "finish"][0]
+    assert finish[2]["access_token"] == "PAGE_TOKEN"

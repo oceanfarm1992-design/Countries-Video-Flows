@@ -36,7 +36,14 @@ def check_facebook():
         return False
     version = os.environ.get("FB_GRAPH_VERSION", "v23.0")
     try:
-        print(f"Facebook: Page = {Page(page_id, token, version).name()}")
+        page = Page(page_id, token, version)
+        print(f"Facebook: Page = {page.name()}")
+        if page.use_page_token():
+            print("Facebook: got the Page's own token from the saved token -- posting will use it")
+            token = page.token
+        else:
+            print("Facebook: could not get a Page token (assign the Page to the system user in "
+                  "Business Settings with 'Create content' or full control)")
         info = _check(requests.get(f"{GRAPH.format(version=version)}/debug_token", timeout=30,
                                    params={"input_token": token, "access_token": token})).get("data", {})
     except FacebookError as exc:

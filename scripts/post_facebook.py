@@ -51,6 +51,18 @@ class Page:
         self.page_id, self.token, self.version, self.http = page_id, token, version, session
         self.base = GRAPH.format(version=version)
 
+    def use_page_token(self):
+        """A Business Manager system-user (or user) token cannot post as the Page itself
+        (Facebook answers "(#200) Subject does not have permission to post videos"). Ask for the
+        Page's own access token with it and use that; returns True when switched."""
+        data = _check(self.http.get(f"{self.base}/{self.page_id}", timeout=30,
+                                    params={"fields": "access_token", "access_token": self.token}))
+        page_token = data.get("access_token")
+        if page_token and page_token != self.token:
+            self.token = page_token
+            return True
+        return False
+
     def name(self):
         """The Page this token acts as (proves the token and the id match)."""
         data = _check(self.http.get(f"{self.base}/{self.page_id}", timeout=30,
@@ -107,7 +119,9 @@ def main():
         return 0
     page = Page(page_id, token, os.environ.get("FB_GRAPH_VERSION", "v23.0"))
     try:
-        print(f"[post_facebook] token works for the Page: {page.name()}")
+        switched = page.use_page_token()
+        print(f"[post_facebook] token works for the Page: {page.name()}"
+              + (" (using the Page's own token)" if switched else ""))
         if args.check:
             return 0
         if not args.video_url:
