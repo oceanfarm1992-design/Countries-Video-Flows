@@ -1,0 +1,41 @@
+name: repost-india-facebook
+
+# Posts an already-published India Short to the Facebook Page (when the Facebook step missed it),
+# with the same title and description as on YouTube. Run by hand.
+on:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: "Release tag of the video, e.g. india-untold-20261114-163417"
+        type: string
+        required: true
+      youtube_id:
+        description: "YouTube video id of the same Short, e.g. nqKCIOZh55o"
+        type: string
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  repost:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - run: pip install requests==2.34.2 google-auth==2.62.1 google-api-python-client==2.201.0
+      - name: Post to the Facebook Page
+        env:
+          FACEBOOK_PAGE_ID: ${{ secrets.INDIA_FACEBOOK_PAGE_ID }}
+          FACEBOOK_PAGE_TOKEN: ${{ secrets.INDIA_FACEBOOK_PAGE_TOKEN }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.INDIA_YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.INDIA_YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.INDIA_YOUTUBE_REFRESH_TOKEN }}
+          RELEASE: ${{ inputs.release }}
+          YOUTUBE_ID: ${{ inputs.youtube_id }}
+        run: |
+          case "$RELEASE$YOUTUBE_ID" in *[!a-zA-Z0-9_-]*) echo "invalid input"; exit 1;; esac
+          python scripts/repost_facebook.py --release "$RELEASE" --youtube-id "$YOUTUBE_ID"
