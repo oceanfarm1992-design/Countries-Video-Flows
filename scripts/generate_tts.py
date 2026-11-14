@@ -92,6 +92,7 @@ PRONUNCIATION_FIXUPS = {
     "Uganda": "Yoogandah",
     "Vanuatu": "Vah-noo-ah-too",
     "Guinea-Bissau": "Guinea Bissow",
+    "Timor-Leste": "Timor Leste",
     "Côte d'Ivoire": "Coat Divwahr",
     "Cote d'Ivoire": "Coat Divwahr",
     "São Tomé and Príncipe": "Sao Tomay and Preensipay",
@@ -102,6 +103,9 @@ PRONUNCIATION_FIXUPS = {
     "Mawlynnong": "Maw-lin-nong",
     "Dholavira": "Dho-la-vee-ra",
     "Ladakh": "Lah-dahk",
+    "Loktak": "Loke-tak",
+    "Uttarakhand": "Oo-ta-ra-khand",
+    "Spiti": "Speetee",
     "Meghalaya": "Megha-laya",
 }
 
