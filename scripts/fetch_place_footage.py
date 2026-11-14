@@ -29,6 +29,7 @@ import time
 
 import requests
 
+import famous_split
 import fetch_footage as stock
 
 COMMONS_API = "https://commons.wikimedia.org/w/api.php"
@@ -36,7 +37,7 @@ HEADERS = {"User-Agent": "india-place-footage/1.0 (personal video pipeline)"}
 FREE_LICENSE = re.compile(r"^(cc0|public domain|pd\b|cc by(-sa)? \d)", re.I)
 MEDIA_EXT = re.compile(r"\.(jpe?g|png|webm|ogv)$", re.I)
 SKIP_WORDS = re.compile(r"\b(map|logo|flag|diagram|chart|locator|seal|emblem|coat of arms)\b", re.I)
-GENERIC = {"valley", "lake", "beach", "the", "of", "national", "park", "tso"}
+GENERIC = {"valley", "lake", "beach", "the", "of", "national", "park", "tso", "city", "falls", "islands"}
 SCENIC = re.compile(r"aerial|drone|panoram|view|valley|lake|river|mountain|peak|landscape|meadow|sunset|sunrise|beach|snow", re.I)
 NOT_SCENIC = re.compile(r"house|home|mosque|temple|church|school|shop|market|road|street|people|man|woman|boy|girl|portrait|office|building|bus|vehicle", re.I)
 MIN_PIECES = 4          # fewer distinct confirmed pieces than this -> try another place
@@ -48,6 +49,8 @@ EXIT_NOT_ENOUGH = 3
 def place_terms(place):
     """Words that identify the place itself in a file name or a stock clip's tags
     ("Gurez Valley" -> ["gurez"]; "Valley of Flowers" -> ["valley of flowers"])."""
+    if place.get("terms"):  # exact names, for places whose own words are generic or spelled many ways
+        return sorted(t.lower() for t in place["terms"])
     terms = set()
     for name in (place["name"], place.get("page", "")):
         words = [w for w in re.findall(r"[a-z]+", name.lower()) if w not in GENERIC]
@@ -216,15 +219,39 @@ def main():
         print(f"[place_footage] fewer than {MIN_PIECES} confirmed pieces -- choose another place")
         return EXIT_NOT_ENOUGH
 
-    clips = []
+    # Opening split screen: the famous lookalike on top, this place below (famous_split.py).
+    split, famous = None, None
+    famous_src = os.path.join(args.out, "famous_src.mp4")
+    try:
+        famous = famous_split.fetch_famous(place.get("compare"), famous_src)
+        if famous:
+            split = famous_split.build_split(
+                famous_src, pieces[0]["type"], pieces[0]["path"], famous_split.label_for(place["compare"]),
+                f"{place['name'].upper()}, INDIA", os.path.join(args.out, "split_open.mp4"))
+            print(f"[place_footage] opening split screen: {place['compare']} vs {place['name']}")
+    except Exception as exc:  # noqa: BLE001 -- the video simply opens without the split
+        print(f"[place_footage] no split screen ({type(exc).__name__})")
+        split = None
+    if not split:
+        print(f"[place_footage] no confirmed footage of {place.get('compare')} -- normal opening")
+
+    clips, offset = [], 1 if split else 0
     for i, _seg in enumerate(segments):  # cycle the confirmed pieces over the beats
-        p = pieces[i % len(pieces)]
+        if split and i == 0:
+            dest = os.path.join(args.out, "footage_clip0.mp4")
+            os.replace(split, dest)
+            clips.append({"source": "famous_split", "type": "video", "path": "footage_clip0.mp4",
+                          "query": f"{place['compare']} vs {place['name']}", "country_verified": True})
+            continue
+        p = pieces[(i - offset) % len(pieces)]
         ext = os.path.splitext(p["path"])[1]
         dest = os.path.join(args.out, f"footage_clip{i}{ext}")
         with open(p["path"], "rb") as src, open(dest, "wb") as dst:
             dst.write(src.read())
         clips.append({k: v for k, v in p.items() if k != "path"} | {"path": os.path.basename(dest),
                                                                       "query": place["name"]})
+    if os.path.exists(famous_src):
+        os.remove(famous_src)
     for p in pieces:
         if os.path.exists(p["path"]):
             os.remove(p["path"])
@@ -232,7 +259,7 @@ def main():
         json.dump({"clip_count": len(clips), "clips": clips, "source": "confirmed-place",
                    "identifier": place["id"]}, fh, indent=2, ensure_ascii=False)
 
-    line = credits_line(pieces)
+    line = credits_line(pieces + ([famous] if split and famous else []))
     for name in ("caption_youtube.txt", "caption_meta.txt", "caption_tiktok.txt"):
         path = os.path.join(args.out, name)
         if os.path.exists(path):
