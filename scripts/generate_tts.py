@@ -202,6 +202,30 @@ def rvc_mode():
     return "on" if REQUIRE_RVC else "auto"
 
 
+VOICECLONE_MAX_CHARS = 450
+JOIN_GAP_SECONDS = 0.15
+
+
+def _join_wavs(parts, out_wav):
+    """Concatenate same-rate WAVs with a short natural pause, then delete the parts."""
+    import numpy as np
+    import soundfile as sf
+
+    audio, rate = [], None
+    for path in parts:
+        data, sr = sf.read(path, dtype="float32", always_2d=False)
+        if rate is None:
+            rate = sr
+        elif sr != rate:
+            raise RuntimeError(f"voice parts differ in sample rate ({sr} vs {rate})")
+        if audio:
+            audio.append(np.zeros(int(rate * JOIN_GAP_SECONDS), dtype="float32"))
+        audio.append(data if data.ndim == 1 else data.mean(axis=1))
+    sf.write(out_wav, np.concatenate(audio), rate)
+    for path in parts:
+        os.remove(path)
+
+
 def run_voiceclone(text, out_wav):
     """The channel owner's voice engine (oceanfarm1992-design/styletts2-voice-clone,
     installed by the workflow's `voiceclone` step): StyleTTS2 in the profile's speaking
@@ -210,10 +234,20 @@ def run_voiceclone(text, out_wav):
     package isn't installed or no cloned voice came out, so synth() moves on."""
     from voiceclone import synthesize
 
+    # One call reads at most ~512 phonemes: a long-form chart segment ("one point six eight
+    # trillion dollars" x 8) overflowed it and the whole video fell back to the plain clone
+    # (2026-11-14). Long text is read in packed sentence groups and joined.
+    chunks = _split_for_styletts2(text, VOICECLONE_MAX_CHARS) if len(text) > VOICECLONE_MAX_CHARS else [text]
+    parts = [out_wav if len(chunks) == 1 else f"{out_wav}.part{i}.wav" for i in range(len(chunks))]
     # engine="styletts2": its stock-voice fallbacks would be rejected below anyway, so
     # don't spend minutes on them -- the plain clone in this file is the next step.
-    used = synthesize(text, out_wav, engine="styletts2", language="en", style=VOICE_STYLE,
-                      voice_ref_repo=VOICE_REF_REPO, rvc=rvc_mode())
+    for chunk, part in zip(chunks, parts):
+        used = synthesize(chunk, part, engine="styletts2", language="en", style=VOICE_STYLE,
+                          voice_ref_repo=VOICE_REF_REPO, rvc=rvc_mode())
+        if not used.startswith("styletts2"):
+            break
+    if len(chunks) > 1 and used.startswith("styletts2"):
+        _join_wavs(parts, out_wav)
     print(f"[generate_tts] voiceclone engine: {used} (style={VOICE_STYLE})")
     if not used.startswith("styletts2"):
         raise RuntimeError(f"voiceclone fell back to a stock voice ({used})")
@@ -307,19 +341,20 @@ def _get_styletts2_model():
 MAX_CHARS_PER_STYLETTS2_CALL = 220
 
 
-def _split_for_styletts2(text):
+def _split_for_styletts2(text, limit=None):
     """Split `text` into chunks safe for one StyleTTS2 call each: whole sentences,
     packed together up to the limit; an unusually long single sentence is split on
     its clause commas. Packing matters -- one call per short sentence comes out
     ~40% slower and drawn out, with dead air between sentences (measured
     2026-11-13: the same 5 sentences took 15.3 s one by one, 11.0 s together)."""
+    limit = limit or MAX_CHARS_PER_STYLETTS2_CALL
     sentences = re.split(r"(?<=[.!?])\s+", text.strip())
     chunks = []
     for sent in sentences:
         if not sent:
             continue
-        if len(sent) <= MAX_CHARS_PER_STYLETTS2_CALL:
-            if chunks and len(chunks[-1]) + 1 + len(sent) <= MAX_CHARS_PER_STYLETTS2_CALL:
+        if len(sent) <= limit:
+            if chunks and len(chunks[-1]) + 1 + len(sent) <= limit:
                 chunks[-1] += " " + sent
             else:
                 chunks.append(sent)
@@ -328,7 +363,7 @@ def _split_for_styletts2(text):
         current = ""
         for i, part in enumerate(parts):
             piece = part if i == 0 else ", " + part
-            if current and len(current) + len(piece) > MAX_CHARS_PER_STYLETTS2_CALL:
+            if current and len(current) + len(piece) > limit:
                 chunks.append(current)
                 current = part
             else:
