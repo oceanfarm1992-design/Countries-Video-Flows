@@ -52,6 +52,25 @@ CACHE_PATH = "config/country_stats_cache.json"
 CACHE_FRESH_HOURS = 12  # reuse without a network call only within the same run-day
 CACHE_MAX_AGE_DAYS = 30  # stale-fallback ceiling -- beyond this a cached value is treated as no data
 REQUEST_TIMEOUT = 15
+# Weekly bulk snapshot (scripts/save_stats_snapshot.py): the fallback when a live request
+# fails. Each value carries its own data year, so a snapshot saved within this many days is
+# as good as a live read of the same annual figure.
+SNAPSHOT_PATH = "config/country_stats_snapshot.json"
+SNAPSHOT_MAX_AGE_DAYS = 120
+
+
+def snapshot_value(iso2, key, path=SNAPSHOT_PATH, today=None):
+    """(value, year) from the saved snapshot, or None if missing or too old."""
+    try:
+        with open(path, encoding="utf-8") as fh:
+            snap = json.load(fh)
+        saved = datetime.strptime(snap["_saved"], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+    except (OSError, ValueError, KeyError):
+        return None
+    if ((today or datetime.now(timezone.utc)) - saved).days > SNAPSHOT_MAX_AGE_DAYS:
+        return None
+    entry = snap.get(iso2, {}).get(key)
+    return (entry["value"], entry["year"]) if entry and entry.get("value") is not None else None
 
 
 def _date_range(now=None):
@@ -143,6 +162,11 @@ def get_stats(iso2, use_cache=True):
         if last_exc is not None:
             usable = (entry and entry.get("value") is not None
                       and (now - entry.get("fetched_at", 0)) <= CACHE_MAX_AGE_DAYS * 86400)
+            snap = None if usable else snapshot_value(iso2, key)
+            if snap:
+                print(f"[fetch_country_stats] {iso2} {key} live fetch failed ({last_exc}) -- using the saved snapshot")
+                out[key] = {"label": label, "unit": unit, "value": snap[0], "year": snap[1]}
+                continue
             if usable:
                 msg = "using cached value"
             elif entry and entry.get("value") is not None:

@@ -64,4 +64,5 @@ def test_failed_live_call_ignores_cache_older_than_limit(monkeypatch, tmp_path):
     entry = {"value": 1000.0, "year": 2024,
              "fetched_at": time.time() - (fcs.CACHE_MAX_AGE_DAYS + 5) * 86400}
     _setup_failing_fetch(monkeypatch, tmp_path, entry)
+    monkeypatch.setattr(fcs, "snapshot_value", lambda *a, **k: None)  # no snapshot either
     assert fcs.get_stats("JP") == {}

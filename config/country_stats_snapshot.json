@@ -1,0 +1,7086 @@
+{
+ "1A": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 7544.41435641482,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 7800.34683109294,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 72.721805028968,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 78.9899978637695,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 503356133.0,
+   "year": 2025
+  }
+ },
+ "1W": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 14405.8484595528,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 14243.5387817409,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 73.4818184164654,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 87.7399978637695,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 8215424893.0,
+   "year": 2025
+  }
+ },
+ "4E": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 10843.4363994141,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 11093.2319621161,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 75.9593161676786,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 96.8499984741211,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 2143908411.0,
+   "year": 2025
+  }
+ },
+ "7E": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 11117.61379372,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 10036.2846378541,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 75.1422790044247,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.0199966430664,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 253280471.0,
+   "year": 2025
+  }
+ },
+ "8S": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 2705.28227429085,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 2773.79115608425,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 72.5599614464264,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 78.2300033569336,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1692252900.0,
+   "year": 2025
+  }
+ },
+ "AD": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 54291.5026031052,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 53230.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 84.188,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 82904.0,
+   "year": 2025
+  }
+ },
+ "AE": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 50273.5126243239,
+   "year": 2024
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 51550.0,
+   "year": 2024
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 83.069,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 98.8099975585938,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 11513149.0,
+   "year": 2025
+  }
+ },
+ "AF": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 416.871146273728,
+   "year": 2024
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 390.0,
+   "year": 2024
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 66.289,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 37.2700004577637,
+   "year": 2021
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 43844111.0,
+   "year": 2025
+  }
+ },
+ "AG": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 24819.2454680158,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 23790.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 77.766,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 98.9499969482422,
+   "year": 2001
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 94209.0,
+   "year": 2025
+  }
+ },
+ "AL": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 12998.147869552,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 12060.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 79.776,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 97.6800003051758,
+   "year": 2023
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 2349580.0,
+   "year": 2025
+  }
+ },
+ "AM": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 9474.01849300368,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 9020.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 78.319512195122,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.8399963378906,
+   "year": 2023
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 3086700.0,
+   "year": 2025
+  }
+ },
+ "AO": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 3129.47662331063,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 2860.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 64.805,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 68.1800003051758,
+   "year": 2023
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 39040039.0,
+   "year": 2025
+  }
+ },
+ "AR": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 14898.0885943842,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 14650.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 77.543,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.1399993896484,
+   "year": 2020
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 45851378.0,
+   "year": 2025
+  }
+ },
+ "AS": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 18017.4589383973,
+   "year": 2022
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 72.992,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 97.3399963378906,
+   "year": 1980
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 46029.0,
+   "year": 2025
+  }
+ },
+ "AT": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 62930.0351324599,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 60360.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 81.9951219512195,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 9208163.0,
+   "year": 2025
+  }
+ },
+ "AU": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 65129.7227990563,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 64120.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 83.0512195121951,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 27614411.0,
+   "year": 2025
+  }
+ },
+ "AW": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 38590.5650288641,
+   "year": 2024
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 35200.0,
+   "year": 2024
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 76.5,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 96.8199996948242,
+   "year": 2010
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 108785.0,
+   "year": 2025
+  }
+ },
+ "AZ": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 7410.72281660142,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 7360.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 74.576,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.7799987792969,
+   "year": 2023
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 10246996.0,
+   "year": 2025
+  }
+ },
+ "B8": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 27676.9389653713,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 25138.8171191048,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 77.918095146168,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.5,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 99814596.0,
+   "year": 2025
+  }
+ },
+ "BA": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 10381.8460703874,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 9940.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 78.044,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 96.9899978637695,
+   "year": 2013
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 3140095.0,
+   "year": 2025
+  }
+ },
+ "BB": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 28364.8181499736,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 27080.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 76.332,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.2699966430664,
+   "year": 1970
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 282623.0,
+   "year": 2025
+  }
+ },
+ "BD": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 2597.34352335275,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 2840.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 74.93,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 79.0,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 175686899.0,
+   "year": 2025
+  }
+ },
+ "BE": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 60750.2735864647,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 59500.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 82.3,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 11941781.0,
+   "year": 2025
+  }
+ },
+ "BF": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1147.57131635601,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 980.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 61.292,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 41.5670909952631,
+   "year": 2023
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 24074580.0,
+   "year": 2025
+  }
+ },
+ "BG": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 20328.1667065538,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 17780.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 75.7609756097561,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 98.3499984741211,
+   "year": 2011
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 6433302.0,
+   "year": 2025
+  }
+ },
+ "BH": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 30596.5794898885,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 28790.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 81.423,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 97.8199996948242,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1600366.0,
+   "year": 2025
+  }
+ },
+ "BI": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 233.823013385395,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 240.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 63.818,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 71.3374789737041,
+   "year": 2020
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 14390003.0,
+   "year": 2025
+  }
+ },
+ "BJ": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1658.27312662991,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1600.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 60.961,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 51.3800010681152,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 14814460.0,
+   "year": 2025
+  }
+ },
+ "BM": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 142250.433195123,
+   "year": 2024
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 139370.0,
+   "year": 2024
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 82.49,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 64555.0,
+   "year": 2025
+  }
+ },
+ "BN": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 32234.6428368582,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 34790.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 75.501,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 96.0899963378906,
+   "year": 2011
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 466330.0,
+   "year": 2025
+  }
+ },
+ "BO": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 5147.81081955367,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 4420.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 68.739,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 96.7300033569336,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 12581843.0,
+   "year": 2025
+  }
+ },
+ "BR": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 10713.2856869511,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 10550.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 76.023,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 94.7399978637695,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 212812405.0,
+   "year": 2025
+  }
+ },
+ "BS": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 39455.4466548546,
+   "year": 2024
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 37020.0,
+   "year": 2024
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 74.71,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 403033.0,
+   "year": 2025
+  }
+ },
+ "BT": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 4492.78400306618,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 4310.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 73.262,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 64.9100036621094,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 796682.0,
+   "year": 2025
+  }
+ },
+ "BW": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 7778.1151090571,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 7390.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 69.293,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 81.1900024414062,
+   "year": 2003
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 2562122.0,
+   "year": 2025
+  }
+ },
+ "BY": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 10279.2547190723,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 9160.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 74.3653414634147,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.870002746582,
+   "year": 2019
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 9085991.0,
+   "year": 2025
+  }
+ },
+ "BZ": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 7865.47937690933,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 7530.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 73.739,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 87.879997253418,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 422924.0,
+   "year": 2025
+  }
+ },
+ "CA": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 55697.6639660837,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 56420.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 82.1080487804878,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 41651653.0,
+   "year": 2025
+  }
+ },
+ "CD": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 806.776000708534,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 720.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 62.074,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 68.5,
+   "year": 2023
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 112832473.0,
+   "year": 2025
+  }
+ },
+ "CF": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 556.131398031455,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 560.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 57.671,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 42.439998626709,
+   "year": 2019
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 5513282.0,
+   "year": 2025
+  }
+ },
+ "CG": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 2514.73393584747,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 2280.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 66.001,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 76.1100006103516,
+   "year": 2005
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 6484437.0,
+   "year": 2025
+  }
+ },
+ "CH": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 114769.012314293,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 110330.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 84.4073170731707,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 9092436.0,
+   "year": 2025
+  }
+ },
+ "CI": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 3050.10202257321,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 2780.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 62.11,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 50.0,
+   "year": 2021
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 32711547.0,
+   "year": 2025
+  }
+ },
+ "CL": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 17994.5911957485,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 16960.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 81.359,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 96.4000015258789,
+   "year": 2017
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 19859921.0,
+   "year": 2025
+  }
+ },
+ "CM": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1972.3815800786,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1860.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 63.968,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 72.5500030517578,
+   "year": 2018
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 29879337.0,
+   "year": 2025
+  }
+ },
+ "CN": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 13861.970224368,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 14230.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 78.017,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 96.7399978637695,
+   "year": 2020
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1406585000.0,
+   "year": 2025
+  }
+ },
+ "CO": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 8561.62091854449,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 7900.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 77.913,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 95.3399963378906,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 53425635.0,
+   "year": 2025
+  }
+ },
+ "CR": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 19970.0989059622,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 17930.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 80.996,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 97.4100036621094,
+   "year": 2011
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 5152950.0,
+   "year": 2025
+  }
+ },
+ "CU": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 9605.27914559614,
+   "year": 2020
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 9010.0,
+   "year": 2019
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 78.264,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 97.6500015258789,
+   "year": 2019
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 10937203.0,
+   "year": 2025
+  }
+ },
+ "CV": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 5796.47207860911,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 5590.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 76.224,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 88.4700012207031,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 527326.0,
+   "year": 2025
+  }
+ },
+ "CW": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 22832.895498987,
+   "year": 2024
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 22570.0,
+   "year": 2024
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 76.989,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 156263.0,
+   "year": 2025
+  }
+ },
+ "CY": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 41783.08984375,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 36110.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 81.821,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 98.6800003051758,
+   "year": 2011
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1370754.0,
+   "year": 2025
+  }
+ },
+ "CZ": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 35917.2724081665,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 32960.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 79.9780487804878,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 10886878.0,
+   "year": 2025
+  }
+ },
+ "DE": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 60496.4350820414,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 60200.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 80.7926829268293,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 83491249.0,
+   "year": 2025
+  }
+ },
+ "DJ": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 3905.604954681,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 3960.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 66.202,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1184076.0,
+   "year": 2025
+  }
+ },
+ "DK": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 76970.1535217919,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 77190.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 82.2536585365854,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 6009169.0,
+   "year": 2025
+  }
+ },
+ "DM": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 10989.0431185083,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 10690.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 71.294,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 65871.0,
+   "year": 2025
+  }
+ },
+ "DO": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 11059.2081531834,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 10620.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 73.868,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 94.0299987792969,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 11520487.0,
+   "year": 2025
+  }
+ },
+ "DZ": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 6051.00322704182,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 5850.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 76.475,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 75.1399993896484,
+   "year": 2008
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 47435312.0,
+   "year": 2025
+  }
+ },
+ "EC": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 7125.27618527738,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 6890.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 77.579,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 93.4899978637695,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 18289896.0,
+   "year": 2025
+  }
+ },
+ "EE": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 34417.6320815138,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 32310.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 79.2951219512195,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.8899993896484,
+   "year": 2011
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1366475.0,
+   "year": 2025
+  }
+ },
+ "EG": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 3085.80712036204,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 3260.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 71.806,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 79.4531619498685,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 118365995.0,
+   "year": 2025
+  }
+ },
+ "ER": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 688.68165957684,
+   "year": 2011
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 650.0,
+   "year": 2011
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 68.893,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 64.6600036621094,
+   "year": 2008
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 3607003.0,
+   "year": 2025
+  }
+ },
+ "ES": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 38627.2472148623,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 37120.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 83.8878048780488,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.6999969482422,
+   "year": 2021
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 49355143.0,
+   "year": 2025
+  }
+ },
+ "ET": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 932.729352775179,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1110.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 67.603,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 60.4599990844727,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 135472051.0,
+   "year": 2025
+  }
+ },
+ "EU": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 47089.1638419269,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 45063.6336279559,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 81.5608466061313,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 451127411.0,
+   "year": 2025
+  }
+ },
+ "F2": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1702.54071878327,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1763.88387073506,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 64.6903385025454,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1103451863.0,
+   "year": 2025
+  }
+ },
+ "FI": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 56148.580949046,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 55250.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 82.3365853658537,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 5646436.0,
+   "year": 2025
+  }
+ },
+ "FJ": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 6642.00449450523,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 6230.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 67.463,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 933154.0,
+   "year": 2025
+  }
+ },
+ "FM": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 4414.00737137479,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 4760.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 67.357,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 113683.0,
+   "year": 2025
+  }
+ },
+ "FO": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 74175.2776311377,
+   "year": 2024
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 73120.0,
+   "year": 2024
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 83.0832463414634,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 54900.0,
+   "year": 2025
+  }
+ },
+ "FR": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 48985.7307807924,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 48630.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 82.9804878048781,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 68720337.0,
+   "year": 2025
+  }
+ },
+ "GA": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 8263.03321595,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 8090.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 68.511,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 88.8600006103516,
+   "year": 2021
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 2593130.0,
+   "year": 2025
+  }
+ },
+ "GB": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 57601.9621201954,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 54550.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 81.3868536585366,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 69487000.0,
+   "year": 2025
+  }
+ },
+ "GD": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 12106.8790105068,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 11660.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 75.367,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 97.7900009155273,
+   "year": 1970
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 117303.0,
+   "year": 2025
+  }
+ },
+ "GE": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 9691.53472415196,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 8990.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 74.657,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.6800003051758,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 3935766.0,
+   "year": 2025
+  }
+ },
+ "GH": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 3257.1588903576,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 2630.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 65.695,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 76.4899978637695,
+   "year": 2021
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 35064272.0,
+   "year": 2025
+  }
+ },
+ "GI": {
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 83.63,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 40126.0,
+   "year": 2025
+  }
+ },
+ "GL": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 58498.9707973609,
+   "year": 2023
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 34800.0,
+   "year": 2007
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 70.2734146341463,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 56831.0,
+   "year": 2025
+  }
+ },
+ "GM": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 919.060423427951,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 930.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 66.057,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 51.6399993896484,
+   "year": 2021
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 2822093.0,
+   "year": 2025
+  }
+ },
+ "GN": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1877.2541220972,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1730.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 60.904,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 39.6199989318848,
+   "year": 2018
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 15099727.0,
+   "year": 2025
+  }
+ },
+ "GQ": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 6615.25245207167,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 5890.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 63.906,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 88.3099975585938,
+   "year": 2000
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1938431.0,
+   "year": 2025
+  }
+ },
+ "GR": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 26948.0070432791,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 25360.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 81.8390243902439,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 93.9100036621094,
+   "year": 2009
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 10413962.0,
+   "year": 2025
+  }
+ },
+ "GT": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 6598.18032988711,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 6360.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 72.746,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 82.1100006103516,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 18687881.0,
+   "year": 2025
+  }
+ },
+ "GU": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 41833.1517132825,
+   "year": 2022
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 77.422,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.370002746582,
+   "year": 1990
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 168999.0,
+   "year": 2025
+  }
+ },
+ "GW": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1123.76679992349,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1090.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 64.254,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 63.9300003051758,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 2249515.0,
+   "year": 2025
+  }
+ },
+ "GY": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 32413.7930757518,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 28470.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 70.319,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 85.6399993896484,
+   "year": 2020
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 835986.0,
+   "year": 2025
+  }
+ },
+ "HK": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 56983.0663059906,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 62500.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 85.3926829268293,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 7498900.0,
+   "year": 2025
+  }
+ },
+ "HN": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 3598.21450440452,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 3270.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 73.044,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 88.25,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 11005850.0,
+   "year": 2025
+  }
+ },
+ "HR": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 27103.9116109268,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 25360.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 78.9292682926829,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 98.1500015258789,
+   "year": 2001
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 3876200.0,
+   "year": 2025
+  }
+ },
+ "HT": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 2694.18969101404,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 2010.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 65.119,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 68.0100021362305,
+   "year": 2017
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 11906095.0,
+   "year": 2025
+  }
+ },
+ "HU": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 25907.4743259406,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 23850.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 76.7243902439025,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 98.8600006103516,
+   "year": 1980
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 9514251.0,
+   "year": 2025
+  }
+ },
+ "ID": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 5059.62596411213,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 5120.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 71.288,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 96.0,
+   "year": 2020
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 285721236.0,
+   "year": 2025
+  }
+ },
+ "IE": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 131592.462547877,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 87360.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 83.009756097561,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 5484367.0,
+   "year": 2025
+  }
+ },
+ "IL": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 60336.8477964194,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 56180.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 83.1975609756098,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 91.75,
+   "year": 1983
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 10122800.0,
+   "year": 2025
+  }
+ },
+ "IM": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 90015.2074234398,
+   "year": 2023
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 87030.0,
+   "year": 2023
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 81.091,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 84118.0,
+   "year": 2025
+  }
+ },
+ "IN": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 2702.47987141553,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 2760.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 72.235,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 78.1625330351403,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1463865525.0,
+   "year": 2025
+  }
+ },
+ "IQ": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 5409.67899716967,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 5690.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 72.424,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 84.0648941705243,
+   "year": 2021
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 47020774.0,
+   "year": 2025
+  }
+ },
+ "IR": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 3924.38017821898,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 4650.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 77.854,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 88.9168161136597,
+   "year": 2023
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 92417681.0,
+   "year": 2025
+  }
+ },
+ "IS": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 98323.4849517418,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 89220.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 82.809756097561,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 392404.0,
+   "year": 2025
+  }
+ },
+ "IT": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 43308.6403060733,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 42080.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 83.9512195121951,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.3499984741211,
+   "year": 2019
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 58915656.0,
+   "year": 2025
+  }
+ },
+ "JG": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 74585.5224096294,
+   "year": 2023
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 81.2,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 168466.0,
+   "year": 2025
+  }
+ },
+ "JM": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 8002.92104076242,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 7790.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 71.606,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 79.9199981689453,
+   "year": 1999
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 2837077.0,
+   "year": 2025
+  }
+ },
+ "JO": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 5347.77731384797,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 5260.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 77.981,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 94.4400024414062,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 11520684.0,
+   "year": 2025
+  }
+ },
+ "JP": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 35951.0449549304,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 38340.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 84.0363414634146,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 123366734.0,
+   "year": 2025
+  }
+ },
+ "KE": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 2362.86091198611,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 2200.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 63.834,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 82.2300033569336,
+   "year": 2000
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 57532493.0,
+   "year": 2025
+  }
+ },
+ "KG": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 3080.96893823359,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 2800.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 72.4,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.2399978637695,
+   "year": 2009
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 7343064.0,
+   "year": 2025
+  }
+ },
+ "KH": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 2872.42926639909,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 2750.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 70.817,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 71.9300003051758,
+   "year": 2021
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 17847982.0,
+   "year": 2025
+  }
+ },
+ "KI": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 2558.66636011102,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 3930.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 66.6,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 98.6079816424987,
+   "year": 2020
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 136488.0,
+   "year": 2025
+  }
+ },
+ "KM": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 2055.75921566281,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1950.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 67.023,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 75.6201980162165,
+   "year": 2021
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 882847.0,
+   "year": 2025
+  }
+ },
+ "KN": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 25223.0257622185,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 24530.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 72.281,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 46922.0,
+   "year": 2025
+  }
+ },
+ "KP": {
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 73.743,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 100.0,
+   "year": 2008
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 26571036.0,
+   "year": 2025
+  }
+ },
+ "KR": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 36226.9663637512,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 37880.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 83.6292682926829,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 97.9700012207031,
+   "year": 2008
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 51684564.0,
+   "year": 2025
+  }
+ },
+ "KW": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 32312.3119953634,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 41110.0,
+   "year": 2024
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 84.580487804878,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 96.4599990844727,
+   "year": 2020
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 4865298.0,
+   "year": 2025
+  }
+ },
+ "KY": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 104292.900672109,
+   "year": 2024
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 81920.0,
+   "year": 2024
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 80.54,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 98.870002746582,
+   "year": 2017
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 75844.0,
+   "year": 2025
+  }
+ },
+ "KZ": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 14692.1331757237,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 13740.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 74.531,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.7300033569336,
+   "year": 2009
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 20843754.0,
+   "year": 2025
+  }
+ },
+ "LA": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 2324.76353098791,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 2150.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 69.225,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 75.6399993896484,
+   "year": 2023
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 7873046.0,
+   "year": 2025
+  }
+ },
+ "LB": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 4473.27134441128,
+   "year": 2024
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 3560.0,
+   "year": 2024
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 77.945,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 92.0099744752418,
+   "year": 2019
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 5849421.0,
+   "year": 2025
+  }
+ },
+ "LC": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 14745.8184305461,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 13410.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 72.846,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 180149.0,
+   "year": 2025
+  }
+ },
+ "LI": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 220167.225473557,
+   "year": 2024
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 116380.0,
+   "year": 2009
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 84.2,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 41024.0,
+   "year": 2025
+  }
+ },
+ "LK": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 5002.07904353724,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 4670.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 77.672,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 92.7399978637695,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 21756000.0,
+   "year": 2025
+  }
+ },
+ "LR": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 915.328972645548,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 830.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 62.324,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 59.4030316392756,
+   "year": 2010
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 5731206.0,
+   "year": 2025
+  }
+ },
+ "LS": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1088.96276223185,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1280.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 57.798,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 90.4499969482422,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 2363325.0,
+   "year": 2025
+  }
+ },
+ "LT": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 32958.6706396386,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 30500.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 77.1951219512195,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.8199996948242,
+   "year": 2011
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 2888774.0,
+   "year": 2025
+  }
+ },
+ "LU": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 147252.179121515,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 95720.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 83.1951219512195,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 686970.0,
+   "year": 2025
+  }
+ },
+ "LV": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 26311.9730706362,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 24980.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 76.4292682926829,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.9000015258789,
+   "year": 2011
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1847785.0,
+   "year": 2025
+  }
+ },
+ "LY": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 6448.82415074121,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 7250.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 71.121,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 60.1599998474121,
+   "year": 1984
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 7458555.0,
+   "year": 2025
+  }
+ },
+ "MA": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 4672.46826171875,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 4360.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 75.493,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 64.2600021362305,
+   "year": 2014
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 38430770.0,
+   "year": 2025
+  }
+ },
+ "MC": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 288001.574856495,
+   "year": 2024
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 86.497,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 38341.0,
+   "year": 2025
+  }
+ },
+ "MD": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 8621.71721623786,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 8050.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 71.332,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.3600006103516,
+   "year": 2014
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 2360527.0,
+   "year": 2025
+  }
+ },
+ "ME": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 14816.8380299947,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 14150.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 77.890243902439,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 98.5299987792969,
+   "year": 2018
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 623129.0,
+   "year": 2025
+  }
+ },
+ "MF": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 21668.3776525323,
+   "year": 2021
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 80.438,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 24941.0,
+   "year": 2025
+  }
+ },
+ "MG": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 599.265294255357,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 560.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 63.835,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 74.6900024414062,
+   "year": 2021
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 32740678.0,
+   "year": 2025
+  }
+ },
+ "MH": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 8489.05793506422,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 9710.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 67.075,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 95.7629302411191,
+   "year": 2021
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 36282.0,
+   "year": 2025
+  }
+ },
+ "MK": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 10489.9255355525,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 9490.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 76.6165853658537,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 96.129997253418,
+   "year": 2002
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1820909.0,
+   "year": 2025
+  }
+ },
+ "ML": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1193.27601004701,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1120.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 60.675,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 35.6300010681152,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 25198821.0,
+   "year": 2025
+  }
+ },
+ "MM": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1488.87527836542,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1320.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 67.095,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 93.527395549521,
+   "year": 2020
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 54850648.0,
+   "year": 2025
+  }
+ },
+ "MN": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 7108.22743246244,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 6210.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 72.3980487804878,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 98.6399993896484,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 3568978.0,
+   "year": 2025
+  }
+ },
+ "MO": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 75901.7461294198,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 69920.0,
+   "year": 2024
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 83.3317073170732,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 96.5400009155273,
+   "year": 2016
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 685900.0,
+   "year": 2025
+  }
+ },
+ "MP": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 23785.754590043,
+   "year": 2022
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 78.947,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 43541.0,
+   "year": 2025
+  }
+ },
+ "MR": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 2197.51046251309,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 2210.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 68.713,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 59.5299987792969,
+   "year": 2020
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 5315065.0,
+   "year": 2025
+  }
+ },
+ "MT": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 47906.9000057635,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 41440.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 82.9560975609756,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 93.3099975585938,
+   "year": 2011
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 579704.0,
+   "year": 2025
+  }
+ },
+ "MU": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 12991.2935987166,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 14040.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 73.7890243902439,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 94.2877776512134,
+   "year": 2023
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1243741.0,
+   "year": 2025
+  }
+ },
+ "MV": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 14614.7208116541,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 12950.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 81.285,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 98.2099990844727,
+   "year": 2019
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 529676.0,
+   "year": 2025
+  }
+ },
+ "MW": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 671.506847203876,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 600.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 67.561,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 70.1500015258789,
+   "year": 2020
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 22216120.0,
+   "year": 2025
+  }
+ },
+ "MX": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 13889.2339628708,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 13730.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 75.264,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 95.5500030517578,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 131946900.0,
+   "year": 2025
+  }
+ },
+ "MY": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 13124.5554178269,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 12380.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 76.821,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 95.7699966430664,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 35977838.0,
+   "year": 2025
+  }
+ },
+ "MZ": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 626.914419215727,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 570.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 63.797,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 61.6653441678133,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 35631653.0,
+   "year": 2025
+  }
+ },
+ "NA": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 4875.92558158247,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 4340.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 67.516,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 87.6399993896484,
+   "year": 2023
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 3092816.0,
+   "year": 2025
+  }
+ },
+ "NC": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 29213.1923192946,
+   "year": 2024
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 30070.0,
+   "year": 2024
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 78.921,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 96.1399993896484,
+   "year": 1996
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 295333.0,
+   "year": 2025
+  }
+ },
+ "NE": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 775.353622143879,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 750.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 61.433,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 35.6100006103516,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 27917831.0,
+   "year": 2025
+  }
+ },
+ "NG": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1224.25410237743,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1360.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 54.635,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 70.4100036621094,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 237527782.0,
+   "year": 2025
+  }
+ },
+ "NI": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 3173.33724815085,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 2850.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 75.1,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 87.327180649097,
+   "year": 2014
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 7007502.0,
+   "year": 2025
+  }
+ },
+ "NL": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 73683.917132794,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 68530.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 81.9658536585366,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 18087633.0,
+   "year": 2025
+  }
+ },
+ "NO": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 94594.1929573987,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 97310.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 83.1609756097561,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 5610870.0,
+   "year": 2025
+  }
+ },
+ "NP": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1535.87781246307,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1570.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 70.636,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 68.7099990844727,
+   "year": 2019
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 29618118.0,
+   "year": 2025
+  }
+ },
+ "NR": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 14639.5046929186,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 20690.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 62.279,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 96.5899963378906,
+   "year": 2023
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 12025.0,
+   "year": 2025
+  }
+ },
+ "NZ": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 49591.0405731713,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 46630.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 82.009756097561,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 5324700.0,
+   "year": 2025
+  }
+ },
+ "OE": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 51733.7140199057,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 50696.9276545446,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 80.3985705098059,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 97.2099990844727,
+   "year": 2020
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1402243571.0,
+   "year": 2025
+  }
+ },
+ "OM": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 19947.3966227092,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 19520.0,
+   "year": 2024
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 80.246,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 97.3399963378906,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 5494691.0,
+   "year": 2025
+  }
+ },
+ "PA": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 19789.7308555826,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 19140.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 79.775,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 96.2276533152296,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 4571189.0,
+   "year": 2025
+  }
+ },
+ "PE": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 9684.41170314988,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 8430.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 77.941,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 93.6600036621094,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 34576665.0,
+   "year": 2025
+  }
+ },
+ "PF": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 22439.8838746025,
+   "year": 2024
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 24100.0,
+   "year": 2024
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 84.192,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 282465.0,
+   "year": 2025
+  }
+ },
+ "PG": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 3019.5309140573,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 2890.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 66.256,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 87.0046890533686,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 10762817.0,
+   "year": 2025
+  }
+ },
+ "PH": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 4170.72347271451,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 4850.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 69.946,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 98.4700012207031,
+   "year": 2020
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 116786962.0,
+   "year": 2025
+  }
+ },
+ "PK": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1595.90912252837,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1500.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 67.799,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 58.8600006103516,
+   "year": 2021
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 255219554.0,
+   "year": 2025
+  }
+ },
+ "PL": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 28419.5777395638,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 25520.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 78.409756097561,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 98.7399978637695,
+   "year": 1978
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 36435861.0,
+   "year": 2025
+  }
+ },
+ "PR": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 40620.1526923687,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 27320.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 81.902,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 92.3899993896484,
+   "year": 2017
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 3184835.0,
+   "year": 2025
+  }
+ },
+ "PS": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 3171.10844621579,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 3250.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 69.213,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 97.9389541214558,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 5413596.0,
+   "year": 2025
+  }
+ },
+ "PT": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 32081.8106150292,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 29930.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 82.3829268292683,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 94.4800033569336,
+   "year": 2011
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 10804871.0,
+   "year": 2025
+  }
+ },
+ "PW": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 19532.3557719527,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 19890.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 69.383,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.8448081264108,
+   "year": 2020
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 17663.0,
+   "year": 2025
+  }
+ },
+ "PY": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 7026.61906146401,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 6750.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 73.982,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 94.8600006103516,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 7013078.0,
+   "year": 2025
+  }
+ },
+ "QA": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 72524.9066385222,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 74330.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 82.522,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 97.75,
+   "year": 2014
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 2972215.0,
+   "year": 2025
+  }
+ },
+ "RO": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 22537.9532108047,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 20190.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 76.4585365853659,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.1600036621094,
+   "year": 2021
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 19020271.0,
+   "year": 2025
+  }
+ },
+ "RS": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 15262.0464193413,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 13480.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 75.9682926829268,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.3399963378906,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 6549143.0,
+   "year": 2025
+  }
+ },
+ "RU": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 17546.609375,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 15960.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 73.4404878048781,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.9300003051758,
+   "year": 2021
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 143513328.0,
+   "year": 2025
+  }
+ },
+ "RW": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1123.73874633225,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1150.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 68.017,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 78.7600021362305,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 14569341.0,
+   "year": 2025
+  }
+ },
+ "S1": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 16577.8450757077,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 15500.8483832967,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 73.1115272530591,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 88.0199966430664,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 20347135.0,
+   "year": 2025
+  }
+ },
+ "S2": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 4719.69017777464,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 4738.19154420309,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 69.440356940231,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 2755649.0,
+   "year": 2025
+  }
+ },
+ "S3": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 20880.0606776787,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 19402.625422482,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 73.3126671321816,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 91.0199966430664,
+   "year": 2008
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 4556558.0,
+   "year": 2025
+  }
+ },
+ "S4": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 17540.3099815121,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 16356.6725370285,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 73.8137960223999,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 87.120002746582,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 13034928.0,
+   "year": 2025
+  }
+ },
+ "SA": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 34536.6555456551,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 36070.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 78.982,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 97.9300003051758,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 36973555.0,
+   "year": 2025
+  }
+ },
+ "SB": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 2086.18955928928,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 2020.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 70.694,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 76.5999984741211,
+   "year": 1999
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 838645.0,
+   "year": 2025
+  }
+ },
+ "SC": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 19449.3836346926,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 19200.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 76.2951219512195,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 93.9499969482422,
+   "year": 2010
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 122730.0,
+   "year": 2025
+  }
+ },
+ "SD": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1164.53991699219,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 900.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 66.521,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 53.5200004577637,
+   "year": 2008
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 51662147.0,
+   "year": 2025
+  }
+ },
+ "SE": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 63133.2126736715,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 63010.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 84.0634146341463,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 10596620.0,
+   "year": 2025
+  }
+ },
+ "SG": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 98813.9788172877,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 81760.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 83.3463414634146,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 97.6500015258789,
+   "year": 2021
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 6111175.0,
+   "year": 2025
+  }
+ },
+ "SI": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 37376.2216079138,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 35520.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 82.2853658536585,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.5199966430664,
+   "year": 1991
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 2130986.0,
+   "year": 2025
+  }
+ },
+ "SK": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 28543.6653439813,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 26410.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 78.3707317073171,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 5413813.0,
+   "year": 2025
+  }
+ },
+ "SL": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 846.296172499617,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 830.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 61.964,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 43.5800018310547,
+   "year": 2019
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 8819794.0,
+   "year": 2025
+  }
+ },
+ "SM": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 59871.3288101478,
+   "year": 2023
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 53910.0,
+   "year": 2023
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 85.817,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.9100036621094,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 34109.0,
+   "year": 2025
+  }
+ },
+ "SN": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1954.71174194867,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1780.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 68.924,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 50.3600006103516,
+   "year": 2023
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 18931966.0,
+   "year": 2025
+  }
+ },
+ "SO": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 661.173877723116,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 640.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 58.967,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 54.1199989318848,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 19654739.0,
+   "year": 2025
+  }
+ },
+ "SR": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 7069.87230892274,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 6140.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 73.757,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 92.870002746582,
+   "year": 2012
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 639850.0,
+   "year": 2025
+  }
+ },
+ "SS": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1080.14718624765,
+   "year": 2015
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1050.0,
+   "year": 2015
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 57.738,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 26.8299999237061,
+   "year": 2008
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 12188788.0,
+   "year": 2025
+  }
+ },
+ "ST": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 4084.40062145233,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 3800.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 69.905,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 87.4400024414062,
+   "year": 2019
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 240254.0,
+   "year": 2025
+  }
+ },
+ "SV": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 5766.72574029107,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 5410.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 72.302,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 89.7699966430664,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 6365503.0,
+   "year": 2025
+  }
+ },
+ "SX": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 42978.1317407037,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 38950.0,
+   "year": 2024
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 76.528,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 43923.0,
+   "year": 2025
+  }
+ },
+ "SY": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1056.78264718197,
+   "year": 2022
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 720.0,
+   "year": 2022
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 72.56,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 94.4199981689453,
+   "year": 2021
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 25620427.0,
+   "year": 2025
+  }
+ },
+ "SZ": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 4108.25221093363,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 3730.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 64.264,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 90.75,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1256174.0,
+   "year": 2025
+  }
+ },
+ "T2": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 10822.5929247606,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 10483.7997976021,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 75.7447305457285,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 94.879997253418,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 651467364.0,
+   "year": 2025
+  }
+ },
+ "T3": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 2826.65540584536,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 2888.8432979091,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 71.5035205544958,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 748489811.0,
+   "year": 2025
+  }
+ },
+ "T4": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 10965.8265646099,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 11218.4732221589,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 75.9869566179365,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 96.8099975585938,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 2117367063.0,
+   "year": 2025
+  }
+ },
+ "T5": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 2705.28227429085,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 2773.79115608425,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 72.5599614464264,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 78.2300033569336,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1692252900.0,
+   "year": 2025
+  }
+ },
+ "T6": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1673.07077574497,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1610.48127981574,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 62.8036817702073,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 68.6900024414062,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1321654217.0,
+   "year": 2025
+  }
+ },
+ "T7": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 15300.0702229683,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 13831.8639624334,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 74.965455732724,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.3899993896484,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 462559433.0,
+   "year": 2025
+  }
+ },
+ "TC": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 37506.7798431288,
+   "year": 2024
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 36760.0,
+   "year": 2024
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 78.181,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 46855.0,
+   "year": 2025
+  }
+ },
+ "TD": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1022.33559390754,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 970.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 55.238,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 30.6299991607666,
+   "year": 2019
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 21003705.0,
+   "year": 2025
+  }
+ },
+ "TG": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1383.89974929887,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1350.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 62.935,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 72.5999984741211,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 8591626.0,
+   "year": 2025
+  }
+ },
+ "TH": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 8056.56359761558,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 7690.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 76.564,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 91.0999984741211,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 71619863.0,
+   "year": 2025
+  }
+ },
+ "TJ": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1637.2542942547,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 2080.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 71.927,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.7298704511844,
+   "year": 2009
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 10786734.0,
+   "year": 2025
+  }
+ },
+ "TL": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1340.9640193437,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1510.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 67.904,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 69.4000015258789,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1418517.0,
+   "year": 2025
+  }
+ },
+ "TM": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 6540.17876401136,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 6340.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 70.201,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.9000015258789,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 7618847.0,
+   "year": 2025
+  }
+ },
+ "TN": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 4656.63818386852,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 4300.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 76.711,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 86.25,
+   "year": 2023
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 12348573.0,
+   "year": 2025
+  }
+ },
+ "TO": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 6547.18646814228,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 6840.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 73.07,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.4800033569336,
+   "year": 2023
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 103742.0,
+   "year": 2025
+  }
+ },
+ "TR": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 18599.4420922378,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 16300.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 77.421,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 97.2600021362305,
+   "year": 2021
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 85878556.0,
+   "year": 2025
+  }
+ },
+ "TT": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 18967.2704636681,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 18550.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 73.617,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 96.9400024414062,
+   "year": 1990
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1367764.0,
+   "year": 2025
+  }
+ },
+ "TV": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 6041.44908591428,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 9780.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 67.259,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 100.0,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 9492.0,
+   "year": 2025
+  }
+ },
+ "TZ": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1318.81921386719,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1270.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 67.212,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 78.2099990844727,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 70545865.0,
+   "year": 2025
+  }
+ },
+ "UA": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 5865.884765625,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 5510.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 74.692,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 99.4300003051758,
+   "year": 2001
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 38980376.0,
+   "year": 2025
+  }
+ },
+ "UG": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1206.30450825002,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1120.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 68.487,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 77.0400009155273,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 51384894.0,
+   "year": 2025
+  }
+ },
+ "US": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 90026.5163005744,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 88810.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 78.890243902439,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 341784857.0,
+   "year": 2025
+  }
+ },
+ "UY": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 25215.8238152781,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 24020.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 78.287,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 98.9100036621094,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 3384688.0,
+   "year": 2025
+  }
+ },
+ "UZ": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 3968.2720079072,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 3670.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 72.528,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 100.0,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 37053428.0,
+   "year": 2025
+  }
+ },
+ "V1": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1470.05803145865,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1431.47228065603,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 62.3537442260657,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 67.7200012207031,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1133132223.0,
+   "year": 2025
+  }
+ },
+ "V2": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 4566.42669968306,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 4547.43092706209,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 72.0081190674171,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 82.0999984741211,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 3592750579.0,
+   "year": 2025
+  }
+ },
+ "V3": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 13677.3231696707,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 13527.3098471149,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 77.2329659519788,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 96.8499984741211,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 2330425681.0,
+   "year": 2025
+  }
+ },
+ "V4": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 59490.0240628251,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 58705.4654369186,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 81.1124065061669,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1132621782.0,
+   "year": 2025
+  }
+ },
+ "VC": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 12561.769166789,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 12000.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 71.382,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 95.629997253418,
+   "year": 1970
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 99924.0,
+   "year": 2025
+  }
+ },
+ "VE": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 3494.8138870244,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 3860.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 72.673,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 97.1837183128414,
+   "year": 2017
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 28516896.0,
+   "year": 2025
+  }
+ },
+ "VG": {
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 77.431,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 39732.0,
+   "year": 2025
+  }
+ },
+ "VI": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 44320.909185774,
+   "year": 2022
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 80.7707317073171,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 103792.0,
+   "year": 2025
+  }
+ },
+ "VN": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 5065.99091899299,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 4970.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 74.736,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 96.129997253418,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 101598527.0,
+   "year": 2025
+  }
+ },
+ "VU": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 4038.73520713411,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 4410.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 71.654,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 87.9599990844727,
+   "year": 2023
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 335169.0,
+   "year": 2025
+  }
+ },
+ "WS": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 5872.78333308796,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 5640.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 71.826,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 97.9899978637695,
+   "year": 2019
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 219306.0,
+   "year": 2025
+  }
+ },
+ "XC": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 50214.0783015992,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 48230.1292607617,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 82.246870032101,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 358664361.0,
+   "year": 2025
+  }
+ },
+ "XD": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 53997.2579539931,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 52957.0784668503,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 80.3938747881043,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 97.7099990844727,
+   "year": 2020
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1423739902.0,
+   "year": 2025
+  }
+ },
+ "XE": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1331.89997509038,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1235.92917289166,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 64.9203978854631,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 66.629997253418,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 965148593.0,
+   "year": 2025
+  }
+ },
+ "XF": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 8599.35834895508,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 8558.5106252094,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 74.6728746420716,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 90.6900024414062,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 5006926951.0,
+   "year": 2025
+  }
+ },
+ "XG": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1608.08422318375,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1567.50854156115,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 65.6366628053028,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 70.0500030517578,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1986863837.0,
+   "year": 2025
+  }
+ },
+ "XH": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1841.20446420686,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1789.02685025796,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 62.619940785485,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 69.1900024414062,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 689783382.0,
+   "year": 2025
+  }
+ },
+ "XI": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1484.11159862857,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1449.705788803,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 67.2462931175476,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 70.9199981689453,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1297080455.0,
+   "year": 2025
+  }
+ },
+ "XJ": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 10407.4817975955,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 10054.1191943276,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 75.5362004917305,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 94.7099990844727,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 626808315.0,
+   "year": 2025
+  }
+ },
+ "XK": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 7899.41841135202,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 7760.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 78.222,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1576876.0,
+   "year": 2025
+  }
+ },
+ "XL": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1361.99182021439,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1348.2212760289,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 66.7090446173001,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 68.3199996948242,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1214167506.0,
+   "year": 2025
+  }
+ },
+ "XM": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 837.360634569252,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 811.436558478128,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 65.236848074161,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 63.5699996948242,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 767490169.0,
+   "year": 2025
+  }
+ },
+ "XN": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 2481.42751777184,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 2488.13876636699,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 69.5243427458333,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 78.2799987792969,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 2945282634.0,
+   "year": 2025
+  }
+ },
+ "XO": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 6107.26169428605,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 6129.26606377662,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 72.02401270252,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 85.6699981689453,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 6791684991.0,
+   "year": 2025
+  }
+ },
+ "XP": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 6778.79773310904,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 6806.7519473689,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 72.8726073761326,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 87.8000030517578,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 6024194822.0,
+   "year": 2025
+  }
+ },
+ "XQ": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 2829.12883889291,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 2891.43825495332,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 71.4871863765917,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 753903407.0,
+   "year": 2025
+  }
+ },
+ "XT": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 10890.0974812565,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 10938.138934823,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 76.0451247995029,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 96.1699981689453,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 3078912188.0,
+   "year": 2025
+  }
+ },
+ "XU": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 86308.0717272746,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 85298.297883893,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 79.2390403034254,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 98.7900009155273,
+   "year": 2022
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 383501065.0,
+   "year": 2025
+  }
+ },
+ "YE": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 633.887202451545,
+   "year": 2018
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 740.0,
+   "year": 2018
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 69.439,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 37.0900001525879,
+   "year": 1994
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 41773878.0,
+   "year": 2025
+  }
+ },
+ "Z4": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 14077.2712026283,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 14419.8860754843,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 76.7378937238628,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 96.6100006103516,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 2390873921.0,
+   "year": 2025
+  }
+ },
+ "Z7": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 34603.4808924641,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 32821.7389382542,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 78.5976161914947,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 98.7699966430664,
+   "year": 2023
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 932525035.0,
+   "year": 2025
+  }
+ },
+ "ZA": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 6597.71450918774,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 6270.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 66.312,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 91.1500015258789,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 64747319.0,
+   "year": 2025
+  }
+ },
+ "ZF": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1671.41989803328,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1608.84775752566,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 62.8024124096261,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 68.6800003051758,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1321531487.0,
+   "year": 2025
+  }
+ },
+ "ZG": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1673.07077574497,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1610.48127981574,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 62.8036817702073,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 68.6900024414062,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 1321654217.0,
+   "year": 2025
+  }
+ },
+ "ZH": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1722.38561960923,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1642.69660513103,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 65.3499304660954,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 73.6999969482422,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 788844284.0,
+   "year": 2025
+  }
+ },
+ "ZI": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1600.05837434388,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1562.78533111396,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 59.041538008007,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 61.1699981689453,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 532809933.0,
+   "year": 2025
+  }
+ },
+ "ZJ": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 11095.2176548294,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 10633.9281708203,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 75.8179100020065,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 94.9499969482422,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 666592570.0,
+   "year": 2025
+  }
+ },
+ "ZM": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 1317.87771619597,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 1200.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 66.528,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 71.7699966430664,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 21913874.0,
+   "year": 2025
+  }
+ },
+ "ZQ": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 6202.19002141299,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 6364.88796482909,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 72.3150125047629,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 75.5899963378906,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 828025185.0,
+   "year": 2025
+  }
+ },
+ "ZT": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 6613.20946974029,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 6572.43903035626,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 72.1341361054704,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 85.8199996948242,
+   "year": 2024
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 6993790788.0,
+   "year": 2025
+  }
+ },
+ "ZW": {
+  "gdp_per_capita": {
+   "source": "World Bank",
+   "value": 3021.43019873632,
+   "year": 2025
+  },
+  "income": {
+   "source": "World Bank",
+   "value": 2660.0,
+   "year": 2025
+  },
+  "life_expectancy": {
+   "source": "World Bank",
+   "value": 63.064,
+   "year": 2024
+  },
+  "literacy": {
+   "source": "World Bank",
+   "value": 93.2300033569336,
+   "year": 2019
+  },
+  "population": {
+   "source": "World Bank",
+   "value": 16950795.0,
+   "year": 2025
+  }
+ },
+ "_iso3": {
+  "ABW": "AW",
+  "AFE": "ZH",
+  "AFG": "AF",
+  "AFW": "ZI",
+  "AGO": "AO",
+  "ALB": "AL",
+  "AND": "AD",
+  "ARB": "1A",
+  "ARE": "AE",
+  "ARG": "AR",
+  "ARM": "AM",
+  "ASM": "AS",
+  "ATG": "AG",
+  "AUS": "AU",
+  "AUT": "AT",
+  "AZE": "AZ",
+  "BDI": "BI",
+  "BEL": "BE",
+  "BEN": "BJ",
+  "BFA": "BF",
+  "BGD": "BD",
+  "BGR": "BG",
+  "BHR": "BH",
+  "BHS": "BS",
+  "BIH": "BA",
+  "BLR": "BY",
+  "BLZ": "BZ",
+  "BMU": "BM",
+  "BOL": "BO",
+  "BRA": "BR",
+  "BRB": "BB",
+  "BRN": "BN",
+  "BTN": "BT",
+  "BWA": "BW",
+  "CAF": "CF",
+  "CAN": "CA",
+  "CEB": "B8",
+  "CHE": "CH",
+  "CHI": "JG",
+  "CHL": "CL",
+  "CHN": "CN",
+  "CIV": "CI",
+  "CMR": "CM",
+  "COD": "CD",
+  "COG": "CG",
+  "COL": "CO",
+  "COM": "KM",
+  "CPV": "CV",
+  "CRI": "CR",
+  "CSS": "S3",
+  "CUB": "CU",
+  "CUW": "CW",
+  "CYM": "KY",
+  "CYP": "CY",
+  "CZE": "CZ",
+  "DEU": "DE",
+  "DJI": "DJ",
+  "DMA": "DM",
+  "DNK": "DK",
+  "DOM": "DO",
+  "DZA": "DZ",
+  "EAP": "4E",
+  "EAR": "V2",
+  "EAS": "Z4",
+  "ECA": "7E",
+  "ECS": "Z7",
+  "ECU": "EC",
+  "EGY": "EG",
+  "EMU": "XC",
+  "ERI": "ER",
+  "ESP": "ES",
+  "EST": "EE",
+  "ETH": "ET",
+  "EUU": "EU",
+  "FCV": "F2",
+  "FIN": "FI",
+  "FJI": "FJ",
+  "FRA": "FR",
+  "FRO": "FO",
+  "FSM": "FM",
+  "GAB": "GA",
+  "GBR": "GB",
+  "GEO": "GE",
+  "GHA": "GH",
+  "GIB": "GI",
+  "GIN": "GN",
+  "GMB": "GM",
+  "GNB": "GW",
+  "GNQ": "GQ",
+  "GRC": "GR",
+  "GRD": "GD",
+  "GRL": "GL",
+  "GTM": "GT",
+  "GUM": "GU",
+  "GUY": "GY",
+  "HKG": "HK",
+  "HND": "HN",
+  "HPC": "XE",
+  "HRV": "HR",
+  "HTI": "HT",
+  "HUN": "HU",
+  "IBD": "XF",
+  "IBT": "ZT",
+  "IDA": "XG",
+  "IDB": "XH",
+  "IDN": "ID",
+  "IDX": "XI",
+  "IMN": "IM",
+  "IND": "IN",
+  "IRL": "IE",
+  "IRN": "IR",
+  "IRQ": "IQ",
+  "ISL": "IS",
+  "ISR": "IL",
+  "ITA": "IT",
+  "JAM": "JM",
+  "JOR": "JO",
+  "JPN": "JP",
+  "KAZ": "KZ",
+  "KEN": "KE",
+  "KGZ": "KG",
+  "KHM": "KH",
+  "KIR": "KI",
+  "KNA": "KN",
+  "KOR": "KR",
+  "KWT": "KW",
+  "LAC": "XJ",
+  "LAO": "LA",
+  "LBN": "LB",
+  "LBR": "LR",
+  "LBY": "LY",
+  "LCA": "LC",
+  "LCN": "ZJ",
+  "LDC": "XL",
+  "LIE": "LI",
+  "LKA": "LK",
+  "LMY": "XO",
+  "LSO": "LS",
+  "LTE": "V3",
+  "LTU": "LT",
+  "LUX": "LU",
+  "LVA": "LV",
+  "MAC": "MO",
+  "MAF": "MF",
+  "MAR": "MA",
+  "MCO": "MC",
+  "MDA": "MD",
+  "MDG": "MG",
+  "MDV": "MV",
+  "MEA": "ZQ",
+  "MEX": "MX",
+  "MHL": "MH",
+  "MIC": "XP",
+  "MKD": "MK",
+  "MLI": "ML",
+  "MLT": "MT",
+  "MMR": "MM",
+  "MNA": "XQ",
+  "MNE": "ME",
+  "MNG": "MN",
+  "MNP": "MP",
+  "MOZ": "MZ",
+  "MRT": "MR",
+  "MUS": "MU",
+  "MWI": "MW",
+  "MYS": "MY",
+  "NAC": "XU",
+  "NAM": "NA",
+  "NCL": "NC",
+  "NER": "NE",
+  "NGA": "NG",
+  "NIC": "NI",
+  "NLD": "NL",
+  "NOR": "NO",
+  "NPL": "NP",
+  "NRU": "NR",
+  "NZL": "NZ",
+  "OED": "OE",
+  "OMN": "OM",
+  "OSS": "S4",
+  "PAK": "PK",
+  "PAN": "PA",
+  "PER": "PE",
+  "PHL": "PH",
+  "PLW": "PW",
+  "PNG": "PG",
+  "POL": "PL",
+  "PRE": "V1",
+  "PRI": "PR",
+  "PRK": "KP",
+  "PRT": "PT",
+  "PRY": "PY",
+  "PSE": "PS",
+  "PSS": "S2",
+  "PST": "V4",
+  "PYF": "PF",
+  "QAT": "QA",
+  "ROU": "RO",
+  "RUS": "RU",
+  "RWA": "RW",
+  "SAS": "8S",
+  "SAU": "SA",
+  "SDN": "SD",
+  "SEN": "SN",
+  "SGP": "SG",
+  "SLB": "SB",
+  "SLE": "SL",
+  "SLV": "SV",
+  "SMR": "SM",
+  "SOM": "SO",
+  "SRB": "RS",
+  "SSA": "ZF",
+  "SSD": "SS",
+  "SSF": "ZG",
+  "SST": "S1",
+  "STP": "ST",
+  "SUR": "SR",
+  "SVK": "SK",
+  "SVN": "SI",
+  "SWE": "SE",
+  "SWZ": "SZ",
+  "SXM": "SX",
+  "SYC": "SC",
+  "SYR": "SY",
+  "TCA": "TC",
+  "TCD": "TD",
+  "TEA": "T4",
+  "TEC": "T7",
+  "TGO": "TG",
+  "THA": "TH",
+  "TJK": "TJ",
+  "TKM": "TM",
+  "TLA": "T2",
+  "TLS": "TL",
+  "TMN": "T3",
+  "TON": "TO",
+  "TSA": "T5",
+  "TSS": "T6",
+  "TTO": "TT",
+  "TUN": "TN",
+  "TUR": "TR",
+  "TUV": "TV",
+  "TZA": "TZ",
+  "UGA": "UG",
+  "UKR": "UA",
+  "URY": "UY",
+  "USA": "US",
+  "UZB": "UZ",
+  "VCT": "VC",
+  "VEN": "VE",
+  "VGB": "VG",
+  "VIR": "VI",
+  "VNM": "VN",
+  "VUT": "VU",
+  "WLD": "1W",
+  "WSM": "WS",
+  "XKX": "XK",
+  "YEM": "YE",
+  "ZAF": "ZA",
+  "ZMB": "ZM",
+  "ZWE": "ZW"
+ },
+ "_saved": "2026-11-14"
+}

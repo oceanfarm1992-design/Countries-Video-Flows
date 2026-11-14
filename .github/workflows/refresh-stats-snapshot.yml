@@ -1,0 +1,37 @@
+name: refresh-stats-snapshot
+
+# Weekly: save every country's comparison figures (scripts/save_stats_snapshot.py), so a
+# World Bank outage on a video day falls back to this instead of failing the Short.
+on:
+  schedule:
+    - cron: "37 2 * * 1"   # Mondays 02:37 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: refresh-stats-snapshot
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+          cache: pip
+      - run: pip install requests==2.34.2
+      - run: python scripts/save_stats_snapshot.py
+      - name: Commit the snapshot if it changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add config/country_stats_snapshot.json
+          git commit -m "data: weekly country stats snapshot" || { echo "no change"; exit 0; }
+          for i in 1 2 3; do
+            git pull --rebase --autostash && git push && break || sleep $((i * 5))
+          done
