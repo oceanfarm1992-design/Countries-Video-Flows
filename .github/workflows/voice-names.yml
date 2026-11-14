@@ -32,27 +32,24 @@ jobs:
         with:
           engines: styletts2
           python-version: "3.11"
-      - name: Read the names aloud
+      - name: Read each name and its respellings aloud
         env:
           VOICE_REPO_PAT: ${{ secrets.VOICE_REPO_PAT }}
-          EXTRA: ${{ inputs.extra }}
         run: |
           mkdir -p out
           python - <<'EOF'
-          import json, os
+          import json
           from voiceclone import synthesize
-          names = [c["name"] for c in json.load(open("config/countries.json", encoding="utf-8"))["countries"]]
-          for p in json.load(open("config/india_places.json", encoding="utf-8"))["places"]:
-              names += [p["name"], p["region"]]
-          names += [n.strip() for n in os.environ.get("EXTRA", "").split(",") if n.strip()]
-          names = list(dict.fromkeys(names))
-          chunks = [names[i:i + 5] for i in range(0, len(names), 5)]
-          json.dump(chunks, open("out/chunks.json", "w"))
-          for i, chunk in enumerate(chunks):
-              text = "Next: " + ", ".join(chunk[:-1]) + (", and " if len(chunk) > 1 else "") + chunk[-1] + "."
-              synthesize(text, f"out/chunk_{i:03d}.wav", engine="styletts2", language="en", style="default",
-                         voice_ref_repo="oceanfarm1992-design/voice-reference-audio", rvc="off")
-              print("[names]", i, chunk)
+          cands = json.load(open("scripts/pron_candidates.json", encoding="utf-8"))
+          manifest = []
+          for name, spellings in cands.items():
+              for j, spelling in enumerate(dict.fromkeys([name, *spellings])):
+                  path = f"out/n{len(manifest):03d}.wav"
+                  synthesize(f"The place is {spelling}.", path, engine="styletts2", language="en", style="default",
+                             voice_ref_repo="oceanfarm1992-design/voice-reference-audio", rvc="off")
+                  manifest.append({"name": name, "spelling": spelling, "file": path.split("/")[1]})
+                  print("[pron]", manifest[-1])
+          json.dump(manifest, open("out/manifest.json", "w", encoding="utf-8"), ensure_ascii=False)
           EOF
       - uses: actions/upload-artifact@v7
         with:
