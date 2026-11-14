@@ -1,0 +1,28 @@
+name: check-india-connections
+
+# Confirms the India channel can post (Facebook Page token + permissions + expiry, YouTube
+# channel) without posting anything. Run by hand after changing a secret.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - run: pip install requests==2.34.2 google-auth==2.62.1 google-api-python-client==2.201.0
+      - name: Check Facebook and YouTube
+        env:
+          FACEBOOK_PAGE_ID: ${{ secrets.INDIA_FACEBOOK_PAGE_ID }}
+          FACEBOOK_PAGE_TOKEN: ${{ secrets.INDIA_FACEBOOK_PAGE_TOKEN }}
+          YOUTUBE_CLIENT_ID: ${{ secrets.INDIA_YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.INDIA_YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.INDIA_YOUTUBE_REFRESH_TOKEN }}
+        run: python scripts/check_india_connections.py
