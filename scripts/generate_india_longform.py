@@ -233,7 +233,7 @@ def build(theme_id):
         segments.append({"kind": "chart", "chapter": f"{n}. {chart['title']}", "text": text,
                          "chart": chart, "broll": M[mid][5]})
         proof.append(f"{n}. {chart['title']} (World Bank {chart['code']}): "
-                     + ", ".join(f"{y} {chart['labels'][str(y)]}" for y, _ in chart["india"][::5] + [chart["india"][-1]]))
+                     + ", ".join(f"{y} {chart['labels'][str(y)]}" for y, _ in dict.fromkeys(chart["india"][::5] + [chart["india"][-1]])))
     intro = (f"India in {n} charts: {name}. Every number in this video comes from the World Bank, "
              f"year by year, from {START_YEAR} to today. Let's see how India has changed.")
     outro = ("That was India in numbers. All the figures and their sources are in the description. "

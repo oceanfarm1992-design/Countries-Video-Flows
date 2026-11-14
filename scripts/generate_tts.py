@@ -202,7 +202,7 @@ def rvc_mode():
     return "on" if REQUIRE_RVC else "auto"
 
 
-VOICECLONE_MAX_CHARS = 450
+VOICECLONE_MAX_CHARS = 240  # 450 still overflowed on number-dense text ("one point six eight ...")
 JOIN_GAP_SECONDS = 0.15
 
 
