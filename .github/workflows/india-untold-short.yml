@@ -245,6 +245,15 @@ jobs:
           AI_PROVIDER: ${{ vars.AI_PROVIDER }}
         run: python scripts/vision_check.py --video build/final.mp4 --script build/script.json --out build/vision_review.json
 
+      # Confirms the Facebook Page token works (prints the Page name, never the token).
+      - name: Check the Facebook page token
+        if: steps.gate.outputs.skip == 'false'
+        continue-on-error: true
+        env:
+          FACEBOOK_PAGE_ID: ${{ secrets.INDIA_FACEBOOK_PAGE_ID }}
+          FACEBOOK_PAGE_TOKEN: ${{ secrets.INDIA_FACEBOOK_PAGE_TOKEN }}
+        run: python scripts/post_facebook.py --check
+
       # ---- publish (never on a dry run) ----
       - name: Publish video as release asset
         id: publish_asset
@@ -289,6 +298,20 @@ jobs:
             --desc-file build/caption_youtube.txt \
             --config config/india.json
 
+      # Direct to the India Facebook Page as a Reel (scripts/post_facebook.py); skipped
+      # quietly when the Page secrets are not set.
+      - name: Post to Facebook (India page, Reel)
+        id: post_facebook
+        if: steps.gate.outputs.skip == 'false' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        continue-on-error: true
+        env:
+          FACEBOOK_PAGE_ID: ${{ secrets.INDIA_FACEBOOK_PAGE_ID }}
+          FACEBOOK_PAGE_TOKEN: ${{ secrets.INDIA_FACEBOOK_PAGE_TOKEN }}
+        run: |
+          python scripts/post_facebook.py \
+            --video-url "${{ steps.publish_asset.outputs.video_url }}" \
+            --caption-file build/caption_meta.txt
+
       - name: Upload dry-run artifacts
         if: always() && steps.gate.outputs.skip == 'false' && github.event_name == 'workflow_dispatch' && inputs.dry_run == true
         uses: actions/upload-artifact@v7
@@ -309,7 +332,7 @@ jobs:
         run: |
           DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           TITLE=$(python -c "import json;print(json.load(open('build/script.json')).get('name','unknown'))" 2>/dev/null || echo "unknown")
-          echo "${DATE},india_${{ steps.gate.outputs.series }},\"${TITLE}\",${{ steps.post_buffer.outcome }},${{ steps.post_youtube.outcome }}" >> logs/history_india.csv
+          echo "${DATE},india_${{ steps.gate.outputs.series }},\"${TITLE}\",${{ steps.post_buffer.outcome }},${{ steps.post_youtube.outcome }},${{ steps.post_facebook.outcome }}" >> logs/history_india.csv
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add logs/history_india.csv
@@ -319,7 +342,7 @@ jobs:
           done
 
       - name: Fail the run if a platform post failed
-        if: always() && steps.gate.outputs.skip == 'false' && (steps.post_buffer.outcome == 'failure' || steps.post_youtube.outcome == 'failure')
+        if: always() && steps.gate.outputs.skip == 'false' && (steps.post_buffer.outcome == 'failure' || steps.post_youtube.outcome == 'failure' || steps.post_facebook.outcome == 'failure')
         run: |
-          echo "::error::Posting failed -- Buffer: ${{ steps.post_buffer.outcome }}, YouTube: ${{ steps.post_youtube.outcome }}"
+          echo "::error::Posting failed -- Buffer: ${{ steps.post_buffer.outcome }}, YouTube: ${{ steps.post_youtube.outcome }}, Facebook: ${{ steps.post_facebook.outcome }}"
           exit 1
