@@ -105,32 +105,37 @@ jobs:
           pip install torch==2.8.0+cpu torchaudio==2.8.0+cpu --index-url https://download.pytorch.org/whl/cpu
           pip install -r requirements.txt
 
-      - name: Generate script (verified facts only)
+      # Today's place, or the next one when it has too little footage confirmed to show it
+      # (fetch_place_footage.py exits 3). A forced place is tried alone.
+      - name: Generate script and fetch confirmed footage
         if: steps.gate.outputs.skip == 'false'
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_API }}
           AI_PROVIDER: ${{ vars.AI_PROVIDER }}
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
           PLACE: ${{ inputs.place }}
         run: |
-          ARGS=""
           if [ -n "$PLACE" ]; then
             case "$PLACE" in *[!a-z0-9-]*) echo "place must be a place id"; exit 1;; esac
-            ARGS="--place $PLACE"
+            python scripts/generate_india_untold_script.py --place "$PLACE"
+            python scripts/fetch_place_footage.py
+            exit $?
           fi
-          python scripts/generate_india_untold_script.py $ARGS
+          for skip in 0 1 2 3 4; do
+            python scripts/generate_india_untold_script.py --skip $skip
+            set +e; python scripts/fetch_place_footage.py; code=$?; set -e
+            [ $code -eq 0 ] && exit 0
+            [ $code -ne 3 ] && exit $code
+            echo "::warning::not enough confirmed footage -- trying the next place"
+          done
+          echo "::error::no place with enough confirmed footage"; exit 1
 
       - name: Check the facts against Wikipedia
         if: steps.gate.outputs.skip == 'false'
         continue-on-error: true
         run: python scripts/verify_india_facts.py --place "$(python -c "import json;print(json.load(open('build/script.json'))['id'])")"
-
-      - name: Fetch drone footage (Pexels / Pixabay)
-        if: steps.gate.outputs.skip == 'false'
-        env:
-          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
-          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
-        run: python scripts/fetch_footage.py --config config/india.json
 
       - name: Install the voice engine (own voice + RVC)
         if: steps.gate.outputs.skip == 'false'
