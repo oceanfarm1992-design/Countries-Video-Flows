@@ -31,7 +31,7 @@ on:
         default: ""
 
 permissions:
-  actions: read     # post_gate checks for other video workflows mid-build
+  actions: write    # post_gate checks for other video workflows mid-build; catch_up.py starts a dropped one
   contents: write   # commit logs/history_longform.csv and create the release asset
 
 concurrency:
@@ -119,6 +119,15 @@ jobs:
                 + f", target {hour:02d}:00 UTC, last post " + (f"{since:.0f}h ago" if since is not None else "never"))
           print(f"[gate] {'SKIP' if skip else 'PROCEED'}: {reason}")
           EOF
+
+      # Safety net (scripts/catch_up.py): GitHub drops scheduled runs when busy. If today's
+      # Short is another workflow's turn and that one has stopped being started, start it.
+      - name: Start today's Short if GitHub dropped its schedule
+        if: steps.gate.outputs.skip == 'true' && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: python scripts/catch_up.py --me longform
 
       - name: Install system deps (ffmpeg, fonts, espeak fallback)
         if: steps.gate.outputs.skip == 'false'

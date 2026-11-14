@@ -37,7 +37,7 @@ on:
         default: ""
 
 permissions:
-  actions: read     # post_gate checks for other video workflows mid-build
+  actions: write    # post_gate checks for other video workflows mid-build; catch_up.py starts a dropped one
   contents: write   # commit logs/history_comparison.csv, config/country_stats_cache.json, and create the release asset
 
 # Serialize runs so a catch-up run can't start building while an earlier one is
@@ -137,6 +137,15 @@ jobs:
           else:
               print(f"[gate] PROCEED slot {pick['slot']}: {reason}")
           EOF
+
+      # Safety net (scripts/catch_up.py): GitHub drops scheduled runs when busy. If today's
+      # Short is another workflow's turn and that one has stopped being started, start it.
+      - name: Start today's Short if GitHub dropped its schedule
+        if: steps.gate.outputs.skip == 'true' && github.event_name == 'schedule'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+        run: python scripts/catch_up.py --me comparison
 
       - name: Install system deps (ffmpeg, fonts, espeak fallback)
         if: steps.gate.outputs.skip == 'false'
