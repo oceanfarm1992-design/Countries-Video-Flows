@@ -30,23 +30,23 @@ CTA = "Follow to watch India rise."
 
 # id, World Bank code, chart title, unit, the direction that is progress, the opening line
 METRICS = [
-    {"id": "electricity", "code": "EG.ELC.ACCS.ZS", "title": "Indians with electricity", "unit": "pct",
+    {"id": "electricity", "broll": ["India power lines", "India solar farm", "Mumbai city lights night", "India village electricity"], "code": "EG.ELC.ACCS.ZS", "title": "Indians with electricity", "unit": "pct",
      "better": "up", "line": "In {y}, {v} of Indians had electricity."},
-    {"id": "gdp", "code": "NY.GDP.MKTP.CD", "title": "India's economy (GDP)", "unit": "usd_big",
+    {"id": "gdp", "broll": ["India port container ship", "India factory", "Mumbai skyline", "India highway traffic", "India metro train"], "code": "NY.GDP.MKTP.CD", "title": "India's economy (GDP)", "unit": "usd_big",
      "better": "up", "line": "In {y}, India's economy was worth {v}.", "rank": True},
-    {"id": "internet", "code": "IT.NET.USER.ZS", "title": "Indians using the internet", "unit": "pct",
+    {"id": "internet", "broll": ["India people smartphone", "Bangalore office", "India students laptop", "India street"], "code": "IT.NET.USER.ZS", "title": "Indians using the internet", "unit": "pct",
      "better": "up", "line": "In {y}, only {v} of Indians used the internet."},
-    {"id": "life", "code": "SP.DYN.LE00.IN", "title": "Life expectancy in India", "unit": "years",
+    {"id": "life", "broll": ["India hospital", "India family", "India elderly", "India yoga"], "code": "SP.DYN.LE00.IN", "title": "Life expectancy in India", "unit": "years",
      "better": "up", "line": "In {y}, Indians lived {v} on average."},
-    {"id": "poverty", "code": "SI.POV.DDAY", "title": "Indians in extreme poverty", "unit": "pct",
+    {"id": "poverty", "broll": ["India village", "India market", "India farmers", "Mumbai skyline"], "code": "SI.POV.DDAY", "title": "Indians in extreme poverty", "unit": "pct",
      "better": "down", "line": "In {y}, {v} of Indians lived in extreme poverty."},
-    {"id": "income", "code": "NY.GNP.PCAP.CD", "title": "Income per person in India", "unit": "usd",
+    {"id": "income", "broll": ["India shopping mall", "Mumbai skyline", "India market", "India office"], "code": "NY.GNP.PCAP.CD", "title": "Income per person in India", "unit": "usd",
      "better": "up", "line": "In {y}, the average Indian earned {v} a year."},
-    {"id": "infant", "code": "SP.DYN.IMRT.IN", "title": "Infant deaths per 1,000 births", "unit": "per1000",
+    {"id": "infant", "broll": ["India hospital", "India mother baby", "India village"], "code": "SP.DYN.IMRT.IN", "title": "Infant deaths per 1,000 births", "unit": "per1000",
      "better": "down", "line": "In {y}, {v} babies in every thousand died before turning one."},
-    {"id": "mobile", "code": "IT.CEL.SETS.P2", "title": "Mobile phones per 100 Indians", "unit": "per100",
+    {"id": "mobile", "broll": ["India people smartphone", "India street", "India train passengers"], "code": "IT.CEL.SETS.P2", "title": "Mobile phones per 100 Indians", "unit": "per100",
      "better": "up", "line": "In {y}, there were {v} mobile subscriptions for every hundred Indians."},
-    {"id": "water", "code": "SH.H2O.BASW.ZS", "title": "Indians with safe drinking water", "unit": "pct",
+    {"id": "water", "broll": ["India water tap", "India river", "India village well"], "code": "SH.H2O.BASW.ZS", "title": "Indians with safe drinking water", "unit": "pct",
      "better": "up", "line": "In {y}, {v} of Indians had basic drinking water."},
 ]
 
@@ -185,6 +185,7 @@ def main():
     record = {
         "id": f"rising-{metric['id']}", "name": "India", "title": metric["title"], "author": "India",
         "series": "india_rising", "hook": hook, "narration": text, "segments": segments,
+        "broll": metric["broll"],
         "narration_source": "template", "data_source": source, "iso2": "IN",
         "metric": {k: metric[k] for k in ("id", "code", "title", "unit", "better")},
         "chart": {"india": f["points"], "world": f["world"],

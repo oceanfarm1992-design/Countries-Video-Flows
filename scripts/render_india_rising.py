@@ -5,6 +5,10 @@ while a big counter shows the current year and value; the World average appears 
 line when the narration compares with it. One clip per narration beat, timed to the real
 voice (pipeline_common.segment_durations), so the animation is continuous across cuts.
 
+The chart is drawn as a see-through layer over real Indian footage (fetch_india_broll.py:
+ports, factories, skylines...), dimmed a little so the numbers stay readable. Without footage
+it falls back to a plain background.
+
 Runs AFTER the voiceover. Output: build/footage_clip<N>.mp4, build/footage.json, build/sfx.wav
 
 Usage:
@@ -13,6 +17,7 @@ Usage:
 import argparse
 import json
 import os
+import subprocess
 
 from PIL import Image, ImageDraw
 
@@ -25,6 +30,8 @@ PLOT = (130, 640, 980, 990)          # chart box; the caption band starts at y=1
 INDIA = (255, 153, 51)               # saffron
 WORLD_C = (150, 160, 190)
 TAIL_PAD = 0.5
+LAYER_TOP, LAYER_H = 200, 880        # the chart layer covers y=200..1080 of the frame
+PANEL = (60, 230, 1020, 1075)        # translucent card behind title, counter and chart
 
 
 def eval_line(points, year):
@@ -104,10 +111,18 @@ def _polyline(d, pts, fill, width):
         d.line(pts, fill=fill, width=width, joint="curve")
 
 
-def make_scene(chart_data, unit, labels, title, marks, offset):
-    """Runs inside each render worker; returns scene(t) -> RGBA frame."""
+def _panel():
+    """Full-frame transparent image with the translucent card the chart sits on."""
+    img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    ImageDraw.Draw(img).rounded_rectangle(PANEL, 36, fill=(8, 14, 30, 150))
+    return img
+
+
+def make_scene(chart_data, unit, labels, title, marks, offset, overlay=False):
+    """Runs inside each render worker; returns scene(t) -> RGBA frame. overlay=True draws
+    only the chart layer (transparent around the card), cropped to LAYER_TOP..+LAYER_H."""
     chart = Chart(chart_data, unit, labels)
-    base = _background()
+    base = _panel() if overlay else _background()
     _axes(base, chart)
     big, mid, small = mk.font(118, 800), mk.font(56, 800), mk.font(28, 600)
     title_f = mk.fit_font(title.upper(), 60, 34, W - 140, 800)
@@ -145,7 +160,9 @@ def make_scene(chart_data, unit, labels, title, marks, offset):
         year_now = int(round(head_year))
         mk.draw_text(frame, (W / 2, 400), str(year_now), mid, mk.TEXT_DIM + (255,), anchor="mm")
         mk.draw_text(frame, (W / 2, 515), chart.label_for(year_now), big, INDIA + (255,), anchor="mm")
-        mk.draw_text(frame, (W / 2, 1830), "Source: World Bank", small, mk.TEXT_DIM + (255,), anchor="mm")
+        mk.draw_text(frame, (W / 2, 1052), "Source: World Bank", small, mk.TEXT_DIM + (255,), anchor="mm")
+        if overlay:
+            return frame.crop((0, LAYER_TOP, W, LAYER_TOP + LAYER_H))
         return frame
 
     return scene
@@ -164,6 +181,33 @@ def beat_marks(segments, durs):
     marks.setdefault("end", start - 3.0)
     marks.setdefault("end_dur", 2.0)
     return marks
+
+
+def composite(background, kind, layer, out, dur):
+    """Real footage (looped video or slowly zooming photo), cover-cropped to 9:16 and dimmed a
+    little, with the chart layer on top."""
+    n = max(1, int(round(dur * mk.FPS)))
+    if kind == "photo":
+        src = ["-i", background]  # zoompan makes all n frames from the single image
+        bg = (f"[0:v]scale=1188:2112:force_original_aspect_ratio=increase,crop=1188:2112,"
+              f"zoompan=z='min(zoom+0.0007,1.15)':d={n}:s={W}x{H}:fps={mk.FPS}")
+    else:
+        src = ["-stream_loop", "-1", "-i", background]
+        bg = f"[0:v]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},fps={mk.FPS}"
+    graph = (f"{bg},setsar=1,eq=brightness=-0.06:saturation=1.1[bg];"
+             f"[bg][1:v]overlay=0:{LAYER_TOP}:format=auto,format=yuv420p[v]")
+    subprocess.run(["ffmpeg", "-v", "error", "-y", *src, "-i", layer, "-filter_complex", graph,
+                    "-map", "[v]", "-t", f"{dur:.3f}", "-an", "-c:v", "libx264", "-preset", "veryfast",
+                    "-crf", "20", out], check=True, timeout=600)
+
+
+def load_broll(out_dir):
+    try:
+        with open(os.path.join(out_dir, "broll.json"), encoding="utf-8") as fh:
+            pieces = json.load(fh)
+    except (OSError, ValueError):
+        return []
+    return [p for p in pieces if os.path.exists(os.path.join(out_dir, p["path"]))]
 
 
 def main():
@@ -186,11 +230,16 @@ def main():
     metric = script["metric"]
     print(f"[render_india_rising] {len(segments)} beats, {duration:.1f}s (from {src})")
 
+    broll = load_broll(args.out)
+    overlay = bool(broll)
+    print(f"[render_india_rising] background: {len(broll)} real footage pieces" if overlay
+          else "[render_india_rising] no real footage found -- plain background")
     jobs, clips, events, start = [], [], [], 0.0
     for i, dur in enumerate(durs):
         out = os.path.join(args.out, f"footage_clip{i}.mp4")
-        jobs.append((out, dur + TAIL_PAD, (script["chart"], metric["unit"], script["chart"]["labels"],
-                                           metric["title"], marks, start)))
+        target = os.path.join(args.out, f"_chart_layer{i}.mov") if overlay else out
+        jobs.append((target, dur + TAIL_PAD, (script["chart"], metric["unit"], script["chart"]["labels"],
+                                              metric["title"], marks, start, overlay)))
         clips.append({"source": "india_rising", "type": "video", "path": os.path.basename(out),
                       "query": segments[i].get("visual", ""), "license": "Generated content -- original render",
                       "attribution": f"Rendered chart (data: World Bank {metric['code']})"})
@@ -200,7 +249,16 @@ def main():
     events.append((marks["grow"], mk.sfx_riser(1.6)))
     events.append((marks["end"] + 0.6 * marks["end_dur"], mk.sfx_impact()))
 
-    mk.render_clips(jobs, (W, H), make_scene, args.processes)
+    if overlay:
+        mk.render_clips(jobs, (W, LAYER_H), make_scene, args.processes, alpha=True)
+        for i, (layer, dur, _args) in enumerate(jobs):
+            piece = broll[i % len(broll)]
+            composite(os.path.join(args.out, piece["path"]), piece["type"], layer,
+                      os.path.join(args.out, f"footage_clip{i}.mp4"), dur)
+            os.remove(layer)
+            clips[i]["background"] = {k: piece.get(k) for k in ("source", "author", "license", "source_url")}
+    else:
+        mk.render_clips(jobs, (W, H), make_scene, args.processes)
     mk.write_sfx_track(os.path.join(args.out, "sfx.wav"), duration, events)
     with open(os.path.join(args.out, "footage.json"), "w", encoding="utf-8") as fh:
         json.dump({"clip_count": len(clips), "clips": clips, "source": "india_rising",

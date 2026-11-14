@@ -210,6 +210,14 @@ jobs:
 
       # Original hype track (96 BPM, 808 + flute + tabla), not the news-style loop.
       # After the voice, so each chart beat matches the real speech timing.
+      - name: Fetch real Indian footage for the chart (rising)
+        if: steps.gate.outputs.skip == 'false' && steps.gate.outputs.series == 'rising'
+        continue-on-error: true
+        env:
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+        run: python scripts/fetch_india_broll.py
+
       - name: Render the year-by-year chart (rising)
         if: steps.gate.outputs.skip == 'false' && steps.gate.outputs.series == 'rising'
         run: python scripts/render_india_rising.py
@@ -226,7 +234,9 @@ jobs:
       # No globe intro: the video opens straight on the drone shot with the hook card.
       - name: Assemble video
         if: steps.gate.outputs.skip == 'false'
-        run: python scripts/assemble_video.py --config config/india.json --sfx build/sfx.wav
+        # music louder than the world channel's (0.15): at 0.15 the groove sat ~15 dB under the
+        # voice between lines and read as "no music"; it still ducks under every line
+        run: python scripts/assemble_video.py --config config/india.json --sfx build/sfx.wav --music-volume 0.38
 
       - name: Finishing pass
         if: steps.gate.outputs.skip == 'false'
