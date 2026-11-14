@@ -168,6 +168,16 @@ VOICE_STYLE = os.environ.get("VOICE_STYLE", "").strip() or "storyteller"
 # Long-form narrates segment by segment: a segment whose RVC step failed would sound
 # like a different person mid-video, so longform_tts.py makes RVC failure fail the engine.
 REQUIRE_RVC = False
+# VOICE_RVC=off skips the voice-conversion step: the raw StyleTTS2 clone. The India channel uses
+# it because the owner judged that voice more mature than the RVC output (2026-11-14).
+VOICE_RVC = os.environ.get("VOICE_RVC", "").strip().lower()
+
+
+def rvc_mode():
+    """'off' when VOICE_RVC=off, else 'on' for a locked-voice (long-form) run, else 'auto'."""
+    if VOICE_RVC == "off":
+        return "off"
+    return "on" if REQUIRE_RVC else "auto"
 
 
 def run_voiceclone(text, out_wav):
@@ -181,11 +191,11 @@ def run_voiceclone(text, out_wav):
     # engine="styletts2": its stock-voice fallbacks would be rejected below anyway, so
     # don't spend minutes on them -- the plain clone in this file is the next step.
     used = synthesize(text, out_wav, engine="styletts2", language="en", style=VOICE_STYLE,
-                      voice_ref_repo=VOICE_REF_REPO, rvc="on" if REQUIRE_RVC else "auto")
+                      voice_ref_repo=VOICE_REF_REPO, rvc=rvc_mode())
     print(f"[generate_tts] voiceclone engine: {used} (style={VOICE_STYLE})")
     if not used.startswith("styletts2"):
         raise RuntimeError(f"voiceclone fell back to a stock voice ({used})")
-    if not used.endswith("+rvc"):
+    if rvc_mode() != "off" and not used.endswith("+rvc"):
         print("::warning::voice conversion (RVC) failed -- narration is the plain StyleTTS2 clone")
 _VOICE_KWARGS = None
 
