@@ -58,7 +58,7 @@ def spoken(unit, v):
             return "nearly 100 percent"
         return f"{v:.0f} percent" if v >= 10 else f"{v:.1f} percent"
     if unit == "usd_big":
-        return f"${v / 1e12:.1f} trillion" if v >= 1e12 else f"${v / 1e9:.0f} billion"
+        return f"${v / 1e12:.2f} trillion" if v >= 1e12 else f"${v / 1e9:.0f} billion"
     if unit == "usd":
         return f"${v:,.0f}"
     if unit == "years":

@@ -14,7 +14,7 @@ ELEC = next(m for m in gen.METRICS if m["id"] == "electricity")
 def test_spoken_and_shown_values():
     assert gen.spoken("pct", 99.9) == "nearly 100 percent" and gen.shown("pct", 99.9) == "99.9%"
     assert gen.spoken("pct", 2.6) == "2.6 percent" and gen.spoken("pct", 60.2) == "60 percent"
-    assert gen.spoken("usd_big", 3.96e12) == "$4.0 trillion" and gen.shown("usd_big", 4.68e11) == "$468B"
+    assert gen.spoken("usd_big", 3.96e12) == "$3.96 trillion" and gen.shown("usd_big", 4.68e11) == "$468B"
 
 
 def test_facts_use_first_middle_and_last_reading():
