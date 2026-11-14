@@ -14,8 +14,14 @@ MIN_GAP_MINUTES = 100
 # Blackout 23:50-01:00 Dubai (UTC+4) == 19:50-21:00 UTC.
 BLACKOUT_START = (19, 50)
 BLACKOUT_END = (21, 0)
-VIDEO_WORKFLOWS = {"daily-rotating-short", "daily-comparison-short", "daily-rankings-short",
+# Two channels share this repo; each is guarded only against its OWN posts and builds, so
+# an India post never delays a world post (or the reverse). India's releases are tagged
+# "india-..." and its workflow names are listed here.
+WORLD_WORKFLOWS = {"daily-rotating-short", "daily-comparison-short", "daily-rankings-short",
                    "longform-video"}
+INDIA_WORKFLOWS = {"india-untold-short"}
+VIDEO_WORKFLOWS = WORLD_WORKFLOWS  # back-compat name
+INDIA_TAG_PREFIX = "india-"
 
 
 def _gh_json(args):
@@ -23,34 +29,43 @@ def _gh_json(args):
     return json.loads(out)
 
 
-def _other_build_running():
+def _other_build_running(channel="world"):
     """A build takes ~20 min before its release exists, so a release-only check
     would let two workflows that pass their gates close together both post."""
+    workflows = INDIA_WORKFLOWS if channel == "india" else WORLD_WORKFLOWS
     own_id = os.environ.get("GITHUB_RUN_ID", "")
     runs = _gh_json(["run", "list", "--status", "in_progress", "--limit", "20",
                      "--json", "databaseId,workflowName,event"])
     # Manual runs are skipped: they're nearly always dry runs that never post,
     # and counting them made a scheduled post wait out a test build.
-    return any(r["workflowName"] in VIDEO_WORKFLOWS and str(r["databaseId"]) != own_id
+    return any(r["workflowName"] in workflows and str(r["databaseId"]) != own_id
                and r.get("event") != "workflow_dispatch"
                for r in runs)
 
 
-def spacing_block(now=None, min_gap_minutes=MIN_GAP_MINUTES):
+def channel_release_times(releases, channel="world"):
+    """Publish times of the releases that belong to `channel` ("india" tags start with
+    india-, everything else is the world channel)."""
+    is_india = channel == "india"
+    return [datetime.fromisoformat(r["publishedAt"].replace("Z", "+00:00"))
+            for r in releases
+            if r.get("publishedAt") and r.get("tagName", "").startswith(INDIA_TAG_PREFIX) == is_india]
+
+
+def spacing_block(now=None, min_gap_minutes=MIN_GAP_MINUTES, channel="world"):
     """Return a reason string if posting must wait, else None. Fails closed if
     GitHub can't be queried."""
     now = now or datetime.now(timezone.utc)
     if BLACKOUT_START <= (now.hour, now.minute) < BLACKOUT_END:
         return f"blackout window (now {now:%H:%M} UTC)"
     try:
-        releases = _gh_json(["release", "list", "--limit", "20", "--json", "publishedAt"])
-        building = _other_build_running()
+        releases = _gh_json(["release", "list", "--limit", "40", "--json", "publishedAt,tagName"])
+        building = _other_build_running(channel)
     except Exception as exc:
         return f"could not query GitHub for spacing check ({type(exc).__name__}) -- failing closed"
     if building:
         return "another video workflow is mid-build"
-    stamps = [datetime.fromisoformat(r["publishedAt"].replace("Z", "+00:00"))
-              for r in releases if r.get("publishedAt")]
+    stamps = channel_release_times(releases, channel)
     if not stamps:
         return None
     age_min = (now - max(stamps)).total_seconds() / 60

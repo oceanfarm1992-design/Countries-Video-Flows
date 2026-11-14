@@ -1,0 +1,80 @@
+{
+  "_comment": "Untold India series: real places, each with a few facts that scripts/verify_india_facts.py checks against the place's Wikipedia article (a fact is only kept if one of its `check` strings is found there). Narration may use ONLY these facts. `compare` is the 'this is not ...' hook. `footage` queries are tried in order for the opening drone shot, `match` words must appear in a stock clip's own title/tags for it to count as the real place.",
+  "places": [
+    {"id": "gurez", "name": "Gurez Valley", "region": "Jammu and Kashmir", "lat": 34.62, "lon": 74.83, "compare": "Switzerland", "page": "Gurez",
+     "footage": ["Gurez valley drone", "Kashmir valley river aerial"], "match": ["gurez", "kashmir"],
+     "facts": [
+       {"text": "It sits about 2,400 metres above sea level", "check": ["2,400"]},
+       {"text": "Habba Khatoon, a pyramid-shaped peak, towers over the valley", "check": ["Habba Khatoon"]},
+       {"text": "The Kishanganga river, also called Neelum, runs through it", "check": ["Kishanganga", "Neelum", "Neelam"]}]},
+    {"id": "spiti", "name": "Spiti Valley", "region": "Himachal Pradesh", "lat": 32.25, "lon": 78.0, "compare": "Tibet", "page": "Spiti Valley",
+     "footage": ["Spiti valley drone", "Spiti Himachal aerial"], "match": ["spiti"],
+     "facts": [
+       {"text": "It is a cold desert high in the Himalayas", "check": ["cold desert"]},
+       {"text": "Key Monastery stands at 4,166 metres", "page": "Key Monastery", "check": ["4,166"]}]},
+    {"id": "tawang", "name": "Tawang", "region": "Arunachal Pradesh", "lat": 27.59, "lon": 91.86, "compare": "Bhutan", "page": "Tawang Monastery",
+     "footage": ["Tawang drone", "Arunachal Pradesh mountains aerial"], "match": ["tawang", "arunachal"],
+     "facts": [
+       {"text": "Tawang Monastery is the largest monastery in India", "check": ["largest"]},
+       {"text": "It was founded in 1680", "check": ["1680"]},
+       {"text": "The Sela Pass above it is about 4,170 metres high", "page": "Sela Pass", "check": ["4,170"]}]},
+    {"id": "ziro", "name": "Ziro Valley", "region": "Arunachal Pradesh", "lat": 27.55, "lon": 93.83, "compare": "Japan", "page": "Ziro",
+     "footage": ["Ziro valley drone", "Arunachal Pradesh rice fields aerial"], "match": ["ziro", "arunachal"],
+     "facts": [
+       {"text": "The Apatani people farm rice and fish in the same flooded fields", "check": ["Apatani"]},
+       {"text": "Its farming system is on the UNESCO tentative list", "check": ["UNESCO"]}]},
+    {"id": "mawlynnong", "name": "Mawlynnong", "region": "Meghalaya", "lat": 25.2, "lon": 91.92, "compare": "Bali", "page": "Mawlynnong",
+     "footage": ["Mawlynnong village drone", "Meghalaya village aerial"], "match": ["mawlynnong", "meghalaya"],
+     "facts": [
+       {"text": "It was named the cleanest village in Asia in 2003", "check": ["cleanest village"]},
+       {"text": "Mawsynram nearby is one of the wettest places on Earth", "page": "Mawsynram", "check": ["wettest"]}]},
+    {"id": "loktak", "name": "Loktak Lake", "region": "Manipur", "lat": 24.51, "lon": 93.8, "compare": "the Maldives", "page": "Loktak Lake",
+     "footage": ["Loktak lake drone", "Manipur lake floating islands aerial"], "match": ["loktak", "manipur"],
+     "facts": [
+       {"text": "It holds the world's only floating national park", "check": ["only floating national park"]},
+       {"text": "Floating islands called phumdis drift across the lake", "check": ["phumdi"]}]},
+    {"id": "majuli", "name": "Majuli", "region": "Assam", "lat": 26.95, "lon": 94.17, "compare": "the Mekong Delta", "page": "Majuli",
+     "footage": ["Majuli island drone", "Brahmaputra river island aerial"], "match": ["majuli", "brahmaputra", "assam"],
+     "facts": [
+       {"text": "It is one of the largest river islands in the world", "check": ["largest river island", "river island"]},
+       {"text": "It sits in the middle of the Brahmaputra", "check": ["Brahmaputra"]}]},
+    {"id": "dholavira", "name": "Dholavira", "region": "Gujarat", "lat": 23.89, "lon": 70.21, "compare": "Egypt", "page": "Dholavira",
+     "footage": ["Dholavira drone", "Rann of Kutch aerial"], "match": ["dholavira", "kutch"],
+     "facts": [
+       {"text": "It is a Harappan city thousands of years old", "check": ["Harappan"]},
+       {"text": "It became a UNESCO World Heritage Site in 2021", "check": ["2021"]}]},
+    {"id": "lonar", "name": "Lonar Lake", "region": "Maharashtra", "lat": 19.98, "lon": 76.51, "compare": "the Moon", "page": "Lonar crater",
+     "footage": ["Lonar lake drone", "Lonar crater aerial"], "match": ["lonar"],
+     "facts": [
+       {"text": "It was made by a meteorite crashing into solid basalt rock", "check": ["basalt"]},
+       {"text": "Its water is salty and alkaline", "check": ["alkaline"]}]},
+    {"id": "gurudongmar", "name": "Gurudongmar Lake", "region": "Sikkim", "lat": 28.02, "lon": 88.71, "compare": "Patagonia", "page": "Gurudongmar Lake",
+     "footage": ["Gurudongmar lake drone", "Sikkim high altitude lake aerial"], "match": ["gurudongmar", "sikkim"],
+     "facts": [
+       {"text": "It lies at about 5,430 metres, among the highest lakes in the world", "check": ["5,430"]}]},
+    {"id": "valley-of-flowers", "name": "Valley of Flowers", "region": "Uttarakhand", "lat": 30.73, "lon": 79.6, "compare": "the Swiss Alps", "page": "Valley of Flowers National Park",
+     "footage": ["Valley of Flowers drone", "Uttarakhand flowers valley aerial"], "match": ["valley of flowers", "uttarakhand"],
+     "facts": [
+       {"text": "It is a UNESCO World Heritage Site", "check": ["World Heritage"]},
+       {"text": "The valley sits at about 3,352 metres", "check": ["3,352"]}]},
+    {"id": "pangong", "name": "Pangong Lake", "region": "Ladakh", "lat": 33.75, "lon": 78.67, "compare": "Mars", "page": "Pangong Tso",
+     "footage": ["Pangong lake drone", "Ladakh lake aerial"], "match": ["pangong", "ladakh"],
+     "facts": [
+       {"text": "It stretches about 134 kilometres", "check": ["134"]},
+       {"text": "It sits at roughly 4,300 metres", "check": ["4,300"]}]},
+    {"id": "khajjiar", "name": "Khajjiar", "region": "Himachal Pradesh", "lat": 32.55, "lon": 76.06, "compare": "Switzerland", "page": "Khajjiar",
+     "footage": ["Khajjiar drone", "Dalhousie Khajjiar meadow aerial"], "match": ["khajjiar", "dalhousie"],
+     "facts": [
+       {"text": "A Swiss ambassador called it the Mini Switzerland of India in 1992", "check": ["1992"]},
+       {"text": "It sits about 2,000 metres above sea level", "check": ["2,000"]}]},
+    {"id": "gahirmatha", "name": "Gahirmatha Beach", "region": "Odisha", "lat": 20.7, "lon": 87.0, "compare": "the Galapagos", "page": "Gahirmatha Beach",
+     "footage": ["Odisha beach turtles drone", "Bhitarkanika aerial"], "match": ["odisha", "bhitarkanika", "gahirmatha"],
+     "facts": [
+       {"text": "It is the world's largest nesting site for olive ridley turtles", "check": ["largest"]}]},
+    {"id": "chilika", "name": "Chilika Lake", "region": "Odisha", "lat": 19.72, "lon": 85.32, "compare": "the Mediterranean", "page": "Chilika Lake",
+     "footage": ["Chilika lake drone", "Odisha lagoon aerial"], "match": ["chilika", "odisha"],
+     "facts": [
+       {"text": "It is the largest brackish water lagoon in Asia", "check": ["brackish"]},
+       {"text": "Migratory birds arrive here from far away every winter", "check": ["migratory"]}]}
+  ]
+}

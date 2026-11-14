@@ -69,15 +69,19 @@ def _normalize(text: str) -> str:
     return re.sub(r"[^a-z0-9]+", " ", ascii_text.lower()).strip()
 
 
+# Extra words that also confirm a clip shows the subject (the India series sets the place's
+# nearby names, e.g. "kashmir" for Gurez Valley); filled from script.json "match_terms".
+EXTRA_MATCH_TERMS = []
+
+
 def _country_match(metadata_text: str, country_name: str) -> bool:
     """Best-effort check: does the clip's own tags/URL slug mention this country by
     name? Stock libraries rarely geo-tag content, so this can only CONFIRM a match,
     never disprove one — it's used to gate culturally-specific subjects, not to
     filter generic scenery."""
-    norm_country = _normalize(country_name)
-    if not norm_country:
-        return False
-    return norm_country in _normalize(metadata_text)
+    haystack = _normalize(metadata_text)
+    terms = [country_name, *EXTRA_MATCH_TERMS]
+    return any(t and _normalize(t) and _normalize(t) in haystack for t in terms)
 
 PEXELS_SEARCH = "https://api.pexels.com/videos/search"
 PIXABAY_SEARCH = "https://pixabay.com/api/videos/"
@@ -608,6 +612,7 @@ def main():
 
     script = read_script(args)
     country_name = script.get("name", "")
+    EXTRA_MATCH_TERMS[:] = script.get("match_terms", [])
     base_query = choose_query(args, cfg, script)
     if args.query:
         queries = [args.query]

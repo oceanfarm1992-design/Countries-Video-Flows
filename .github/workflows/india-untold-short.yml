@@ -1,0 +1,281 @@
+name: india-untold-short
+
+# The India channel: one "Untold India" Short a day (a real, lesser-known place over drone
+# footage, "This is not Switzerland. This is India."). It is a separate channel with its own
+# workflow, its own release tags (india-untold-...), its own posting guard (post_gate
+# channel="india") and its own secrets, so it never delays or is delayed by the world channel.
+#
+# Scheduled runs do nothing until the repository variable INDIA_ENABLED is "true" (set it once
+# the India YouTube secrets exist). Manual runs work any time; keep dry_run on to build the
+# video without posting anywhere.
+on:
+  schedule:
+    - cron: "23 * * * *"
+    - cron: "53 * * * *"
+  workflow_dispatch:
+    inputs:
+      force_run:
+        description: "Skip the hour gate and run now"
+        type: boolean
+        default: true
+      dry_run:
+        description: "Dry run: build the full video but do NOT create a release or post anywhere"
+        type: boolean
+        default: true
+      place:
+        description: "Place id from config/india_places.json (blank = today's place)"
+        type: string
+        default: ""
+
+permissions:
+  actions: read     # post_gate looks for builds in progress
+  contents: write   # commit logs/history_india.csv and create the release asset
+
+concurrency:
+  group: india-untold-short
+  cancel-in-progress: false
+
+env:
+  # 15:00 UTC = 19:00 Dubai = 20:30 India: evening viewing for the Indian audience.
+  TARGET_HOUR_UTC: "15"
+
+jobs:
+  build_and_post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Gate (one post a day, evenings)
+        id: gate
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          FORCE_RUN: ${{ inputs.force_run }}
+          ENABLED: ${{ vars.INDIA_ENABLED }}
+          IS_SCHEDULE: ${{ github.event_name == 'schedule' }}
+        run: |
+          python - <<'EOF'
+          import json, os, subprocess, sys
+          from datetime import datetime, timezone
+          sys.path.insert(0, "scripts")
+          from post_gate import spacing_block
+
+          now = datetime.now(timezone.utc)
+          force = os.environ.get("FORCE_RUN", "").lower() == "true"
+          scheduled = os.environ.get("IS_SCHEDULE") == "true"
+          target = int(os.environ["TARGET_HOUR_UTC"])
+          skip, reason = False, "ok"
+          if scheduled and os.environ.get("ENABLED") != "true":
+              skip, reason = True, "India channel not enabled yet (variable INDIA_ENABLED)"
+          elif not (force and not scheduled):
+              try:
+                  out = subprocess.run(["gh", "release", "list", "--limit", "100", "--json", "tagName"],
+                                       check=True, capture_output=True, text=True).stdout
+                  posted = any(r["tagName"].startswith(f"india-untold-{now:%Y%m%d}-") for r in json.loads(out))
+              except Exception as exc:
+                  skip, reason, posted = True, f"could not read releases ({type(exc).__name__}) -- failing closed", True
+              if not skip and posted:
+                  skip, reason = True, "today's India Short is already posted"
+              elif not skip and now.hour < target:
+                  skip, reason = True, f"too early (now {now:%H:%M} UTC, due {target:02d}:00)"
+              elif not skip:
+                  wait = spacing_block(now, channel="india")
+                  if wait:
+                      skip, reason = True, wait
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"skip={'true' if skip else 'false'}\n")
+          print(f"[gate] {'SKIP: ' if skip else 'PROCEED: '}{reason}")
+          EOF
+
+      - name: Install system deps (ffmpeg, fonts, espeak fallback)
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core espeak-ng
+
+      - name: Install python deps
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          pip install torch==2.8.0+cpu torchaudio==2.8.0+cpu --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+
+      - name: Generate script (verified facts only)
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API }}
+          AI_PROVIDER: ${{ vars.AI_PROVIDER }}
+          PLACE: ${{ inputs.place }}
+        run: |
+          ARGS=""
+          if [ -n "$PLACE" ]; then
+            case "$PLACE" in *[!a-z0-9-]*) echo "place must be a place id"; exit 1;; esac
+            ARGS="--place $PLACE"
+          fi
+          python scripts/generate_india_untold_script.py $ARGS
+
+      - name: Check the facts against Wikipedia
+        if: steps.gate.outputs.skip == 'false'
+        continue-on-error: true
+        run: python scripts/verify_india_facts.py --place "$(python -c "import json;print(json.load(open('build/script.json'))['id'])")"
+
+      - name: Fetch drone footage (Pexels / Pixabay)
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+        run: python scripts/fetch_footage.py --config config/india.json
+
+      - name: Install the voice engine (own voice + RVC)
+        if: steps.gate.outputs.skip == 'false'
+        continue-on-error: true
+        uses: oceanfarm1992-design/styletts2-voice-clone@7fde0e580c60475dbb55e5e7003f743892c3ce17
+        with:
+          engines: styletts2 rvc
+          python-version: "3.11"
+
+      - name: Generate TTS voiceover
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          VOICE_REPO_PAT: ${{ secrets.VOICE_REPO_PAT }}
+        run: python scripts/generate_tts.py --config config/india.json
+
+      - name: Generate captions
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API }}
+          AI_PROVIDER: ${{ vars.AI_PROVIDER }}
+        run: python scripts/generate_captions.py --config config/india.json
+
+      - name: Check the voice says every amount right
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          VOICE_REPO_PAT: ${{ secrets.VOICE_REPO_PAT }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API }}
+          AI_PROVIDER: ${{ vars.AI_PROVIDER }}
+        run: |
+          for take in 2 3; do
+            python scripts/check_spoken_numbers.py && exit 0
+            echo "::warning::the voice misspoke an amount -- recording take $take"
+            python scripts/generate_tts.py --config config/india.json
+            python scripts/generate_captions.py --config config/india.json
+          done
+          python scripts/check_spoken_numbers.py || echo "::warning::an amount is still misspoken after 3 takes"
+
+      - name: Generate background music
+        if: steps.gate.outputs.skip == 'false'
+        run: python scripts/generate_music.py
+
+      - name: Scene-cut sound effects
+        if: steps.gate.outputs.skip == 'false'
+        continue-on-error: true
+        run: python scripts/make_transition_sfx.py --config config/india.json
+
+      # No globe intro: the video opens straight on the drone shot with the hook card.
+      - name: Assemble video
+        if: steps.gate.outputs.skip == 'false'
+        run: python scripts/assemble_video.py --config config/india.json --sfx build/sfx.wav
+
+      - name: Finishing pass
+        if: steps.gate.outputs.skip == 'false'
+        run: python scripts/finish_video.py --video build/final.mp4
+
+      - name: Quality check
+        if: steps.gate.outputs.skip == 'false'
+        run: python scripts/qa_video.py --video build/final.mp4
+
+      - name: AI editor review
+        if: steps.gate.outputs.skip == 'false'
+        continue-on-error: true
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GROQ_API_KEY: ${{ secrets.GROQ_API }}
+          AI_PROVIDER: ${{ vars.AI_PROVIDER }}
+        run: python scripts/vision_check.py --video build/final.mp4 --script build/script.json --out build/vision_review.json
+
+      # ---- publish (never on a dry run) ----
+      - name: Publish video as release asset
+        id: publish_asset
+        if: steps.gate.outputs.skip == 'false' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="india-untold-$(date -u +%Y%m%d-%H%M%S)"
+          gh release create "$TAG" build/final.mp4 \
+            --title "$TAG" --notes "Automated India Short (1/day)" --latest=false
+          echo "video_url=https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/final.mp4" >> "$GITHUB_OUTPUT"
+
+      - name: Post to Facebook + TikTok (Buffer)
+        id: post_buffer
+        if: steps.gate.outputs.skip == 'false' && vars.INDIA_BUFFER == 'true' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        continue-on-error: true
+        env:
+          BUFFER_API_KEY: ${{ secrets.INDIA_BUFFER_API_KEY }}
+          BUFFER_ORG_ID: ${{ secrets.INDIA_BUFFER_ORG_ID }}
+          BUFFER_FACEBOOK_CHANNEL_ID: ${{ secrets.INDIA_BUFFER_FACEBOOK_CHANNEL_ID }}
+          BUFFER_TIKTOK_CHANNEL_ID: ${{ secrets.INDIA_BUFFER_TIKTOK_CHANNEL_ID }}
+        run: |
+          python scripts/post_buffer.py \
+            --video-url "${{ steps.publish_asset.outputs.video_url }}" \
+            --script build/script.json \
+            --caption-facebook build/caption_meta.txt \
+            --caption-tiktok build/caption_tiktok.txt \
+            --title-file build/yt_title.txt
+
+      - name: Post to YouTube (India channel)
+        id: post_youtube
+        if: steps.gate.outputs.skip == 'false' && vars.INDIA_ENABLED == 'true' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        continue-on-error: true
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.INDIA_YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.INDIA_YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.INDIA_YOUTUBE_REFRESH_TOKEN }}
+        run: |
+          python scripts/post_youtube.py \
+            --video build/final.mp4 \
+            --title-file build/yt_title.txt \
+            --desc-file build/caption_youtube.txt \
+            --config config/india.json
+
+      - name: Upload dry-run artifacts
+        if: always() && steps.gate.outputs.skip == 'false' && github.event_name == 'workflow_dispatch' && inputs.dry_run == true
+        uses: actions/upload-artifact@v7
+        with:
+          name: dry-run-india-output
+          path: |
+            build/final.mp4
+            build/voice.wav
+            build/captions.srt
+            build/script.json
+            build/footage.json
+            build/vision_review.json
+          if-no-files-found: warn
+          retention-days: 3
+
+      - name: Append run to history log
+        if: always() && steps.gate.outputs.skip == 'false' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        run: |
+          DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          TITLE=$(python -c "import json;print(json.load(open('build/script.json')).get('name','unknown'))" 2>/dev/null || echo "unknown")
+          echo "${DATE},india_untold,\"${TITLE}\",${{ steps.post_buffer.outcome }},${{ steps.post_youtube.outcome }}" >> logs/history_india.csv
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add logs/history_india.csv
+          git commit -m "log: india run ${DATE} (${TITLE})" || echo "nothing to commit"
+          for i in 1 2 3; do
+            git pull --rebase --autostash && git push && break || sleep $((i * 5))
+          done
+
+      - name: Fail the run if a platform post failed
+        if: always() && steps.gate.outputs.skip == 'false' && (steps.post_buffer.outcome == 'failure' || steps.post_youtube.outcome == 'failure')
+        run: |
+          echo "::error::Posting failed -- Buffer: ${{ steps.post_buffer.outcome }}, YouTube: ${{ steps.post_youtube.outcome }}"
+          exit 1

@@ -59,6 +59,20 @@ def _vary_hashtags(pool_str: str, seed_int, salt, keep: int, exclude=()) -> str:
 # Per-series caption voice. subscribe_lines / fb_questions are small pools rotated
 # by the day seed so the description wording varies while keeping each series' tone.
 SERIES_COPY = {
+    "india_untold": {
+        "yt_emoji": "🇮🇳",
+        "tt_suffix": "🇮🇳🔥",
+        "subscribe_lines": [
+            "Subscribe for the India you never knew! 🇮🇳",
+            "Follow along: a hidden corner of India every day. 🇮🇳",
+            "New untold place in India, every day. Hit subscribe. 🇮🇳",
+        ],
+        "fb_questions": [
+            "Have you been here? Tell us in the comments! 👇",
+            "Which hidden place in India should we show next? Comment below! 👇",
+            "Did you know this place was in India? Let us know! 👇",
+        ],
+    },
     "country": {
         "yt_emoji": "🌍",
         "tt_suffix": "🌍",
