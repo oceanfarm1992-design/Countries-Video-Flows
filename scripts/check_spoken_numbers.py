@@ -56,24 +56,39 @@ def mismatches(script_text, heard_words):
     return out
 
 
-MIN_READ_ACCURACY = 0.88  # below this the take is re-recorded (proper nouns Whisper mishears cost a little)
+MIN_READ_ACCURACY = 0.90  # character similarity; below this the take is re-recorded
+# Written out by the script but shown as a symbol by Whisper ("$25,216", "99.8%"), so never compared.
+IGNORED = {"dollars", "dollar", "euros", "euro", "pounds", "pound", "cents", "cent", "percent", "and"}
+
+
+def merge_split_numbers(words):
+    """Whisper hands back "$25" and ",216" (or "99" and ".8%") as separate words; glue them
+    back so a number is compared whole."""
+    merged = []
+    for w in words:
+        if merged and w[:1] in ",." and merged[-1][-1:].isdigit():
+            merged[-1] += w
+        else:
+            merged.append(w)
+    return merged
 
 
 def _flat(words):
-    return [piece for w in words for piece in _pieces(w)]
+    return [piece for w in words for piece in _pieces(w) if piece not in IGNORED]
 
 
 def read_accuracy(script_text, heard_words):
     """(similarity 0..1, [(script words, heard words)] for every stretch that differs).
-    Numbers are compared as words, so "2,400" and "two thousand four hundred" agree."""
-    said, heard = _flat(to_spoken(script_text).split()), _flat(heard_words)
+    Compared letter by letter with spaces removed, so "seven th" / "seventh" and
+    "2,400" / "two thousand four hundred" agree."""
+    said, heard = _flat(to_spoken(script_text).split()), _flat(merge_split_numbers(heard_words))
     if not said:
         return 1.0, []
+    ratio = difflib.SequenceMatcher(None, "".join(said), "".join(heard), autojunk=False).ratio()
     sm = difflib.SequenceMatcher(None, said, heard, autojunk=False)
-    matched = sum(b.size for b in sm.get_matching_blocks())
     diffs = [(" ".join(said[i1:i2]), " ".join(heard[j1:j2]))
              for tag, i1, i2, j1, j2 in sm.get_opcodes() if tag != "equal"]
-    return 2 * matched / (len(said) + len(heard)), diffs
+    return ratio, diffs
 
 
 def main():

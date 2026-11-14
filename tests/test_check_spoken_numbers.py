@@ -35,3 +35,16 @@ def test_read_accuracy_flags_a_misread_word():
     acc, diffs = read_accuracy(script, heard)
     assert ("three", "free") in diffs and acc < 1.0
     assert read_accuracy(script, script.split())[0] > MIN_READ_ACCURACY
+
+
+def test_whisper_split_numbers_are_glued_back():
+    from check_spoken_numbers import merge_split_numbers
+    assert merge_split_numbers(["at", "$25", ",216", "and", "99", ".8%"]) == ["at", "$25,216", "and", "99.8%"]
+
+
+def test_real_whisper_output_for_a_clean_read_passes():
+    from check_spoken_numbers import MIN_READ_ACCURACY, read_accuracy
+    script = ("Starting with GDP per capita, Armenia takes a lead at $25,216! "
+              "Armenia edges ahead at 99.8%, and it has 3.4 million people.")
+    heard = "Starting with GDP per capita, Armenia takes a lead at $25 ,216 Armenia edges ahead at 99 .8%, and it has 3 .4 million people.".split()
+    assert read_accuracy(script, heard)[0] > MIN_READ_ACCURACY
