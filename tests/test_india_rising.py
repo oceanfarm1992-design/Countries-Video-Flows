@@ -49,3 +49,16 @@ def test_line_interpolates_and_progress_is_bounded():
     marks = {"grow": 5.0, "end": 10.0, "end_dur": 4.0}
     assert ren.progress_at(4.0, marks) == 0.0 and ren.progress_at(30.0, marks) == 1.0
     assert 0 < ren.progress_at(8.0, marks) < 1
+
+
+def test_world_totals_never_squash_indias_line():
+    gdp = {"india": [(2000, 4.7e11), (2025, 3.96e12)], "world": [(2000, 3.4e13), (2025, 1.1e14)], "labels": {}}
+    c = ren.Chart(gdp, "usd_big", {})
+    assert c.world == [] and c.vmax < 5e12
+    _, y_top = c.xy(2025, 3.96e12)
+    assert y_top < ren.PLOT[1] + 0.2 * (ren.PLOT[3] - ren.PLOT[1])  # near the top, not the floor
+
+
+def test_comparable_world_average_is_kept():
+    elec = {"india": PTS, "world": WORLD, "labels": {}}
+    assert ren.Chart(elec, "pct", {}).world == WORLD

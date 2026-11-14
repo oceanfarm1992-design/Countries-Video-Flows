@@ -49,7 +49,13 @@ def progress_at(T, marks):
 class Chart:
     def __init__(self, chart, unit, labels):
         self.india = [tuple(p) for p in chart["india"]]
-        self.world = [tuple(p) for p in chart["world"] if p[0] >= self.india[0][0]]
+        world = [tuple(p) for p in chart["world"] if p[0] >= self.india[0][0]]
+        india_max = max(v for _, v in self.india)
+        # A World line only where it is an average on the same scale (a share, years, per
+        # person). For totals like GDP the "World" figure is the whole planet's sum, and on a
+        # shared axis it flattened India's line to the floor.
+        comparable = world and max(v for _, v in world) <= 3 * india_max and unit != "usd_big"
+        self.world = world if comparable else []
         self.unit, self.labels = unit, labels
         self.y0, self.y1 = self.india[0][0], self.india[-1][0]
         values = [v for _, v in self.india] + [v for _, v in self.world]
