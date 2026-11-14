@@ -1,0 +1,59 @@
+name: voice-compare
+
+# Temporary: renders the same English lines in several speaking styles (RVC on) so the styles
+# can be compared by ear. Posts nothing. Delete once the choice is made.
+on:
+  workflow_dispatch:
+    inputs:
+      styles:
+        description: "Space-separated style names from the private profile.json"
+        type: string
+        default: "storyteller tamil_tone tamil_tone_close"
+
+permissions:
+  contents: read
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+      - name: Install system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg espeak-ng
+      - name: Install the voice engine (own voice + RVC)
+        uses: oceanfarm1992-design/styletts2-voice-clone@7fde0e580c60475dbb55e5e7003f743892c3ce17
+        with:
+          engines: styletts2 rvc
+          python-version: "3.11"
+      - name: Render the clips
+        env:
+          VOICE_REPO_PAT: ${{ secrets.VOICE_REPO_PAT }}
+          STYLES: ${{ inputs.styles }}
+        run: |
+          mkdir -p out
+          python - <<'EOF'
+          import os, sys
+          sys.path.insert(0, "scripts")
+          from spoken_text import to_spoken
+          from voiceclone import synthesize
+          text = to_spoken(
+              "This is not Switzerland. This is India. Welcome to Khajjiar, in Himachal Pradesh. "
+              "It sits about 2,000 metres above sea level, and a Swiss ambassador once called it the "
+              "Mini Switzerland of India. Imagine standing right here. Follow for the India you never knew.")
+          for style in os.environ["STYLES"].split():
+              out = f"out/{style}.wav"
+              used = synthesize(text, out, engine="styletts2", language="en", style=style,
+                                voice_ref_repo="oceanfarm1992-design/voice-reference-audio", rvc="on")
+              print(f"[compare] {style}: {used}")
+          EOF
+      - uses: actions/upload-artifact@v7
+        with:
+          name: voice-compare
+          path: out/*.wav
+          retention-days: 3
