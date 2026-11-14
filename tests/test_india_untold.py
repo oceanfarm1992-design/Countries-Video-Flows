@@ -79,3 +79,12 @@ def test_india_post_waits_only_for_india_posts(monkeypatch):
     monkeypatch.setattr(post_gate, "_other_build_running", lambda channel="world": False)
     assert post_gate.spacing_block(now, channel="india") is None
     assert "last post" in post_gate.spacing_block(now, channel="world")
+
+
+def test_comparison_matches_the_kind_of_place():
+    by_kind = {"beach": {"the maldives", "bali", "the galapagos"}, "islands": {"the maldives"},
+               "tea": {"sri lanka"}, "skyline": {"dubai"}, "waterfall": {"niagara"}, "backwaters": {"venice"}}
+    for p in PLACES:
+        assert p.get("kind") and p.get("compare"), p["id"]
+        if p["kind"] in by_kind:
+            assert p["compare"].lower() in by_kind[p["kind"]], (p["id"], p["compare"])

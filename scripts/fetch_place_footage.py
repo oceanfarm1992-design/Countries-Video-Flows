@@ -29,7 +29,6 @@ import time
 
 import requests
 
-import famous_split
 import fetch_footage as stock
 
 COMMONS_API = "https://commons.wikimedia.org/w/api.php"
@@ -219,39 +218,15 @@ def main():
         print(f"[place_footage] fewer than {MIN_PIECES} confirmed pieces -- choose another place")
         return EXIT_NOT_ENOUGH
 
-    # Opening split screen: the famous lookalike on top, this place below (famous_split.py).
-    split, famous = None, None
-    famous_src = os.path.join(args.out, "famous_src.mp4")
-    try:
-        famous = famous_split.fetch_famous(place.get("compare"), famous_src)
-        if famous:
-            split = famous_split.build_split(
-                famous_src, pieces[0]["type"], pieces[0]["path"], famous_split.label_for(place["compare"]),
-                f"{place['name'].upper()}, INDIA", os.path.join(args.out, "split_open.mp4"))
-            print(f"[place_footage] opening split screen: {place['compare']} vs {place['name']}")
-    except Exception as exc:  # noqa: BLE001 -- the video simply opens without the split
-        print(f"[place_footage] no split screen ({type(exc).__name__})")
-        split = None
-    if not split:
-        print(f"[place_footage] no confirmed footage of {place.get('compare')} -- normal opening")
-
-    clips, offset = [], 1 if split else 0
+    clips = []
     for i, _seg in enumerate(segments):  # cycle the confirmed pieces over the beats
-        if split and i == 0:
-            dest = os.path.join(args.out, "footage_clip0.mp4")
-            os.replace(split, dest)
-            clips.append({"source": "famous_split", "type": "video", "path": "footage_clip0.mp4",
-                          "query": f"{place['compare']} vs {place['name']}", "country_verified": True})
-            continue
-        p = pieces[(i - offset) % len(pieces)]
+        p = pieces[i % len(pieces)]
         ext = os.path.splitext(p["path"])[1]
         dest = os.path.join(args.out, f"footage_clip{i}{ext}")
         with open(p["path"], "rb") as src, open(dest, "wb") as dst:
             dst.write(src.read())
         clips.append({k: v for k, v in p.items() if k != "path"} | {"path": os.path.basename(dest),
                                                                       "query": place["name"]})
-    if os.path.exists(famous_src):
-        os.remove(famous_src)
     for p in pieces:
         if os.path.exists(p["path"]):
             os.remove(p["path"])
@@ -259,7 +234,7 @@ def main():
         json.dump({"clip_count": len(clips), "clips": clips, "source": "confirmed-place",
                    "identifier": place["id"]}, fh, indent=2, ensure_ascii=False)
 
-    line = credits_line(pieces + ([famous] if split and famous else []))
+    line = credits_line(pieces)
     for name in ("caption_youtube.txt", "caption_meta.txt", "caption_tiktok.txt"):
         path = os.path.join(args.out, name)
         if os.path.exists(path):
