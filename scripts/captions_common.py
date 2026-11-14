@@ -59,6 +59,20 @@ def _vary_hashtags(pool_str: str, seed_int, salt, keep: int, exclude=()) -> str:
 # Per-series caption voice. subscribe_lines / fb_questions are small pools rotated
 # by the day seed so the description wording varies while keeping each series' tone.
 SERIES_COPY = {
+    "india_rising": {
+        "yt_emoji": "📈",
+        "tt_suffix": "🇮🇳📈",
+        "subscribe_lines": [
+            "Subscribe to watch India rise, one chart at a time. 🇮🇳",
+            "Follow for India's progress in real numbers. 🇮🇳",
+            "India, year by year, in real data. Hit subscribe. 🇮🇳",
+        ],
+        "fb_questions": [
+            "Did this surprise you? Tell us below! 👇",
+            "Which number should we chart next? Comment below! 👇",
+            "How has this changed where you live? Let us know! 👇",
+        ],
+    },
     "india_untold": {
         "yt_emoji": "🇮🇳",
         "tt_suffix": "🇮🇳🔥",
@@ -205,7 +219,7 @@ def _tiktok_seo_tags(config, seed_int, data_series=False):
     return f"{required} {chosen}"
 
 
-DATA_SERIES = {"rankings", "worst", "comparison"}
+DATA_SERIES = {"rankings", "worst", "comparison", "india_rising"}
 
 
 def write_platform_captions(series, country, hook, config, out_dir, seed_int, sources=None):

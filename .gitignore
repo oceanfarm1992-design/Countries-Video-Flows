@@ -35,3 +35,8 @@ Thumbs.db
 
 # Claude Code local settings
 .claude/
+
+# Google OAuth client files (YouTube sign-in) -- never commit
+client_secret*.json
+token*.json
+*credentials*.json

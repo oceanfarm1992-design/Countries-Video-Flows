@@ -1,9 +1,11 @@
 name: india-untold-short
 
-# The India channel: one "Untold India" Short a day (a real, lesser-known place over drone
-# footage, "This is not Switzerland. This is India."). It is a separate channel with its own
-# workflow, its own release tags (india-untold-...), its own posting guard (post_gate
-# channel="india") and its own secrets, so it never delays or is delayed by the world channel.
+# The India channel: one Short a day, the series taking turns (scripts/india_series.py):
+#   rising - one development measure, year by year, as an animated chart (World Bank data)
+#   untold - a real, lesser-known place in confirmed photos ("This is not Switzerland...")
+# It is a separate channel with its own workflow, its own release tags (india-<series>-...),
+# its own posting guard (post_gate channel="india") and its own secrets, so it never delays
+# or is delayed by the world channel.
 #
 # Scheduled runs do nothing until the repository variable INDIA_ENABLED is "true" (set it once
 # the India YouTube secrets exist). Manual runs work any time; keep dry_run on to build the
@@ -22,8 +24,17 @@ on:
         description: "Dry run: build the full video but do NOT create a release or post anywhere"
         type: boolean
         default: true
+      series:
+        description: "Force a series (blank = today's turn)"
+        type: choice
+        options: ["", "rising", "untold"]
+        default: ""
       place:
-        description: "Place id from config/india_places.json (blank = today's place)"
+        description: "untold: place id from config/india_places.json (blank = next place)"
+        type: string
+        default: ""
+      metric:
+        description: "rising: measure id, e.g. electricity, gdp, poverty (blank = next one)"
         type: string
         default: ""
 
@@ -57,6 +68,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           GH_REPO: ${{ github.repository }}
           FORCE_RUN: ${{ inputs.force_run }}
+          SERIES_OVERRIDE: ${{ inputs.series }}
           ENABLED: ${{ vars.INDIA_ENABLED }}
           IS_SCHEDULE: ${{ github.event_name == 'schedule' }}
         run: |
@@ -65,6 +77,7 @@ jobs:
           from datetime import datetime, timezone
           sys.path.insert(0, "scripts")
           from post_gate import spacing_block
+          from india_series import day_number, rotation_for, series_for
 
           now = datetime.now(timezone.utc)
           force = os.environ.get("FORCE_RUN", "").lower() == "true"
@@ -77,7 +90,8 @@ jobs:
               try:
                   out = subprocess.run(["gh", "release", "list", "--limit", "100", "--json", "tagName"],
                                        check=True, capture_output=True, text=True).stdout
-                  posted = any(r["tagName"].startswith(f"india-untold-{now:%Y%m%d}-") for r in json.loads(out))
+                  posted = any(r["tagName"].startswith("india-") and f"-{now:%Y%m%d}-" in r["tagName"]
+                               for r in json.loads(out))
               except Exception as exc:
                   skip, reason, posted = True, f"could not read releases ({type(exc).__name__}) -- failing closed", True
               if not skip and posted:
@@ -88,9 +102,12 @@ jobs:
                   wait = spacing_block(now, channel="india")
                   if wait:
                       skip, reason = True, wait
+          day = day_number(now.date())
+          series = os.environ.get("SERIES_OVERRIDE") or series_for(day)
           with open(os.environ["GITHUB_OUTPUT"], "a") as f:
               f.write(f"skip={'true' if skip else 'false'}\n")
-          print(f"[gate] {'SKIP: ' if skip else 'PROCEED: '}{reason}")
+              f.write(f"series={series}\nrotation={rotation_for(day)}\n")
+          print(f"[gate] {'SKIP: ' if skip else 'PROCEED: '}{reason} (series={series})")
           EOF
 
       - name: Install system deps (ffmpeg, fonts, espeak fallback)
@@ -107,8 +124,8 @@ jobs:
 
       # Today's place, or the next one when it has too little footage confirmed to show it
       # (fetch_place_footage.py exits 3). A forced place is tried alone.
-      - name: Generate script and fetch confirmed footage
-        if: steps.gate.outputs.skip == 'false'
+      - name: Generate script and fetch confirmed footage (untold)
+        if: steps.gate.outputs.skip == 'false' && steps.gate.outputs.series == 'untold'
         env:
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
           GROQ_API_KEY: ${{ secrets.GROQ_API }}
@@ -124,7 +141,7 @@ jobs:
             exit $?
           fi
           for skip in 0 1 2 3 4; do
-            python scripts/generate_india_untold_script.py --skip $skip
+            python scripts/generate_india_untold_script.py --rotation "${{ steps.gate.outputs.rotation }}" --skip $skip
             set +e; python scripts/fetch_place_footage.py; code=$?; set -e
             [ $code -eq 0 ] && exit 0
             [ $code -ne 3 ] && exit $code
@@ -132,8 +149,20 @@ jobs:
           done
           echo "::error::no place with enough confirmed footage"; exit 1
 
+      - name: Generate script (rising)
+        if: steps.gate.outputs.skip == 'false' && steps.gate.outputs.series == 'rising'
+        env:
+          METRIC: ${{ inputs.metric }}
+        run: |
+          if [ -n "$METRIC" ]; then
+            case "$METRIC" in *[!a-z]*) echo "metric must be a measure id"; exit 1;; esac
+            python scripts/generate_india_rising_script.py --metric "$METRIC"
+          else
+            python scripts/generate_india_rising_script.py --rotation "${{ steps.gate.outputs.rotation }}"
+          fi
+
       - name: Check the facts against Wikipedia
-        if: steps.gate.outputs.skip == 'false'
+        if: steps.gate.outputs.skip == 'false' && steps.gate.outputs.series == 'untold'
         continue-on-error: true
         run: python scripts/verify_india_facts.py --place "$(python -c "import json;print(json.load(open('build/script.json'))['id'])")"
 
@@ -180,12 +209,17 @@ jobs:
           python scripts/check_spoken_numbers.py || echo "::warning::an amount is still misspoken after 3 takes"
 
       # Original hype track (96 BPM, 808 + flute + tabla), not the news-style loop.
+      # After the voice, so each chart beat matches the real speech timing.
+      - name: Render the year-by-year chart (rising)
+        if: steps.gate.outputs.skip == 'false' && steps.gate.outputs.series == 'rising'
+        run: python scripts/render_india_rising.py
+
       - name: Generate background music (hype)
         if: steps.gate.outputs.skip == 'false'
         run: python scripts/generate_music_hype.py
 
       - name: Scene-cut sound effects
-        if: steps.gate.outputs.skip == 'false'
+        if: steps.gate.outputs.skip == 'false' && steps.gate.outputs.series != 'rising'
         continue-on-error: true
         run: python scripts/make_transition_sfx.py --config config/india.json
 
@@ -218,7 +252,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          TAG="india-untold-$(date -u +%Y%m%d-%H%M%S)"
+          TAG="india-${{ steps.gate.outputs.series }}-$(date -u +%Y%m%d-%H%M%S)"
           gh release create "$TAG" build/final.mp4 \
             --title "$TAG" --notes "Automated India Short (1/day)" --latest=false
           echo "video_url=https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/final.mp4" >> "$GITHUB_OUTPUT"
@@ -275,7 +309,7 @@ jobs:
         run: |
           DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
           TITLE=$(python -c "import json;print(json.load(open('build/script.json')).get('name','unknown'))" 2>/dev/null || echo "unknown")
-          echo "${DATE},india_untold,\"${TITLE}\",${{ steps.post_buffer.outcome }},${{ steps.post_youtube.outcome }}" >> logs/history_india.csv
+          echo "${DATE},india_${{ steps.gate.outputs.series }},\"${TITLE}\",${{ steps.post_buffer.outcome }},${{ steps.post_youtube.outcome }}" >> logs/history_india.csv
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add logs/history_india.csv

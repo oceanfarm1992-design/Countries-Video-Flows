@@ -142,8 +142,18 @@ def get_series(metric_id, iso2s, metrics_cfg=None):
     metric = _metric_by_id(metrics_cfg, metric_id)
     if metric["source_type"] != "live":
         return {}
+    try:
+        rows = _fetch_bulk_rows(metric["wb_indicator"], set(iso2s))
+    except (urllib.error.URLError, TimeoutError, ValueError, OSError) as exc:
+        # World Bank down: the weekly saved history (scripts/save_history_snapshot.py)
+        import save_history_snapshot
+        saved = save_history_snapshot.load(metric["wb_indicator"])
+        print(f"[fetch_rankings_stats] {metric['wb_indicator']} history fetch failed ({exc}) -- "
+              f"using the saved history ({len(saved)} countries)")
+        wanted = set(iso2s)
+        return {iso2: sorted(points) for iso2, points in saved.items() if iso2 in wanted}
     series = {}
-    for iso2, year, value in _fetch_bulk_rows(metric["wb_indicator"], set(iso2s)):
+    for iso2, year, value in rows:
         series.setdefault(iso2, []).append((year, value))
     return {iso2: sorted(points) for iso2, points in series.items()}
 

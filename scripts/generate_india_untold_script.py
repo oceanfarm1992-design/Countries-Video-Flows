@@ -141,6 +141,8 @@ def main():
     ap.add_argument("--out", default="build")
     ap.add_argument("--place", default=None, help="force a place id")
     ap.add_argument("--index", type=int, default=None, help="force a 0-based place index")
+    ap.add_argument("--rotation", type=int, default=None,
+                    help="this series' own rotation step (default: the day number)")
     ap.add_argument("--skip", type=int, default=0,
                     help="move N places past today's (when today's has too little confirmed footage)")
     ap.add_argument("--variant-seed", type=int, default=None)
@@ -152,7 +154,8 @@ def main():
         places = json.load(fh)["places"]
 
     day_number = (date.today() - EPOCH).days
-    idx, place = pick_place(places, day_number + args.skip, args.index, args.place)
+    step = args.rotation if args.rotation is not None else day_number
+    idx, place = pick_place(places, step + args.skip, args.index, args.place)
     video = config.get("video", {})
     narration, segments, source = build_script(
         place, config.get("openai", {}), video.get("min_words", 80), video.get("max_words", 115))
