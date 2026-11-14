@@ -78,3 +78,11 @@ def test_a_system_user_token_is_swapped_for_the_pages_own_token():
     page.post_reel("u", "c", sleep=lambda s: None)
     finish = [c for c in g.calls if c[2].get("upload_phase") == "finish"][0]
     assert finish[2]["access_token"] == "PAGE_TOKEN"
+
+
+def test_long_videos_go_up_as_regular_page_videos():
+    g = FakeGraph()
+    page = fb.Page("123", "T", session=g)
+    fb.post_video(page, "https://github.com/x/final.mp4", "India in 12 Charts", "desc")
+    call = [c for c in g.calls if c[1].endswith("/123/videos")][0]
+    assert call[2]["file_url"] == "https://github.com/x/final.mp4" and call[2]["title"] == "India in 12 Charts"

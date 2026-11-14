@@ -106,11 +106,21 @@ class Page:
         return video_id
 
 
+def post_video(page, video_url, title, description):
+    """A regular (non-Reel) Page video, for the long-form: Facebook pulls it from the URL."""
+    data = _check(page.http.post(f"{page.base}/{page.page_id}/videos", timeout=300,
+                                 params={"file_url": video_url, "title": title[:250],
+                                         "description": description, "access_token": page.token}))
+    return data.get("id")
+
+
 def main():
     ap = argparse.ArgumentParser(description=__doc__.split("\n\n")[0])
     ap.add_argument("--video-url")
     ap.add_argument("--caption-file", default="build/caption_meta.txt")
     ap.add_argument("--check", action="store_true", help="only confirm the token can see the Page")
+    ap.add_argument("--regular", action="store_true", help="a regular Page video (long-form), not a Reel")
+    ap.add_argument("--title-file", default=None, help="title for --regular")
     args = ap.parse_args()
     page_id = os.environ.get("FACEBOOK_PAGE_ID", "").strip()
     token = os.environ.get("FACEBOOK_PAGE_TOKEN", "").strip()
@@ -129,6 +139,11 @@ def main():
             return 2
         with open(args.caption_file, encoding="utf-8") as fh:
             caption = fh.read().strip()
+        if args.regular:
+            title = open(args.title_file, encoding="utf-8").read().strip() if args.title_file else ""
+            video_id = post_video(page, args.video_url, title, caption)
+            print(f"[post_facebook] done: https://www.facebook.com/{page.page_id}/videos/{video_id}")
+            return 0
         video_id = page.post_reel(args.video_url, caption)
         print(f"[post_facebook] done: https://www.facebook.com/reel/{video_id}")
         return 0

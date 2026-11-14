@@ -83,6 +83,8 @@ jobs:
           force = os.environ.get("FORCE_RUN", "").lower() == "true"
           scheduled = os.environ.get("IS_SCHEDULE") == "true"
           target = int(os.environ["TARGET_HOUR_UTC"])
+          if now.weekday() == 6:  # Sunday: the weekly long video posts at 15:00, the Short later
+              target = 17
           skip, reason = False, "ok"
           if scheduled and os.environ.get("ENABLED") != "true":
               skip, reason = True, "India channel not enabled yet (variable INDIA_ENABLED)"

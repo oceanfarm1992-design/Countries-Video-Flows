@@ -19,7 +19,7 @@ BLACKOUT_END = (21, 0)
 # "india-..." and its workflow names are listed here.
 WORLD_WORKFLOWS = {"daily-rotating-short", "daily-comparison-short", "daily-rankings-short",
                    "longform-video"}
-INDIA_WORKFLOWS = {"india-untold-short"}
+INDIA_WORKFLOWS = {"india-untold-short", "india-longform"}
 VIDEO_WORKFLOWS = WORLD_WORKFLOWS  # back-compat name
 INDIA_TAG_PREFIX = "india-"
 

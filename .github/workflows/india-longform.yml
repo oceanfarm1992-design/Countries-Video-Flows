@@ -1,0 +1,220 @@
+name: india-longform
+
+# The India channel's weekly long video, "India in 10 Charts" (8-10 min, 16:9): one theme a week
+# (economy, people and health, technology and energy), every figure from the World Bank's
+# saved history, each chart over real Indian footage. Sundays from 15:00 UTC; that day's Short
+# moves to 17:00. Scheduled runs do nothing until INDIA_ENABLED is "true".
+on:
+  schedule:
+    - cron: "11 * * * 0"
+    - cron: "41 * * * 0"
+  workflow_dispatch:
+    inputs:
+      force_run:
+        description: "Skip the day/hour gate and run now"
+        type: boolean
+        default: true
+      dry_run:
+        description: "Dry run: build the video but do NOT create a release or post anywhere"
+        type: boolean
+        default: true
+      theme:
+        description: "Force a theme (blank = this week's)"
+        type: choice
+        options: ["", "economy", "people", "technology"]
+        default: ""
+
+permissions:
+  actions: read
+  contents: write
+
+concurrency:
+  group: india-longform
+  cancel-in-progress: false
+
+env:
+  TARGET_HOUR_UTC: "15"
+
+jobs:
+  build_and_post:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Gate (Sundays, once a week)
+        id: gate
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          FORCE_RUN: ${{ inputs.force_run }}
+          ENABLED: ${{ vars.INDIA_ENABLED }}
+          IS_SCHEDULE: ${{ github.event_name == 'schedule' }}
+        run: |
+          python - <<'EOF'
+          import json, os, subprocess, sys
+          from datetime import datetime, timezone
+          sys.path.insert(0, "scripts")
+          from post_gate import spacing_block
+
+          now = datetime.now(timezone.utc)
+          force = os.environ.get("FORCE_RUN", "").lower() == "true" and os.environ.get("IS_SCHEDULE") != "true"
+          skip, reason = False, "ok"
+          if os.environ.get("IS_SCHEDULE") == "true" and os.environ.get("ENABLED") != "true":
+              skip, reason = True, "India channel not enabled (variable INDIA_ENABLED)"
+          elif not force:
+              try:
+                  out = subprocess.run(["gh", "release", "list", "--limit", "100", "--json", "tagName"],
+                                       check=True, capture_output=True, text=True).stdout
+                  posted = any(r["tagName"].startswith(f"india-long-{now:%Y%m%d}-") for r in json.loads(out))
+              except Exception as exc:
+                  skip, reason, posted = True, f"could not read releases ({type(exc).__name__})", True
+              if not skip and now.weekday() != 6:
+                  skip, reason = True, "the long video posts on Sundays"
+              elif not skip and posted:
+                  skip, reason = True, "this week's long video is already posted"
+              elif not skip and now.hour < int(os.environ["TARGET_HOUR_UTC"]):
+                  skip, reason = True, f"too early (now {now:%H:%M} UTC)"
+              elif not skip:
+                  wait = spacing_block(now, channel="india")
+                  if wait:
+                      skip, reason = True, wait
+          with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+              f.write(f"skip={'true' if skip else 'false'}\n")
+          print(f"[gate] {'SKIP: ' if skip else 'PROCEED: '}{reason}")
+          EOF
+
+      - name: Install system deps
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-dejavu-core espeak-ng
+
+      - name: Install python deps
+        if: steps.gate.outputs.skip == 'false'
+        run: |
+          pip install torch==2.8.0+cpu torchaudio==2.8.0+cpu --index-url https://download.pytorch.org/whl/cpu
+          pip install -r requirements.txt
+
+      - name: Write the script (World Bank data only)
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          THEME: ${{ inputs.theme }}
+        run: |
+          if [ -n "$THEME" ]; then
+            python scripts/generate_india_longform.py --theme "$THEME" --out build/long
+          else
+            python scripts/generate_india_longform.py --out build/long
+          fi
+
+      - name: Charts, title cards and real Indian footage
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+          PIXABAY_API_KEY: ${{ secrets.PIXABAY_API_KEY }}
+        run: python scripts/render_india_longform.py --dir build/long
+
+      - name: Install the voice engine
+        if: steps.gate.outputs.skip == 'false'
+        continue-on-error: true
+        uses: oceanfarm1992-design/styletts2-voice-clone@7fde0e580c60475dbb55e5e7003f743892c3ce17
+        with:
+          engines: styletts2 rvc
+          python-version: "3.11"
+
+      - name: Voiceover (one engine for every segment)
+        if: steps.gate.outputs.skip == 'false'
+        env:
+          VOICE_REPO_PAT: ${{ secrets.VOICE_REPO_PAT }}
+          VOICE_STYLE: default
+          VOICE_RVC: "off"
+        run: python scripts/longform_tts.py --script build/long/script.json --out-dir build/long --config config/india.json
+
+      - name: Music bed
+        if: steps.gate.outputs.skip == 'false'
+        run: python scripts/generate_music_hype.py --out build/long/music.mp3 --bars 32
+
+      - name: Assemble the long video
+        if: steps.gate.outputs.skip == 'false'
+        run: python scripts/assemble_long_video.py --dir build/long --music build/long/music.mp3 --music-volume 0.2
+
+      - name: Finishing pass
+        if: steps.gate.outputs.skip == 'false'
+        run: python scripts/finish_video.py --video build/long/final.mp4 --long
+
+      - name: Quality check
+        if: steps.gate.outputs.skip == 'false'
+        run: python scripts/qa_video.py --video build/long/final.mp4 --long
+
+      - name: Publish video as release asset
+        id: publish_asset
+        if: steps.gate.outputs.skip == 'false' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="india-long-$(date -u +%Y%m%d-%H%M%S)"
+          gh release create "$TAG" build/long/final.mp4 --title "$TAG" --notes "India weekly long video" --latest=false
+          echo "video_url=https://github.com/${GITHUB_REPOSITORY}/releases/download/${TAG}/final.mp4" >> "$GITHUB_OUTPUT"
+
+      - name: Post to YouTube (India channel, chapters, thumbnail)
+        id: post_youtube
+        if: steps.gate.outputs.skip == 'false' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        continue-on-error: true
+        env:
+          YOUTUBE_CLIENT_ID: ${{ secrets.INDIA_YOUTUBE_CLIENT_ID }}
+          YOUTUBE_CLIENT_SECRET: ${{ secrets.INDIA_YOUTUBE_CLIENT_SECRET }}
+          YOUTUBE_REFRESH_TOKEN: ${{ secrets.INDIA_YOUTUBE_REFRESH_TOKEN }}
+        run: |
+          python scripts/post_youtube.py --video build/long/final.mp4 --title-file build/long/title.txt \
+            --desc-file build/long/description.txt --thumbnail build/long/thumbnail.jpg \
+            --config config/india.json --long-form
+
+      - name: Post to Facebook (India page, regular video)
+        id: post_facebook
+        if: steps.gate.outputs.skip == 'false' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        continue-on-error: true
+        env:
+          FACEBOOK_PAGE_ID: ${{ secrets.INDIA_FACEBOOK_PAGE_ID }}
+          FACEBOOK_PAGE_TOKEN: ${{ secrets.INDIA_FACEBOOK_PAGE_TOKEN }}
+        run: |
+          python scripts/post_facebook.py --regular --video-url "${{ steps.publish_asset.outputs.video_url }}" \
+            --title-file build/long/title.txt --caption-file build/long/description.txt
+
+      - name: Upload dry-run artifacts
+        if: always() && steps.gate.outputs.skip == 'false' && github.event_name == 'workflow_dispatch' && inputs.dry_run == true
+        uses: actions/upload-artifact@v7
+        with:
+          name: dry-run-india-long
+          path: |
+            build/long/final.mp4
+            build/long/description.txt
+            build/long/title.txt
+            build/long/thumbnail.jpg
+            build/long/script.json
+          if-no-files-found: warn
+          retention-days: 3
+
+      - name: Append run to history log
+        if: always() && steps.gate.outputs.skip == 'false' && (github.event_name != 'workflow_dispatch' || inputs.dry_run != true)
+        run: |
+          DATE=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+          TITLE=$(cat build/long/title.txt 2>/dev/null || echo unknown)
+          echo "${DATE},india_long,\"${TITLE}\",${{ steps.post_youtube.outcome }},${{ steps.post_facebook.outcome }}" >> logs/history_india.csv
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add logs/history_india.csv
+          git commit -m "log: india long ${DATE}" || echo "nothing to commit"
+          for i in 1 2 3; do
+            git pull --rebase --autostash && git push && break || sleep $((i * 5))
+          done
+
+      - name: Fail the run if a platform post failed
+        if: always() && steps.gate.outputs.skip == 'false' && (steps.post_youtube.outcome == 'failure' || steps.post_facebook.outcome == 'failure')
+        run: |
+          echo "::error::Posting failed -- YouTube: ${{ steps.post_youtube.outcome }}, Facebook: ${{ steps.post_facebook.outcome }}"
+          exit 1

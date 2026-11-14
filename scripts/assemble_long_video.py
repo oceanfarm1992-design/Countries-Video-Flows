@@ -154,10 +154,15 @@ def main():
     actual = ffprobe_duration(final)
     if actual < args.min_seconds:
         raise SystemExit(f"[assemble_long] final video is {actual:.0f}s (< {args.min_seconds:.0f}s)")
+    credits = ""
+    if os.path.exists(os.path.join(d, "credits.txt")):
+        with open(os.path.join(d, "credits.txt"), encoding="utf-8") as fh:
+            credits = "\n\n" + fh.read().strip()
     description = (f"{script['description_head']}\n\nChapters\n" + "\n".join(chapter_lines(script["segments"], timings))
-                   + proof_block(script)
+                   + (f"\n\n{script['proof']}" if script.get("proof") else proof_block(script))
                    + "\n\nEvery figure is shown as published by the source, rounded for display."
-                   + "\n\n#countries #ranking #worldfacts #geography")
+                   + credits
+                   + "\n\n" + script.get("hashtags", "#countries #ranking #worldfacts #geography"))
     with open(os.path.join(d, "description.txt"), "w", encoding="utf-8") as fh:
         fh.write(description)
     with open(os.path.join(d, "title.txt"), "w", encoding="utf-8") as fh:
