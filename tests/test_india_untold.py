@@ -88,3 +88,12 @@ def test_comparison_matches_the_kind_of_place():
         assert p.get("kind") and p.get("compare"), p["id"]
         if p["kind"] in by_kind:
             assert p["compare"].lower() in by_kind[p["kind"]], (p["id"], p["compare"])
+
+
+def test_descriptions_list_every_fact_and_its_wikipedia_source():
+    place = next(p for p in PLACES if p["id"] == "mawlynnong")
+    src = gen.fact_sources(place)
+    assert len(src["lines"]) == len(place["facts"])
+    assert src["credit"] == "Source: Wikipedia (Mawlynnong, Mawsynram)"
+    assert src["link"].splitlines() == ["https://en.wikipedia.org/wiki/Mawlynnong",
+                                        "https://en.wikipedia.org/wiki/Mawsynram"]

@@ -116,6 +116,20 @@ def _gpt_script(place, openai_cfg, min_words, max_words):
     return " ".join(s["text"] for s in segments), segments
 
 
+def wiki_url(title):
+    return "https://en.wikipedia.org/wiki/" + title.replace(" ", "_")
+
+
+def fact_sources(place):
+    """Description block: every fact the video states, and the Wikipedia articles it was
+    checked against (scripts/verify_india_facts.py)."""
+    pages = list(dict.fromkeys([place["page"]] + [f["page"] for f in place["facts"] if f.get("page")]))
+    return {"heading": "📌 Facts in this video:",
+            "lines": [f"- {f['text']}." for f in place["facts"]],
+            "credit": "Source: Wikipedia (" + ", ".join(pages) + ")",
+            "link": "\n".join(wiki_url(p) for p in pages)}
+
+
 def build_script(place, openai_cfg, min_words, max_words):
     """(narration, segments, source). AI wording checked against the facts, else the template."""
     if not ai_client.available():
@@ -184,7 +198,7 @@ def main():
     caption_subject = {"name": place["name"], "specialty": f"{place['region']}, India",
                        "facts": [f["text"] for f in place["facts"]]}
     write_platform_captions("india_untold", caption_subject, title_hook(place),
-                            config, args.out, seed)
+                            config, args.out, seed, fact_sources(place))
     print(f"[india_untold] place {idx + 1}/{len(places)}: {place['name']} "
           f"({len(narration.split())} words, source={source})")
 

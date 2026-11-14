@@ -274,7 +274,8 @@ def write_platform_captions(series, country, hook, config, out_dir, seed_int, so
         # the proof: every figure from the video, where it comes from, and a link
         proof = "\n".join(sources["lines"])
         link = f"\n{sources['link']}" if sources.get("link") else ""
-        yt_body = f"📊 The data in this video:\n{proof}\n\n{sources['credit']}{link}\n\n"
+        heading = sources.get("heading", "📊 The data in this video:")
+        yt_body = f"{heading}\n{proof}\n\n{sources['credit']}{link}\n\n"
         fb_credit = f"{sources['credit']}\n\n"
         tt_credit = f"{sources['credit']}\n\n"
     else:
