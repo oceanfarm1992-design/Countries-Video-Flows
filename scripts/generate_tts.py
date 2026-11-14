@@ -81,10 +81,28 @@ HEADERS = {"User-Agent": "yt-shorts-generator/1.0"}
 # titles, and hooks keep the correctly-spelled country name; only what the
 # speech engine hears changes. Word-boundary-matched, case-sensitive.
 PRONUNCIATION_FIXUPS = {
+    # Each respelling was read aloud by the voice (default style, no RVC) and transcribed back;
+    # only ones heard as the real name are kept (2026-11-14, scripts/pron_candidates.json run).
     "Myanmar": "Myanmahr",
     "Luxembourg": "Luxemborg",
     "Taiwan": "Tiwan",
-    "Kiribati": "Kiribas",
+    "Czechia": "Chekia",
+    "Gabon": "Gabohn",
+    "Nauru": "Nah-oo-roo",
+    "Uganda": "Yoogandah",
+    "Vanuatu": "Vah-noo-ah-too",
+    "Guinea-Bissau": "Guinea Bissow",
+    "Côte d'Ivoire": "Coat Divwahr",
+    "Cote d'Ivoire": "Coat Divwahr",
+    "São Tomé and Príncipe": "Sao Tomay and Preensipay",
+    "Sao Tome and Principe": "Sao Tomay and Preensipay",
+    # India channel places
+    "Gurez": "Goorez",
+    "Tawang": "Tah-wang",
+    "Mawlynnong": "Maw-lin-nong",
+    "Dholavira": "Dho-la-vee-ra",
+    "Ladakh": "Lah-dahk",
+    "Meghalaya": "Megha-laya",
 }
 
 
