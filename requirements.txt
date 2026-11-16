@@ -45,7 +45,7 @@ piper-tts==1.8.0
 Pillow==13.0.0
 
 # YouTube upload via google's official client libraries.
-google-auth==2.62.1
+google-auth==2.62.2
 google-auth-oauthlib==1.5.0
 google-api-python-client==2.201.0
 # caption/picture timing: compares numbers written as digits or words (generate_captions.py)
