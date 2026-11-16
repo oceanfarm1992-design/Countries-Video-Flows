@@ -202,8 +202,53 @@ def rvc_mode():
     return "on" if REQUIRE_RVC else "auto"
 
 
-VOICECLONE_MAX_CHARS = 240  # 450 still overflowed on number-dense text ("one point six eight ...")
+# StyleTTS2 reads at most 512 phonetic symbols per call, and numbers multiply them: "$314 billion"
+# is "three hundred and fourteen billion dollars" (~2.3 symbols per written character). Groups are
+# packed by their measured phonetic length, with room for punctuation and stress marks.
+VOICECLONE_MAX_IPA = 400
 JOIN_GAP_SECONDS = 0.15
+
+
+def _ipa_len(text):
+    """Phonetic length of `text` as StyleTTS2 sees it (gruut, as its phonemizer), or an
+    estimate when gruut is unavailable."""
+    try:
+        from gruut import sentences
+        return sum(len(" ".join("".join(w.phonemes or []) for w in sent)) + 1
+                   for sent in sentences(text, lang="en-us"))
+    except Exception:  # noqa: BLE001 -- estimate rather than fail
+        return int(len(text) * 2.4)
+
+
+def _pack_for_voiceclone(text, limit=VOICECLONE_MAX_IPA, measure=None):
+    """Whole sentences packed into groups whose phonetic length stays under `limit`; a single
+    over-long sentence is split at its commas/semicolons."""
+    measure = measure or _ipa_len
+    pieces = []  # (text, phonetic length), each sentence measured once -- gruut is slow
+    for sent in re.split(r"(?<=[.!?])\s+", text.strip()):
+        if not sent:
+            continue
+        n = measure(sent)
+        if n <= limit:
+            pieces.append((sent, n))
+            continue
+        current, cur_n = "", 0
+        for part in re.split(r"(?<=[,;])\s+", sent):
+            pn = measure(part)
+            if current and cur_n + 1 + pn > limit:
+                pieces.append((current, cur_n))
+                current, cur_n = part, pn
+            else:
+                current, cur_n = f"{current} {part}".strip(), (cur_n + 1 + pn if current else pn)
+        if current:
+            pieces.append((current, cur_n))
+    groups = []  # [text, phonetic length]; lengths add up (+1 for the joining space)
+    for piece, n in pieces:
+        if groups and groups[-1][1] + 1 + n <= limit:
+            groups[-1] = [groups[-1][0] + " " + piece, groups[-1][1] + 1 + n]
+        else:
+            groups.append([piece, n])
+    return [g for g, _ in groups]
 
 
 def _join_wavs(parts, out_wav):
@@ -237,7 +282,7 @@ def run_voiceclone(text, out_wav):
     # One call reads at most ~512 phonemes: a long-form chart segment ("one point six eight
     # trillion dollars" x 8) overflowed it and the whole video fell back to the plain clone
     # (2026-11-14). Long text is read in packed sentence groups and joined.
-    chunks = _split_for_styletts2(text, VOICECLONE_MAX_CHARS) if len(text) > VOICECLONE_MAX_CHARS else [text]
+    chunks = _pack_for_voiceclone(text)
     parts = [out_wav if len(chunks) == 1 else f"{out_wav}.part{i}.wav" for i in range(len(chunks))]
     # engine="styletts2": its stock-voice fallbacks would be rejected below anyway, so
     # don't spend minutes on them -- the plain clone in this file is the next step.

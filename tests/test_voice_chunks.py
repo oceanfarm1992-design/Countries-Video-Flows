@@ -9,11 +9,21 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
 import generate_tts as g  # noqa: E402
 
 
-def test_long_text_is_packed_into_sentence_groups_under_the_limit():
-    text = " ".join(f"By 20{i:02d}, it was one point six eight trillion dollars." for i in range(20))
-    chunks = g._split_for_styletts2(text, g.VOICECLONE_MAX_CHARS)
-    assert len(chunks) > 1 and all(len(c) <= g.VOICECLONE_MAX_CHARS for c in chunks)
-    assert " ".join(chunks) == text
+def test_groups_stay_under_the_phonetic_limit_and_keep_every_word():
+    text = " ".join(f"By 20{i:02d}, it rose by three hundred and fourteen billion dollars." for i in range(12))
+    groups = g._pack_for_voiceclone(text)
+    assert len(groups) > 1 and all(g._ipa_len(c) <= g.VOICECLONE_MAX_IPA for c in groups)
+    assert " ".join(groups) == text
+
+
+def test_short_text_stays_in_one_piece():
+    assert g._pack_for_voiceclone("This is not Bali. This is India.") == ["This is not Bali. This is India."]
+
+
+def test_an_over_long_sentence_splits_at_its_commas():
+    measure = len  # one symbol per character, to make the limit easy to reason about
+    groups = g._pack_for_voiceclone("aaaa, bbbb, cccc, dddd.", limit=12, measure=measure)
+    assert all(len(c) <= 12 for c in groups) and " ".join(groups) == "aaaa, bbbb, cccc, dddd."
 
 
 def test_parts_are_joined_with_a_short_pause(tmp_path):
