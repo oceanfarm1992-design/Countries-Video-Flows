@@ -22,7 +22,7 @@ from datetime import date
 import save_history_snapshot as hist
 from generate_india_rising_script import shown, spoken
 
-EPOCH = date(2026, 11, 15)
+EPOCH = date(2026, 11, 22)  # first live long video (economy, the theme the owner checked)
 START_YEAR = 2000
 COUNTRIES = {"CN": "China", "US": "the United States"}
 
