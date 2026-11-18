@@ -106,6 +106,8 @@ def main():
     ap.add_argument("--desc-file", default="build/caption_youtube.txt")
     ap.add_argument("--config", default="config/countries.json")
     ap.add_argument("--thumbnail", default=None, help="Optional custom thumbnail image")
+    ap.add_argument("--tags-file", default=None,
+                    help="One YouTube tag per line (the India Shorts write build/yt_tags.txt)")
     ap.add_argument("--long-form", action="store_true",
                     help="Regular 16:9 upload: no Shorts tag in the tags or fallbacks")
     args = ap.parse_args()
@@ -139,6 +141,14 @@ def main():
         parsed = [h.lstrip("#") for h in yt_hashtags.split() if h.startswith("#")]
         if parsed:
             tags = parsed
+    if args.tags_file and os.path.exists(args.tags_file):
+        with open(args.tags_file, encoding="utf-8") as f:
+            own = [t.strip() for t in f if t.strip()]
+        if own:
+            tags = own
+    # YouTube allows about 500 characters of tags in all
+    while len(",".join(tags)) > 450:
+        tags = tags[:-1]
     if args.long_form:
         tags = [t for t in tags if t.lower() != "shorts"] + ["ranking", "world facts", "data"]
         title = title.replace("#Shorts", "").strip()

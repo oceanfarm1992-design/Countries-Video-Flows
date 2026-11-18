@@ -103,12 +103,7 @@ def main():
     print(f"[india_broll] {len(final)} confirmed Indian pieces "
           f"({sum(p['type'] == 'video' for p in final)} video) for: {', '.join(queries)}")
     if final:
-        line = place.credits_line(final)
-        for name in ("caption_youtube.txt", "caption_meta.txt", "caption_tiktok.txt"):
-            path = os.path.join(args.out, name)
-            if os.path.exists(path):
-                with open(path, "a", encoding="utf-8") as fh:
-                    fh.write("\n" + line + "\n")
+        place.append_credits(args.out, place.credits_line(final))
     return 0
 
 

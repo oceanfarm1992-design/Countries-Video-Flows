@@ -165,18 +165,42 @@ def stock_clips(place, terms, out_dir, want):
     return found
 
 
+STOCK_NAMES = {"pexels": "Pexels", "pexels_photo": "Pexels", "pixabay": "Pixabay",
+               "pixabay_photo": "Pixabay", "archive": "Internet Archive"}
+MAX_AUTHOR = 40
+
+
 def credits_line(pieces):
-    """'Footage: A (CC BY-SA 4.0); B (Pexels)' for the captions, one entry per author."""
-    seen, parts = set(), []
+    """One short line: 'Footage: Pexels, Pixabay · Photos: A (CC BY-SA 4.0) via Wikimedia Commons'.
+    The Pexels and Pixabay licences ask for no credit, so they are named once each, with
+    no links; Commons authors are named with their licence, as CC BY / BY-SA require."""
+    stock, commons = [], []
     for p in pieces:
         if p["source"] == "commons":
-            label = f"{p['author']} ({p['license']}, Wikimedia Commons)"
+            author = " ".join(str(p.get("author") or "unknown").split())[:MAX_AUTHOR].strip()
+            label = f"{author} ({p['license']})"
+            if label not in commons:
+                commons.append(label)
         else:
-            label = p.get("attribution", p["source"])
-        if label not in seen:
-            seen.add(label)
-            parts.append(label)
-    return "Footage and photos: " + "; ".join(parts)
+            name = STOCK_NAMES.get(p["source"], str(p["source"]).capitalize())
+            if name not in stock:
+                stock.append(name)
+    parts = ([f"Footage: {', '.join(stock)}"] if stock else []) +         ([f"Photos: {', '.join(commons)} via Wikimedia Commons"] if commons else [])
+    return " · ".join(parts)
+
+
+def append_credits(out_dir, line):
+    """Put the credits line just above the closing hashtags (or at the end)."""
+    for name in ("caption_youtube.txt", "caption_meta.txt", "caption_tiktok.txt"):
+        path = os.path.join(out_dir, name)
+        if not (line and os.path.exists(path)):
+            continue
+        with open(path, encoding="utf-8") as fh:
+            lines = fh.read().rstrip("\n").split("\n")
+        at = len(lines) - 1 if lines and lines[-1].startswith("#") else len(lines)
+        lines.insert(at, line)
+        with open(path, "w", encoding="utf-8") as fh:
+            fh.write("\n".join(lines) + "\n")
 
 
 def main():

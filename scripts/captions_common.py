@@ -222,14 +222,54 @@ def _tiktok_seo_tags(config, seed_int, data_series=False):
 DATA_SERIES = {"rankings", "worst", "comparison", "india_rising"}
 
 
-def write_platform_captions(series, country, hook, config, out_dir, seed_int, sources=None):
+def _dedupe_tags(text: str) -> str:
+    """Drop repeated hashtags, ignoring case ("#india" and "#India" are one tag)."""
+    seen, out = set(), []
+    for tag in text.split():
+        if tag.lower() not in seen:
+            seen.add(tag.lower())
+            out.append(tag)
+    return " ".join(out)
+
+
+def _india_captions(copy, hook_title, hashtags, keywords, sources, subscribe, fb_question,
+                    seed_int, extra_tags):
+    """Short descriptions for the India channel: the title, one line of search keywords,
+    the key figure (data videos), the source with one link, and hashtags. The footage
+    step adds its credits as one short line above the hashtags."""
+    kw = " · ".join(keywords[:6])
+    extra_tags = f"#India {extra_tags}"  # always first: YouTube shows the first three above the title
+    figure, credit, link = "", "", ""
+    if sources:
+        lines = sources.get("lines") or []
+        if lines and sources.get("compact_figure", True):
+            figure = f"{lines[0]} → {lines[-1]}" if len(lines) > 1 else lines[0]
+        credit = sources["credit"]
+        link = (sources.get("link") or "").split("\n")[0]
+    src = "\n".join(x for x in (figure, credit, link) if x)
+    yt_tags = _dedupe_tags(f"{extra_tags} {_vary_hashtags(hashtags.get('youtube', ''), seed_int, 'yt', keep=7)}")
+    fb_tags = _dedupe_tags(f"{extra_tags} {_vary_hashtags(hashtags.get('facebook', ''), seed_int, 'fb', keep=5)}")
+    tt_tags = _dedupe_tags(f"{extra_tags} {_vary_hashtags(hashtags.get('tiktok', ''), seed_int, 'tt', keep=6)}")
+    yt_desc = "\n".join(x for x in (f"{copy['yt_emoji']} {hook_title}", kw, "", src, "", subscribe, yt_tags)
+                        if x is not None)
+    fb_cap = "\n".join(x for x in (f"{copy['yt_emoji']} {hook_title}", fb_question, " · ".join(keywords[:4]), credit, fb_tags) if x)
+    tt_cap = "\n".join(x for x in (f"{hook_title} {copy['tt_suffix']}", f"{tt_tags} #creatorsearchinsights") if x)
+    return yt_desc, fb_cap, tt_cap
+
+
+def write_platform_captions(series, country, hook, config, out_dir, seed_int, sources=None,
+                            keywords=None, extra_tags=""):
     """Build and write the four platform caption files for `series`, applying
     deterministic per-day variation keyed by `seed_int` (the day number).
 
     sources: for the data series, the proof behind every number --
     {"lines": [the full list / every figure, as shown in the video],
      "credit": "Source: <publisher>, <dataset> (<edition>)", "link": url}.
-    YouTube gets all of it; Facebook and TikTok get the one-line credit."""
+    YouTube gets all of it; Facebook and TikTok get the one-line credit.
+
+    India series (india_*) get short descriptions instead: `keywords` (search phrases,
+    also written to yt_tags.txt as the YouTube tags) and `extra_tags` (topic hashtags,
+    e.g. the place or the measure) are used there."""
     copy = SERIES_COPY.get(series, SERIES_COPY["country"])
     data_series = series in DATA_SERIES
     # rankings/worst-of/comparison are data videos: travel tags (#traveltok,
@@ -242,7 +282,9 @@ def write_platform_captions(series, country, hook, config, out_dir, seed_int, so
     ctag = _country_hashtag(name)
     first_fact = facts[0] if facts else specialty
 
-    hook_title = _title_from_hook(hook)
+    india = series.startswith("india_")
+    # India titles are written in natural case ("GDP", "vs"); title-casing broke them
+    hook_title = hook.strip().rstrip(".") if india else _title_from_hook(hook)
     max_hook = 91  # reserve 8 chars for " #Shorts"; hard limit 100
     if len(hook_title) > max_hook:
         hook_title = hook_title[:max_hook].rsplit(" ", 1)[0] + "…"
@@ -297,6 +339,14 @@ def write_platform_captions(series, country, hook, config, out_dir, seed_int, so
         f"{tt_credit}"
         f"{ctag} {tt_seo} {tt_tags}"
     )
+
+    if india:
+        yt_desc, fb_cap, tt_cap = _india_captions(copy, hook_title, hashtags, keywords or [], sources,
+                                                  subscribe, fb_question, seed_int, extra_tags)
+        plain = [t.lstrip("#") for t in yt_desc.split() if t.startswith("#") and len(t) > 1]
+        tags = list(dict.fromkeys([*(keywords or []), *plain]))
+        with open(os.path.join(out_dir, "yt_tags.txt"), "w", encoding="utf-8") as fh:
+            fh.write("\n".join(tags[:20]) + "\n")
 
     files = {
         "caption_meta.txt": fb_cap,

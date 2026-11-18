@@ -36,4 +36,18 @@ def test_credits_name_each_author_once():
     pieces = [{"source": "commons", "author": "A", "license": "CC BY-SA 4.0"},
               {"source": "commons", "author": "A", "license": "CC BY-SA 4.0"},
               {"source": "pexels", "attribution": "Pexels — B"}]
-    assert pf.credits_line(pieces) == "Footage and photos: A (CC BY-SA 4.0, Wikimedia Commons); Pexels — B"
+    assert pf.credits_line(pieces) == "Footage: Pexels · Photos: A (CC BY-SA 4.0) via Wikimedia Commons"
+
+
+def test_stock_credits_are_one_short_line_without_links():
+    pieces = [{"source": "pixabay", "attribution": "Pixabay — X (https://pixabay.com/videos/id-1/)"},
+              {"source": "pexels", "attribution": "Pexels — Y (https://www.pexels.com/video/2/)"},
+              {"source": "pixabay_photo", "attribution": "Pixabay — Z"}]
+    assert pf.credits_line(pieces) == "Footage: Pixabay, Pexels"
+
+
+def test_credits_go_above_the_hashtags(tmp_path):
+    (tmp_path / "caption_meta.txt").write_text("Title\nSource: World Bank\n#India #economy\n", encoding="utf-8")
+    pf.append_credits(str(tmp_path), "Footage: Pexels")
+    assert (tmp_path / "caption_meta.txt").read_text(encoding="utf-8") == \
+        "Title\nSource: World Bank\nFootage: Pexels\n#India #economy\n"

@@ -308,6 +308,7 @@ jobs:
             --video build/final.mp4 \
             --title-file build/yt_title.txt \
             --desc-file build/caption_youtube.txt \
+            --tags-file build/yt_tags.txt \
             --config config/india.json
 
       # Direct to the India Facebook Page as a Reel (scripts/post_facebook.py); skipped

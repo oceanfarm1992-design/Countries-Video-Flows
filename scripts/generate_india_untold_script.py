@@ -18,6 +18,7 @@ Usage:
 import argparse
 import json
 import os
+import re
 import textwrap
 from datetime import date
 
@@ -120,6 +121,18 @@ def wiki_url(title):
     return "https://en.wikipedia.org/wiki/" + title.replace(" ", "_")
 
 
+def _tag(text):
+    return "#" + re.sub(r"[^A-Za-z0-9]", "", text.title())
+
+
+def place_keywords(place):
+    """(search phrases, topic hashtags): the place, its state, its kind of scenery."""
+    name, region, kind = place["name"], place["region"], place["kind"]
+    words = [name, f"{name} {region}", f"{region} tourism", f"{kind} in India",
+             "hidden places in India", "offbeat India travel"]
+    return words, f"{_tag(name)} {_tag(region)} #HiddenIndia #IncredibleIndia"
+
+
 def fact_sources(place):
     """Description block: every fact the video states, and the Wikipedia articles it was
     checked against (scripts/verify_india_facts.py)."""
@@ -197,8 +210,10 @@ def main():
     seed = args.variant_seed if args.variant_seed is not None else day_number
     caption_subject = {"name": place["name"], "specialty": f"{place['region']}, India",
                        "facts": [f["text"] for f in place["facts"]]}
+    words, tags = place_keywords(place)
     write_platform_captions("india_untold", caption_subject, title_hook(place),
-                            config, args.out, seed, fact_sources(place))
+                            config, args.out, seed, fact_sources(place) | {"compact_figure": False},
+                            keywords=words, extra_tags=tags)
     print(f"[india_untold] place {idx + 1}/{len(places)}: {place['name']} "
           f"({len(narration.split())} words, source={source})")
 

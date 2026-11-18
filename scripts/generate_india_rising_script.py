@@ -28,6 +28,20 @@ HEADERS = {"User-Agent": "yt-shorts-generator/1.0 (india rising)"}
 LIVE = "https://api.worldbank.org/v2/country/IN;1W/indicator/{code}?format=json&per_page=200&date={start}:{end}"
 CTA = "Follow to watch India rise."
 
+# Search phrases (description keyword line + YouTube tags) and a topic hashtag per measure.
+KEYWORDS = {
+    "electricity": (["India electricity access", "India power growth", "rural electrification India"], "#IndiaPower"),
+    "gdp": (["India GDP", "Indian economy growth", "India economy 2025"], "#IndiaGDP"),
+    "internet": (["India internet users", "Digital India", "India internet growth"], "#DigitalIndia"),
+    "life": (["India life expectancy", "India health progress", "Indians living longer"], "#IndiaHealth"),
+    "poverty": (["India poverty reduction", "extreme poverty India", "India poverty decline"], "#IndiaPoverty"),
+    "income": (["India income per person", "India GNI per capita", "Indian incomes growth"], "#IndiaIncome"),
+    "infant": (["India infant mortality", "India child health", "India health progress"], "#IndiaHealth"),
+    "mobile": (["India mobile phones", "India smartphone growth", "Digital India"], "#DigitalIndia"),
+    "water": (["India drinking water", "India water access", "Jal Jeevan India"], "#IndiaWater"),
+}
+GENERIC_KEYWORDS = ["India development", "India rising", "India vs world"]
+
 # id, World Bank code, chart title, unit, the direction that is progress, the opening line
 METRICS = [
     {"id": "electricity", "broll": ["India power lines", "India solar farm", "Mumbai city lights night", "India village electricity"], "code": "EG.ELC.ACCS.ZS", "title": "Indians with electricity", "unit": "pct",
@@ -204,8 +218,11 @@ def main():
                "link": f"https://data.worldbank.org/indicator/{metric['code']}?locations=IN"}
     subject = {"name": "India", "specialty": metric["title"], "facts": [text]}
     title = f"India {f['y0']} vs {f['y1']}: {metric['title']}"
+    words, topic_tag = KEYWORDS.get(metric["id"], ([], ""))
+    keywords = [*words, f"India {f['y0']} vs {f['y1']}", *GENERIC_KEYWORDS]
     write_platform_captions("india_rising", subject, title, config, args.out,
-                            args.variant_seed if args.variant_seed is not None else day, sources)
+                            args.variant_seed if args.variant_seed is not None else day, sources,
+                            keywords=keywords, extra_tags=f"{topic_tag} #IndiaRising")
     print(f"[india_rising] {metric['id']}: {f['y0']} {shown(metric['unit'], f['v0'])} -> "
           f"{f['y1']} {shown(metric['unit'], f['v1'])} ({len(text.split())} words, data={source})")
 
